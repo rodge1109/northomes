@@ -49,8 +49,8 @@ const fallbackMenuData = [
 const categories = ['All', 'Pizza', 'Burgers', 'Pasta', 'Salads', 'Drinks', 'Desserts'];
 
 // Main App Component
-const LIQUID_COLORS = ['#5227FF', '#FF9FFC', '#B19EEF'];
-const LOGO_COLORS = ["#5227FF", "#FF9FFC", "#B19EEF"];
+const LIQUID_COLORS = ['#006241', '#00754A', '#1E3932'];
+const LOGO_COLORS = ["#006241", "#00754A", "#1E3932"];
 
 export default function RestaurantApp() {
   const [cartItems, setCartItems] = useState([]);
@@ -276,7 +276,7 @@ export default function RestaurantApp() {
           left: 0;
           width: 0;
           height: 2px;
-          background: linear-gradient(90deg, #55A2F5, #3B8BE0);
+          background: linear-gradient(90deg, #00754A, #3B8BE0);
           transition: width 0.3s ease;
         }
         .nav-link:hover::after {
@@ -475,24 +475,7 @@ export default function RestaurantApp() {
       `}</style>
       {/* LiquidEther background */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', background: '#000' }}>
-        <LiquidEther
-          colors={LIQUID_COLORS}
-          mouseForce={20}
-          cursorSize={100}
-          isViscous={true}
-          viscous={30}
-          iterationsViscous={32}
-          iterationsPoisson={32}
-          resolution={0.5}
-          isBounce={false}
-          autoDemo={true}
-          autoSpeed={0.5}
-          autoIntensity={2.2}
-          takeoverDuration={0.25}
-          autoResumeDelay={3000}
-          autoRampDuration={0.6}
-          style={{ width: '100%', height: '100%' }}
-        />
+        <div className="fixed inset-0 bg-[#f2f0eb] -z-10" />
       </div>
 
       {/* ── Global Admin Sidebar ── */}
@@ -520,16 +503,16 @@ export default function RestaurantApp() {
             ].map(item => {
               const isActive = (currentPage === 'admin' && adminTab === item.tabId) || (item.id === 'frontdesk' && currentPage === 'frontdesk');
               return (
-                <button key={item.id} onClick={item.act} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 6px', borderRadius: '12px', border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', background: isActive ? 'rgba(85, 162, 245, 0.1)' : 'transparent', color: isActive ? '#55A2F5' : 'rgba(255,255,255,0.25)', marginBottom: '4px' }}
+                <button key={item.id} onClick={item.act} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 6px', borderRadius: '12px', border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', background: isActive ? 'rgba(85, 162, 245, 0.1)' : 'transparent', color: isActive ? '#00754A' : 'rgba(255,255,255,0.25)', marginBottom: '4px' }}
                   className="group relative"
                   onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; } }}
                   onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; } }}
                 >
-                  <div className={`transition-all duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-105 group-hover:text-white'}`}>
+                  <div className={`transition-all duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-105 group-hover:text-[#000000]/87'}`}>
                     {item.icon}
                   </div>
                   <span style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', textAlign: 'center' }}>{item.label}</span>
-                  {isActive && <div className="absolute right-0 w-1 h-6 bg-[#55A2F5] rounded-l-full shadow-[0_0_15px_#55A2F5]" />}
+                  {isActive && <div className="absolute right-0 w-1 h-6 bg-[#00754A] rounded-l-full shadow-[0_0_15px_#00754A]" />}
                 </button>
               );
             })}
@@ -544,7 +527,7 @@ export default function RestaurantApp() {
         </aside>
       )}
 
-      <div className="min-h-screen pb-16 md:pb-0 pt-[70px] md:pt-[30px]" style={{ position: 'relative', zIndex: 1, marginLeft: ['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) ? '150px' : 0 }}>
+      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: ['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) ? '150px' : 0 }}>
         <Header
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
@@ -556,6 +539,9 @@ export default function RestaurantApp() {
             setCurrentPage={setCurrentPage}
           />
         )}
+        {currentPage === 'about' && <AboutPage />}
+        {currentPage === 'accommodations' && <AccommodationsPage setCurrentPage={setCurrentPage} />}
+        {currentPage === 'booking' && <BookingPage setCurrentPage={setCurrentPage} />}
         {currentPage === 'menu' && (
           <MenuPage
             selectedCategory={selectedCategory}
@@ -565,6 +551,7 @@ export default function RestaurantApp() {
             isLoading={isLoadingProducts}
           />
         )}
+        {currentPage === 'contact' && <ContactPage setCurrentPage={setCurrentPage} />}
         {currentPage === 'cart' && <CartPage setCurrentPage={setCurrentPage} />}
         {currentPage === 'checkout' && <CheckoutPage setCurrentPage={setCurrentPage} clearCart={clearCart} />}
         {currentPage === 'confirmation' && <ConfirmationPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} paymentStatus={paymentStatus} />}
@@ -705,16 +692,16 @@ function SizeModal({ product, onClose, onSelectSize }) {
 }
 
 // Reservation Form Component
-function AppointmentForm() {
+function AppointmentForm({ onSuccess }) {
   const emptyForm = {
     title: 'Mr.',
     firstName: '',
     lastName: '',
     email: '',
     phoneNumber: '',
-    roomType: '',
-    checkInDate: '',
-    checkOutDate: '',
+    roomType: sessionStorage.getItem('northomes_roomtype') || '',
+    checkInDate: sessionStorage.getItem('northomes_checkin') || '',
+    checkOutDate: sessionStorage.getItem('northomes_checkout') || '',
     adults: '1',
     children: '0',
     specialRequests: ''
@@ -804,8 +791,12 @@ function AppointmentForm() {
       const data = await response.json();
 
       if (data.success) {
-        setSubmitStatus({ type: 'success', message: data.message });
-        setFormData(emptyForm);
+        if (onSuccess) {
+          onSuccess(data);
+        } else {
+          setSubmitStatus({ type: 'success', message: data.message });
+          setFormData(emptyForm);
+        }
       } else {
         setSubmitStatus({ type: 'error', message: data.message });
       }
@@ -816,37 +807,37 @@ function AppointmentForm() {
     }
   };
 
-  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-white placeholder-white/40 text-sm";
-  const labelCls = "block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5";
+  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[#000000]/87 placeholder-white/40 text-sm";
+  const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
   const sectionCls = "flex items-center gap-3 mb-4";
 
   const SectionDivider = ({ icon, title }) => (
     <div className={sectionCls}>
-      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white/10 text-white/70 shrink-0">
+      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white shadow-sm text-black/60 shrink-0">
         {icon}
       </div>
-      <span className="text-xs font-bold text-white/70 uppercase tracking-widest">{title}</span>
-      <div className="flex-1 h-px bg-white/15" />
+      <span className="text-xs font-bold text-black/60 uppercase tracking-widest">{title}</span>
+      <div className="flex-1 h-px bg-white shadow-sm" />
     </div>
   );
 
   const totalRoomsAvailable = Object.values(availability).reduce((sum, rt) => sum + rt.available, 0);
 
   return (
-    <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+    <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
       {/* Header */}
-      <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-white font-bold text-lg tracking-tight">Book Your Stay</h3>
-            <p className="text-white/70 text-xs mt-0.5">Complete the form below to reserve your room</p>
+            <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">Book Your Stay</h3>
+            <p className="text-black/60 text-xs mt-0.5">Complete the form below to reserve your room</p>
           </div>
-          <div className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-full">
+          <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
             </span>
-            <span className="text-white text-xs font-semibold tracking-wide">
+            <span className="text-[#000000]/87 text-xs font-semibold tracking-wide">
               {Object.keys(availability).length > 0
                 ? `${totalRoomsAvailable} Room${totalRoomsAvailable !== 1 ? 's' : ''} Available`
                 : 'Rooms Available'}
@@ -920,19 +911,19 @@ function AppointmentForm() {
 
             {/* Nights + price summary bar */}
             {nights > 0 && (
-              <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-white/10 border border-white/20 rounded-lg">
-                <svg className="w-4 h-4 text-white/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg">
+                <svg className="w-4 h-4 text-black/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
-                <span className="text-sm font-semibold text-white">
+                <span className="text-sm font-semibold text-[#000000]/87">
                   {nights} {nights === 1 ? 'night' : 'nights'}
                 </span>
                 {totalPrice > 0 && (
-                  <span className="text-xs font-bold text-white bg-white/15 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-bold text-[#000000]/87 bg-white shadow-sm px-2 py-0.5 rounded-full">
                     ₱{totalPrice.toLocaleString('en-PH')} total
                   </span>
                 )}
-                <span className="text-xs text-white/50 ml-auto">
+                <span className="text-xs text-black/60 ml-auto">
                   {new Date(formData.checkInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   {' → '}
                   {new Date(formData.checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -948,7 +939,7 @@ function AppointmentForm() {
                 value={formData.roomType}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2.5 rounded-lg border border-white/20 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-sm text-black bg-white"
+                className="w-full px-3 py-2.5 rounded-lg border border-black/5 focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-sm text-black bg-white"
               >
                 <option value="">Select a room type</option>
                 {roomTypes.map(rt => {
@@ -1101,14 +1092,14 @@ function AppointmentForm() {
               placeholder="e.g. High floor, sea view, extra towels, early check-in (subject to availability)..."
               className={`${inputCls} resize-none`}
             />
-            <p className="text-xs text-white/40 mt-1.5">We will do our best to accommodate your requests.</p>
+            <p className="text-xs text-black/60 mt-1.5">We will do our best to accommodate your requests.</p>
           </div>
 
           {/* Submit */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn-animated w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3.5 rounded-xl font-semibold text-sm tracking-wide hover:bg-[#465a8f] active:scale-[0.98] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="btn-animated w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-[#465a8f] active:scale-[0.98] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>
@@ -1130,19 +1121,19 @@ function AppointmentForm() {
         </form>
 
         {/* Trust bar */}
-        <div className="mt-6 pt-5 border-t border-white/10 grid grid-cols-3 gap-2 text-center">
+        <div className="mt-6 pt-5 border-t border-black/5 grid grid-cols-3 gap-2 text-center">
           {[
             { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'Secure Booking' },
             { icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', label: 'Instant Confirmation' },
             { icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z', label: '24/7 Support' },
           ].map(({ icon, label }) => (
             <div key={label} className="flex flex-col items-center gap-1.5">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
+                <svg className="w-4 h-4 text-black/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
                 </svg>
               </div>
-              <span className="text-xs text-white/50 font-medium leading-tight">{label}</span>
+              <span className="text-xs text-black/60 font-medium leading-tight">{label}</span>
             </div>
           ))}
         </div>
@@ -1613,10 +1604,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':   return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'confirmed': return 'bg-[#55A2F5]/10 text-[#55A2F5] border-[#55A2F5]/20';
+      case 'confirmed': return 'bg-[#00754A]/10 text-[#00754A] border-[#00754A]/20';
       case 'completed': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'cancelled': return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
-      default:          return 'bg-white/5 text-white/40 border-white/10';
+      default:          return 'bg-white shadow-sm text-black/60 border-black/5';
     }
   };
 
@@ -2069,21 +2060,21 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   // Login Page
   if (!isLoggedIn) {
-    const inputCls = "w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 focus:border-white/20 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-white placeholder-white/20 text-sm";
-    const labelCls = "block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5";
+    const inputCls = "w-full px-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-sm";
+    const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
 
     return (
       <div className="min-h-screen pt-[70px] md:pt-[30px] pb-24 flex items-center justify-center relative overflow-hidden">
         <div className="w-full max-w-md px-6 relative z-10">
-          <div className="rounded-3xl border border-white/20 p-10 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
+          <div className="rounded-3xl border border-black/5 p-10 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
             <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-2xl">
-                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-20 h-20 bg-white shadow-sm rounded-2xl flex items-center justify-center mx-auto mb-6 border border-black/5 shadow-2xl">
+                <svg className="w-10 h-10 text-[#000000]/87" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
-              <h2 className="text-3xl font-bold text-white tracking-tight">Admin Portal</h2>
-              <p className="text-white/40 mt-2 text-sm">Secure access for hotel management</p>
+              <h2 className="text-3xl font-bold text-[#000000]/87 tracking-tight">Admin Portal</h2>
+              <p className="text-black/60 mt-2 text-sm">Secure access for hotel management</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
@@ -2120,7 +2111,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white font-bold rounded-xl hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg"
+                className="w-full py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-bold rounded-full hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg"
               >
                 {isLoggingIn ? (
                   <div className="flex items-center justify-center gap-2">
@@ -2133,7 +2124,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             <button
               onClick={() => setCurrentPage('home')}
-              className="w-full mt-6 py-3 text-white/40 hover:text-white text-xs font-semibold transition-all uppercase tracking-widest"
+              className="w-full mt-6 py-3 text-black/60 hover:text-[#000000]/87 text-xs font-semibold transition-all uppercase tracking-widest"
             >
               ← Back to Main Website
             </button>
@@ -2159,14 +2150,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {/* Main Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#55A2F5]', icon: '🛫' },
+                { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#00754A]', icon: '🛫' },
                 { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-400', icon: '🛬' },
                 { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-400', icon: '🏨' },
                 { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-purple-400', icon: '📊' },
               ].map((stat, i) => (
-                <div key={i} className="rounded-2xl border border-white/10 p-5 bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
+                <div key={i} className="rounded-2xl border border-black/5 p-5 bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
                   <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{stat.label}</span>
+                    <span className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">{stat.label}</span>
                     <span className="text-xl opacity-40 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
                   </div>
                   <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
@@ -2176,21 +2167,21 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Recent Activity */}
-              <div className="lg:col-span-2 rounded-3xl border border-white/10 p-8 overflow-hidden bg-white/[0.02] backdrop-blur-3xl">
-                <h3 className="text-sm font-black text-white/50 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#55A2F5] shadow-[0_0_10px_#55A2F5]"></span>
+              <div className="lg:col-span-2 rounded-3xl border border-black/5 p-8 overflow-hidden bg-white/[0.02] ">
+                <h3 className="text-sm font-black text-black/60 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00754A] shadow-[0_0_10px_#00754A]"></span>
                   Recent Activity
                 </h3>
                 <div className="space-y-4">
                   {appointments.slice(0, 5).map((apt, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group">
+                    <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-black/5 hover:border-black/5 hover:bg-white/[0.04] transition-all group">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/20 font-black text-lg group-hover:text-[#55A2F5] transition-colors">
+                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-black/5 flex items-center justify-center text-black/60 font-black text-lg group-hover:text-[#00754A] transition-colors">
                           {apt.full_name.charAt(0)}
                         </div>
                         <div>
-                          <p className="font-bold text-white text-sm">{apt.full_name}</p>
-                          <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
+                          <p className="font-bold text-[#000000]/87 text-sm">{apt.full_name}</p>
+                          <p className="text-[10px] text-black/60 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
                         </div>
                       </div>
                       <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
@@ -2202,8 +2193,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               </div>
               
               {/* Housekeeping Quick View */}
-              <div className="rounded-3xl border border-white/10 p-8 bg-white/[0.02] backdrop-blur-3xl">
-                <h3 className="text-sm font-black text-white/50 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+              <div className="rounded-3xl border border-black/5 p-8 bg-white/[0.02] ">
+                <h3 className="text-sm font-black text-black/60 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_#a855f7]"></span>
                   Status Overview
                 </h3>
@@ -2211,8 +2202,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   {[
                     { label: 'Clean', value: 24, color: 'text-emerald-400', border: 'border-emerald-500/20' },
                     { label: 'Dirty', value: 8, color: 'text-rose-400', border: 'border-rose-500/20' },
-                    { label: 'Inspected', value: 15, color: 'text-[#55A2F5]', border: 'border-[#55A2F5]/20' },
-                    { label: 'Out of Order', value: 2, color: 'text-white/20', border: 'border-white/10' },
+                    { label: 'Inspected', value: 15, color: 'text-[#00754A]', border: 'border-[#00754A]/20' },
+                    { label: 'Out of Order', value: 2, color: 'text-black/60', border: 'border-black/5' },
                   ].map((item, i) => (
                     <div key={i} className={`rounded-2xl p-4 flex justify-between items-center border bg-white/[0.02] ${item.border}`}>
                       <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>{item.label}</span>
@@ -2241,7 +2232,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               const circumference = 2 * Math.PI * radius;
               let cumulative = 0;
               return (
-                <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                   <div className="flex flex-col md:flex-row items-center gap-10">
                     {/* Donut Chart */}
                     <div className="relative flex-shrink-0">
@@ -2281,11 +2272,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: seg.color, color: seg.color }}></div>
-                                <span className="text-xs font-bold text-white/60 uppercase tracking-wider">{seg.label}</span>
+                                <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{seg.label}</span>
                               </div>
-                              <span className="text-sm font-black text-white">{seg.value} <span className="text-white/20 font-medium ml-1">({pct}%)</span></span>
+                              <span className="text-sm font-black text-[#000000]/87">{seg.value} <span className="text-black/60 font-medium ml-1">({pct}%)</span></span>
                             </div>
-                            <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
+                            <div className="w-full bg-white shadow-sm rounded-full h-1.5 overflow-hidden">
                               <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
                             </div>
                           </div>
@@ -2298,42 +2289,42 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             })()}
 
             {/* Search & Filter Bar */}
-            <div className="rounded-2xl border border-white/20 p-6 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-2xl border border-black/5 p-6 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="md:col-span-2">
-                  <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">Search Guest</label>
+                  <label className="block text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">Search Guest</label>
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/60" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Name, phone, or email..."
-                      className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-all text-sm"
+                      className="w-full pl-12 pr-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 focus:outline-none focus:border-black/5 transition-all text-sm"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">From Date</label>
+                  <label className="block text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">From Date</label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/20 transition-all text-sm [color-scheme:dark]"
+                    className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-black/5 transition-all text-sm [color-scheme:dark]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">To Date</label>
+                  <label className="block text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">To Date</label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/20 transition-all text-sm [color-scheme:dark]"
+                    className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-black/5 transition-all text-sm [color-scheme:dark]"
                   />
                 </div>
               </div>
               {(searchQuery || startDate || endDate) && (
-                <button onClick={clearFilters} className="mt-4 text-xs font-bold text-[#55A2F5] hover:text-white transition-colors uppercase tracking-widest">
+                <button onClick={clearFilters} className="mt-4 text-xs font-bold text-[#00754A] hover:text-[#000000]/87 transition-colors uppercase tracking-widest">
                   × Clear active filters
                 </button>
               )}
@@ -2346,8 +2337,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   key={f}
                   onClick={() => setFilter(f)}
                   className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${filter === f
-                      ? 'bg-white text-[#2D72C0] border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]'
-                      : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white'
+                      ? 'bg-white text-[#006241] border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]'
+                      : 'bg-white shadow-sm text-black/60 border-black/5 hover:bg-white shadow-sm hover:text-[#000000]/87'
                     }`}
                 >
                   {f}
@@ -2358,17 +2349,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {/* Appointments List */}
             {isLoading ? (
               <div className="text-center py-24">
-                <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#55A2F5] mb-4"></div>
-                <p className="text-white/40 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
+                <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#00754A] mb-4"></div>
+                <p className="text-black/60 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
               </div>
             ) : filteredAppointments.length === 0 ? (
-              <div className="text-center py-24 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
-                <p className="text-white/30 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
+              <div className="text-center py-24 rounded-2xl border border-black/5 bg-white shadow-sm ">
+                <p className="text-black/60 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                 {/* Table Header */}
-                <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white/5 border-b border-white/10 text-[10px] font-black text-white/40 uppercase tracking-widest items-center">
+                <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
                   <span>#</span>
                   <span>Guest Name</span>
                   <span>Service</span>
@@ -2378,15 +2369,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   <span className="text-right">Actions</span>
                 </div>
                 {filteredAppointments.map((apt, index) => (
-                  <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-white/5 hover:bg-white/5 transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
-                    <span className="text-white/20 font-mono text-xs">{apt.id}</span>
+                  <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
+                    <span className="text-black/60 font-mono text-xs">{apt.id}</span>
                     <div className="min-w-0">
-                      <p className="text-white font-bold group-hover:text-[#55A2F5] transition-colors truncate">{apt.full_name}</p>
-                      <p className="text-white/30 text-[10px] truncate md:hidden">{apt.phone_number}</p>
+                      <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{apt.full_name}</p>
+                      <p className="text-black/60 text-[10px] truncate md:hidden">{apt.phone_number}</p>
                     </div>
-                    <span className="text-white/60 text-xs font-medium truncate">{apt.service_type}</span>
-                    <span className="text-white/60 text-xs font-medium">{apt.preferred_date}</span>
-                    <span className="text-white/60 text-xs font-medium">{apt.preferred_time}</span>
+                    <span className="text-black/60 text-xs font-medium truncate">{apt.service_type}</span>
+                    <span className="text-black/60 text-xs font-medium">{apt.preferred_date}</span>
+                    <span className="text-black/60 text-xs font-medium">{apt.preferred_time}</span>
                     <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(apt.status)}`}>
                       {apt.status}
                     </span>
@@ -2436,7 +2427,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             <div className="mt-6 flex gap-2">
               <button
                 onClick={exportToCSV}
-                className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-lg hover:bg-green-100 transition-all text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-full hover:bg-green-100 transition-all text-sm flex items-center gap-2"
               >
                 📥 Export to CSV
               </button>
@@ -2450,15 +2441,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
           <div className="space-y-6">
-            <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <div className="flex justify-between items-center mb-10">
                 <div>
-                  <h2 className="text-2xl font-black text-white tracking-tight">Room Inventory</h2>
-                  <p className="text-white/40 text-sm font-medium mt-1">Manage room types, pricing models, and global availability</p>
+                  <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Room Inventory</h2>
+                  <p className="text-black/60 text-sm font-medium mt-1">Manage room types, pricing models, and global availability</p>
                 </div>
                 <button 
                   onClick={() => { setActiveTab('settings'); setSettingsSubTab('property'); }}
-                  className="px-6 py-3 bg-[#55A2F5] text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all"
+                  className="px-6 py-3 bg-[#00754A] text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all"
                 >
                   Configure Room Types
                 </button>
@@ -2466,32 +2457,32 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {adminRoomTypes.map(rt => (
-                  <div key={rt.id} className="bg-white/5 rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all group">
+                  <div key={rt.id} className="bg-white shadow-sm rounded-2xl border border-black/5 p-6 hover:bg-white shadow-sm transition-all group">
                     <div className="flex justify-between items-start mb-6">
-                      <h4 className="font-bold text-white text-lg group-hover:text-[#55A2F5] transition-colors">{rt.name}</h4>
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${rt.active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-white/30 border-white/10'}`}>
+                      <h4 className="font-bold text-[#000000]/87 text-lg group-hover:text-[#00754A] transition-colors">{rt.name}</h4>
+                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${rt.active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white shadow-sm text-black/60 border-black/5'}`}>
                         {rt.active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
                     <div className="space-y-3 mb-8">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Total Inventory</span>
-                        <span className="text-sm font-black text-white">{rt.total_rooms} Rooms</span>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Total Inventory</span>
+                        <span className="text-sm font-black text-[#000000]/87">{rt.total_rooms} Rooms</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Base Rate</span>
-                        <span className="text-sm font-black text-[#55A2F5]">₱{Number(rt.price_per_night).toLocaleString()}</span>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Base Rate</span>
+                        <span className="text-sm font-black text-[#00754A]">₱{Number(rt.price_per_night).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Max Guests</span>
-                        <span className="text-sm font-black text-white">{rt.max_guests} Persons</span>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Max Guests</span>
+                        <span className="text-sm font-black text-[#000000]/87">{rt.max_guests} Persons</span>
                       </div>
                     </div>
-                    <div className="flex gap-2 pt-6 border-t border-white/10">
-                      <button className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
+                    <div className="flex gap-2 pt-6 border-t border-black/5">
+                      <button className="flex-1 py-2.5 bg-white shadow-sm border border-black/5 rounded-full text-[10px] font-black text-black/60 uppercase tracking-widest hover:bg-white shadow-sm hover:text-[#000000]/87 transition-all">
                         Inventory
                       </button>
-                      <button className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
+                      <button className="flex-1 py-2.5 bg-white shadow-sm border border-black/5 rounded-full text-[10px] font-black text-black/60 uppercase tracking-widest hover:bg-white shadow-sm hover:text-[#000000]/87 transition-all">
                         Rates
                       </button>
                     </div>
@@ -2505,30 +2496,30 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {/* ==================== HOUSEKEEPING TAB ==================== */}
         {activeTab === 'housekeeping' && (
           <div className="space-y-6">
-            <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <div className="flex justify-between items-center mb-10">
                 <div>
-                  <h2 className="text-2xl font-black text-white tracking-tight">Housekeeping</h2>
-                  <p className="text-white/40 text-sm font-medium mt-1">Real-time room status monitoring and staff assignment</p>
+                  <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Housekeeping</h2>
+                  <p className="text-black/60 text-sm font-medium mt-1">Real-time room status monitoring and staff assignment</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/70 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">Export</button>
-                  <button className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-all">+ Assign Task</button>
+                  <button className="px-5 py-2.5 bg-white shadow-sm border border-black/5 text-black/60 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-white shadow-sm transition-all">Export</button>
+                  <button className="px-5 py-2.5 bg-emerald-600 text-[#000000]/87 rounded-full font-bold text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-all">+ Assign Task</button>
                 </div>
               </div>
               
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {Array.from({ length: 24 }).map((_, i) => {
                   const status = i % 5 === 0 ? 'Dirty' : i % 3 === 0 ? 'Inspected' : 'Clean';
-                  const color = status === 'Clean' ? 'bg-emerald-400' : status === 'Dirty' ? 'bg-red-400' : 'bg-[#55A2F5]';
-                  const textColor = status === 'Clean' ? 'text-emerald-400' : status === 'Dirty' ? 'text-red-400' : 'text-[#55A2F5]';
+                  const color = status === 'Clean' ? 'bg-emerald-400' : status === 'Dirty' ? 'bg-red-400' : 'bg-[#00754A]';
+                  const textColor = status === 'Clean' ? 'text-emerald-400' : status === 'Dirty' ? 'text-red-400' : 'text-[#00754A]';
                   return (
-                    <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all cursor-pointer group">
+                    <div key={i} className="bg-white shadow-sm border border-black/5 rounded-2xl p-5 hover:bg-white shadow-sm transition-all cursor-pointer group">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="font-bold text-white/20 text-[10px] uppercase tracking-widest">Room</span>
+                        <span className="font-bold text-black/60 text-[10px] uppercase tracking-widest">Room</span>
                         <div className={`w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] ${color}`} style={{ color: color.replace('bg-', '') }}></div>
                       </div>
-                      <p className="text-2xl font-black text-white group-hover:text-[#55A2F5] transition-colors">{101 + i}</p>
+                      <p className="text-2xl font-black text-[#000000]/87 group-hover:text-[#00754A] transition-colors">{101 + i}</p>
                       <p className={`text-[10px] font-black uppercase tracking-widest mt-2 ${textColor}`}>
                         {status}
                       </p>
@@ -2546,9 +2537,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {/* Header section */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tight uppercase">Billing & Ledger</h2>
+                <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight uppercase">Billing & Ledger</h2>
                 <div className="flex items-center gap-2 mt-1">
-                  <p className="text-white/40 text-xs font-medium">Financial operations and guest folios</p>
+                  <p className="text-black/60 text-xs font-medium">Financial operations and guest folios</p>
                   <span className="text-[10px] font-black text-emerald-400/60 uppercase tracking-widest flex items-center gap-1.5">
                     <span className="w-1 h-1 rounded-full bg-emerald-500"></span> Live Sync
                   </span>
@@ -2559,11 +2550,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   <input 
                     type="text" 
                     placeholder="Search invoices..." 
-                    className="pl-8 pr-4 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-white text-[10px] placeholder-white/20 focus:border-[#55A2F5]/40 outline-none transition-all w-48"
+                    className="pl-8 pr-4 py-2 rounded-xl bg-white/[0.03] border border-black/5 text-[#000000]/87 text-[10px] placeholder-white/20 focus:border-[#00754A]/40 outline-none transition-all w-48"
                   />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 text-[10px]">🔍</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 text-[10px]">🔍</span>
                 </div>
-                <button className="px-5 py-2 bg-[#55A2F5] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg hover:brightness-110 transition-all">
+                <button className="px-5 py-2 bg-[#00754A] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg hover:brightness-110 transition-all">
                   + New Invoice
                 </button>
               </div>
@@ -2572,23 +2563,23 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {/* Metric Cards - Sleek & Minimal */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#55A2F5]' },
+                { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#00754A]' },
                 { label: 'Outstanding', value: `₱${Number(stats.pending * 8500).toLocaleString()}`, color: 'text-amber-400' },
                 { label: 'Collected', value: `₱${Number(stats.confirmed * 10200).toLocaleString()}`, color: 'text-emerald-400' },
                 { label: 'Avg. Stay', value: '₱12,400', color: 'text-purple-400' },
               ].map((card, i) => (
-                <div key={i} className="rounded-2xl border border-white/10 p-4 bg-white/[0.02] flex flex-col justify-between min-h-[90px]">
-                  <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">{card.label}</span>
+                <div key={i} className="rounded-2xl border border-black/5 p-4 bg-white/[0.02] flex flex-col justify-between min-h-[90px]">
+                  <span className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em]">{card.label}</span>
                   <div className={`text-xl font-black ${card.color}`}>{card.value}</div>
                 </div>
               ))}
             </div>
 
             {/* Transactions Table */}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.01] overflow-hidden">
+            <div className="rounded-2xl border border-black/5 bg-white/[0.01] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
-                  <thead className="bg-white/[0.03] text-white/20 text-[9px] font-black uppercase tracking-[0.2em] border-b border-white/5">
+                  <thead className="bg-white/[0.03] text-black/60 text-[9px] font-black uppercase tracking-[0.2em] border-b border-black/5">
                     <tr>
                       <th className="px-6 py-4">Stay Ref</th>
                       <th className="px-6 py-4">Guest</th>
@@ -2600,18 +2591,18 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   </thead>
                   <tbody className="divide-y divide-white/[0.03]">
                     {appointments.length === 0 ? (
-                      <tr><td colSpan="6" className="px-6 py-12 text-center text-white/20 italic text-xs">No stay records found for billing.</td></tr>
+                      <tr><td colSpan="6" className="px-6 py-12 text-center text-black/60 italic text-xs">No stay records found for billing.</td></tr>
                     ) : appointments.map((apt, i) => (
                       <tr key={i} onClick={() => openFolio(apt)} className="hover:bg-white/[0.03] transition-all group cursor-pointer text-xs">
                         <td className="px-6 py-4">
-                          <span className="font-mono font-bold text-[#55A2F5]">#{apt.id}</span>
-                          <span className="text-[9px] text-white/20 ml-2">{new Date(apt.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                          <span className="font-mono font-bold text-[#00754A]">#{apt.id}</span>
+                          <span className="text-[9px] text-black/60 ml-2">{new Date(apt.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                         </td>
-                        <td className="px-6 py-4 font-bold text-white/80">{apt.full_name}</td>
+                        <td className="px-6 py-4 font-bold text-black/60">{apt.full_name}</td>
                         <td className="px-6 py-4">
-                          <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 font-mono text-[10px] text-white/40">{apt.room_number || 'TBA'}</span>
+                          <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{apt.room_number || 'TBA'}</span>
                         </td>
-                        <td className="px-6 py-4 text-white/50">{apt.service_type || apt.room_type}</td>
+                        <td className="px-6 py-4 text-black/60">{apt.service_type || apt.room_type}</td>
                         <td className="px-6 py-4">
                           <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
                             {apt.status}
@@ -2619,8 +2610,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-1.5 rounded-lg bg-white/5 text-white/40 hover:text-white transition-all" title="View Ledger">📄</button>
-                            <button className="p-1.5 rounded-lg bg-white/5 text-white/40 hover:text-white transition-all" title="Print Invoice">🖨</button>
+                            <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="View Ledger">📄</button>
+                            <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="Print Invoice">🖨</button>
                           </div>
                         </td>
                       </tr>
@@ -2629,7 +2620,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </table>
               </div>
               
-              <div className="px-6 py-3 bg-white/[0.02] border-t border-white/10 flex items-center justify-between text-[9px] font-bold text-white/20 uppercase">
+              <div className="px-6 py-3 bg-white/[0.02] border-t border-black/5 flex items-center justify-between text-[9px] font-bold text-black/60 uppercase">
                 <span>{appointments.length} Stay Records Found</span>
               </div>
             </div>
@@ -2638,13 +2629,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== CALENDAR TAB ==================== */}
         {activeTab === 'calendar' && (
-          <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-black text-white tracking-tight">Reservation Calendar</h2>
-                <p className="text-white/40 text-sm font-medium mt-1">Track stay occupancy and blocked dates</p>
+                <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Reservation Calendar</h2>
+                <p className="text-black/60 text-sm font-medium mt-1">Track stay occupancy and blocked dates</p>
               </div>
-              <div className="flex items-center gap-3 bg-white/5 p-1 rounded-2xl border border-white/10">
+              <div className="flex items-center gap-3 bg-white shadow-sm p-1 rounded-2xl border border-black/5">
                 <button
                   onClick={() => {
                     if (calendarMonth === 1) {
@@ -2654,11 +2645,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       setCalendarMonth(calendarMonth - 1);
                     }
                   }}
-                  className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all"
+                  className="w-10 h-10 flex items-center justify-center bg-white shadow-sm hover:bg-white shadow-sm text-[#000000]/87 rounded-xl transition-all"
                 >
                   ←
                 </button>
-                <span className="text-white font-black text-[10px] uppercase tracking-widest px-4">
+                <span className="text-[#000000]/87 font-black text-[10px] uppercase tracking-widest px-4">
                   {new Date(calendarYear, calendarMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </span>
                 <button
@@ -2670,7 +2661,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       setCalendarMonth(calendarMonth + 1);
                     }
                   }}
-                  className="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all"
+                  className="w-10 h-10 flex items-center justify-center bg-white shadow-sm hover:bg-white shadow-sm text-[#000000]/87 rounded-xl transition-all"
                 >
                   →
                 </button>
@@ -2680,7 +2671,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {/* Calendar Grid */}
             <div className="grid grid-cols-7 gap-2">
               {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                <div key={day} className="text-center text-white/20 text-[10px] font-black uppercase tracking-[0.2em] py-3">
+                <div key={day} className="text-center text-black/60 text-[10px] font-black uppercase tracking-[0.2em] py-3">
                   {day}
                 </div>
               ))}
@@ -2704,11 +2695,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       key={day}
                       className={`min-h-[100px] p-2 rounded-2xl border transition-all ${
                         isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
-                        isToday ? 'bg-[#55A2F5]/10 border-[#55A2F5]' :
-                        'bg-white/[0.03] border-white/5 hover:border-white/20'
+                        isToday ? 'bg-[#00754A]/10 border-[#00754A]' :
+                        'bg-white/[0.03] border-black/5 hover:border-black/5'
                       }`}
                     >
-                      <div className={`text-xs font-black mb-2 ${isToday ? 'text-[#55A2F5]' : isBlocked ? 'text-rose-400' : 'text-white/40'}`}>
+                      <div className={`text-xs font-black mb-2 ${isToday ? 'text-[#00754A]' : isBlocked ? 'text-rose-400' : 'text-black/60'}`}>
                         {String(day).padStart(2, '0')}
                       </div>
                       {isBlocked && (
@@ -2720,15 +2711,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${
                             apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
                             apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
-                            apt.status === 'completed' ? 'bg-[#55A2F5]/10 text-[#55A2F5]' :
-                            'bg-white/10 text-white/60'
+                            apt.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
+                            'bg-white shadow-sm text-black/60'
                           }`}
                         >
                           {apt.full_name.split(' ')[0]}
                         </div>
                       ))}
                       {dayAppointments.length > 3 && (
-                        <div className="text-[9px] font-black text-white/20 px-2 mt-1">+{dayAppointments.length - 3} MORE</div>
+                        <div className="text-[9px] font-black text-black/60 px-2 mt-1">+{dayAppointments.length - 3} MORE</div>
                       )}
                     </div>
                   );
@@ -2743,11 +2734,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'reports' && (() => {
           const fmtA = (n) => `₱${Number(n||0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
           const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-          const subBtnCls = (id) => `px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all rounded-xl border ${reportsSubTab === id ? 'bg-[#55A2F5] text-white border-[#55A2F5] shadow-[0_0_20px_rgba(85,162,245,0.3)]' : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white'}`;
+          const subBtnCls = (id) => `px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all rounded-xl border ${reportsSubTab === id ? 'bg-[#00754A] text-[#000000]/87 border-[#00754A] shadow-[0_0_20px_rgba(85,162,245,0.3)]' : 'bg-white shadow-sm text-black/60 border-black/5 hover:bg-white shadow-sm hover:text-white'}`;
           return (
             <div className="space-y-8">
               {/* Sub-tab navigation */}
-              <div className="flex gap-3 flex-wrap bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 w-fit">
+              <div className="flex gap-3 flex-wrap bg-white/[0.02] p-1.5 rounded-2xl border border-black/5 w-fit">
                 <button className={subBtnCls('appointments')} onClick={() => setReportsSubTab('appointments')}>Appointments</button>
                 <button className={subBtnCls('management')}   onClick={() => setReportsSubTab('management')}>Stay Reports</button>
                 <button className={subBtnCls('financial')}    onClick={() => setReportsSubTab('financial')}>Financials</button>
@@ -2756,67 +2747,67 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               {/* ── Appointments sub-tab (existing) ── */}
               {reportsSubTab === 'appointments' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/10 backdrop-blur-xl">
+                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5 ">
                     <div className="flex flex-wrap gap-6 items-end">
                       <div className="flex-1 min-w-[200px]">
-                        <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
+                        <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
                         <div className="grid grid-cols-2 gap-3">
                           <input type="date" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)} 
-                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                            className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                           <input type="date" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)} 
-                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                            className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                         </div>
                       </div>
-                      <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
+                      <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
                     </div>
                   </div>
                   {reportStats && (
                     <>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                          { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#55A2F5' },
+                          { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#00754A' },
                           { label: 'Completed',    value: reportStats.totals?.completed || 0, color: '#10B981' },
                           { label: 'Cancelled',    value: reportStats.totals?.cancelled || 0, color: '#F43F5E' },
                           { label: 'Conversion',   value: `${reportStats.totals?.total > 0 ? Math.round((reportStats.totals.completed / reportStats.totals.total) * 100) : 0}%`, color: '#F59E0B' },
                         ].map((c, i) => (
-                          <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
+                          <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
                             <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                            <p className="text-[9px] text-white/30 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                            <p className="text-3xl font-black text-white">{c.value}</p>
+                            <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
+                            <p className="text-3xl font-black text-[#000000]/87">{c.value}</p>
                           </div>
                         ))}
                       </div>
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
                             <span>Service Distribution</span>
-                            <div className="flex-1 h-px bg-white/5"></div>
+                            <div className="flex-1 h-px bg-white shadow-sm"></div>
                           </h3>
                           <div className="space-y-5">
                             {reportStats.byService?.map((item, idx) => (
                               <div key={idx} className="group">
                                 <div className="flex items-center justify-between text-xs mb-2">
-                                  <span className="font-bold text-white/70 group-hover:text-white transition-colors">{item.service_type}</span>
-                                  <span className="text-white font-black font-mono">{item.count} <span className="text-white/20 font-medium ml-1">bookings</span></span>
+                                  <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors">{item.service_type}</span>
+                                  <span className="text-[#000000]/87 font-black font-mono">{item.count} <span className="text-black/60 font-medium ml-1">bookings</span></span>
                                 </div>
-                                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                  <div className="h-full bg-gradient-to-r from-[#55A2F5] to-[#2D72C0] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.3)]" style={{ width: `${(item.count / reportStats.totals.total) * 100}%` }} />
+                                <div className="w-full h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                  <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.3)]" style={{ width: `${(item.count / reportStats.totals.total) * 100}%` }} />
                                 </div>
                               </div>
                             ))}
                           </div>
                         </div>
 
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
                             <span>Peak Occupancy Times</span>
-                            <div className="flex-1 h-px bg-white/5"></div>
+                            <div className="flex-1 h-px bg-white shadow-sm"></div>
                           </h3>
                           <div className="grid grid-cols-2 gap-3">
                             {reportStats.hourly?.map((item, idx) => (
-                              <div key={idx} className="bg-white/5 border border-white/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
-                                <p className="text-[#55A2F5] font-black text-sm font-mono tracking-tighter">{item.time}</p>
-                                <p className="text-white/20 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
+                              <div key={idx} className="bg-white shadow-sm border border-black/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
+                                <p className="text-[#00754A] font-black text-sm font-mono tracking-tighter">{item.time}</p>
+                                <p className="text-black/60 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
                               </div>
                             ))}
                           </div>
@@ -2831,18 +2822,18 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               {reportsSubTab === 'management' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {/* Filter bar */}
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/10 backdrop-blur-xl flex flex-wrap gap-6 items-end">
+                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
                     <div className="flex-1 min-w-[200px]">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">Check-in Window</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Check-in Window</label>
                       <div className="grid grid-cols-2 gap-3">
                         <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                         <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                       </div>
                     </div>
                     <button onClick={fetchManagementReport} disabled={hotelRptLoading}
-                      className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
                       {hotelRptLoading ? 'Generating...' : 'Generate Analytics'}
                     </button>
                   </div>
@@ -2855,41 +2846,41 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         {/* Summary cards */}
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                           {[
-                            { label: 'Total Stays',   value: s.total,         color: '#55A2F5' },
-                            { label: 'Confirmed',     value: s.confirmed,     color: '#55A2F5' },
+                            { label: 'Total Stays',   value: s.total,         color: '#00754A' },
+                            { label: 'Confirmed',     value: s.confirmed,     color: '#00754A' },
                             { label: 'In-House',      value: s.checked_in,    color: '#10B981' },
                             { label: 'Checked Out',   value: s.checked_out,   color: '#94A3B8' },
                             { label: 'Cancelled',     value: s.cancelled,     color: '#F43F5E' },
                             { label: 'Guest Count',   value: s.unique_guests, color: '#8B5CF6' },
                           ].map((c, i) => (
-                            <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-4 relative overflow-hidden group">
+                            <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-4 relative overflow-hidden group">
                               <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                              <p className="text-[8px] text-white/30 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                              <p className="text-2xl font-black text-white">{c.value || 0}</p>
+                              <p className="text-[8px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
+                              <p className="text-2xl font-black text-[#000000]/87">{c.value || 0}</p>
                             </div>
                           ))}
                         </div>
 
                         {/* Status mix & callouts */}
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 backdrop-blur-xl flex flex-wrap gap-8 items-center">
+                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-6  flex flex-wrap gap-8 items-center">
                           <div className="flex gap-8 divide-x divide-white/5">
                             <div className="text-center px-4">
-                              <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1">Loss Rate</p>
+                              <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">Loss Rate</p>
                               <p className="text-2xl font-black text-rose-400">{total > 0 ? Math.round((parseInt(s.cancelled)/total)*100) : 0}%</p>
                             </div>
                             <div className="text-center px-8">
-                              <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1">No-Shows</p>
+                              <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">No-Shows</p>
                               <p className="text-2xl font-black text-amber-500">{s.no_show || 0}</p>
                             </div>
                           </div>
                           
                           <div className="flex-1 min-w-[240px]">
-                            <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mb-3">Occupancy Status Mix</p>
-                            <div className="h-3 rounded-full overflow-hidden flex gap-0.5 bg-white/5 border border-white/5">
+                            <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-3">Occupancy Status Mix</p>
+                            <div className="h-3 rounded-full overflow-hidden flex gap-0.5 bg-white shadow-sm border border-black/5">
                               {[
                                 { val: parseInt(s.checked_out), color: '#94A3B8' },
                                 { val: parseInt(s.checked_in),  color: '#10B981' },
-                                { val: parseInt(s.confirmed),   color: '#55A2F5' },
+                                { val: parseInt(s.confirmed),   color: '#00754A' },
                                 { val: parseInt(s.cancelled),   color: '#F43F5E' },
                               ].filter(x => x.val > 0).map((x, i) => (
                                 <div key={i} className="h-full transition-all hover:brightness-125" style={{ width: `${(x.val/total)*100}%`, background: x.color }} />
@@ -2897,7 +2888,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             </div>
                             <div className="flex flex-wrap gap-4 mt-3 text-[9px] font-black uppercase tracking-widest">
                               <span className="flex items-center gap-1.5 text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />In-House</span>
-                              <span className="flex items-center gap-1.5 text-[#55A2F5]"><span className="w-1.5 h-1.5 rounded-full bg-[#55A2F5]" />Confirmed</span>
+                              <span className="flex items-center gap-1.5 text-[#00754A]"><span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />Confirmed</span>
                               <span className="flex items-center gap-1.5 text-slate-400"><span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Completed</span>
                               <span className="flex items-center gap-1.5 text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400" />Cancelled</span>
                             </div>
@@ -2905,13 +2896,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         </div>
 
                         {/* Room Type Performance */}
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
                             <span>Inventory Performance by Tier</span>
-                            <div className="flex-1 h-px bg-white/5"></div>
+                            <div className="flex-1 h-px bg-white shadow-sm"></div>
                           </h3>
                           {mgmtData.byRoomType.length === 0 ? (
-                            <div className="py-12 text-center text-white/20 italic text-xs font-medium border border-dashed border-white/10 rounded-xl">No inventory metrics found for this window.</div>
+                            <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">No inventory metrics found for this window.</div>
                           ) : (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
                               {mgmtData.byRoomType.map((rt, i) => {
@@ -2919,15 +2910,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 return (
                                   <div key={i} className="group">
                                     <div className="flex items-center justify-between text-xs mb-2">
-                                      <span className="font-bold text-white/70 group-hover:text-white transition-colors uppercase tracking-widest text-[10px]">{rt.room_type}</span>
-                                      <div className="flex gap-4 text-white/30 font-black text-[9px] uppercase">
+                                      <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors uppercase tracking-widest text-[10px]">{rt.room_type}</span>
+                                      <div className="flex gap-4 text-black/60 font-black text-[9px] uppercase">
                                         <span>{rt.valid_bookings} stays</span>
                                         <span className="text-rose-400/50">{rt.cancellations} voids</span>
-                                        <span className="text-[#55A2F5]">{pct}%</span>
+                                        <span className="text-[#00754A]">{pct}%</span>
                                       </div>
                                     </div>
-                                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                      <div className="h-full bg-gradient-to-r from-[#55A2F5] to-[#2D72C0] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)]" style={{ width: `${pct}%` }} />
+                                    <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                      <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)]" style={{ width: `${pct}%` }} />
                                     </div>
                                   </div>
                                 );
@@ -2945,18 +2936,18 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               {reportsSubTab === 'financial' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {/* Filter bar */}
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/10 backdrop-blur-xl flex flex-wrap gap-6 items-end">
+                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
                     <div className="flex-1 min-w-[200px]">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
                       <div className="grid grid-cols-2 gap-3">
                         <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                         <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                       </div>
                     </div>
                     <button onClick={fetchFinancialReport} disabled={hotelRptLoading}
-                      className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
                       {hotelRptLoading ? 'Auditing...' : 'Run Financial Audit'}
                     </button>
                   </div>
@@ -2966,44 +2957,44 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       {/* Summary cards */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                          { label: 'Revenue Accrued', value: fmtA(finData.summary.totalCharged),    color: '#55A2F5', sub: `${finData.summary.chargeCount} items posted` },
+                          { label: 'Revenue Accrued', value: fmtA(finData.summary.totalCharged),    color: '#00754A', sub: `${finData.summary.chargeCount} items posted` },
                           { label: 'Revenue Collected', value: fmtA(finData.summary.totalCollected),  color: '#10B981', sub: `${finData.summary.paymentCount} payments` },
                           { label: 'Total Receivables', value: fmtA(finData.summary.totalOutstanding),color: finData.summary.totalOutstanding > 0 ? '#F43F5E' : '#94A3B8', sub: 'unsettled folios' },
                           { label: 'Capture Rate',     value: `${finData.summary.collectionRate}%`,  color: '#8B5CF6', sub: 'efficiency metric' },
                         ].map((c, i) => (
-                          <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
+                          <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
                             <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                            <p className="text-[9px] text-white/30 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                            <p className="text-2xl font-black text-white">{c.value}</p>
-                            <p className="text-[9px] font-bold text-white/20 mt-1 uppercase tracking-widest">{c.sub}</p>
+                            <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
+                            <p className="text-2xl font-black text-[#000000]/87">{c.value}</p>
+                            <p className="text-[9px] font-bold text-black/60 mt-1 uppercase tracking-widest">{c.sub}</p>
                           </div>
                         ))}
                       </div>
 
                       {/* Revenue view toggle */}
-                      <div className="bg-white/[0.03] rounded-2xl border border-white/10 backdrop-blur-xl overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-white/[0.02]">
+                      <div className="bg-white/[0.03] rounded-2xl border border-black/5  overflow-hidden">
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-black/5 bg-white/[0.02]">
                           <div>
-                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/50">Revenue Distribution</h3>
+                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60">Revenue Distribution</h3>
                           </div>
                           <div className="flex items-center gap-4">
-                            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                            <div className="flex bg-white shadow-sm p-1 rounded-xl border border-black/5">
                               <button onClick={() => setFinView('daily')}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView==='daily' ? 'bg-white/10 text-white shadow-xl' : 'text-white/30 hover:text-white'}`}>
+                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView==='daily' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
                                 Daily
                               </button>
                               <button onClick={() => { setFinView('monthly'); fetchMonthlyReport(); }}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView==='monthly' ? 'bg-white/10 text-white shadow-xl' : 'text-white/30 hover:text-white'}`}>
+                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView==='monthly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
                                 Monthly
                               </button>
                             </div>
                             {finView === 'monthly' && (
-                              <div className="flex items-center gap-3 pl-4 border-l border-white/5">
-                                <label className="text-[9px] font-black text-white/20 uppercase tracking-widest">Year</label>
+                              <div className="flex items-center gap-3 pl-4 border-l border-black/5">
+                                <label className="text-[9px] font-black text-black/60 uppercase tracking-widest">Year</label>
                                 <input type="number" value={finYear} min="2020" max="2099"
                                   onChange={e => setFinYear(parseInt(e.target.value))}
                                   onBlur={fetchMonthlyReport}
-                                  className="w-20 px-3 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white font-mono outline-none focus:border-[#55A2F5]/50 transition-all" />
+                                  className="w-20 px-3 py-1.5 text-xs bg-white shadow-sm border border-black/5 rounded-lg text-[#000000]/87 font-mono outline-none focus:border-[#00754A]/50 transition-all" />
                               </div>
                             )}
                           </div>
@@ -3012,12 +3003,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         {/* Daily table */}
                         {finView === 'daily' && (
                           dailyRevData.length === 0 ? (
-                            <div className="py-16 text-center text-white/20 italic text-xs font-medium">No ledger entries for this window.</div>
+                            <div className="py-16 text-center text-black/60 italic text-xs font-medium">No ledger entries for this window.</div>
                           ) : (
                             <div className="overflow-x-auto">
                               <table className="w-full text-left border-collapse">
                                 <thead>
-                                  <tr className="bg-white/[0.03] text-[9px] font-black text-white/30 uppercase tracking-[0.2em] border-b border-white/10">
+                                  <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
                                     <th className="px-6 py-4">Transaction Date</th>
                                     <th className="px-6 py-4 text-right">Revenue Charged</th>
                                     <th className="px-6 py-4 text-right">Cash Collected</th>
@@ -3027,17 +3018,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <tbody className="divide-y divide-white/[0.03]">
                                   {dailyRevData.map((r, i) => (
                                     <tr key={i} className="hover:bg-white/[0.02] transition-all group">
-                                      <td className="px-6 py-4 text-white/50 text-xs font-bold">{fmtD(r.date)}</td>
-                                      <td className="px-6 py-4 text-right text-[#55A2F5] font-black font-mono text-xs">{fmtA(r.charged)}</td>
+                                      <td className="px-6 py-4 text-black/60 text-xs font-bold">{fmtD(r.date)}</td>
+                                      <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
                                       <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
-                                      <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-white/20'}`}>{fmtA(r.balance)}</td>
+                                      <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
                                     </tr>
                                   ))}
                                 </tbody>
                                 <tfoot>
-                                  <tr className="bg-white/[0.05] font-black border-t border-white/10">
-                                    <td className="px-6 py-5 text-white/30 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
-                                    <td className="px-6 py-5 text-right text-[#55A2F5] font-mono text-sm">{fmtA(dailyRevData.reduce((s,r)=>s+r.charged,0))}</td>
+                                  <tr className="bg-white/[0.05] font-black border-t border-black/5">
+                                    <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
+                                    <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(dailyRevData.reduce((s,r)=>s+r.charged,0))}</td>
                                     <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s,r)=>s+r.paid,0))}</td>
                                     <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s,r)=>s+r.balance,0))}</td>
                                   </tr>
@@ -3050,12 +3041,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         {/* Monthly table */}
                         {finView === 'monthly' && (
                           hotelRptLoading ? (
-                            <div className="py-16 text-center text-white/20 italic text-xs font-medium animate-pulse">Synchronizing monthly metrics...</div>
+                            <div className="py-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Synchronizing monthly metrics...</div>
                           ) : (
                             <div className="overflow-x-auto">
                               <table className="w-full text-left border-collapse">
                                 <thead>
-                                  <tr className="bg-white/[0.03] text-[9px] font-black text-white/30 uppercase tracking-[0.2em] border-b border-white/10">
+                                  <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
                                     <th className="px-6 py-4">Fiscal Month</th>
                                     <th className="px-6 py-4 text-right">Unit Stays</th>
                                     <th className="px-6 py-4 text-right">Revenue Accrued</th>
@@ -3066,19 +3057,19 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <tbody className="divide-y divide-white/[0.03]">
                                   {monthlyRevData.map((r, i) => (
                                     <tr key={i} className={`hover:bg-white/[0.02] transition-all group ${r.charged===0&&r.paid===0 ? 'opacity-20' : ''}`}>
-                                      <td className="px-6 py-4 text-white font-black text-xs uppercase tracking-widest">{r.month}</td>
-                                      <td className="px-6 py-4 text-right text-white/50 font-mono text-xs">{r.bookings}</td>
-                                      <td className="px-6 py-4 text-right text-[#55A2F5] font-black font-mono text-xs">{fmtA(r.charged)}</td>
+                                      <td className="px-6 py-4 text-[#000000]/87 font-black text-xs uppercase tracking-widest">{r.month}</td>
+                                      <td className="px-6 py-4 text-right text-black/60 font-mono text-xs">{r.bookings}</td>
+                                      <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
                                       <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
-                                      <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-white/20'}`}>{fmtA(r.balance)}</td>
+                                      <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
                                     </tr>
                                   ))}
                                 </tbody>
                                 <tfoot>
-                                  <tr className="bg-white/[0.05] font-black border-t border-white/10">
-                                    <td className="px-6 py-5 text-white/30 text-[9px] uppercase tracking-[0.2em]">Annual Summary</td>
-                                    <td className="px-6 py-5 text-right text-white/50 font-mono text-sm">{monthlyRevData.reduce((s,r)=>s+r.bookings,0)}</td>
-                                    <td className="px-6 py-5 text-right text-[#55A2F5] font-mono text-sm">{fmtA(monthlyRevData.reduce((s,r)=>s+r.charged,0))}</td>
+                                  <tr className="bg-white/[0.05] font-black border-t border-black/5">
+                                    <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Annual Summary</td>
+                                    <td className="px-6 py-5 text-right text-black/60 font-mono text-sm">{monthlyRevData.reduce((s,r)=>s+r.bookings,0)}</td>
+                                    <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(monthlyRevData.reduce((s,r)=>s+r.charged,0))}</td>
                                     <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s,r)=>s+r.paid,0))}</td>
                                     <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s,r)=>s+r.balance,0))}</td>
                                   </tr>
@@ -3093,13 +3084,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       {/* Payment Methods + Room Revenue */}
                       <div className="grid md:grid-cols-2 gap-8">
                         {/* Payment method breakdown */}
-                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl">
-                          <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
                             Payment Channels
                           </h3>
                           {finData.byPaymentMethod.length === 0 ? (
-                            <div className="py-8 text-center text-white/20 italic text-xs font-medium">No transaction data recorded.</div>
+                            <div className="py-8 text-center text-black/60 italic text-xs font-medium">No transaction data recorded.</div>
                           ) : (
                             <div className="space-y-6">
                               {finData.byPaymentMethod.map((m, i) => {
@@ -3108,13 +3099,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 return (
                                   <div key={i} className="group">
                                     <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
-                                      <span className="text-white/60 group-hover:text-white transition-colors">{m.payment_method}</span>
+                                      <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{m.payment_method}</span>
                                       <div className="flex gap-4 items-center">
-                                        <span className="text-white/20 font-bold">{m.count} TX</span>
+                                        <span className="text-black/60 font-bold">{m.count} TX</span>
                                         <span className="text-emerald-400">{fmtA(m.total)}</span>
                                       </div>
                                     </div>
-                                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
                                       <div className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
                                     </div>
                                   </div>
@@ -3125,13 +3116,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         </div>
 
                         {/* Revenue by room type */}
-                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl">
-                          <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#55A2F5] shadow-[0_0_8px_#55A2F5]"></div>
+                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#00754A] shadow-[0_0_8px_#00754A]"></div>
                             Room Category Revenue
                           </h3>
                           {finData.byRoomType.length === 0 ? (
-                            <div className="py-8 text-center text-white/20 italic text-xs font-medium">No category revenue data.</div>
+                            <div className="py-8 text-center text-black/60 italic text-xs font-medium">No category revenue data.</div>
                           ) : (
                             <div className="space-y-6">
                               {finData.byRoomType.map((rt, i) => {
@@ -3140,14 +3131,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 return (
                                   <div key={i} className="group">
                                     <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
-                                      <span className="text-white/60 group-hover:text-white transition-colors">{rt.room_type}</span>
+                                      <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{rt.room_type}</span>
                                       <div className="flex gap-4 items-center">
-                                        <span className="text-white/20 font-bold">{rt.bookings} STAYS</span>
-                                        <span className="text-[#55A2F5]">{fmtA(rt.charged)}</span>
+                                        <span className="text-black/60 font-bold">{rt.bookings} STAYS</span>
+                                        <span className="text-[#00754A]">{fmtA(rt.charged)}</span>
                                       </div>
                                     </div>
-                                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                      <div className="h-full bg-gradient-to-r from-[#55A2F5]/50 to-[#55A2F5] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
+                                    <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                      <div className="h-full bg-gradient-to-r from-[#00754A]/50 to-[#00754A] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
                                     </div>
                                   </div>
                                 );
@@ -3160,7 +3151,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
                       {/* Outstanding Balances */}
                       {finData.outstandingList.length > 0 && (
-                        <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl overflow-hidden backdrop-blur-xl mt-8">
+                        <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl overflow-hidden  mt-8">
                           <div className="px-8 py-5 border-b border-rose-500/10 flex items-center justify-between bg-rose-500/5">
                             <div className="flex items-center gap-3">
                               <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_#f43f5e]"></div>
@@ -3171,7 +3162,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                               <thead>
-                                <tr className="bg-white/[0.02] text-[9px] font-black text-white/30 uppercase tracking-[0.2em] border-b border-white/5">
+                                <tr className="bg-white/[0.02] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
                                   <th className="px-8 py-4">Guest Identity</th>
                                   <th className="px-8 py-4">Unit Assignment</th>
                                   <th className="px-8 py-4">Status</th>
@@ -3183,14 +3174,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                               <tbody className="divide-y divide-white/[0.03]">
                                 {finData.outstandingList.map((r, i) => (
                                   <tr key={i} className="hover:bg-white/[0.02] transition-all group">
-                                    <td className="px-8 py-4 text-white font-bold text-xs">{r.full_name}</td>
-                                    <td className="px-8 py-4 text-white/40 text-xs font-medium">{r.room_number || '—'} · {r.room_type}</td>
+                                    <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{r.full_name}</td>
+                                    <td className="px-8 py-4 text-black/60 text-xs font-medium">{r.room_number || '—'} · {r.room_type}</td>
                                     <td className="px-8 py-4">
-                                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${r.status==='checked_in'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':r.status==='checked_out'?'bg-white/5 text-white/40 border-white/10':'bg-[#55A2F5]/10 text-[#55A2F5] border-[#55A2F5]/20'}`}>
+                                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${r.status==='checked_in'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':r.status==='checked_out'?'bg-white shadow-sm text-black/60 border-black/5':'bg-[#00754A]/10 text-[#00754A] border-[#00754A]/20'}`}>
                                         {r.status.replace('_',' ')}
                                       </span>
                                     </td>
-                                    <td className="px-8 py-4 text-right text-white/50 font-mono text-xs">{fmtA(r.charged)}</td>
+                                    <td className="px-8 py-4 text-right text-black/60 font-mono text-xs">{fmtA(r.charged)}</td>
                                     <td className="px-8 py-4 text-right text-emerald-400/50 font-mono text-xs">{fmtA(r.paid)}</td>
                                     <td className="px-8 py-4 text-right text-rose-400 font-black font-mono text-xs">{fmtA(r.balance)}</td>
                                   </tr>
@@ -3226,7 +3217,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   key={tab.id}
                   onClick={() => setSettingsSubTab(tab.id)}
                   className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${settingsSubTab === tab.id
-                      ? 'bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white shadow-sm'
+                      ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white shadow-sm'
                       : 'text-gray-500 hover:text-gray-800 hover:bg-blue-50'
                     }`}
                 >
@@ -3237,11 +3228,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Property ── */}
             {settingsSubTab === 'property' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Property Information</h3>
-                    <p className="text-white/30 text-xs mt-1">Global settings for your hotel identity and guest communication</p>
+                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Property Information</h3>
+                    <p className="text-black/60 text-xs mt-1">Global settings for your hotel identity and guest communication</p>
                   </div>
                   {settingsSavedMsg && (
                     <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
@@ -3261,22 +3252,22 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     { key: 'check_out_time', label: 'Check-out Time', type: 'time', placeholder: '' },
                   ].map(field => (
                     <div key={field.key} className="space-y-2">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
                       <input
                         type={field.type}
                         value={hotelSettings[field.key] || ''}
                         onChange={(e) => setHotelSettings(prev => ({ ...prev, [field.key]: e.target.value }))}
                         placeholder={field.placeholder}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 text-xs focus:outline-none focus:border-[#55A2F5]/50 transition-all font-medium"
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                       />
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-end pt-4 border-t border-white/5">
+                <div className="flex justify-end pt-4 border-t border-black/5">
                   <button
                     onClick={saveHotelSettings}
                     disabled={savingSettings}
-                    className="px-10 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30"
+                    className="px-10 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30"
                   >
                     {savingSettings ? 'Synchronizing...' : 'Commit Changes'}
                   </button>
@@ -3288,15 +3279,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {settingsSubTab === 'rooms' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Add new room type */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
+                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
                   <div className="mb-8 flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Add Room Type</h3>
-                      <p className="text-white/30 text-xs mt-1">Configure a new bookable unit with distinct pricing and rules</p>
+                      <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Room Type</h3>
+                      <p className="text-black/60 text-xs mt-1">Configure a new bookable unit with distinct pricing and rules</p>
                     </div>
                     <button
                       onClick={addRoomType}
-                      className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all"
+                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all"
                     >
                       Provision Unit
                     </button>
@@ -3313,14 +3304,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       { key: 'amenities', label: 'Amenities', type: 'text', placeholder: 'comma-separated' },
                     ].map(field => (
                       <div key={field.key} className="space-y-2">
-                        <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
+                        <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
                         <input
                           type={field.type}
                           value={newRoomForm[field.key]}
                           onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
                           placeholder={field.placeholder}
                           min={field.type === 'number' ? '0' : undefined}
-                          className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 text-xs focus:outline-none focus:border-[#55A2F5]/50 transition-all font-medium"
+                          className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                         />
                       </div>
                     ))}
@@ -3328,14 +3319,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
 
                 {/* Room type list */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                  <div className="mb-8 border-b border-white/5 pb-6">
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Active Inventory</h3>
-                    <p className="text-white/30 text-xs mt-1">Currently managing {adminRoomTypes.length} bookable tiers</p>
+                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                  <div className="mb-8 border-b border-black/5 pb-6">
+                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Active Inventory</h3>
+                    <p className="text-black/60 text-xs mt-1">Currently managing {adminRoomTypes.length} bookable tiers</p>
                   </div>
                   <div className="space-y-4">
                     {adminRoomTypes.map(rt => (
-                      <div key={rt.id} className={`rounded-2xl border p-6 transition-all group ${rt.active ? 'bg-white/[0.02] border-white/10 hover:border-white/20' : 'bg-white/[0.01] border-white/5 opacity-40'}`}>
+                      <div key={rt.id} className={`rounded-2xl border p-6 transition-all group ${rt.active ? 'bg-white/[0.02] border-black/5 hover:border-black/5' : 'bg-white/[0.01] border-black/5 opacity-40'}`}>
                         {editRoomId === rt.id ? (
                           <div className="space-y-6">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -3350,47 +3341,47 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 { key: 'amenities', label: 'Amenities' },
                               ].map(f => (
                                 <div key={f.key}>
-                                  <label className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1 block">{f.label}</label>
+                                  <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">{f.label}</label>
                                   <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))} 
-                                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white" />
+                                    className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
                                 </div>
                               ))}
                             </div>
                             <div className="flex gap-3">
-                              <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#55A2F5] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
-                              <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white/5 text-white/40 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-white">Cancel</button>
+                              <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#00754A] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
+                              <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white shadow-sm text-black/60 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#000000]/87">Cancel</button>
                             </div>
                           </div>
                         ) : (
                           <div className="flex items-start justify-between gap-6">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-3 mb-2">
-                                <span className="font-black text-white tracking-tight uppercase text-sm group-hover:text-[#55A2F5] transition-colors">{rt.name}</span>
-                                {!rt.active && <span className="text-[9px] bg-white/5 text-white/20 px-2 py-0.5 rounded-full uppercase font-black tracking-widest">Inactive</span>}
+                                <span className="font-black text-[#000000]/87 tracking-tight uppercase text-sm group-hover:text-[#00754A] transition-colors">{rt.name}</span>
+                                {!rt.active && <span className="text-[9px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded-full uppercase font-black tracking-widest">Inactive</span>}
                               </div>
-                              <p className="text-xs text-white/30 mb-4 line-clamp-2">{rt.description}</p>
+                              <p className="text-xs text-black/60 mb-4 line-clamp-2">{rt.description}</p>
                               <div className="flex flex-wrap gap-4 text-[9px] font-black uppercase tracking-widest">
-                                <span className="text-[#55A2F5] font-mono text-[11px]">₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')} / Night</span>
-                                <span className="text-white/40">{rt.total_rooms} Units Available</span>
-                                <span className="text-white/40">Max {rt.max_guests} Guests</span>
-                                <span className="text-white/40">Level {rt.floor || 1}</span>
+                                <span className="text-[#00754A] font-mono text-[11px]">₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')} / Night</span>
+                                <span className="text-black/60">{rt.total_rooms} Units Available</span>
+                                <span className="text-black/60">Max {rt.max_guests} Guests</span>
+                                <span className="text-black/60">Level {rt.floor || 1}</span>
                                 {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-lg border border-emerald-400/20">{rt.area}</span>}
                               </div>
                             </div>
                             <div className="flex gap-2 flex-shrink-0">
                               <button
                                 onClick={() => { setEditRoomId(rt.id); setEditRoomForm({ name: rt.name, description: rt.description, price_per_night: rt.price_per_night, total_rooms: rt.total_rooms, max_guests: rt.max_guests, amenities: rt.amenities, floor: rt.floor || 1, area: rt.area || '' }); }}
-                                className="w-10 h-10 flex items-center justify-center bg-white/5 text-white/40 border border-white/10 rounded-xl hover:bg-[#55A2F5] hover:text-white hover:border-[#55A2F5] transition-all"
+                                className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-black/60 border border-black/5 rounded-xl hover:bg-[#00754A] hover:text-white hover:border-[#00754A] transition-all"
                                 title="Edit Configuration"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                               </button>
                               {rt.active ? (
-                                <button onClick={() => deactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white/5 text-rose-400/40 border border-white/10 rounded-xl hover:bg-rose-500 hover:text-white hover:border-rose-500 transition-all" title="Deactivate Unit">
+                                <button onClick={() => deactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-rose-400/40 border border-black/5 rounded-xl hover:bg-rose-500 hover:text-[#000000]/87 hover:border-rose-500 transition-all" title="Deactivate Unit">
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                 </button>
                               ) : (
-                                <button onClick={() => reactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white/5 text-emerald-400/40 border border-white/10 rounded-xl hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all" title="Reactivate Unit">
+                                <button onClick={() => reactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-emerald-400/40 border border-black/5 rounded-xl hover:bg-emerald-500 hover:text-[#000000]/87 hover:border-emerald-500 transition-all" title="Reactivate Unit">
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                                 </button>
                               )}
@@ -3400,7 +3391,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </div>
                     ))}
                     {adminRoomTypes.length === 0 && (
-                      <div className="py-16 text-center text-white/20 italic text-xs font-medium border border-dashed border-white/10 rounded-2xl">Inventory is empty. Use the form above to add room tiers.</div>
+                      <div className="py-16 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">Inventory is empty. Use the form above to add room tiers.</div>
                     )}
                   </div>
                 </div>
@@ -3411,32 +3402,32 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {settingsSubTab === 'rate-codes' && (
               <div className="space-y-4">
                 {/* Add new rate code */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
+                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
                   <div className="mb-8 flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Add Rate Code</h3>
-                      <p className="text-white/30 text-xs mt-1">Define a new pricing tier or promotional code</p>
+                      <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Rate Code</h3>
+                      <p className="text-black/60 text-xs mt-1">Define a new pricing tier or promotional code</p>
                     </div>
                     {rcMsg && <div className="px-4 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div>
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Reference Code</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Reference Code</label>
                       <input value={rcNewForm.code} onChange={e => setRcNewForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
                         placeholder="e.g. CORP" maxLength={10}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all" />
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all" />
                     </div>
                     <div>
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Display Name</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Display Name</label>
                       <input value={rcNewForm.name} onChange={e => setRcNewForm(f => ({ ...f, name: e.target.value }))}
                         placeholder="e.g. Corporate Rate"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all" />
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
                     </div>
                     <div>
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Description</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Description</label>
                       <input value={rcNewForm.description} onChange={e => setRcNewForm(f => ({ ...f, description: e.target.value }))}
                         placeholder="e.g. Standard corporate discount"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all" />
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
                     </div>
                   </div>
                   <button
@@ -3453,26 +3444,26 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       } catch { setRcMsg('Error saving.'); }
                       setTimeout(() => setRcMsg(''), 3000);
                     }}
-                    className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all">
+                    className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all">
                     Register Rate Code
                   </button>
                 </div>
 
                 {/* Rate codes list */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl">
-                  <div className="px-8 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
-                    <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Configured Tiers</h3>
-                    <button onClick={fetchAdminRateCodes} className="text-[9px] font-black text-[#55A2F5] uppercase tracking-widest hover:text-white transition-colors">Refresh Records</button>
+                <div className="bg-white/[0.03] border border-black/5 rounded-2xl overflow-hidden ">
+                  <div className="px-8 py-5 border-b border-black/5 flex items-center justify-between bg-white/[0.02]">
+                    <h3 className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">Configured Tiers</h3>
+                    <button onClick={fetchAdminRateCodes} className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">Refresh Records</button>
                   </div>
                   {rcLoading ? (
-                    <div className="p-16 text-center text-white/20 italic text-xs font-medium animate-pulse">Querying database...</div>
+                    <div className="p-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Querying database...</div>
                   ) : adminRateCodes.length === 0 ? (
-                    <div className="p-16 text-center text-white/20 italic text-xs font-medium">No rate codes defined yet.</div>
+                    <div className="p-16 text-center text-black/60 italic text-xs font-medium">No rate codes defined yet.</div>
                   ) : (
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-white/[0.01] text-[9px] font-black text-white/30 uppercase tracking-[0.2em] border-b border-white/10">
+                          <tr className="bg-white/[0.01] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
                             <th className="px-8 py-4">Reference</th>
                             <th className="px-8 py-4">Descriptor</th>
                             <th className="px-8 py-4">Internal Memo</th>
@@ -3484,11 +3475,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           {adminRateCodes.map(rc => (
                             <React.Fragment key={rc.id}>
                               <tr className="hover:bg-white/[0.02] transition-all group">
-                                <td className="px-8 py-4 text-[#55A2F5] font-mono text-xs font-black uppercase">{rc.code}</td>
-                                <td className="px-8 py-4 text-white font-bold text-xs">{rc.name}</td>
-                                <td className="px-8 py-4 text-white/30 text-xs">{rc.description || '—'}</td>
+                                <td className="px-8 py-4 text-[#00754A] font-mono text-xs font-black uppercase">{rc.code}</td>
+                                <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{rc.name}</td>
+                                <td className="px-8 py-4 text-black/60 text-xs">{rc.description || '—'}</td>
                                 <td className="px-8 py-4 text-center">
-                                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${rc.is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-white/5 text-white/20 border-white/10'}`}>
+                                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${rc.is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-white shadow-sm text-black/60 border-black/5'}`}>
                                     {rc.is_active ? 'Active' : 'Inactive'}
                                   </span>
                                 </td>
@@ -3502,7 +3493,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                         setRcPrices(initPrices);
                                         setRcPriceEdit(rc.id);
                                       }}
-                                      className="text-[9px] font-black text-[#55A2F5] uppercase tracking-widest hover:text-white transition-colors">
+                                      className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">
                                       {rcPriceEdit === rc.id ? 'Close' : 'Set Rates'}
                                     </button>
                                     <button
@@ -3522,14 +3513,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             {/* Price matrix row */}
                             {rcPriceEdit === rc.id && (
                               <tr className="bg-white/[0.04]">
-                                <td colSpan={5} className="px-8 py-8 border-t border-white/5">
+                                <td colSpan={5} className="px-8 py-8 border-t border-black/5">
                                   <div className="flex items-center justify-between mb-8">
                                     <div>
-                                      <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Price Configuration</h4>
-                                      <p className="text-white/20 text-[10px] mt-1 font-medium italic">Leave blank to inherit global default rates for the selected tier</p>
+                                      <h4 className="text-[10px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Price Configuration</h4>
+                                      <p className="text-black/60 text-[10px] mt-1 font-medium italic">Leave blank to inherit global default rates for the selected tier</p>
                                     </div>
                                     <button onClick={() => saveRcPrices(rc.id)} disabled={rcSaving}
-                                      className="px-6 py-2 bg-[#55A2F5] text-white rounded-lg font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                                      className="px-6 py-2 bg-[#00754A] text-white rounded-lg font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
                                       {rcSaving ? 'Syncing...' : 'Apply Overrides'}
                                     </button>
                                   </div>
@@ -3537,16 +3528,16 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                     {adminRoomTypesForRates.filter(rt => rt.active).map(rt => (
                                       <div key={rt.id} className="flex items-center justify-between group/row">
                                         <div className="flex flex-col">
-                                          <span className="text-[10px] font-black text-white/70 uppercase tracking-widest truncate max-w-[180px]">{rt.name}</span>
-                                          <span className="text-[9px] text-white/20 font-medium">Standard: ₱{Number(rt.price_per_night).toLocaleString()}</span>
+                                          <span className="text-[10px] font-black text-black/60 uppercase tracking-widest truncate max-w-[180px]">{rt.name}</span>
+                                          <span className="text-[9px] text-black/60 font-medium">Standard: ₱{Number(rt.price_per_night).toLocaleString()}</span>
                                         </div>
                                         <div className="flex items-center gap-3">
-                                          <span className="text-white/20 text-[10px] font-mono">₱</span>
+                                          <span className="text-black/60 text-[10px] font-mono">₱</span>
                                           <input
                                             type="number" min="0" placeholder="Inherit"
                                             value={rcPrices[rt.id] ?? ''}
                                             onChange={e => setRcPrices(p => ({ ...p, [rt.id]: e.target.value }))}
-                                            className="w-32 px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-xs focus:border-[#55A2F5]/50 outline-none transition-all placeholder:text-white/10"
+                                            className="w-32 px-4 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-xs focus:border-[#00754A]/50 outline-none transition-all placeholder:text-black/60"
                                           />
                                         </div>
                                       </div>
@@ -3567,11 +3558,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Reservations ── */}
             {settingsSubTab === 'reservations' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Reservation Rules</h3>
-                    <p className="text-white/30 text-xs mt-1">Define stay limits, booking window, and cancellation policy</p>
+                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Reservation Rules</h3>
+                    <p className="text-black/60 text-xs mt-1">Define stay limits, booking window, and cancellation policy</p>
                   </div>
                   {settingsSavedMsg && (
                     <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
@@ -3581,41 +3572,41 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Minimum Stay (nights)</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Minimum Stay (nights)</label>
                     <input
                       type="number"
                       value={hotelSettings.min_stay_nights || '1'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, min_stay_nights: e.target.value }))}
                       min="1"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Maximum Stay (nights)</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Maximum Stay (nights)</label>
                     <input
                       type="number"
                       value={hotelSettings.max_stay_nights || '30'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, max_stay_nights: e.target.value }))}
                       min="1"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Advance Booking Window (days)</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Advance Booking Window (days)</label>
                     <input
                       type="number"
                       value={hotelSettings.advance_booking_days || '365'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, advance_booking_days: e.target.value }))}
                       min="1"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Required</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Required</label>
                     <select
                       value={hotelSettings.deposit_required || 'false'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_required: e.target.value }))}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all appearance-none"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all appearance-none"
                     >
                       <option value="false" className="bg-[#1A1F2C]">No</option>
                       <option value="true" className="bg-[#1A1F2C]">Yes</option>
@@ -3623,32 +3614,32 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   </div>
                   {hotelSettings.deposit_required === 'true' && (
                     <div className="md:col-span-2">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Percentage (%)</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Percentage (%)</label>
                       <input
                         type="number"
                         value={hotelSettings.deposit_percentage || '50'}
                         onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_percentage: e.target.value }))}
                         min="1" max="100"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                       />
                     </div>
                   )}
                 </div>
                 <div>
-                  <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Cancellation Policy</label>
+                  <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Cancellation Policy</label>
                   <textarea
                     value={hotelSettings.cancellation_policy || ''}
                     onChange={(e) => setHotelSettings(prev => ({ ...prev, cancellation_policy: e.target.value }))}
                     rows={4}
                     placeholder="e.g. Free cancellation up to 24 hours before check-in."
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all resize-none"
+                    className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all resize-none"
                   />
                 </div>
                 <div className="flex justify-end pt-4">
                   <button
                     onClick={saveHotelSettings}
                     disabled={savingSettings}
-                    className="px-10 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                    className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
                   >
                     {savingSettings ? 'Synchronizing...' : 'Save Reservation Policy'}
                   </button>
@@ -3658,48 +3649,48 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Availability ── */}
             {settingsSubTab === 'availability' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
-                    <p className="text-white/30 text-xs mt-1">Restrict availability for maintenance or seasonal holidays</p>
+                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
+                    <p className="text-black/60 text-xs mt-1">Restrict availability for maintenance or seasonal holidays</p>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-4 items-end">
                   <div className="flex-1 min-w-[200px]">
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Blackout Date</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Blackout Date</label>
                     <input
                       type="date"
                       value={newBlockedDate}
                       onChange={(e) => setNewBlockedDate(e.target.value)}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
                     />
                   </div>
                   <div className="flex-[2] min-w-[300px]">
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Reason / Memo</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Reason / Memo</label>
                     <input
                       type="text"
                       value={newBlockedReason}
                       onChange={(e) => setNewBlockedReason(e.target.value)}
                       placeholder="e.g. Annual HVAC Maintenance"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
                     />
                   </div>
                   <button
                     onClick={addBlockedDate}
-                    className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
+                    className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
                   >
                     Commit Blackout
                   </button>
                 </div>
 
                 <div className="space-y-3">
-                  <h4 className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Current Restricted Dates</h4>
+                  <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Current Restricted Dates</h4>
                   {blockedDates.map(bd => (
-                    <div key={bd.id} className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-4 group hover:bg-white/5 transition-all">
+                    <div key={bd.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
                       <div className="flex items-center gap-6">
-                        <span className="text-white font-mono text-sm font-bold">{bd.blocked_date}</span>
-                        {bd.reason && <span className="text-white/20 text-xs font-medium tracking-wide">— {bd.reason}</span>}
+                        <span className="text-[#000000]/87 font-mono text-sm font-bold">{bd.blocked_date}</span>
+                        {bd.reason && <span className="text-black/60 text-xs font-medium tracking-wide">— {bd.reason}</span>}
                       </div>
                       <button
                         onClick={() => deleteBlockedDate(bd.id)}
@@ -3710,7 +3701,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
                   ))}
                   {blockedDates.length === 0 && (
-                    <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-2xl">
+                    <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">
                       No restricted dates in the registry.
                     </div>
                   )}
@@ -3720,11 +3711,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Notifications ── */}
             {settingsSubTab === 'notifications' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Notification Settings</h3>
-                    <p className="text-white/30 text-xs mt-1">Configure sender identities for automated guest communications</p>
+                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Notification Settings</h3>
+                    <p className="text-black/60 text-xs mt-1">Configure sender identities for automated guest communications</p>
                   </div>
                   {settingsSavedMsg && (
                     <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
@@ -3734,34 +3725,34 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Display Name</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Display Name</label>
                     <input
                       type="text"
                       value={hotelSettings.email_sender_name || ''}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, email_sender_name: e.target.value }))}
                       placeholder="e.g. Grand Horizon Hotel"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                     />
-                    <p className="text-[10px] text-white/10 mt-2 ml-1 italic font-medium">This name appears in the "From" field of guest emails</p>
+                    <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">This name appears in the "From" field of guest emails</p>
                   </div>
                   <div>
-                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">SMS Mask / ID</label>
+                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">SMS Mask / ID</label>
                     <input
                       type="text"
                       value={hotelSettings.sms_sender_name || ''}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, sms_sender_name: e.target.value }))}
                       placeholder="e.g. HOTEL"
                       maxLength={11}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
                     />
-                    <p className="text-[10px] text-white/10 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
+                    <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
                   </div>
                 </div>
                 <div className="flex justify-end pt-4">
                   <button
                     onClick={saveHotelSettings}
                     disabled={savingSettings}
-                    className="px-10 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                    className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
                   >
                     {savingSettings ? 'Synchronizing...' : 'Save Communication Settings'}
                   </button>
@@ -3773,108 +3764,108 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {settingsSubTab === 'clinic' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Doctors */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
+                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
                   <div className="mb-8">
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Practitioner Registry</h3>
-                    <p className="text-white/30 text-xs mt-1">Manage specialists available for appointment scheduling</p>
+                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Practitioner Registry</h3>
+                    <p className="text-black/60 text-xs mt-1">Manage specialists available for appointment scheduling</p>
                   </div>
                   <div className="flex flex-wrap gap-4 items-end mb-8">
                     <div className="flex-1 min-w-[200px]">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Full Name</label>
                       <input
                         type="text"
                         value={newDoctorName}
                         onChange={(e) => setNewDoctorName(e.target.value)}
                         placeholder="e.g. Dr. Jane Smith"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                       />
                     </div>
                     <div className="flex-[2] min-w-[250px]">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Medical Specialization</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Medical Specialization</label>
                       <input
                         type="text"
                         value={newDoctorSpec}
                         onChange={(e) => setNewDoctorSpec(e.target.value)}
                         placeholder="e.g. General Physician"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                       />
                     </div>
                     <button
                       onClick={addDoctor}
-                      className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
+                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
                     >
                       Add Practitioner
                     </button>
                   </div>
                   <div className="space-y-3">
-                    <h4 className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Active Staff</h4>
+                    <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Active Staff</h4>
                     {doctors.map(doc => (
-                      <div key={doc.id} className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-4 group hover:bg-white/5 transition-all">
+                      <div key={doc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
                         <div className="flex items-center gap-6">
-                          <span className="text-white font-bold text-sm">{doc.name}</span>
-                          <span className="text-white/20 text-xs font-medium tracking-wide">— {doc.specialization}</span>
+                          <span className="text-[#000000]/87 font-bold text-sm">{doc.name}</span>
+                          <span className="text-black/60 text-xs font-medium tracking-wide">— {doc.specialization}</span>
                         </div>
                         <button onClick={() => deleteDoctor(doc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Revoke</button>
                       </div>
                     ))}
-                    {doctors.length === 0 && <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-2xl">No practitioners registered.</div>}
+                    {doctors.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No practitioners registered.</div>}
                   </div>
                 </div>
 
                 {/* Services */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
+                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
                   <div className="mb-8">
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Service Catalog</h3>
-                    <p className="text-white/30 text-xs mt-1">Define clinic procedures, estimated durations, and standard pricing</p>
+                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Service Catalog</h3>
+                    <p className="text-black/60 text-xs mt-1">Define clinic procedures, estimated durations, and standard pricing</p>
                   </div>
                   <div className="flex flex-wrap gap-4 items-end mb-8">
                     <div className="flex-[3] min-w-[250px]">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Service Descriptor</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Service Descriptor</label>
                       <input
                         type="text"
                         value={newServiceName}
                         onChange={(e) => setNewServiceName(e.target.value)}
                         placeholder="e.g. Diagnostic Consultation"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
                       />
                     </div>
                     <div className="flex-1 min-w-[120px]">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Duration (Min)</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Duration (Min)</label>
                       <input
                         type="number"
                         value={newServiceDuration}
                         onChange={(e) => setNewServiceDuration(parseInt(e.target.value))}
                         placeholder="30"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
                       />
                     </div>
                     <div className="flex-1 min-w-[120px]">
-                      <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Base Price (₱)</label>
+                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Base Price (₱)</label>
                       <input
                         type="number"
                         value={newServicePrice}
                         onChange={(e) => setNewServicePrice(parseFloat(e.target.value))}
                         placeholder="0.00"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
                       />
                     </div>
-                    <button onClick={addService} className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all">
+                    <button onClick={addService} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all">
                       Add Service
                     </button>
                   </div>
                   <div className="space-y-3">
-                    <h4 className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Offered Procedures</h4>
+                    <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Offered Procedures</h4>
                     {services.map(svc => (
-                      <div key={svc.id} className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-4 group hover:bg-white/5 transition-all">
+                      <div key={svc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
                         <div className="flex items-center gap-6">
-                          <span className="text-white font-bold text-sm">{svc.name}</span>
-                          <span className="text-white/20 text-xs font-medium tracking-wide">— {svc.duration} Min</span>
-                          {svc.price > 0 && <span className="text-[#55A2F5] font-mono text-sm font-black">₱{svc.price.toLocaleString()}</span>}
+                          <span className="text-[#000000]/87 font-bold text-sm">{svc.name}</span>
+                          <span className="text-black/60 text-xs font-medium tracking-wide">— {svc.duration} Min</span>
+                          {svc.price > 0 && <span className="text-[#00754A] font-mono text-sm font-black">₱{svc.price.toLocaleString()}</span>}
                         </div>
                         <button onClick={() => deleteService(svc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Remove</button>
                       </div>
                     ))}
-                    {services.length === 0 && <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-2xl">No services defined in the catalog.</div>}
+                    {services.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No services defined in the catalog.</div>}
                   </div>
                 </div>
               </div>
@@ -3932,7 +3923,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <button
                 onClick={handleReschedule}
                 disabled={!newDate || !newTime || isRescheduling}
-                className="flex-1 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white font-semibold rounded-lg hover:bg-[#465a8f] transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-semibold rounded-full hover:bg-[#465a8f] transition-all disabled:opacity-50"
               >
                 {isRescheduling ? 'Saving...' : 'Save Changes'}
               </button>
@@ -3969,7 +3960,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               </button>
               <button
                 onClick={() => window.print()}
-                className="flex-1 py-2 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-lg"
+                className="flex-1 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-lg"
               >
                 Print
               </button>
@@ -4093,7 +4084,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
       <div className="w-full max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#00754A] to-[#006241]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-[#576CA8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
@@ -4153,7 +4144,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white font-semibold rounded-lg hover:bg-[#465a8f] transition-all disabled:opacity-50"
+                className="w-full py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-semibold rounded-full hover:bg-[#465a8f] transition-all disabled:opacity-50"
               >
                 {isLoading ? 'Looking up...' : 'Find Appointment'}
               </button>
@@ -4202,7 +4193,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0]/10 rounded-xl p-4 border border-[#576CA8]/20">
+              <div className="bg-gradient-to-br from-[#00754A] to-[#006241]/10 rounded-xl p-4 border border-[#576CA8]/20">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-[#576CA8]/70 text-xs uppercase tracking-wider mb-1">Date</p>
@@ -4293,7 +4284,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               <button
                 onClick={handleCancel}
                 disabled={isCancelling}
-                className="flex-1 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-red-500 text-[#000000]/87 font-semibold rounded-full hover:bg-red-600 transition-all disabled:opacity-50"
               >
                 {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
               </button>
@@ -4307,64 +4298,101 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 
 // Header Component
 function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
-  const inputCls = "w-full pl-10 pr-4 py-2 rounded-lg border border-white/10 bg-white/5 focus:border-white/20 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-white placeholder-white/20 text-sm";
+  const [roomTypes, setRoomTypes] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/room-types')
+      .then(r => r.json())
+      .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
+      .catch(() => { });
+  }, []);
+
+  const inputCls = "w-full pl-10 pr-4 py-2 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-sm";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
-      <div className="relative overflow-hidden">
-        <div className="w-full px-8 py-4 relative z-10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setCurrentPage('home')}>
-              <div>
-                <GradientText
-                  colors={["#5227FF", "#FF9FFC", "#B19EEF"]}
-                  animationSpeed={8}
-                  showBorder={false}
-                  className="text-3xl font-bold tracking-tight"
-                >
-                  Service Box
-                </GradientText>
-                <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-0.5">Hotel & Wellness</p>
-              </div>
-            </div>
+    <header className="sticky top-0 z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
+      {/* Top Pre-header Bar */}
+      <div className="h-[30px] w-full bg-[#1E3932] flex items-center px-4 md:px-8 gap-6">
+        <a href="mailto:bogonorthomes@gmail.com" className="text-white/90 text-[11px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          bogonorthomes@gmail.com
+        </a>
+        <a href="tel:+639171323715" className="text-white/90 text-[11px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+          +63 917 132 3715
+        </a>
+      </div>
 
-            <div className="hidden md:flex flex-1 max-w-sm mx-8 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/20 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search services..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  if (e.target.value && currentPage !== 'menu') setCurrentPage('menu');
-                }}
-                className={inputCls}
+      <div className="relative">
+        <div className="w-full px-8 py-4 relative z-10">
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="flex flex-col items-center justify-center cursor-pointer group text-center" onClick={() => setCurrentPage('home')}>
+              <img 
+                src="/assets/images/hero/logo.jpg" 
+                alt="Northomes Pensionne Logo" 
+                className="h-[178px] w-auto object-contain rounded-lg"
               />
             </div>
 
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden lg:flex items-center justify-center space-x-2">
               {[
-                { name: 'Home', id: 'home', icon: '🏠' },
-                { name: 'Check In', id: 'checkin', icon: '🏨' },
-                { name: 'Admin', id: 'admin', icon: '👤' },
+                { name: 'Home', id: 'home' },
+                { name: 'About Us', id: 'about' },
+                { name: 'Accommodations', id: 'accommodations', hasSubmenu: true },
+                { name: 'Dining', id: 'menu' },
+                { name: 'Gallery', id: 'gallery' },
+                { name: 'Monthly Promo', id: 'promo' },
               ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setCurrentPage(item.id)}
-                  className={`flex items-center gap-2 font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest ${currentPage === item.id ? 'text-[#55A2F5]' : 'text-white/40 hover:text-white'}`}
-                >
-                  <span>{item.icon}</span>
-                  {item.name}
-                </button>
+                <div key={item.id} className="relative group">
+                  <button
+                    onClick={() => {
+                      if (item.id === 'gallery') {
+                        setCurrentPage('home');
+                        setTimeout(() => {
+                          const el = document.getElementById('gallery');
+                          if (el) {
+                            const offset = 80;
+                            const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                            window.scrollTo({ top, behavior: 'smooth' });
+                          }
+                        }, 100);
+                      } else {
+                        setCurrentPage(item.id);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className={`font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest flex items-center gap-1 ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery') ? 'text-[#00754A]' : 'text-black/60 hover:text-[#000000]/87'}`}
+                  >
+                    {item.name}
+                    {item.hasSubmenu && (
+                      <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    )}
+                  </button>
+                  
+                  {item.hasSubmenu && roomTypes.length > 0 && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-48">
+                      <div className="bg-white rounded-xl shadow-lg border border-black/5 overflow-hidden py-1">
+                        {roomTypes.map(rt => (
+                          <button
+                            key={rt.id}
+                            onClick={() => setCurrentPage('accommodations')}
+                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-black/60 hover:text-[#00754A] hover:bg-[#f2f0eb] transition-colors uppercase tracking-widest"
+                          >
+                            {rt.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
               <button
-                onClick={() => document.getElementById('location-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest text-white/40 hover:text-white border border-white/10 rounded-lg bg-white/5"
+                onClick={() => { setCurrentPage('contact'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className={`font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest rounded-lg shadow-sm ${currentPage === 'contact' ? 'bg-[#00754A] text-white border border-transparent' : 'text-black/60 hover:text-[#000000]/87 border border-black/5 bg-white'}`}
               >
                 Contact
               </button>
             </nav>
-
           </div>
         </div>
       </div>
@@ -4372,149 +4400,832 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
   );
 }
 
-// Home Page
-function HomePage({ setCurrentPage }) {
+// Room Card Component with Image Carousel
+function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
+  const [currentImg, setCurrentImg] = useState(0);
+  
+  // Here you can pull room-specific images if available from the backend.
+  // For now, we cycle through some placeholders based on room ID to give variety.
+  const images = room.id % 2 === 0 ? [
+    "/assets/images/rooms/sample_room_2.png",
+    "/assets/images/gallery/bathroom.jpg",
+    "/assets/images/gallery/room_standard.jpg"
+  ] : [
+    "/assets/images/rooms/sample_room_1.png",
+    "/assets/images/gallery/room_standard.jpg",
+    "/assets/images/gallery/bathroom.jpg"
+  ];
+
+  const nextImg = (e) => {
+    e.stopPropagation();
+    setCurrentImg((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImg = (e) => {
+    e.stopPropagation();
+    setCurrentImg((prev) => (prev - 1 + images.length) % images.length);
+  };
+
   return (
-    <div>
-      {/* Hero Section with Form */}
-      <section id="appointment-section" className="relative overflow-hidden -mt-[60px] md:-mt-[20px]">
-        <div className="relative min-h-[calc(100vh-140px)] md:min-h-[calc(100vh-100px)]">
+    <div className="w-full bg-white rounded-3xl shadow-sm border border-black/5 overflow-hidden group flex flex-col">
+      {/* Top Section: Photo Carousel */}
+      <div className="w-full h-[300px] bg-[#f2f0eb] relative overflow-hidden flex items-center justify-center shrink-0">
+        <img 
+          src={images[currentImg]} 
+          alt={`${room.name} view ${currentImg + 1}`} 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full bg-black/5 p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Missing Image</span></div>`;
+          }}
+        />
+        
+        {/* Navigation Arrows */}
+        {images.length > 1 && (
+          <>
+            <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-black/60 hover:text-black hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm border border-black/5">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-black/60 hover:text-black hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm border border-black/5">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+            
+            {/* Dots */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              {images.map((_, idx) => (
+                <div key={idx} onClick={(e) => { e.stopPropagation(); setCurrentImg(idx); }} className={`w-2 h-2 rounded-full cursor-pointer transition-all ${idx === currentImg ? 'bg-white scale-125 shadow-sm' : 'bg-white/50 hover:bg-white/80'}`}></div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+      
+      {/* Info Section */}
+      <div className="w-full p-8 md:p-12 flex flex-col items-center text-center bg-white relative grow">
+        
+        <h2 className="text-3xl font-bold text-[#006241] tracking-tight mb-2">{room.name}</h2>
+        <div className="text-2xl font-black text-black/80 mb-6">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-sm text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
+        
+        {hasCheckedAvailability && (
+          <div className={`mb-6 inline-block w-fit px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${room.available > 0 ? 'bg-[#00754A]/5 border-[#00754A]/20 text-[#00754A]' : 'bg-red-500/5 border-red-500/20 text-red-600'}`}>
+            {room.available > 0 ? `${room.available} ${room.available === 1 ? 'Room' : 'Rooms'} Available` : 'Fully Booked for these dates'}
+          </div>
+        )}
+        
+        <p className="text-black/60 font-medium leading-relaxed mb-8">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
+        
+        <button 
+          onClick={() => { sessionStorage.setItem('northomes_roomtype', room.name); setCurrentPage('booking'); }} 
+          disabled={hasCheckedAvailability && room.available === 0}
+          className={`w-fit mt-auto px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-all ${hasCheckedAvailability && room.available === 0 ? 'bg-black/5 text-black/30 cursor-not-allowed' : 'bg-gradient-to-br from-[#00754A] to-[#006241] hover:scale-105 active:scale-95 text-white shadow-[0_0_20px_rgba(0,117,74,0.2)]'}`}
+        >
+          {hasCheckedAvailability && room.available === 0 ? 'Sold Out' : 'Book Now'}
+        </button>
+        
+        {/* Arrow pointing down into the dark section */}
+        <div className="absolute -bottom-[20px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[20px] border-r-[20px] border-t-[20px] border-l-transparent border-r-transparent border-t-white z-20"></div>
+      </div>
 
-          {/* Content - Centered Form with Text Below */}
-          <div className="relative z-10 h-full flex flex-col justify-center items-center px-6 md:px-12 py-12 md:py-16">
-            <div className="w-full max-w-xl mx-auto">
+      {/* Dark Bottom Section - Matches User Photo */}
+      <div className="w-full bg-[#1E3932] p-8 text-white grid grid-cols-2 md:grid-cols-4 gap-6 shrink-0 mt-auto">
+        <div className="flex flex-col items-center text-center gap-2">
+          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Up to {room.capacity} Guests</span>
+        </div>
+        <div className="flex flex-col items-center text-center gap-2">
+          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Premium Bed</span>
+        </div>
+        <div className="flex flex-col items-center text-center gap-2">
+          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Free Fast Wi-Fi</span>
+        </div>
+        <div className="flex flex-col items-center text-center gap-2">
+          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Intercom / TV</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-              {/* Centered Appointment Form */}
-              <div style={{ marginTop: '50px' }}>
-                <AppointmentForm />
-              </div>
 
-              {/* Guest Check-In CTA */}
-              <div className="mt-4 flex justify-center">
-                <div className="rounded-2xl border border-white/20 px-5 py-3 flex items-center gap-3"
-                  style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-                  <span className="text-2xl">🏨</span>
-                  <span className="text-white/70 text-sm">Already have a reservation?</span>
-                  <button
-                    onClick={() => setCurrentPage('checkin')}
-                    className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
-                  >
-                    Check In Now
-                  </button>
+
+function ContactPage({ setCurrentPage }) {
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [isSent, setIsSent] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Simulate API call
+    setTimeout(() => {
+      setIsSent(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setIsSent(false), 5000);
+    }, 800);
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-[#f2f0eb] pb-24">
+      {/* Hero Section */}
+      <div className="relative h-[300px] md:h-[400px] w-full bg-[#1E3932] overflow-hidden flex items-center justify-center shrink-0">
+        <div className="absolute inset-0 opacity-20">
+          <img 
+            src="/assets/images/gallery/exterior.jpg" 
+            alt="Northomes Exterior" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="relative z-10 text-center px-4 mt-8">
+          <h4 className="text-[#CBA258] text-[12px] font-black uppercase tracking-[0.3em] mb-4">Get In Touch</h4>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">Contact Us</h1>
+          <p className="text-white/80 text-lg max-w-xl mx-auto font-medium">
+            We are here to help. Send us a message or call us for any inquiries about your stay.
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-6xl mx-auto px-4 -mt-16 md:-mt-24 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column: Contact Details */}
+          <div className="lg:col-span-1 flex flex-col gap-8">
+            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 flex flex-col gap-8">
+              
+              <div className="flex gap-4 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Our Location</h3>
+                  <p className="text-black/60 text-sm leading-relaxed">
+                    San Vicente<br/>
+                    Bogo City, Cebu<br/>
+                    Philippines 6010
+                  </p>
                 </div>
               </div>
 
-              {/* Text Content Below Form */}
-              <div className="text-center mt-12 mb-16">
-                {/* Main Heading */}
-                <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-[1.05] tracking-tight">
-                  Seamless stays,
-                  <span className="block text-[#55A2F5] mt-2">unforgettable memories</span>
-                </h2>
+              <div className="flex gap-4 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Contact Number</h3>
+                  <p className="text-black/60 text-sm leading-relaxed">
+                    Front Desk / Reservations:<br/>
+                    <a href="tel:+639276230491" className="text-[#00754A] font-bold hover:underline">+63 927 623 0491</a>
+                  </p>
+                </div>
+              </div>
 
-                {/* Subheading */}
-                <p className="text-base md:text-xl text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
-                  Experience world-class hospitality with our modern reservation system. Book your perfect getaway in just a few clicks.
-                </p>
+              <div className="flex gap-4 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Email Address</h3>
+                  <p className="text-black/60 text-sm leading-relaxed">
+                    General Inquiries:<br/>
+                    <a href="mailto:rodge.tonacao@gmail.com" className="text-[#00754A] font-bold hover:underline">rodge.tonacao@gmail.com</a>
+                  </p>
+                </div>
+              </div>
 
-                {/* Stats */}
-                <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-                  {[
-                    { label: 'Rooms Available', value: '50+' },
-                    { label: 'Happy Guests', value: '12k+' },
-                    { label: 'Star Rating', value: '4.9/5' },
-                    { label: 'Support', value: '24/7' },
-                  ].map((stat, i) => (
-                    <div key={i} className="px-8 py-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all group">
-                      <div className="text-3xl md:text-4xl font-black text-white group-hover:text-[#55A2F5] transition-colors tracking-tighter">{stat.value}</div>
-                      <div className="text-white/30 text-[10px] mt-2 font-bold uppercase tracking-widest">{stat.label}</div>
-                    </div>
-                  ))}
+              <div className="flex gap-4 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Operating Hours</h3>
+                  <p className="text-black/60 text-sm leading-relaxed">
+                    Front Desk is open 24/7.<br/>
+                    Check-in: 2:00 PM<br/>
+                    Check-out: 12:00 PM
+                  </p>
                 </div>
               </div>
 
             </div>
           </div>
+
+          {/* Right Column: Contact Form */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-12 h-full flex flex-col">
+              <h2 className="text-3xl font-bold text-[#006241] tracking-tight mb-2">Send us a Message</h2>
+              <p className="text-black/60 mb-8">Have a question or special request? Let us know and we'll get back to you as soon as possible.</p>
+
+              {isSent ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-[#f2f0eb] rounded-2xl border border-[#00754A]/20">
+                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+                    <svg className="w-10 h-10 text-[#00754A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#000000]/87 mb-2">Message Sent!</h3>
+                  <p className="text-black/60">Thank you for reaching out. We have received your message and will contact you shortly.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Your Name</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Email Address</label>
+                      <input 
+                        type="email" 
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Subject</label>
+                    <input 
+                      type="text" 
+                      required
+                      value={formData.subject}
+                      onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                      className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                      placeholder="How can we help?"
+                    />
+                  </div>
+
+                  <div className="flex-1 flex flex-col">
+                    <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Message</label>
+                    <textarea 
+                      required
+                      value={formData.message}
+                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all resize-none flex-1 min-h-[150px]"
+                      placeholder="Type your message here..."
+                    ></textarea>
+                  </div>
+
+                  <button 
+                    type="submit"
+                    className="w-full px-8 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-[#00754A]/20 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    Send Message
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+          
         </div>
-      </section>
+
+        {/* Map Section */}
+        <div className="mt-8 bg-white rounded-3xl shadow-sm border border-black/5 p-4 h-[400px] overflow-hidden">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15663.023812852758!2d124.004149!3d11.056976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDAzJzI1LjEiTiAxMjTCsDAwJzE0LjkiRQ!5e0!3m2!1sen!2sph!4v1634567890123!5m2!1sen!2sph" 
+            width="100%" 
+            height="100%" 
+            style={{ border: 0, borderRadius: '1rem' }} 
+            allowFullScreen="" 
+            loading="lazy"
+            title="Northomes Pensionne Location"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Accommodations Page
+function AccommodationsPage({ setCurrentPage }) {
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
+  const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
+  const [isChecking, setIsChecking] = useState(false);
+  const [hasCheckedAvailability, setHasCheckedAvailability] = useState(false);
+
+  const fetchRooms = (url) => {
+    setLoading(true);
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setRoomTypes(data.roomTypes || data.availability);
+        }
+        setLoading(false);
+        setIsChecking(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setIsChecking(false);
+      });
+  };
+
+  useEffect(() => {
+    if (checkIn && checkOut) {
+      setIsChecking(true);
+      setHasCheckedAvailability(true);
+      fetchRooms(`http://localhost:5000/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+    } else {
+      fetchRooms('http://localhost:5000/api/room-types');
+    }
+  }, []);
+
+  const handleCheckAvailability = () => {
+    if (!checkIn || !checkOut) return;
+    sessionStorage.setItem('northomes_checkin', checkIn);
+    sessionStorage.setItem('northomes_checkout', checkOut);
+    setIsChecking(true);
+    setHasCheckedAvailability(true);
+    fetchRooms(`http://localhost:5000/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+  };
+
+  if (loading && roomTypes.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center text-[#006241] font-bold tracking-widest uppercase">Loading accommodations...</div>;
+  }
+
+  return (
+    <div className="w-full min-h-screen bg-[#f2f0eb] pb-24">
+      {/* Hero Header */}
+      <div className="w-full pt-16 pb-12 md:pt-24 md:pb-16 bg-white border-b border-black/5 text-center px-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-[#006241] tracking-tight mb-4">Our Accommodations</h1>
+        <p className="text-black/60 max-w-2xl mx-auto font-medium mb-12">Experience comfort and style in the heart of Bogo City. Explore our carefully designed rooms tailored for your perfect stay.</p>
+        
+        {/* Availability Bar */}
+        <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-4 justify-center">
+          <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-sm shadow-sm w-full md:w-auto">
+            <svg className="w-5 h-5 text-[#CBA258] ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <input 
+              type="date" 
+              value={checkIn}
+              onChange={e => setCheckIn(e.target.value)}
+              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
+            />
+            <span className="text-black/20 font-bold">-</span>
+            <input 
+              type="date" 
+              value={checkOut}
+              onChange={e => setCheckOut(e.target.value)}
+              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
+            />
+          </div>
+          
+          <button 
+            onClick={handleCheckAvailability}
+            disabled={!checkIn || !checkOut || isChecking}
+            className="w-full md:w-auto px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] disabled:opacity-50 text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap"
+          >
+            {isChecking ? 'Checking...' : 'Check Availability'}
+          </button>
+        </div>
+      </div>
+
+      {/* Room List */}
+      <div className="max-w-7xl mx-auto px-4 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-12">
+        {roomTypes.map((room) => (
+          <RoomCard key={room.id} room={room} hasCheckedAvailability={hasCheckedAvailability} setCurrentPage={setCurrentPage} />
+        ))}
+
+        {roomTypes.length === 0 && !loading && (
+          <div className="text-center py-20">
+            <h3 className="text-2xl font-bold text-black/40">No rooms available at the moment.</h3>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// About Page
+function AboutPage() {
+  return (
+    <div className="w-full min-h-screen px-6 py-12 md:px-12 md:py-20 flex flex-col items-center">
+      <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-16 mt-8 md:mt-12">
+        <h1 className="text-4xl md:text-5xl font-bold text-[#006241] mb-12 text-center tracking-tight">About Us</h1>
+        
+        <div className="space-y-8 text-black/70 text-base md:text-lg leading-relaxed font-medium">
+          <p className="font-bold text-xl text-black/90 text-center mb-10 text-[#00754A]">
+            Welcome to Northomes Pensione — your home in the heart of Bogo City.
+          </p>
+
+          <p>
+            Northomes Pensione first opened its doors on January 8, 2010, born from the vision of our parents to provide a decent, affordable, and accessible place to stay for travelers, families, and business guests visiting the City of Bogo. What started as a simple dream became a welcoming space built on genuine hospitality, comfort, and service from the heart.
+          </p>
+
+          <p>
+            Over the years, our journey has not always been easy. Like many local businesses, we have faced challenges that tested our strength and resilience. In 2013, Northomes Pensione was heavily affected by Typhoon Yolanda (Haiyan), forcing us to temporarily close for several months for repairs and rebuilding. Years later, the COVID-19 pandemic again required us to pause operations for the safety of our guests and community. More recently, the 6.9 magnitude earthquake caused significant damage to parts of our property, leading to another period of restoration and rebuilding.
+          </p>
+
+          <p>
+            Despite these challenges, one thing has remained constant — our commitment to serving our guests, supporting our staff, and caring for our community. We believe that genuine hospitality begins with the people behind the service. Our team has been part of our journey through every challenge and milestone, and we continue to value and support them as part of the Northomes family. Every rebuilding phase became an opportunity for us to improve, renew, and continue the vision that started it all.
+          </p>
+
+          <p>
+            Today, Northomes Pensione continues to welcome guests with clean and comfortable rooms, friendly service, and a warm atmosphere that feels close to home. Through the years, we remain grateful for the trust and support of our guests, many of whom have become part of the Northomes family.
+          </p>
+
+          <div className="mt-12 pt-8 border-t border-black/5 text-center">
+            <p className="font-bold text-black/90 text-xl text-[#006241]">
+              Thank you for being part of our story.
+            </p>
+            <p className="font-bold text-black/90 text-xl text-[#006241] mt-2">
+              We look forward to welcoming you to Northomes Pensione.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Booking Page
+function BookingPage({ setCurrentPage }) {
+  const [bookingResult, setBookingResult] = useState(null);
+
+  if (bookingResult) {
+    return (
+      <div className="min-h-screen bg-[#f2f0eb] py-16 px-4 flex items-center justify-center">
+        <div className="max-w-2xl w-full mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-12 text-center">
+          <div className="w-24 h-24 bg-[#00754A]/10 rounded-full flex items-center justify-center mx-auto mb-8">
+            <Check className="w-12 h-12 text-[#00754A]" />
+          </div>
+          <h2 className="text-4xl font-black text-[#006241] tracking-tight mb-4">Reservation Confirmed!</h2>
+          <p className="text-xl text-black/80 font-medium mb-8">{bookingResult.message || 'Your booking has been successfully created.'}</p>
+          
+          <div className="bg-[#f2f0eb] p-6 rounded-2xl mb-10 text-left space-y-4 max-w-md mx-auto border border-black/5">
+            <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-center">Next Steps</h4>
+            <p className="text-sm text-black/70 flex items-start gap-3">
+              <span className="text-lg">📧</span> We have sent a confirmation email to the address you provided.
+            </p>
+            <p className="text-sm text-black/70 flex items-start gap-3">
+              <span className="text-lg">🛎️</span> Please present this confirmation at the front desk upon check-in.
+            </p>
+            <p className="text-sm text-black/70 flex items-start gap-3">
+              <span className="text-lg">💳</span> Payment will be collected securely at the property.
+            </p>
+          </div>
+
+          <button 
+            onClick={() => {
+              sessionStorage.removeItem('northomes_roomtype');
+              sessionStorage.removeItem('northomes_checkin');
+              sessionStorage.removeItem('northomes_checkout');
+              setCurrentPage('home');
+            }}
+            className="w-full sm:w-auto px-10 py-4 bg-[#00754A] hover:bg-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(0,117,74,0.2)] hover:scale-105 active:scale-95"
+          >
+            Return to Homepage
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f2f0eb] py-16 px-4">
+      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-8 relative">
+        <button 
+          onClick={() => setCurrentPage('accommodations')}
+          className="absolute top-6 right-6 text-black/40 hover:text-black/80 transition-colors bg-[#f2f0eb] rounded-full p-2"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <h2 className="text-3xl font-bold text-[#006241] text-center mb-8 tracking-tight">Complete Your Reservation</h2>
+        <AppointmentForm onSuccess={(data) => setBookingResult(data)} />
+      </div>
+    </div>
+  );
+}
+
+// Home Page
+function HomePage({ setCurrentPage }) {
+  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
+  const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
+  const [roomTypes, setRoomTypes] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/room-types')
+      .then(r => r.json())
+      .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
+      .catch(() => {});
+  }, []);
+
+  const handleBookingSearch = () => {
+    if (checkIn) sessionStorage.setItem('northomes_checkin', checkIn);
+    if (checkOut) sessionStorage.setItem('northomes_checkout', checkOut);
+    setCurrentPage('accommodations');
+  };
+
+  return (
+    <div className="w-full flex flex-col bg-[#f2f0eb]">
+      {/* Hero Image Container */}
+      <div className="w-full h-[60vh] md:h-[70vh] relative">
+        <img 
+          src="/assets/images/hero/hero1.jpg" 
+          alt="Northomes Pensionne" 
+          className="w-full h-full object-cover"
+        />
+      </div>
+
+      {/* Horizontal Booking Bar - Overlapping the Hero */}
+      <div className="relative -mt-10 z-20 px-4">
+        <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-4">
+          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check In</span>
+            <input 
+              type="date" 
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent" 
+            />
+          </div>
+          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check Out</span>
+            <input 
+              type="date" 
+              value={checkOut}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent" 
+            />
+          </div>
+          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 border-black/5 flex flex-col">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Guests</span>
+            <select className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent">
+              <option>1 Guest</option>
+              <option>2 Guests</option>
+              <option>3 Guests</option>
+              <option>4+ Guests</option>
+            </select>
+          </div>
+          <div className="w-full md:w-auto mt-2 md:mt-0 pl-2">
+            <button 
+              onClick={handleBookingSearch}
+              className="w-full md:w-auto px-8 py-4 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-md hover:shadow-lg"
+            >
+              Check Availability
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Welcome Statement */}
+      <div className="py-24 px-4 text-center max-w-3xl mx-auto">
+        <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Welcome to Northomes</h4>
+        <h2 className="text-4xl md:text-5xl font-bold text-[#006241] tracking-tight mb-8">A Sanctuary of Comfort and Style</h2>
+        <p className="text-black/60 text-lg leading-relaxed mb-10">
+          Welcome to Northomes Pensione — an affordable and comfortable stay in Bogo City, Cebu. We offer clean rooms with Wi-Fi, secure parking, and meals available. Perfect for business travelers, families & balikbayans.
+        </p>
+        <button 
+          onClick={() => setCurrentPage('about')}
+          className="border border-[#006241] text-[#006241] hover:bg-[#006241] hover:text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors"
+        >
+          Our Story
+        </button>
+      </div>
+
+      {/* Featured Accommodations */}
+      <div className="py-20 px-4 bg-white border-y border-black/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Signature Stays</h4>
+            <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Featured Accommodations</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {roomTypes.slice(0, 3).map((room, i) => (
+              <div key={room.id} className="bg-[#f2f0eb] rounded-3xl overflow-hidden group cursor-pointer border border-black/5 shadow-sm" onClick={() => setCurrentPage('accommodations')}>
+                <div className="h-64 relative overflow-hidden">
+                  <img 
+                    src={i % 2 === 0 ? "/assets/images/rooms/sample_room_1.png" : "/assets/images/rooms/sample_room_2.png"} 
+                    alt={room.name} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
+                <div className="p-8 text-center bg-white border-t border-black/5 rounded-b-3xl">
+                  <h3 className="text-2xl font-bold text-[#006241] mb-2">{room.name}</h3>
+                  <div className="text-lg font-black text-black/80 mb-4">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-xs text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
+                  <p className="text-black/60 text-sm mb-6 line-clamp-2">{room.description || 'Experience premium comfort and exceptional amenities.'}</p>
+                  <span className="text-[#A98C51] font-bold text-[10px] uppercase tracking-[0.15em] group-hover:text-[#8e7644] transition-colors">View Details &rarr;</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Signature Amenities */}
+      <div className="py-24 px-4 max-w-5xl mx-auto text-center">
+        <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Exceptional Service</h4>
+        <h2 className="text-4xl font-bold text-[#006241] tracking-tight mb-16">Signature Amenities</h2>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+          {[
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>, title: "High-Speed Wi-Fi" },
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>, title: "24/7 Front Desk" },
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>, title: "In-House Cafe" },
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>, title: "Secure Parking" },
+          ].map((item, idx) => (
+            <div key={idx} className="flex flex-col items-center">
+              <div className="w-16 h-16 rounded-full bg-white border border-black/5 shadow-sm flex items-center justify-center text-[#006241] mb-4">
+                {item.icon}
+              </div>
+              <h5 className="font-bold text-black/80 text-sm">{item.title}</h5>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Photo Gallery */}
+      <div id="gallery" className="py-24 px-4 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Discover Northomes</h4>
+          <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Our Gallery</h2>
+        </div>
+        
+        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+          {[
+            { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
+            { src: "/assets/images/gallery/lobby.jpg", alt: "Lobby Reception", aspect: "aspect-[3/4]" },
+            { src: "/assets/images/gallery/cafe.jpg", alt: "Cafe and Dining", aspect: "aspect-square" },
+            { src: "/assets/images/gallery/room_standard.jpg", alt: "Standard Room", aspect: "aspect-[4/5]" },
+            { src: "/assets/images/gallery/bathroom.jpg", alt: "Clean Amenities", aspect: "aspect-[3/2]" },
+            { src: "/assets/images/gallery/parking.jpg", alt: "Secure Parking", aspect: "aspect-[4/3]" },
+          ].map((img, i) => (
+            <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
+              <div className={`w-full ${img.aspect} flex items-center justify-center bg-black/5`}>
+                <img 
+                  src={img.src} 
+                  alt={img.alt} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Save photo as:<br/>\${img.src.split('/').pop()}</span></div>`;
+                  }}
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/90 via-[#1E3932]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                <h3 className="text-white font-bold text-lg tracking-tight">{img.alt}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Guest Testimonials */}
+      <div className="py-24 px-4 bg-white border-t border-black/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Guest Experiences</h4>
+            <h2 className="text-4xl font-bold text-[#006241] tracking-tight">A Stay to Remember</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                text: "Spacious room good for 2. with 2 beds 4 pillows. bathroom with heater. However, the flow of the water through the heater is slow. with cabinets, own heater for coffee if you want to drink. basta, nindot gyud siya puy an.",
+                author: "Tess Angana Durban",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "We love the room, wifi is really fast, cable are high quality videos, hot shower and very clean big toilet. (Large suites • Quiet rooms • Good room service • Family-friendly • Spacious rooms)",
+                author: "Nel LightSoul",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "I stayed here several times, good value, terrific friendly staff. Sadly I was not able to return last year and this year. Maybe next year. Will stay here again. Highly recommended. Can be noisy though, but they will accommodate you. Staff will make you a cup of tea even at midnight! 😀",
+                author: "Anja Abravomich",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "We always stay here when we come to Bogo. Great rooms freindly staff. Very affordable.",
+                author: "Greg Wilson",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "I always stay here when visiting my step son here in Bogo. The rooms are clean and big, also the staff a quite friendly the air condition works and they are also very attentive to our needs.",
+                author: "Brendan Mahoney",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "Very Nice! Enjoyed my stay! Very attentive for anything we needed. Air Conditioning was good and cold. Thanks",
+                author: "Michael Chilbert",
+                role: "Verified Guest",
+                rating: 5
+              }
+            ].map((testimonial, i) => (
+              <div key={i} className="bg-[#f2f0eb] rounded-3xl p-8 border border-black/5 shadow-sm flex flex-col">
+                <div className="flex gap-1 mb-6">
+                  {[...Array(testimonial.rating)].map((_, j) => (
+                    <svg key={j} className="w-5 h-5 text-[#CBA258]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-black/70 text-base leading-relaxed mb-8 flex-grow font-medium">"{testimonial.text}"</p>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#006241]/10 flex items-center justify-center text-[#006241] font-bold text-lg">
+                    {testimonial.author.charAt(0)}
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-[#006241] text-sm">{testimonial.author}</h5>
+                    <p className="text-[#A98C51] text-[10px] font-bold uppercase tracking-widest mt-1">{testimonial.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Footer Section */}
-      <footer id="location-section" className="py-16" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <footer id="location-section" className="py-20 bg-[#1E3932]">
         <div className="w-full px-8">
           <div className="max-w-6xl mx-auto">
             {/* Footer Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 mb-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
               {/* About */}
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <h4 className="text-lg font-bold text-white">Helios Systems</h4>
-                </div>
-                <p className="text-gray-200 text-sm leading-relaxed">
-                  Providing modern, responsive, and user-friendly websites that help businesses thrive online. Let's work together to bring your vision to life!
+              <div className="lg:col-span-1">
+                <h4 className="text-xl font-bold text-white tracking-tight mb-6">Northomes Pensionne</h4>
+                <p className="text-white/70 text-sm leading-relaxed mb-8">
+                  A sanctuary of comfort and style in the heart of Bogo City. Experience genuine hospitality and make unforgettable memories with us.
                 </p>
                 {/* Social Links */}
-                <div className="flex space-x-3 mt-4">
-                  <a href="#" className="w-9 h-9 bg-gray-100 hover:bg-blue-700 rounded-full flex items-center justify-center text-gray-600 hover:text-white transition-all hover:-translate-y-1">
+                <div className="flex space-x-4">
+                  <a href="#" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
                   </a>
-                  <a href="#" className="w-9 h-9 bg-gray-100 hover:bg-blue-700 rounded-full flex items-center justify-center text-gray-600 hover:text-white transition-all hover:-translate-y-1">
+                  <a href="#" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
                   </a>
-                  <a href="#" className="w-9 h-9 bg-gray-100 hover:bg-blue-700 rounded-full flex items-center justify-center text-gray-600 hover:text-white transition-all hover:-translate-y-1">
-                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
-                  </a>
                 </div>
               </div>
 
-              {/* Address */}
+              {/* Find Us */}
               <div>
-                <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Address</h4>
-                <div className="text-gray-200 text-sm space-y-1">
-                  <p>San Vicente</p>
-                  <p>Bogo City, Cebu</p>
-                  <p>Philippines 6010</p>
+                <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-wider">Find Us</h4>
+                <div className="text-white/70 text-sm space-y-3 font-medium">
+                  <p>Pelaez Street, Barangay Sto. Niño</p>
+                  <p>Bogo City, Cebu, Philippines</p>
+                  <a href="https://bogonorthomes.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">bogonorthomes.com</a>
                 </div>
               </div>
 
-              {/* Contact */}
+              {/* Contact Us */}
               <div>
-                <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Contact</h4>
-                <div className="text-gray-200 text-sm space-y-2">
-                  <p className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-[#576CA8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-wider">Contact Us</h4>
+                <div className="text-white/70 text-sm space-y-4 font-medium">
+                  <p className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
-                    +63 927 623 0491
+                    +63 917 132 3715
                   </p>
-                  <p className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-[#576CA8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <p className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    rodge.tonacao@gmail.com
+                    bogonorthomes@gmail.com
                   </p>
                 </div>
               </div>
 
-              {/* Hours */}
+              {/* Quick Links */}
               <div>
-                <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Hours</h4>
-                <div className="text-gray-200 text-sm space-y-1">
-                  <p>Mon - Fri: 8:00 AM - 6:00 PM</p>
-                  <p>Saturday: 8:00 AM - 12:00 PM</p>
-                  <p>Sunday: Closed</p>
+                <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-wider">Quick Links</h4>
+                <div className="flex flex-col space-y-4 text-sm font-medium">
+                  <button onClick={() => setCurrentPage('home')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Home</button>
+                  <button onClick={() => setCurrentPage('accommodations')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Accommodations</button>
+                  <button onClick={() => setCurrentPage('about')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Our Story</button>
+                  <button onClick={() => setCurrentPage('checkin')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Guest Check-In</button>
                 </div>
               </div>
             </div>
 
             {/* Footer Bottom */}
-            <div className="border-t border-white/20 pt-8 text-center">
-              <p className="text-gray-200 text-sm">
-                © 2026 Roger Tonacao.|  Helios | All rights reserved. |
-                <a href="#" className="hover:text-[#576CA8] transition-all ml-1">Privacy Policy</a> |
-                <a href="#" className="hover:text-[#576CA8] transition-all ml-1">Terms of Service</a> |
-                <button onClick={() => setCurrentPage('my-appointment')} className="hover:text-[#576CA8] transition-all ml-1">My Appointment</button> |
-                <button onClick={() => setCurrentPage('admin')} className="hover:text-[#576CA8] transition-all ml-1">Admin</button>
+            <div className="border-t border-white/10 pt-8 mt-4 flex flex-col md:flex-row items-center justify-between gap-6">
+              <p className="text-white/50 text-xs font-medium tracking-wide">
+                © {new Date().getFullYear()} Northomes Pensionne. All rights reserved.
               </p>
+              <div className="flex items-center space-x-6 text-xs font-medium text-white/50">
+                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                <button onClick={() => setCurrentPage('admin')} className="hover:text-white transition-colors">Staff Portal</button>
+              </div>
             </div>
           </div>
         </div>
@@ -4524,188 +5235,112 @@ function HomePage({ setCurrentPage }) {
 }
 
 // Menu Page
-function MenuPage({ selectedCategory, setSelectedCategory, searchQuery, menuData, isLoading }) {
-  const [services, setServices] = useState([]);
-  const [loadingServices, setLoadingServices] = useState(true);
-
-  // Fetch services from API
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/services');
-        const data = await response.json();
-        if (data.success) {
-          setServices(data.services);
-        }
-      } catch (error) {
-        console.error('Error fetching services:', error);
-      } finally {
-        setLoadingServices(false);
-      }
-    };
-    fetchServices();
-  }, []);
-
-  // Service icons mapping
-  const serviceIcons = {
-    'General Consultation': '🩺',
-    'Dental Cleaning': '🦷',
-    'Eye Examination': '👁️',
-    'Vaccination': '💉',
-    'Laboratory Tests': '🧪',
-    'Physical Therapy': '🏃',
-    'default': '🏥'
-  };
-
-  // Service colors for deck cards - updated to be glassy
-  const deckColors = [
-    'rgba(85,162,245,0.1)',
-    'rgba(255,191,0,0.1)',
-    'rgba(255,127,80,0.1)',
-    'rgba(255,105,180,0.1)',
-    'rgba(147,112,219,0.1)',
-    'rgba(0,255,255,0.1)',
+function MenuPage() {
+  const menuCategories = [
+    {
+      title: 'All-Day Breakfast',
+      subtitle: '(Served with Coffee, Tea or Milo)',
+      icon: '🍳',
+      items: [
+        { name: 'American Breakfast', desc: 'Toasted White Bread, Bacon & Egg', price: '₱279' },
+        { name: 'Spamsilog', desc: 'Spam, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Tocilog', desc: 'Pork Tocino, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Corncilog', desc: 'Corned Beef, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Chosilog', desc: 'Chorizo de Cebu, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Dangsilog', desc: 'Boneless Danggit, Garlic/Plain Rice & Egg', price: '₱279' }
+      ]
+    },
+    {
+      title: 'Combo Meals',
+      subtitle: '(Served with Rice & Drinks)',
+      icon: '🍛',
+      items: [
+        { name: 'Breaded Porkchop', desc: '', price: '₱299' },
+        { name: 'Buttered Chicken', desc: '', price: '₱299' },
+        { name: 'Daing na Bangus', desc: '', price: '₱299' },
+        { name: 'Chicken Pork Adobo', desc: '', price: '₱299' },
+        { name: 'Lumpia Shanghai', desc: '', price: '₱299' }
+      ]
+    },
+    {
+      title: 'Beverages',
+      icon: '☕',
+      items: [
+        { name: 'Brewed Coffee', desc: '', price: '₱70' },
+        { name: '3 in 1 Coffee', desc: '', price: '₱30' },
+        { name: 'Milo', desc: '', price: '₱30' },
+        { name: 'Powdered Milk', desc: '', price: '₱30' },
+        { name: 'Hot Tea (tea bag)', desc: '', price: '₱30' },
+        { name: 'Iced Tea', desc: '', price: '₱30' },
+        { name: 'Softdrinks (in can)', desc: '', price: '₱50' },
+        { name: 'Fruit Juice (in can)', desc: '', price: '₱50' },
+        { name: 'Red horse (in can)', desc: '', price: '₱70' },
+        { name: 'San Mig light (in can)', desc: '', price: '₱70' }
+      ]
+    }
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <div className="relative py-16 px-8 text-center bg-transparent">
-        <div className="max-w-3xl mx-auto">
-          <span className="inline-block px-4 py-1 bg-white/10 text-white/80 rounded-full text-sm font-medium mb-4 border border-white/20 backdrop-blur-md">
-            Our Healthcare Services
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
-            Quality Care for Your
-            <span className="text-[#55A2F5]"> Well-being</span>
-          </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto">
-            Comprehensive healthcare services tailored to meet your needs. Scroll down to explore our services.
-          </p>
+    <div className="w-full min-h-screen bg-[#f2f0eb] pb-24">
+      <div className="relative h-[400px] w-full bg-[#1E3932] overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 opacity-30">
+          <img 
+            src="/assets/images/gallery/cafe.jpg" 
+            alt="Northomes Cafe" 
+            className="w-full h-full object-cover"
+          />
         </div>
-        {/* Scroll indicator */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg className="w-6 h-6 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
+        <div className="relative z-10 text-center px-4">
+          <h4 className="text-[#CBA258] text-[12px] font-black uppercase tracking-[0.3em] mb-4">Northomes Cafe</h4>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">Dining & Room Service</h1>
+          <p className="text-white/90 text-lg max-w-2xl mx-auto font-medium">
+            Enjoy delicious, home-cooked meals from our in-house cafe. Available for dine-in or delivered straight to your room.
+          </p>
+          <div className="mt-8 inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-full text-white font-medium shadow-sm">
+            <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Open Daily: 6:00 AM - 10:00 PM
+          </div>
         </div>
       </div>
 
-      {/* Sticky Deck Services */}
-      <div className="relative px-4 md:px-8 pb-32">
-        {loadingServices ? (
-          <div className="text-center py-16">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white/40 mb-4"></div>
-            <p className="text-xl text-white/60 font-medium">Loading services...</p>
-          </div>
-        ) : (
-          <div className="max-w-4xl mx-auto">
-            {services.map((service, index) => (
-              <div
-                key={service.id}
-                className="sticky mb-4"
-                style={{
-                  top: `${160 + index * 20}px`,
-                  zIndex: index + 1
-                }}
-              >
-                <div
-                  className="rounded-2xl border border-white/20 overflow-hidden transform transition-all duration-300 hover:scale-[1.02]"
-                  style={{
-                    background: 'rgba(255,255,255,0.05)',
-                    backdropFilter: 'blur(20px)',
-                    WebkitBackdropFilter: 'blur(20px)',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-                  }}
-                >
-                  <div className="p-4 md:p-8">
-                    {/* Always horizontal: Icon LEFT, Text RIGHT */}
-                    <div className="flex flex-row items-start md:items-center gap-3 md:gap-6">
-                      {/* Icon - Left side */}
-                      <div className="flex-shrink-0">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center border border-white/20 shadow-lg">
-                          <span className="text-2xl sm:text-3xl md:text-5xl">
-                            {serviceIcons[service.name] || serviceIcons['default']}
-                          </span>
-                        </div>
-                        {/* Mobile card number under icon */}
-                        <div className="md:hidden mt-1 text-center">
-                          <span className="text-xs font-bold text-white/30">
-                            #{String(index + 1).padStart(2, '0')}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Content - Right side */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-1 sm:gap-2 md:gap-3 mb-1 md:mb-2">
-                          <h3 className="text-sm sm:text-base md:text-2xl font-bold text-white leading-tight">
-                            {service.name}
-                          </h3>
-                          <span className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 md:px-3 md:py-1 bg-white/10 text-white/60 rounded-full text-[10px] sm:text-xs md:text-sm font-medium border border-white/10">
-                            {service.duration}min
-                          </span>
-                        </div>
-                        <p className="text-white/50 mb-2 md:mb-4 text-[11px] sm:text-xs md:text-base line-clamp-2">
-                          {service.description || 'Professional healthcare service.'}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-2 md:gap-4">
-                          <div className="text-base sm:text-lg md:text-3xl font-bold text-[#55A2F5]">
-                            ₱{parseFloat(service.price).toLocaleString()}
-                          </div>
-                          <button
-                            onClick={() => document.getElementById('appointment-section')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="px-2 py-1.5 sm:px-3 sm:py-2 md:px-6 md:py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-lg md:rounded-xl font-semibold hover:opacity-90 transition-all flex items-center gap-1 md:gap-2 shadow-lg text-[10px] sm:text-xs md:text-base"
-                          >
-                            <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span className="hidden sm:inline">Book Now</span>
-                            <span className="sm:hidden">Book</span>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Card Number - Desktop only */}
-                      <div className="hidden md:flex flex-shrink-0 w-16 h-16 bg-white/5 rounded-full items-center justify-center border border-white/10">
-                        <span className="text-2xl font-bold text-white/20">
-                          {String(index + 1).padStart(2, '0')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom accent line */}
-                  <div className="h-1 bg-white/10"></div>
+      <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {menuCategories.map((category, idx) => (
+            <div key={idx} className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-10">
+              <div className="flex items-center gap-4 mb-8 pb-6 border-b border-black/5">
+                <span className="text-4xl">{category.icon}</span>
+                <div>
+                  <h2 className="text-2xl font-bold text-[#006241]">{category.title}</h2>
+                  {category.subtitle && <p className="text-sm font-medium text-[#CBA258] mt-1">{category.subtitle}</p>}
                 </div>
               </div>
-            ))}
-
-            {services.length === 0 && (
-              <div className="text-center py-16">
-                <p className="text-2xl text-white/30">No services available</p>
+              
+              <div className="space-y-8">
+                {category.items.map((item, i) => (
+                  <div key={i} className="flex justify-between gap-4 group">
+                    <div className="flex-1">
+                      <h3 className="text-[#000000]/87 font-bold text-lg mb-1 group-hover:text-[#00754A] transition-colors">{item.name}</h3>
+                      <p className="text-black/60 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="text-[#CBA258] font-bold text-lg">{item.price}</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
 
-      {/* CTA Section */}
-      <div className="py-16 px-8 relative overflow-hidden">
-        <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="rounded-3xl border border-white/20 p-8 md:p-12" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-              Ready to Book Your Appointment?
-            </h2>
-            <p className="text-white/60 mb-8">
-              Our team of healthcare professionals is ready to provide you with the best care.
+        <div className="mt-12 bg-[#1E3932] rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-lg border border-black/10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#006241] rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#CBA258] rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/4"></div>
+          
+          <div className="relative z-10">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Want to dine in the comfort of your room?</h3>
+            <p className="text-white/80 text-lg max-w-2xl mx-auto mb-8">
+              Room service is available during operating hours. Simply dial <span className="font-bold text-[#CBA258]">101</span> from your room telephone to place an order, and our staff will bring it right up.
             </p>
-            <button
-              onClick={() => document.getElementById('appointment-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-bold text-lg hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
-            >
-              Schedule Now
-            </button>
           </div>
         </div>
       </div>
@@ -4727,7 +5362,7 @@ function MenuItem({ item }) {
           <div className="text-7xl sm:text-8xl md:text-9xl group-hover:scale-110 transition-transform duration-300">{item.image}</div>
         )}
         {item.popular && (
-          <span className="absolute top-2 right-2 bg-blue-700 text-white px-2 py-1 rounded-full text-xs font-bold">
+          <span className="absolute top-2 right-2 bg-blue-700 text-[#000000]/87 px-2 py-1 rounded-full text-xs font-bold">
             Popular
           </span>
         )}
@@ -4749,7 +5384,7 @@ function MenuItem({ item }) {
           )}
           <button
             onClick={() => addToCart(item)}
-            className="btn-animated bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 sm:px-5 py-3 rounded-lg hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 text-sm font-semibold w-full whitespace-nowrap"
+            className="btn-animated bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 sm:px-5 py-3 rounded-lg hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 text-sm font-semibold w-full whitespace-nowrap"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -4794,7 +5429,7 @@ function CartDrawer({ setShowCart, setCurrentPage }) {
                   setShowCart(false);
                   setCurrentPage('cart');
                 }}
-                className="w-full bg-green-600 text-white py-4 rounded-full font-bold hover:bg-green-700 transition-all"
+                className="w-full bg-green-600 text-[#000000]/87 py-4 rounded-full font-bold hover:bg-green-700 transition-all"
               >
                 View Full Cart
               </button>
@@ -4817,13 +5452,13 @@ function CartPage({ setCurrentPage }) {
     return (
       <div className="min-h-screen py-12">
         <div className="max-w-md mx-auto px-8 text-center">
-          <div className="rounded-3xl border border-white/20 p-12" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <ShoppingCart className="w-16 h-16 text-white/20 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-2">Your cart is empty</h2>
-            <p className="text-white/50 mb-8">Add some services to get started</p>
+          <div className="rounded-3xl border border-black/5 p-12" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <ShoppingCart className="w-16 h-16 text-black/60 mx-auto mb-6" />
+            <h2 className="text-2xl font-bold text-[#000000]/87 mb-2">Your cart is empty</h2>
+            <p className="text-black/60 mb-8">Add some services to get started</p>
             <button
               onClick={() => setCurrentPage('menu')}
-              className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all"
+              className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all"
             >
               Browse Services
             </button>
@@ -4836,7 +5471,7 @@ function CartPage({ setCurrentPage }) {
   return (
     <div className="min-h-screen py-12">
       <div className="w-full max-w-6xl mx-auto px-6">
-        <h1 className="text-3xl font-bold text-white mb-10 text-center">Your Cart</h1>
+        <h1 className="text-3xl font-bold text-[#000000]/87 mb-10 text-center">Your Cart</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
@@ -4846,31 +5481,31 @@ function CartPage({ setCurrentPage }) {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="rounded-2xl border border-white/20 p-6 sticky top-[120px]" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <h3 className="text-lg font-bold text-white mb-6">Order Summary</h3>
+            <div className="rounded-2xl border border-black/5 p-6 sticky top-[120px]" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <h3 className="text-lg font-bold text-[#000000]/87 mb-6">Order Summary</h3>
               <div className="space-y-4 mb-8">
-                <div className="flex justify-between text-white/60">
+                <div className="flex justify-between text-black/60">
                   <span>Subtotal</span>
-                  <span className="text-white">Php {getTotalPrice().toFixed(2)}</span>
+                  <span className="text-[#000000]/87">Php {getTotalPrice().toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-white/60">
+                <div className="flex justify-between text-black/60">
                   <span>Booking Fee</span>
-                  <span className="text-white">Php {deliveryFee.toFixed(2)}</span>
+                  <span className="text-[#000000]/87">Php {deliveryFee.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-white/60">
+                <div className="flex justify-between text-black/60">
                   <span>Tax (8%)</span>
-                  <span className="text-white">Php {tax.toFixed(2)}</span>
+                  <span className="text-[#000000]/87">Php {tax.toFixed(2)}</span>
                 </div>
-                <div className="border-t border-white/10 pt-4 mt-4">
+                <div className="border-t border-black/5 pt-4 mt-4">
                   <div className="flex justify-between text-xl font-bold">
-                    <span className="text-white">Total</span>
-                    <span className="text-[#55A2F5]">Php {total.toFixed(2)}</span>
+                    <span className="text-[#000000]/87">Total</span>
+                    <span className="text-[#00754A]">Php {total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setCurrentPage('checkout')}
-                className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg"
+                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg"
               >
                 Proceed to Checkout
               </button>
@@ -4887,8 +5522,8 @@ function CartItemCard({ item, detailed = false }) {
   const { updateQuantity, removeFromCart } = useCart();
 
   return (
-    <div className="rounded-2xl border border-white/10 p-4 flex items-center gap-4 group transition-all hover:bg-white/5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-      <div className="bg-white/10 border border-white/10 rounded-xl flex items-center justify-center w-20 h-20 shrink-0">
+    <div className="rounded-2xl border border-black/5 p-4 flex items-center gap-4 group transition-all hover:bg-white shadow-sm" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <div className="bg-white shadow-sm border border-black/5 rounded-xl flex items-center justify-center w-20 h-20 shrink-0">
         {item.image && item.image.startsWith('assets/') ? (
           <img src={item.image} alt={item.name} className="object-contain w-full h-full rounded-lg" />
         ) : (
@@ -4896,29 +5531,29 @@ function CartItemCard({ item, detailed = false }) {
         )}
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="font-bold text-white text-base truncate">{item.name}</h3>
-        {item.selectedSize && <p className="text-white/40 text-xs mt-0.5">Category: {item.selectedSize}</p>}
-        <p className="text-[#55A2F5] font-bold text-lg mt-1">Php {item.price.toFixed(2)}</p>
+        <h3 className="font-bold text-[#000000]/87 text-base truncate">{item.name}</h3>
+        {item.selectedSize && <p className="text-black/60 text-xs mt-0.5">Category: {item.selectedSize}</p>}
+        <p className="text-[#00754A] font-bold text-lg mt-1">Php {item.price.toFixed(2)}</p>
       </div>
       <div className="flex items-center gap-3">
         <button
           onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
-          className="w-8 h-8 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg flex items-center justify-center transition-all"
+          className="w-8 h-8 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 rounded-lg flex items-center justify-center transition-all"
         >
-          <Minus className="w-4 h-4 text-white" />
+          <Minus className="w-4 h-4 text-[#000000]/87" />
         </button>
-        <span className="font-bold text-white w-4 text-center">{item.quantity}</span>
+        <span className="font-bold text-[#000000]/87 w-4 text-center">{item.quantity}</span>
         <button
           onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
-          className="w-8 h-8 bg-[#55A2F5] hover:opacity-90 rounded-lg flex items-center justify-center transition-all shadow-lg"
+          className="w-8 h-8 bg-[#00754A] hover:opacity-90 rounded-lg flex items-center justify-center transition-all shadow-lg"
         >
-          <Plus className="w-4 h-4 text-white" />
+          <Plus className="w-4 h-4 text-[#000000]/87" />
         </button>
       </div>
       {detailed && (
         <button
           onClick={() => removeFromCart(item.id, item.selectedSize)}
-          className="text-white/20 hover:text-red-400 p-2 transition-all ml-2"
+          className="text-black/60 hover:text-red-400 p-2 transition-all ml-2"
         >
           <Trash2 className="w-5 h-5" />
         </button>
@@ -5094,13 +5729,13 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
   return (
     <div className="min-h-screen py-12">
       <div className="w-full max-w-6xl mx-auto px-6">
-        <h1 className="text-3xl font-bold text-white mb-10 text-center">Checkout</h1>
+        <h1 className="text-3xl font-bold text-[#000000]/87 mb-10 text-center">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <div className="px-6 py-5 bg-white/5 border-b border-white/10">
-                <h3 className="text-lg font-bold text-white">Delivery Address</h3>
+            <form onSubmit={handleSubmit} className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <div className="px-6 py-5 bg-white shadow-sm border-b border-black/5">
+                <h3 className="text-lg font-bold text-[#000000]/87">Delivery Address</h3>
               </div>
               <div className="p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -5189,7 +5824,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                         <button
                           type="button"
                           onClick={requestNotificationPermission}
-                          className="bg-green-600 text-white px-4 py-2 rounded-md text-xs font-medium hover:bg-green-700 transition-all flex items-center gap-2"
+                          className="bg-green-600 text-[#000000]/87 px-4 py-2 rounded-full text-xs font-medium hover:bg-green-700 transition-all flex items-center gap-2"
                         >
                           <span>🔔</span>
                           <span>Enable Notifications</span>
@@ -5335,9 +5970,9 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-3 rounded-md font-medium transition-all text-sm ${isSubmitting
+                className={`w-full py-3 rounded-full font-medium transition-all text-sm ${isSubmitting
                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-green-600 text-white hover:bg-green-700'
+                    : 'bg-green-600 text-[#000000]/87 hover:bg-green-700'
                   }`}
               >
                 {isSubmitting ? 'Processing...' : `Place Order - Php ${total.toFixed(2)}`}
@@ -5387,7 +6022,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-6 h-6 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </div>
@@ -5402,7 +6037,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
         {/* Order Number */}
         <div className="bg-green-600 rounded-lg p-4 mb-6 text-center">
           <div className="text-xs text-green-200 mb-1">Order Number</div>
-          <div className="text-xl font-medium text-white">{displayOrderNumber}</div>
+          <div className="text-xl font-medium text-[#000000]/87">{displayOrderNumber}</div>
         </div>
 
         {/* Order Status */}
@@ -5414,7 +6049,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
             <div className="flex items-start gap-3">
               <div className="flex flex-col items-center">
                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                 </div>
@@ -5462,7 +6097,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
         <div className="flex gap-3">
           <button
             onClick={() => setCurrentPage('home')}
-            className="flex-1 bg-green-600 text-white py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
+            className="flex-1 bg-green-600 text-[#000000]/87 py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
           >
             Back to Home
           </button>
@@ -5486,7 +6121,7 @@ function PaymentFailedPage({ setCurrentPage, orderNumber }) {
         {/* Header */}
         <div className="text-center mb-6">
           <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
-            <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-6 h-6 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
@@ -5520,7 +6155,7 @@ function PaymentFailedPage({ setCurrentPage, orderNumber }) {
         <div className="flex flex-col gap-3">
           <button
             onClick={() => setCurrentPage('checkout')}
-            className="w-full bg-green-600 text-white py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
+            className="w-full bg-green-600 text-[#000000]/87 py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
           >
             Try Again
           </button>
@@ -5797,7 +6432,7 @@ function QueueAdminTab({ setCurrentPage }) {
                       <div className="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
                         <div className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-500"
                           style={{ width: `${Math.max((b.count / maxBucket) * 100, b.count > 0 ? 8 : 0)}%`, backgroundColor: b.color }}>
-                          {b.count > 0 && <span className="text-[10px] font-bold text-white">{b.count}</span>}
+                          {b.count > 0 && <span className="text-[10px] font-bold text-[#000000]/87">{b.count}</span>}
                         </div>
                       </div>
                     </div>
@@ -5834,7 +6469,7 @@ function QueueAdminTab({ setCurrentPage }) {
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between">
           <p className="text-red-600 text-sm">Are you sure? This will delete all tickets for today.</p>
           <div className="flex gap-2">
-            <button onClick={resetQueue} className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Yes, Reset</button>
+            <button onClick={resetQueue} className="bg-red-500 text-[#000000]/87 px-4 py-2 rounded-full text-sm font-medium">Yes, Reset</button>
             <button onClick={() => setShowResetConfirm(false)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium">Cancel</button>
           </div>
         </div>
@@ -5856,7 +6491,7 @@ function QueueAdminTab({ setCurrentPage }) {
         ) : (
           <>
             {/* Table Header */}
-            <div className="hidden md:grid md:grid-cols-8 gap-3 px-4 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-xs font-semibold text-white uppercase tracking-wider items-center">
+            <div className="hidden md:grid md:grid-cols-8 gap-3 px-4 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider items-center">
               <span>Ticket</span>
               <span>Name</span>
               <span>Phone</span>
@@ -5870,7 +6505,7 @@ function QueueAdminTab({ setCurrentPage }) {
               <div key={t.id} className={`grid grid-cols-1 md:grid-cols-8 gap-3 px-4 py-3 items-center text-sm border-b border-blue-100 hover:bg-blue-50/50 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
                 <div className="font-bold text-blue-700 min-w-0">
                   {t.ticket_number}
-                  {t.is_priority && <span className="ml-1 text-[9px] font-bold bg-orange-500 text-white px-1.5 py-0.5 rounded-full uppercase">{t.priority_type || 'Priority'}</span>}
+                  {t.is_priority && <span className="ml-1 text-[9px] font-bold bg-orange-500 text-[#000000]/87 px-1.5 py-0.5 rounded-full uppercase">{t.priority_type || 'Priority'}</span>}
                 </div>
                 <span className="text-gray-800 font-medium truncate">{t.customer_name}</span>
                 <span className="text-gray-600 truncate">{t.cellphone_number}</span>
@@ -5921,7 +6556,7 @@ function QueueAdminTab({ setCurrentPage }) {
               maxLength={3}
               className="w-20 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
-            <button onClick={addTransactionType} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all">
+            <button onClick={addTransactionType} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all">
               Add
             </button>
           </div>
@@ -5968,7 +6603,7 @@ function QueueAdminTab({ setCurrentPage }) {
               placeholder="Window name"
               className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
-            <button onClick={addTeller} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all">
+            <button onClick={addTeller} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all">
               Add
             </button>
           </div>
@@ -5999,7 +6634,7 @@ function QueueAdminTab({ setCurrentPage }) {
               setMarqueeSaving(false);
             }}
             disabled={marqueeSaving}
-            className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
+            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
           >
             {marqueeSaving ? 'Saving...' : 'Save'}
           </button>
@@ -6041,7 +6676,7 @@ function QueueAdminTab({ setCurrentPage }) {
               setTemplateSaving(false);
             }}
             disabled={templateSaving}
-            className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
+            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
           >
             {templateSaving ? 'Saving...' : 'Set as Default'}
           </button>
@@ -6076,7 +6711,7 @@ function QueueAdminTab({ setCurrentPage }) {
                   className="px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm focus:border-[#576CA8] focus:outline-none" />
               </div>
               <button onClick={fetchReport} disabled={reportLoading}
-                className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50">
+                className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-5 py-2 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50">
                 {reportLoading ? 'Loading...' : 'Generate Report'}
               </button>
               <button onClick={() => {
@@ -6094,19 +6729,19 @@ function QueueAdminTab({ setCurrentPage }) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
                     <p className="text-blue-200 text-xs uppercase tracking-wider">Total Tickets</p>
-                    <p className="text-3xl font-bold text-white">{reportData.summary.totalTickets}</p>
+                    <p className="text-3xl font-bold text-[#000000]/87">{reportData.summary.totalTickets}</p>
                   </div>
                   <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
                     <p className="text-blue-200 text-xs uppercase tracking-wider">Avg Wait</p>
-                    <p className="text-2xl font-bold text-white">{formatSeconds(reportData.summary.avgWaitTime)}</p>
+                    <p className="text-2xl font-bold text-[#000000]/87">{formatSeconds(reportData.summary.avgWaitTime)}</p>
                   </div>
                   <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
                     <p className="text-blue-200 text-xs uppercase tracking-wider">Avg Serving</p>
-                    <p className="text-2xl font-bold text-white">{formatSeconds(reportData.summary.avgServingTime)}</p>
+                    <p className="text-2xl font-bold text-[#000000]/87">{formatSeconds(reportData.summary.avgServingTime)}</p>
                   </div>
                   <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
                     <p className="text-blue-200 text-xs uppercase tracking-wider">Peak Hour</p>
-                    <p className="text-2xl font-bold text-white">{reportData.summary.peakHour !== null ? `${reportData.summary.peakHour}:00` : '-'}</p>
+                    <p className="text-2xl font-bold text-[#000000]/87">{reportData.summary.peakHour !== null ? `${reportData.summary.peakHour}:00` : '-'}</p>
                   </div>
                 </div>
 
@@ -6131,7 +6766,7 @@ function QueueAdminTab({ setCurrentPage }) {
                   <div className="mb-6">
                     <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">By Transaction Type</h4>
                     <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
-                      <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-xs font-semibold text-white uppercase tracking-wider">
+                      <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider">
                         <span>Type</span>
                         <span className="text-center">Count</span>
                         <span className="text-right">Avg Wait</span>
@@ -6164,7 +6799,7 @@ function QueueAdminTab({ setCurrentPage }) {
                                     className="bg-blue-600 h-full rounded-full flex items-center justify-end pr-2 transition-all"
                                     style={{ width: `${Math.max((item.count / maxCount) * 100, 8)}%` }}
                                   >
-                                    <span className="text-white text-xs font-bold">{item.count}</span>
+                                    <span className="text-[#000000]/87 text-xs font-bold">{item.count}</span>
                                   </div>
                                 </div>
                               </div>
@@ -6181,7 +6816,7 @@ function QueueAdminTab({ setCurrentPage }) {
                   <div>
                     <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">Daily Breakdown</h4>
                     <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
-                      <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-xs font-semibold text-white uppercase tracking-wider">
+                      <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider">
                         <span>Date</span>
                         <span className="text-center">Total</span>
                         <span className="text-right">Completed</span>
@@ -6256,7 +6891,7 @@ function QueuePage({ setCurrentPage }) {
         <p className="text-gray-500 text-sm mb-6 text-center max-w-sm mt-[30px]">Tap the button below to get your queue number and wait for your turn to be called.</p>
         <button
           onClick={() => setView('form')}
-          className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-[#465a8f] transition-all shadow-lg hover:shadow-[#576CA8]/20 hover:-translate-y-0.5 flex items-center space-x-3"
+          className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-[#465a8f] transition-all shadow-lg hover:shadow-[#576CA8]/20 hover:-translate-y-0.5 flex items-center space-x-3"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -6272,7 +6907,7 @@ function QueuePage({ setCurrentPage }) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4 py-8">
         <div className="bg-white border border-blue-200 rounded-2xl shadow-sm p-8 max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#00754A] to-[#006241]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-8 h-8 text-[#576CA8]" />
           </div>
           <p className="text-gray-500 text-sm mb-2">Your Ticket Number</p>
@@ -6300,7 +6935,7 @@ function QueuePage({ setCurrentPage }) {
           <p className="text-gray-400 text-xs mb-6">{ticket.is_priority ? 'You are in the priority lane. Please wait for your number.' : 'Please wait for your number to be called.'}</p>
           <button
             onClick={resetForm}
-            className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all"
+            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all"
           >
             Okay
           </button>
@@ -6328,7 +6963,7 @@ function QueuePage({ setCurrentPage }) {
               value={formData.customerName}
               onChange={(e) => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
               placeholder="Enter your full name"
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
             />
           </div>
           <div>
@@ -6339,7 +6974,7 @@ function QueuePage({ setCurrentPage }) {
               value={formData.cellphoneNumber}
               onChange={(e) => setFormData(prev => ({ ...prev, cellphoneNumber: e.target.value }))}
               placeholder="09XX XXX XXXX"
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
             />
           </div>
           <div>
@@ -6348,7 +6983,7 @@ function QueuePage({ setCurrentPage }) {
               required
               value={formData.transactionType}
               onChange={(e) => setFormData(prev => ({ ...prev, transactionType: e.target.value }))}
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 text-sm"
             >
               <option value="" className="bg-white text-gray-800">Select transaction type</option>
               {transactionTypes.map(type => (
@@ -6363,7 +6998,7 @@ function QueuePage({ setCurrentPage }) {
                 type="checkbox"
                 checked={formData.isPriority}
                 onChange={(e) => setFormData(prev => ({ ...prev, isPriority: e.target.checked, priorityType: e.target.checked ? prev.priorityType : '' }))}
-                className="w-5 h-5 rounded accent-[#55A2F5]"
+                className="w-5 h-5 rounded accent-[#00754A]"
               />
               <div>
                 <span className="text-gray-800 text-sm font-medium">Priority Lane</span>
@@ -6377,7 +7012,7 @@ function QueuePage({ setCurrentPage }) {
                     key={type}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, priorityType: type }))}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${formData.priorityType === type ? 'bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white border-[#576CA8]' : 'bg-blue-50 text-gray-500 border-blue-200 hover:border-blue-400'}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${formData.priorityType === type ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white border-[#576CA8]' : 'bg-blue-50 text-gray-500 border-blue-200 hover:border-blue-400'}`}
                   >
                     {type}
                   </button>
@@ -6388,7 +7023,7 @@ function QueuePage({ setCurrentPage }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-lg font-bold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50 mt-2"
+            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-bold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50 mt-2"
           >
             {isSubmitting ? 'Creating...' : 'Get Ticket Number'}
           </button>
@@ -6568,7 +7203,7 @@ function QueueDisplayPage() {
                       <>
                         <div>
                           <p className="text-cyan-300 text-xs font-bold uppercase">Now Serving</p>
-                          <p className="text-6xl text-white leading-none mt-2" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
+                          <p className="text-6xl text-[#000000]/87 leading-none mt-2" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
                           <p className="text-slate-300 text-sm truncate mt-1">{ticket.customer_name}</p>
                         </div>
                         <div className="bg-cyan-600 text-slate-900 rounded-lg px-3 py-1.5 text-center font-black text-2xl">
@@ -6592,7 +7227,7 @@ function QueueDisplayPage() {
               ) : (
                 waiting.slice(0, 12).map((ticket) => (
                   <div key={ticket.id} className="bg-slate-800 rounded-lg px-3 py-2 flex items-center justify-between">
-                    <span className="text-white font-semibold">{ticket.ticket_number}</span>
+                    <span className="text-[#000000]/87 font-semibold">{ticket.ticket_number}</span>
                     <span className="text-cyan-300 text-xs">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
                 ))
@@ -6622,7 +7257,7 @@ function QueueDisplayPage() {
         <div className="bg-gradient-to-r from-amber-700 to-orange-700 px-10 py-4 flex items-center justify-between">
           <div>
             <p className="text-amber-100 text-sm tracking-[0.3em]">SERVICE CENTER</p>
-            <h1 className="text-5xl font-black text-white leading-none">LIVE CALLING</h1>
+            <h1 className="text-5xl font-black text-[#000000]/87 leading-none">LIVE CALLING</h1>
           </div>
           <div className="text-amber-100 text-3xl font-mono font-bold">
             {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
@@ -6637,7 +7272,7 @@ function QueueDisplayPage() {
             ) : (
               <>
                 <p className="text-[180px] leading-none text-gray-900" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
-                <div className="mt-2 px-8 py-2 rounded-full bg-orange-600 text-white text-3xl font-black">
+                <div className="mt-2 px-8 py-2 rounded-full bg-orange-600 text-[#000000]/87 text-3xl font-black">
                   Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}
                 </div>
                 <p className="mt-3 text-gray-600 text-lg">{serving[0].customer_name}</p>
@@ -6680,8 +7315,8 @@ function QueueDisplayPage() {
         {marqueeText && (
           <div className="h-[48px] bg-orange-600 flex items-center overflow-hidden">
             <div className="animate-marquee whitespace-nowrap">
-              <span className="text-white text-lg font-semibold mx-8">{marqueeText}</span>
-              <span className="text-white text-lg font-semibold mx-8">{marqueeText}</span>
+              <span className="text-[#000000]/87 text-lg font-semibold mx-8">{marqueeText}</span>
+              <span className="text-[#000000]/87 text-lg font-semibold mx-8">{marqueeText}</span>
             </div>
           </div>
         )}
@@ -6737,7 +7372,7 @@ function QueueDisplayPage() {
             </div>
           </div>
         </div>
-        {marqueeText && <div className="h-[44px] bg-gray-900 text-white flex items-center overflow-hidden"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
+        {marqueeText && <div className="h-[44px] bg-gray-900 text-[#000000]/87 flex items-center overflow-hidden"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
       </div>
     );
   }
@@ -6790,7 +7425,7 @@ function QueueDisplayPage() {
     return (
       <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-[#F8FAFC]">
         <div className="bg-[#0F172A] px-8 py-3 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-white">Queue Information Panel</h1>
+          <h1 className="text-2xl font-semibold text-[#000000]/87">Queue Information Panel</h1>
           <div className="text-slate-200 text-xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         </div>
         <div className="p-4 grid grid-cols-12 gap-4 flex-1 overflow-hidden">
@@ -6842,8 +7477,8 @@ function QueueDisplayPage() {
   return (
     <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-white">
       <div className="bg-[#2F6690] px-8 py-2 flex items-center justify-center relative">
-        <h1 className="text-6xl font-light tracking-widest text-white">NOW SERVING</h1>
-        <div className="absolute right-8 text-2xl font-mono font-bold text-white">
+        <h1 className="text-6xl font-light tracking-widest text-[#000000]/87">NOW SERVING</h1>
+        <div className="absolute right-8 text-2xl font-mono font-bold text-[#000000]/87">
           {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
         </div>
       </div>
@@ -6859,14 +7494,14 @@ function QueueDisplayPage() {
                   <div className="flex-1 px-4 py-4 pr-12 flex flex-col items-center justify-center">
                     <div className="flex items-center gap-2">
                       <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Ticket No.</p>
-                      {ticket.is_priority && <span className="text-[9px] font-bold bg-orange-500 text-white px-2 py-0.5 rounded-full uppercase">{ticket.priority_type || 'Priority'}</span>}
+                      {ticket.is_priority && <span className="text-[9px] font-bold bg-orange-500 text-[#000000]/87 px-2 py-0.5 rounded-full uppercase">{ticket.priority_type || 'Priority'}</span>}
                     </div>
                     <p className="text-7xl text-gray-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
                     <p className="text-base font-semibold text-gray-500 mt-1">{ticket.customer_name}</p>
                   </div>
                   <div className="bg-[#2F6690] flex flex-col items-center justify-center px-8 relative" style={{ clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 0% 100%)' }}>
                     <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest ml-3">Window</p>
-                    <p className="text-6xl text-white leading-none ml-3" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.teller_window?.replace(/\D/g, '') || '-'}</p>
+                    <p className="text-6xl text-[#000000]/87 leading-none ml-3" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.teller_window?.replace(/\D/g, '') || '-'}</p>
                   </div>
                 </div>
               ))}
@@ -6888,11 +7523,11 @@ function QueueDisplayPage() {
               <>
                 <div className="flex flex-col items-center">
                   <p className="text-[120px] text-gray-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
-                  {serving[0].is_priority && <span className="mt-2 text-sm font-bold bg-orange-500 text-white px-4 py-1 rounded-full uppercase">{serving[0].priority_type || 'Priority'}</span>}
+                  {serving[0].is_priority && <span className="mt-2 text-sm font-bold bg-orange-500 text-[#000000]/87 px-4 py-1 rounded-full uppercase">{serving[0].priority_type || 'Priority'}</span>}
                 </div>
                 <div className="bg-[#3A7CA5] rounded-xl px-8 py-3 flex flex-col items-center gap-1">
                   <span className="text-xs font-bold text-blue-200 uppercase tracking-widest">Window</span>
-                  <span className="text-5xl text-white" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].teller_window?.replace(/\D/g, '') || '-'}</span>
+                  <span className="text-5xl text-[#000000]/87" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].teller_window?.replace(/\D/g, '') || '-'}</span>
                 </div>
               </>
             )}
@@ -7076,7 +7711,7 @@ function QueueTellerPage({ setCurrentPage }) {
                 key={teller.id}
                 onClick={() => setSelectedWindow(teller.window_name)}
                 disabled={!tellerName.trim()}
-                className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] border border-[#2D72C0] text-white py-4 rounded-xl font-semibold text-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:opacity-100"
+                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] border border-[#006241] text-white py-4 rounded-xl font-semibold text-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:opacity-100"
               >
                 {teller.window_name}
               </button>
@@ -7151,7 +7786,7 @@ function QueueTellerPage({ setCurrentPage }) {
           {currentTicket ? (
             <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-6 -mt-[20px]">
               <div className="bg-[#274690] px-4 py-2.5">
-                <p className="text-white/70 text-xs font-medium uppercase tracking-wider">Now Serving</p>
+                <p className="text-black/60 text-xs font-medium uppercase tracking-wider">Now Serving</p>
               </div>
               <div className="p-5 md:p-8">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-5">
@@ -7166,20 +7801,20 @@ function QueueTellerPage({ setCurrentPage }) {
                 <div className="grid grid-cols-3 gap-2 md:flex md:gap-3 md:justify-center">
                   <button
                     onClick={completeTicket}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2"
+                    className="bg-green-500 hover:bg-green-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2"
                   >
                     <Check className="w-4 h-4 md:w-5 md:h-5" />
                     Complete
                   </button>
                   <button
                     onClick={() => setShowTransferModal(true)}
-                    className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
+                    className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
                   >
                     Transfer
                   </button>
                   <button
                     onClick={skipTicket}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
+                    className="bg-gray-500 hover:bg-gray-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
                   >
                     Skip
                   </button>
@@ -7189,14 +7824,14 @@ function QueueTellerPage({ setCurrentPage }) {
           ) : (
             <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-6 -mt-[20px]">
               <div className="bg-[#274690] px-4 py-2.5">
-                <p className="text-white/70 text-xs font-medium uppercase tracking-wider">Now Serving</p>
+                <p className="text-black/60 text-xs font-medium uppercase tracking-wider">Now Serving</p>
               </div>
               <div className="p-5 md:p-8 text-center">
                 <p className="text-gray-400 text-base mb-4">No ticket being served</p>
                 <button
                   onClick={callNext}
                   disabled={isLoading || waitingCount === 0}
-                  className="bg-[#274690] text-white px-10 py-3.5 rounded-full font-bold text-base hover:bg-[#1e3570] transition-all disabled:opacity-30 w-full md:w-auto"
+                  className="bg-[#274690] text-[#000000]/87 px-10 py-3.5 rounded-full font-bold text-base hover:bg-[#1e3570] transition-all disabled:opacity-30 w-full md:w-auto"
                 >
                   {isLoading ? 'Calling...' : 'Call Next'}
                 </button>
@@ -7209,8 +7844,8 @@ function QueueTellerPage({ setCurrentPage }) {
           {skippedTickets.length > 0 && (
             <div className="bg-white border border-gray-200 shadow-sm overflow-hidden">
               <div className="bg-[#274690] px-4 py-3 flex items-center justify-between">
-                <h3 className="text-white font-bold text-base">Skipped Tickets</h3>
-                <span className="bg-white/20 text-white text-xs font-semibold px-2 py-0.5 rounded-full">{skippedTickets.length}</span>
+                <h3 className="text-[#000000]/87 font-bold text-base">Skipped Tickets</h3>
+                <span className="bg-white shadow-sm text-[#000000]/87 text-xs font-semibold px-2 py-0.5 rounded-full">{skippedTickets.length}</span>
               </div>
               <div className="divide-y divide-gray-100">
                 {/* Column header */}
@@ -7246,8 +7881,8 @@ function QueueTellerPage({ setCurrentPage }) {
         <div className="lg:w-80 xl:w-96 flex-shrink-0 -mt-[20px]">
           <div className="bg-white border border-gray-200 shadow-sm overflow-hidden lg:sticky lg:top-6">
             <div className="bg-[#274690] px-4 py-3 flex items-center justify-between">
-              <h3 className="text-white font-bold text-base">Waiting Queue</h3>
-              <span className="bg-white/20 text-white text-xs font-semibold px-2 py-0.5 rounded-full">{waitingTickets.length}</span>
+              <h3 className="text-[#000000]/87 font-bold text-base">Waiting Queue</h3>
+              <span className="bg-white shadow-sm text-[#000000]/87 text-xs font-semibold px-2 py-0.5 rounded-full">{waitingTickets.length}</span>
             </div>
             <div className="divide-y divide-gray-100">
               {/* Column header */}
@@ -7261,7 +7896,7 @@ function QueueTellerPage({ setCurrentPage }) {
                 <div className="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
                   {waitingTickets.map((ticket, index) => (
                     <div key={ticket.id} className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${index === 0 ? 'bg-amber-50 border-l-3 border-l-amber-400' : index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
-                      <span className={`w-6 text-center text-xs font-bold rounded-full leading-5 ${index === 0 ? 'bg-amber-400 text-white' : 'bg-gray-200 text-gray-500'}`}>{index + 1}</span>
+                      <span className={`w-6 text-center text-xs font-bold rounded-full leading-5 ${index === 0 ? 'bg-amber-400 text-[#000000]/87' : 'bg-gray-200 text-gray-500'}`}>{index + 1}</span>
                       <span className="w-16 text-sm font-bold text-gray-900">{ticket.ticket_number}</span>
                       <span className="text-sm text-gray-700 truncate flex-1">{ticket.customer_name}</span>
                       <span className="text-xs text-gray-400">{ticket.transaction_type}</span>
@@ -7278,7 +7913,7 @@ function QueueTellerPage({ setCurrentPage }) {
 
       {/* Transfer Modal */}
       {showTransferModal && currentTicket && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 px-4">
           <div className="bg-white border border-blue-200 rounded-2xl p-6 max-w-sm w-full shadow-xl">
             <h3 className="text-gray-800 font-bold text-lg mb-2">Transfer Ticket</h3>
             <p className="text-gray-500 text-sm mb-1">
@@ -7325,8 +7960,8 @@ function GuestCheckinPage({ setCurrentPage }) {
   const [ckReservation, setCkReservation] = React.useState(null);
   const [ckArriving, setCkArriving] = React.useState(false);
 
-  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-white placeholder-white/40 text-sm";
-  const labelCls = "block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5";
+  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[#000000]/87 placeholder-white/40 text-sm";
+  const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
 
 
   return (
@@ -7337,34 +7972,34 @@ function GuestCheckinPage({ setCurrentPage }) {
         {ckStep === 1 && (
           <>
             {/* Glass card */}
-            <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
               {/* Header — matches booking form header exactly */}
-              <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+              <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-white font-bold text-lg tracking-tight">Guest Check-In</h3>
-                    <p className="text-white/70 text-xs mt-0.5">Find your reservation to begin check-in</p>
+                    <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">Guest Check-In</h3>
+                    <p className="text-black/60 text-xs mt-0.5">Find your reservation to begin check-in</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-full">
+                  <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
                     </span>
-                    <span className="text-white text-xs font-semibold tracking-wide">Check-In Open</span>
+                    <span className="text-[#000000]/87 text-xs font-semibold tracking-wide">Check-In Open</span>
                   </div>
                 </div>
               </div>
 
               <div className="p-6">
                 {/* Method toggle */}
-                <div className="flex bg-white/10 rounded-xl p-1 mb-5 gap-1">
+                <div className="flex bg-white shadow-sm rounded-xl p-1 mb-5 gap-1">
                   {[
                     { id: 'id', label: 'Confirmation #' },
                     { id: 'email', label: 'Email & Name' },
                   ].map((m) => (
                     <button key={m.id} onClick={() => { setCkMethod(m.id); setCkError(''); }}
-                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${ckMethod === m.id ? 'bg-white/20 text-white shadow' : 'text-white/50 hover:text-white/80'}`}>
+                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${ckMethod === m.id ? 'bg-white shadow-sm text-[#000000]/87 shadow' : 'text-black/60 hover:text-black/60'}`}>
                       {m.label}
                     </button>
                   ))}
@@ -7382,7 +8017,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                       className={inputCls + " text-xl font-mono font-bold"}
                       autoFocus
                     />
-                    <p className="text-white/30 text-xs mt-2">Your confirmation number was sent in your booking email or SMS.</p>
+                    <p className="text-black/60 text-xs mt-2">Your confirmation number was sent in your booking email or SMS.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -7409,7 +8044,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                 <button
                   onClick={handleLookup}
                   disabled={ckLoading || (ckMethod === 'id' ? !ckConfId : !ckEmail || !ckLastName)}
-                  className="w-full mt-5 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:bg-white/10 disabled:text-white/30 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                  className="w-full mt-5 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-white shadow-sm disabled:text-black/60 text-white font-bold py-3 rounded-full transition-colors text-sm"
                 >
                   {ckLoading ? 'Searching...' : 'Find My Reservation →'}
                 </button>
@@ -7417,7 +8052,7 @@ function GuestCheckinPage({ setCurrentPage }) {
             </div>
 
             <div className="text-center mt-5">
-              <button onClick={() => setCurrentPage('home')} className="text-white/40 hover:text-white/70 text-sm transition-colors">
+              <button onClick={() => setCurrentPage('home')} className="text-black/60 hover:text-black/60 text-sm transition-colors">
                 ← Back to Home
               </button>
             </div>
@@ -7427,34 +8062,34 @@ function GuestCheckinPage({ setCurrentPage }) {
         {/* ── Step 2 — Confirm ── */}
         {ckStep === 2 && ckReservation && (
           <>
-            <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
               {/* Header */}
-              <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+              <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-white font-bold text-lg tracking-tight">Confirm Your Stay</h3>
-                    <p className="text-white/70 text-xs mt-0.5">Please verify your reservation details</p>
+                    <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">Confirm Your Stay</h3>
+                    <p className="text-black/60 text-xs mt-0.5">Please verify your reservation details</p>
                   </div>
-                  <span className="text-white/50 text-xs bg-white/10 px-3 py-1.5 rounded-full font-mono">#{ckReservation.id}</span>
+                  <span className="text-black/60 text-xs bg-white shadow-sm px-3 py-1.5 rounded-full font-mono">#{ckReservation.id}</span>
                 </div>
               </div>
 
               <div className="p-6">
                 <SectionDivider title="Guest" icon={<span className="text-sm">👤</span>} />
-                <div className="bg-white/10 rounded-xl border border-white/10 p-4 space-y-2 mb-2">
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Name</span><span className="font-semibold text-white">{ckReservation.full_name}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Email</span><span className="text-white/80">{ckReservation.email}</span></div>
+                <div className="bg-white shadow-sm rounded-xl border border-black/5 p-4 space-y-2 mb-2">
+                  <div className="flex justify-between text-sm"><span className="text-black/60">Name</span><span className="font-semibold text-[#000000]/87">{ckReservation.full_name}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/60">Email</span><span className="text-black/60">{ckReservation.email}</span></div>
                 </div>
 
                 <SectionDivider title="Reservation" icon={<span className="text-sm">🏨</span>} />
-                <div className="bg-white/10 rounded-xl border border-white/10 p-4 space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Room Type</span><span className="font-semibold text-white bg-white/10 px-2 py-0.5 rounded text-xs">{ckReservation.room_type}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Check-In</span><span className="text-white/80">{fmtDate(ckReservation.check_in_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Check-Out</span><span className="text-white/80">{fmtDate(ckReservation.check_out_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Duration</span><span className="text-white/80">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
+                <div className="bg-white shadow-sm rounded-xl border border-black/5 p-4 space-y-2">
+                  <div className="flex justify-between text-sm"><span className="text-black/60">Room Type</span><span className="font-semibold text-[#000000]/87 bg-white shadow-sm px-2 py-0.5 rounded text-xs">{ckReservation.room_type}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/60">Check-In</span><span className="text-black/60">{fmtDate(ckReservation.check_in_date)}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/60">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/60">Duration</span><span className="text-black/60">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
                   {ckReservation.number_of_guests && (
-                    <div className="flex justify-between text-sm"><span className="text-white/50">Guests</span><span className="text-white/80">{ckReservation.number_of_guests}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-black/60">Guests</span><span className="text-black/60">{ckReservation.number_of_guests}</span></div>
                   )}
                 </div>
 
@@ -7470,11 +8105,11 @@ function GuestCheckinPage({ setCurrentPage }) {
                 )}
 
                 <button onClick={handleArrive} disabled={ckArriving}
-                  className="w-full mt-5 bg-green-600 hover:bg-green-700 disabled:bg-white/10 disabled:text-white/30 text-white font-bold py-3 rounded-xl transition-colors text-sm">
+                  className="w-full mt-5 bg-green-600 hover:bg-green-700 disabled:bg-white shadow-sm disabled:text-black/60 text-[#000000]/87 font-bold py-3 rounded-full transition-colors text-sm">
                   {ckArriving ? 'Checking you in...' : "Yes, I'm here — Check Me In ✓"}
                 </button>
                 <button onClick={() => { setCkStep(1); setCkReservation(null); setCkError(''); }}
-                  className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white/60 font-semibold py-2.5 rounded-xl transition-colors text-sm">
+                  className="w-full mt-2 bg-white shadow-sm hover:bg-white shadow-sm text-black/60 font-semibold py-2.5 rounded-xl transition-colors text-sm">
                   Not my reservation
                 </button>
               </div>
@@ -7484,14 +8119,14 @@ function GuestCheckinPage({ setCurrentPage }) {
 
         {/* ── Step 3 — Success ── */}
         {ckStep === 3 && ckReservation && (
-          <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
             {/* Header */}
-            <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+            <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-bold text-lg tracking-tight">You&apos;re Checked In!</h3>
-                  <p className="text-white/70 text-xs mt-0.5">Please proceed to the front desk for your key</p>
+                  <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">You&apos;re Checked In!</h3>
+                  <p className="text-black/60 text-xs mt-0.5">Please proceed to the front desk for your key</p>
                 </div>
                 <div className="flex items-center gap-2 bg-green-500/30 border border-green-400/40 px-3 py-1.5 rounded-full">
                   <span className="relative flex h-2 w-2">
@@ -7511,29 +8146,29 @@ function GuestCheckinPage({ setCurrentPage }) {
                 </svg>
               </div>
 
-              <h2 className="text-2xl font-black text-white mb-1">Welcome, {firstName(ckReservation.full_name)}!</h2>
-              <p className="text-white/50 text-sm mb-6">You are now in our system.</p>
+              <h2 className="text-2xl font-black text-[#000000]/87 mb-1">Welcome, {firstName(ckReservation.full_name)}!</h2>
+              <p className="text-black/60 text-sm mb-6">You are now in our system.</p>
 
               {/* Key instructions */}
-              <div className="bg-white/10 border border-white/15 rounded-xl px-5 py-4 mb-5 text-left">
+              <div className="bg-white shadow-sm border border-black/5 rounded-xl px-5 py-4 mb-5 text-left">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">🔑</span>
-                  <span className="text-white font-semibold text-sm">Please head to the front desk</span>
+                  <span className="text-[#000000]/87 font-semibold text-sm">Please head to the front desk</span>
                 </div>
-                <p className="text-white/50 text-xs leading-relaxed">
+                <p className="text-black/60 text-xs leading-relaxed">
                   Our staff will verify your ID, assign your room, and hand you your key. Your stay is all set!
                 </p>
               </div>
 
               {/* Summary */}
-              <div className="bg-white/10 rounded-xl border border-white/10 p-4 space-y-2 text-left mb-5">
-                <div className="flex justify-between text-sm"><span className="text-white/50">Confirmation #</span><span className="font-mono font-bold text-white">#{ckReservation.id}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-white/50">Room Type</span><span className="text-white/80">{ckReservation.room_type}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-white/50">Check-Out</span><span className="text-white/80">{fmtDate(ckReservation.check_out_date)}</span></div>
+              <div className="bg-white shadow-sm rounded-xl border border-black/5 p-4 space-y-2 text-left mb-5">
+                <div className="flex justify-between text-sm"><span className="text-black/60">Confirmation #</span><span className="font-mono font-bold text-[#000000]/87">#{ckReservation.id}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-black/60">Room Type</span><span className="text-black/60">{ckReservation.room_type}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-black/60">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
               </div>
 
               <button onClick={() => setCurrentPage('home')}
-                className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white font-bold py-3 rounded-xl transition-colors text-sm">
+                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white font-bold py-3 rounded-xl transition-colors text-sm">
                 Return to Home
               </button>
             </div>
@@ -8234,11 +8869,11 @@ function FrontDeskTab() {
       >
         <div>
           <div className={`text-xl font-black font-mono ${cfg.text} leading-none`}>{r.room_number}</div>
-          <div className="text-white/40 text-[10px] mt-0.5 truncate">{r.room_type || 'Room'}</div>
+          <div className="text-black/60 text-[10px] mt-0.5 truncate">{r.room_type || 'Room'}</div>
         </div>
         <div>
           {isActive && r.guest_name && (
-            <div className="text-white/60 text-[10px] truncate mb-1">{r.guest_name.split(' ')[0]}</div>
+            <div className="text-black/60 text-[10px] truncate mb-1">{r.guest_name.split(' ')[0]}</div>
           )}
           <div className="flex items-center gap-1">
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
@@ -8247,7 +8882,7 @@ function FrontDeskTab() {
         </div>
         {hkUpdating === r.room_number && (
           <div className="absolute inset-0 bg-black/30 rounded-xl flex items-center justify-center">
-            <div className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-black/5 border-t-white rounded-full animate-spin" />
           </div>
         )}
       </button>
@@ -8269,10 +8904,10 @@ function FrontDeskTab() {
           background: isSelected ? 'rgba(255,255,255,0.12)' : 'transparent',
         }}
       >
-        <span className="text-[12px] font-semibold text-white truncate">{r.full_name}</span>
-        <span className="text-[12px] text-white/45 truncate">{r.room_type_name || r.room_type}</span>
-        <span className="text-[12px] text-white/40 font-mono">{fmtDate(r.check_in_date)}</span>
-        <span className="text-[12px] text-white/35 text-center">{nights}n</span>
+        <span className="text-[12px] font-semibold text-[#000000]/87 truncate">{r.full_name}</span>
+        <span className="text-[12px] text-black/60 truncate">{r.room_type_name || r.room_type}</span>
+        <span className="text-[12px] text-black/60 font-mono">{fmtDate(r.check_in_date)}</span>
+        <span className="text-[12px] text-black/60 text-center">{nights}n</span>
         <span className={`text-[12px] font-medium px-2 py-0.5 rounded-full text-center ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
       </div>
     );
@@ -8282,25 +8917,25 @@ function FrontDeskTab() {
   const GuestProfileModal = () => {
     if (!gpOpen || !gpRes) return null;
     const lbl = (text) => (
-      <div className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase mb-0.5">{text}</div>
+      <div className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase mb-0.5">{text}</div>
     );
     const inp = (field, placeholder, type = 'text', extra = {}) => (
       <input type={type} placeholder={placeholder} value={gpForm[field] || ''}
         onChange={e => setGpForm(f => ({ ...f, [field]: e.target.value }))}
-        className="w-full px-2 py-1 bg-white/8 border border-white/15 text-white text-[11px] rounded-sm outline-none focus:border-white/40 transition-colors"
+        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors"
         {...extra} />
     );
     const sel = (field, opts) => (
       <select value={gpForm[field] || ''} onChange={e => setGpForm(f => ({ ...f, [field]: e.target.value }))}
-        className="w-full px-2 py-1 bg-[#1e2a3a] border border-white/15 text-white text-[11px] rounded-sm outline-none focus:border-white/40 transition-colors">
+        className="w-full px-2 py-1 bg-[#1e2a3a] border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors">
         <option value="">—</option>
         {opts.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
     );
     const divider = (title) => (
       <div className="flex items-center gap-2 mt-3 mb-2">
-        <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase whitespace-nowrap">{title}</span>
-        <div className="flex-1 h-px bg-white/10" />
+        <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">{title}</span>
+        <div className="flex-1 h-px bg-white shadow-sm" />
       </div>
     );
     const nights = nightsCount(gpRes);
@@ -8309,14 +8944,14 @@ function FrontDeskTab() {
         <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl overflow-hidden"
           style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.12)' }}>
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/5">
             <div>
-              <div className="text-white font-semibold text-sm">Guest Profile</div>
-              <div className="text-white/40 text-[11px] mt-0.5">
+              <div className="text-[#000000]/87 font-semibold text-sm">Guest Profile</div>
+              <div className="text-black/60 text-[11px] mt-0.5">
                 Room {gpRes.room_number || '—'} &middot; {gpRes.room_type_name || gpRes.room_type} &middot; {fmtDate(gpRes.check_in_date)} – {fmtDate(gpRes.check_out_date)} ({nights} nights)
               </div>
             </div>
-            <button onClick={() => setGpOpen(false)} className="text-white/30 hover:text-white text-lg leading-none transition-colors">&times;</button>
+            <button onClick={() => setGpOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-lg leading-none transition-colors">&times;</button>
           </div>
 
           {/* Scrollable body */}
@@ -8354,33 +8989,33 @@ function FrontDeskTab() {
               <div>{lbl('Payment Method')}{sel('payment_method', ['Cash','Credit Card','Debit Card','GCash','Bank Transfer','Other'])}</div>
               <div className="col-span-2">{lbl('Deposit Amount')}<input type="number" min="0" step="0.01" placeholder="0.00" value={gpForm.deposit_amount || ''}
                 onChange={e => setGpForm(f => ({ ...f, deposit_amount: e.target.value }))}
-                className="w-full px-2 py-1 bg-white/8 border border-white/15 text-white text-[11px] rounded-sm outline-none focus:border-white/40 transition-colors" /></div>
+                className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors" /></div>
             </div>
 
             {divider('REMARKS')}
             <div className="grid grid-cols-2 gap-x-3 gap-y-2">
               <div>{lbl('Special Requests')}<textarea rows={3} placeholder="Guest requests..." value={gpForm.special_requests || ''}
                 onChange={e => setGpForm(f => ({ ...f, special_requests: e.target.value }))}
-                className="w-full px-2 py-1 bg-white/8 border border-white/15 text-white text-[11px] rounded-sm outline-none focus:border-white/40 transition-colors resize-none" /></div>
+                className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors resize-none" /></div>
               <div>{lbl('FD Notes')}<textarea rows={3} placeholder="Internal notes..." value={gpForm.front_desk_notes || ''}
                 onChange={e => setGpForm(f => ({ ...f, front_desk_notes: e.target.value }))}
-                className="w-full px-2 py-1 bg-white/8 border border-white/15 text-white text-[11px] rounded-sm outline-none focus:border-white/40 transition-colors resize-none" /></div>
+                className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors resize-none" /></div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="px-5 py-3 border-t border-white/10 flex items-center justify-between gap-3">
+          <div className="px-5 py-3 border-t border-black/5 flex items-center justify-between gap-3">
             <div className="text-xs">
               {gpError && <span className="text-red-400">{gpError}</span>}
               {gpSaved && !gpError && <span className="text-emerald-400">Profile saved ✓</span>}
             </div>
             <div className="flex gap-2">
               <button onClick={() => setGpOpen(false)}
-                className="px-4 py-1.5 text-xs text-white/50 hover:text-white border border-white/15 rounded transition-colors">
+                className="px-4 py-1.5 text-xs text-black/60 hover:text-[#000000]/87 border border-black/5 rounded transition-colors">
                 Close
               </button>
               <button onClick={saveGuestProfile} disabled={gpSaving}
-                className="px-4 py-1.5 text-xs font-semibold bg-[#576CA8] hover:bg-[#4a5d9a] text-white rounded transition-colors disabled:opacity-50">
+                className="px-4 py-1.5 text-xs font-semibold bg-[#576CA8] hover:bg-[#4a5d9a] text-[#000000]/87 rounded transition-colors disabled:opacity-50">
                 {gpSaving ? 'Saving…' : 'Save Profile'}
               </button>
             </div>
@@ -8398,38 +9033,38 @@ function FrontDeskTab() {
       <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all"
         style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3rem 3.5rem 3.5rem 5rem', borderBottom: `1px solid ${isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.06)'}`, background: isDueOut ? 'rgba(251,191,36,0.05)' : 'transparent' }}>
         {/* Room */}
-        <span className={`font-mono font-bold text-sm ${isDueOut ? 'text-amber-300' : 'text-white/70'}`}>
+        <span className={`font-mono font-bold text-sm ${isDueOut ? 'text-amber-300' : 'text-black/60'}`}>
           {r.room_number || '—'}
         </span>
         {/* Name */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className={`font-semibold text-sm truncate ${isDueOut ? 'text-amber-100' : 'text-white'}`}>{r.full_name}</span>
+          <span className={`font-semibold text-sm truncate ${isDueOut ? 'text-amber-100' : 'text-[#000000]/87'}`}>{r.full_name}</span>
           {isDueOut && <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider text-amber-400">Due Out</span>}
         </div>
         {/* Room type */}
-        <span className="text-xs text-white/35 truncate">{r.room_type_name || r.room_type}</span>
+        <span className="text-xs text-black/60 truncate">{r.room_type_name || r.room_type}</span>
         {/* Check-out date */}
-        <span className={`text-xs font-medium ${isDueOut ? 'text-amber-300' : 'text-white/40'}`}>{fmtDate(r.check_out_date)}</span>
+        <span className={`text-xs font-medium ${isDueOut ? 'text-amber-300' : 'text-black/60'}`}>{fmtDate(r.check_out_date)}</span>
         {/* Nights */}
-        <span className="text-xs text-white/30 text-center">{nights}n</span>
+        <span className="text-xs text-black/60 text-center">{nights}n</span>
         {/* Edit Profile */}
         <button onClick={() => openGuestProfile(r)}
-          className="text-xs text-white/25 hover:text-violet-300 transition-all text-right">
+          className="text-xs text-black/60 hover:text-violet-300 transition-all text-right">
           Edit
         </button>
         {/* Folio */}
         <button onClick={() => openFolio(r)}
-          className="text-xs text-white/25 hover:text-emerald-300 transition-all text-right">
+          className="text-xs text-black/60 hover:text-emerald-300 transition-all text-right">
           Folio
         </button>
         {/* Transfer */}
         <button onClick={() => openTransfer(r)}
-          className="text-xs text-white/25 hover:text-sky-300 transition-all text-right">
+          className="text-xs text-black/60 hover:text-sky-300 transition-all text-right">
           Transfer
         </button>
         {/* Check Out */}
         <button onClick={() => { setCheckoutConfirmId(r.id); fetchCheckoutBalance(r.id); }}
-          className={`text-xs font-semibold px-2 py-1 rounded transition-all text-right ${isDueOut ? 'text-amber-300 hover:text-amber-100' : 'text-white/30 hover:text-white/70'}`}>
+          className={`text-xs font-semibold px-2 py-1 rounded transition-all text-right ${isDueOut ? 'text-amber-300 hover:text-amber-100' : 'text-black/60 hover:text-black/60'}`}>
           Check Out
         </button>
       </div>
@@ -8440,26 +9075,26 @@ function FrontDeskTab() {
     const sc = statusColors[r.status] || statusColors.pending;
     const nights = nightsCount(r);
     return (
-      <div className="relative rounded-xl border border-white/15 overflow-hidden flex" style={{ background: 'rgba(255,255,255,0.07)' }}>
+      <div className="relative rounded-xl border border-black/5 overflow-hidden flex" style={{ background: 'rgba(255,255,255,0.07)' }}>
         <div className={`w-1.5 flex-shrink-0 ${sc.bar}`} />
         <div className="flex-1 p-4 flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-white text-sm">{r.full_name}</span>
+              <span className="font-semibold text-[#000000]/87 text-sm">{r.full_name}</span>
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
             </div>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span className="text-xs text-white/60 bg-white/10 px-2 py-0.5 rounded-md">{r.room_type_name || r.room_type}</span>
-              <span className="text-xs text-white/35 font-mono">#{r.id}</span>
-              <span className="text-xs text-white/45">CI: {fmtDate(r.check_in_date)}</span>
-              <span className="text-xs text-white/45">CO: {fmtDate(r.check_out_date)}</span>
-              <span className="text-xs text-white/40">{nights} night{nights !== 1 ? 's' : ''}</span>
+              <span className="text-xs text-black/60 bg-white shadow-sm px-2 py-0.5 rounded-md">{r.room_type_name || r.room_type}</span>
+              <span className="text-xs text-black/60 font-mono">#{r.id}</span>
+              <span className="text-xs text-black/60">CI: {fmtDate(r.check_in_date)}</span>
+              <span className="text-xs text-black/60">CO: {fmtDate(r.check_out_date)}</span>
+              <span className="text-xs text-black/60">{nights} night{nights !== 1 ? 's' : ''}</span>
             </div>
             {r.room_number && <div className="text-xs text-green-300 mt-0.5">Room {r.room_number}</div>}
           </div>
           <div className="flex-shrink-0">
             {(r.status === 'pending' || r.status === 'confirmed') && (
-              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">Check In</button>
+              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">Check In</button>
             )}
             {r.status === 'checked_in' && (
               <button onClick={() => setCheckoutConfirmId(r.id)} className="bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs px-3 py-1.5 rounded-lg font-semibold transition-all">Check Out</button>
@@ -8482,7 +9117,7 @@ function FrontDeskTab() {
           return (
             <React.Fragment key={num}>
               <div className="flex flex-col items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${done ? 'bg-green-500 text-white' : active ? 'bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white' : 'bg-gray-100 text-gray-400'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${done ? 'bg-green-500 text-white' : active ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white' : 'bg-gray-100 text-gray-400'}`}>
                   {done ? '✓' : num}
                 </div>
                 <span className={`text-xs mt-1 whitespace-nowrap ${active ? 'text-[#576CA8] font-semibold' : done ? 'text-green-600' : 'text-gray-400'}`}>{label}</span>
@@ -8652,10 +9287,10 @@ function FrontDeskTab() {
         <div className="text-4xl font-mono font-black text-green-800">{wizardRoomNumber}</div>
         <div className="text-xs text-green-600 font-semibold uppercase tracking-widest mt-1">Room Number</div>
       </div>
-      <span className="inline-block bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide mb-6">
+      <span className="inline-block bg-gradient-to-br from-[#00754A] to-[#006241] text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide mb-6">
         KEY READY
       </span>
-      <button onClick={closeWizard} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors">
+      <button onClick={closeWizard} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-full transition-colors">
         Close
       </button>
     </div>
@@ -8666,21 +9301,21 @@ function FrontDeskTab() {
     <>
     <div style={{ position: 'fixed', top: '80px', left: '150px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div className="flex-1 flex flex-col min-h-0 w-full">
-        <div className="flex-1 flex flex-col min-h-0 border-t border-l border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+        <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           {/* Header bar */}
-          <div className="px-6 pt-0.5 pb-0" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+          <div className="px-6 pt-0.5 pb-0" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
             {/* Title row */}
             <div className="flex items-center justify-between gap-4 mb-2">
               <div className="shrink-0">
-                <h3 className="text-white font-bold text-lg tracking-tight leading-tight">Front Desk</h3>
-                <p className="text-white/50 text-xs">Guest management</p>
+                <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Front Desk</h3>
+                <p className="text-black/60 text-xs">Guest management</p>
               </div>
-              <div className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-full shrink-0">
+              <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full shrink-0">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
                 </span>
-                <span className="text-white text-xs font-semibold tracking-wide">
+                <span className="text-[#000000]/87 text-xs font-semibold tracking-wide">
                   {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </span>
               </div>
@@ -8712,51 +9347,51 @@ function FrontDeskTab() {
             {/* ── Arrivals View ── */}
             {fdView === 'arrivals' && (
               <div>
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/10">
+                <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">Date</span>
+                    <span className="text-xs font-semibold text-black/60 uppercase tracking-wider">Date</span>
                     <input
                       type="date"
                       value={arrivalDate}
                       onChange={(e) => setArrivalDate(e.target.value)}
-                      className="px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white focus:border-white/40 focus:ring-2 focus:ring-white/20 text-sm outline-none"
+                      className="px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none"
                     />
-                    <div className="flex items-center gap-4 ml-2 pl-3 border-l border-white/10">
+                    <div className="flex items-center gap-4 ml-2 pl-3 border-l border-black/5">
                       {[
-                        { label: 'Total', value: arrivalStats.total, color: 'text-white', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M2 4h10M2 7h10M2 10h6"/></svg> },
-                        { label: 'Checked In', value: arrivalStats.checkedIn, color: 'text-white', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l3.5 3.5L12 4"/></svg> },
-                        { label: 'Awaiting', value: (arrivalStats.pending || 0) + (arrivalStats.confirmed || 0), color: 'text-white', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 1.5"/></svg> },
-                        { label: 'No Show', value: arrivalStats.noShow, color: 'text-white', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M4 4l6 6M10 4l-6 6"/></svg> },
+                        { label: 'Total', value: arrivalStats.total, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M2 4h10M2 7h10M2 10h6"/></svg> },
+                        { label: 'Checked In', value: arrivalStats.checkedIn, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l3.5 3.5L12 4"/></svg> },
+                        { label: 'Awaiting', value: (arrivalStats.pending || 0) + (arrivalStats.confirmed || 0), color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 1.5"/></svg> },
+                        { label: 'No Show', value: arrivalStats.noShow, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M4 4l6 6M10 4l-6 6"/></svg> },
                       ].map((s) => (
-                        <div key={s.label} className="flex flex-col items-center text-white/60">
+                        <div key={s.label} className="flex flex-col items-center text-black/60">
                           {s.svg}
                           <span className={`text-lg font-bold leading-tight ${s.color}`}>{s.value}</span>
-                          <span className="text-[10px] text-white/40 font-medium">{s.label}</span>
+                          <span className="text-[10px] text-black/60 font-medium">{s.label}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg transition-all">
+                  <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-lg transition-all">
                     ↻ Refresh
                   </button>
                 </div>
 
                 {/* Arrivals Grid */}
-                <div className="border border-white/10 overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', marginLeft: '10px' }}>
+                <div className="border border-black/5 overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', marginLeft: '10px' }}>
                   {/* Column headers */}
-                  <div className="grid gap-x-3 px-3 py-1.5 border-b border-white/10" style={{ gridTemplateColumns: '1fr 6rem 6rem 2.5rem 5.5rem', background: 'rgba(255,255,255,0.05)' }}>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/25">Guest</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/25">Room Type</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/25">Check-In</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/25">Nts</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/25">Status</span>
+                  <div className="grid gap-x-3 px-3 py-1.5 border-b border-black/5" style={{ gridTemplateColumns: '1fr 6rem 6rem 2.5rem 5.5rem', background: '#ffffff' }}>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Guest</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Room Type</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Check-In</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Nts</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Status</span>
                   </div>
                   {/* Rows */}
                   <div style={{ height: '150px', overflowY: 'auto' }}>
                     {arrivalsLoading ? (
-                      <div className="flex items-center justify-center h-full text-white/40 text-xs">Loading arrivals…</div>
+                      <div className="flex items-center justify-center h-full text-black/60 text-xs">Loading arrivals…</div>
                     ) : arrivals.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-white/35 text-xs">No arrivals for this date</div>
+                      <div className="flex items-center justify-center h-full text-black/60 text-xs">No arrivals for this date</div>
                     ) : (
                       arrivals.map((r) => <ArrivalRow key={r.id} r={r} />)
                     )}
@@ -8771,16 +9406,16 @@ function FrontDeskTab() {
                   return (
                     <div className="mt-3 flex gap-0" style={{ marginLeft: '10px' }}>
                       {/* Detail panel — 60% */}
-                      <div className="border border-white/15 py-3 px-4" style={{ width: '60%', background: 'rgba(255,255,255,0.07)' }}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">Reservation Details</p>
+                      <div className="border border-black/5 py-3 px-4" style={{ width: '60%', background: 'rgba(255,255,255,0.07)' }}>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-black/60 mb-2">Reservation Details</p>
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-bold text-white text-base">{r.full_name}</span>
+                              <span className="font-bold text-[#000000]/87 text-base">{r.full_name}</span>
                               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
-                              {r.guest_arrived_at && <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-green-500 text-white">ARRIVED</span>}
+                              {r.guest_arrived_at && <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-green-500 text-[#000000]/87">ARRIVED</span>}
                             </div>
-                            <div className="flex items-center gap-3 mt-1 flex-wrap text-xs text-white/45">
+                            <div className="flex items-center gap-3 mt-1 flex-wrap text-xs text-black/60">
                               <span>{r.room_type_name || r.room_type}</span>
                               <span>·</span>
                               <span>{fmtDate(r.check_in_date)} → {fmtDate(r.check_out_date)}</span>
@@ -8788,7 +9423,7 @@ function FrontDeskTab() {
                               <span>{nights} night{nights !== 1 ? 's' : ''}</span>
                               {r.number_of_guests && <><span>·</span><span>{r.number_of_guests} guest{r.number_of_guests !== 1 ? 's' : ''}</span></>}
                               {r.rate_code && <><span>·</span><span className="font-mono font-bold text-sky-300 bg-sky-500/15 px-1.5 py-0.5 rounded">{r.rate_code}</span></>}
-                              <span className="font-mono text-white/25">#{r.id}</span>
+                              <span className="font-mono text-black/60">#{r.id}</span>
                             </div>
                             {r.special_requests && (
                               <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-lg px-2.5 py-1.5 italic">
@@ -8798,31 +9433,31 @@ function FrontDeskTab() {
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             {(r.status === 'pending' || r.status === 'confirmed') && (
-                              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors whitespace-nowrap">
+                              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors whitespace-nowrap">
                                 Check In
                               </button>
                             )}
                             {r.status !== 'checked_in' && r.status !== 'checked_out' && (
-                              <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-white/20 rounded-lg px-2 py-1.5 bg-white/10 text-white/80 cursor-pointer">
+                              <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-black/5 rounded-lg px-2 py-1.5 bg-white shadow-sm text-black/60 cursor-pointer">
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
                                 <option value="cancelled">Cancel</option>
                                 <option value="no_show">No Show</option>
                               </select>
                             )}
-                            <button onClick={() => setSelectedArrival(null)} className="text-white/30 hover:text-white/70 text-lg leading-none px-1">×</button>
+                            <button onClick={() => setSelectedArrival(null)} className="text-black/60 hover:text-black/60 text-lg leading-none px-1">×</button>
                           </div>
                         </div>
                       </div>
                       {/* Notes panel — 40% */}
-                      <div className="border border-white/10 border-l-0 py-3 px-4 flex flex-col gap-1.5" style={{ width: '40%', background: 'rgba(255,255,255,0.04)' }}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-0.5">Guest Notes</p>
+                      <div className="border border-black/5 border-l-0 py-3 px-4 flex flex-col gap-1.5" style={{ width: '40%', background: 'rgba(255,255,255,0.04)' }}>
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-black/60 mb-0.5">Guest Notes</p>
                         <textarea
                           value={guestNotes[r.id] || ''}
                           onChange={(e) => setGuestNotes(prev => ({ ...prev, [r.id]: e.target.value }))}
                           placeholder="Add notes about this guest…"
                           rows={3}
-                          className="flex-1 bg-transparent text-xs text-white/70 placeholder-white/20 outline-none resize-none leading-relaxed"
+                          className="flex-1 bg-transparent text-xs text-black/60 placeholder-white/20 outline-none resize-none leading-relaxed"
                         />
                       </div>
                     </div>
@@ -8834,29 +9469,29 @@ function FrontDeskTab() {
             {/* ── In-House View ── */}
             {fdView === 'inhouse' && (
               <div>
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/10">
+                <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
                   <div>
-                    <span className="text-sm font-semibold text-white">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
-                    <span className="text-xs text-white/40 ml-2">as of now</span>
+                    <span className="text-sm font-semibold text-[#000000]/87">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
+                    <span className="text-xs text-black/60 ml-2">as of now</span>
                   </div>
-                  <button onClick={fetchInHouse} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg transition-all">
+                  <button onClick={fetchInHouse} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">
                     ↻ Refresh
                   </button>
                 </div>
                 {inHouseLoading ? (
-                  <div className="text-center py-10 text-white/40">Loading...</div>
+                  <div className="text-center py-10 text-black/60">Loading...</div>
                 ) : inHouseGuests.length === 0 ? (
-                  <div className="text-center py-12 text-white/40 bg-white/5 rounded-xl border border-white/10">
+                  <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
                     <div className="text-4xl mb-3">🏠</div>
-                    <div className="font-semibold text-white/50 mb-1">No guests in-house</div>
-                    <div className="text-xs text-white/30">All rooms are currently vacant</div>
+                    <div className="font-semibold text-black/60 mb-1">No guests in-house</div>
+                    <div className="text-xs text-black/60">All rooms are currently vacant</div>
                   </div>
                 ) : (
                   <div>
                     {/* Column header */}
                     <div className="grid gap-x-3 px-3 mb-1" style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3.5rem 3.5rem 5rem' }}>
                       {['Room', 'Guest', 'Type', 'Check-Out', 'Nts', '', '', ''].map((h, i) => (
-                        <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-white/25">{h}</span>
+                        <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-black/60">{h}</span>
                       ))}
                     </div>
                     <div className="space-y-1">
@@ -8871,31 +9506,31 @@ function FrontDeskTab() {
             {fdView === 'search' && (
               <div>
                 <div className="relative mb-5">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-sm">🔍</span>
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/60 text-sm">🔍</span>
                   <input
                     type="text"
                     value={searchQ}
                     onChange={(e) => setSearchQ(e.target.value)}
                     placeholder="Name, email, phone, or confirmation # …"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder-white/40 focus:border-white/40 focus:ring-2 focus:ring-white/20 text-sm outline-none transition-all"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none transition-all"
                     autoFocus
                   />
-                  {searchLoading && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 text-xs animate-pulse">Searching…</span>}
+                  {searchLoading && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-black/60 text-xs animate-pulse">Searching…</span>}
                 </div>
                 {searchQ.trim() === '' ? (
-                  <div className="text-center py-10 text-white/30">
+                  <div className="text-center py-10 text-black/60">
                     <div className="text-3xl mb-3">🔍</div>
-                    <div className="text-sm font-medium text-white/50 mb-4">Look up any reservation to check in a guest</div>
-                    <div className="flex flex-col gap-2 text-xs text-white/30 items-center">
-                      <span>Type a <strong className="text-white/45">confirmation #</strong> — e.g. <span className="font-mono text-white/45">42</span></span>
-                      <span>Or search by <strong className="text-white/45">name</strong>, <strong className="text-white/45">email</strong>, or <strong className="text-white/45">phone</strong></span>
+                    <div className="text-sm font-medium text-black/60 mb-4">Look up any reservation to check in a guest</div>
+                    <div className="flex flex-col gap-2 text-xs text-black/60 items-center">
+                      <span>Type a <strong className="text-black/60">confirmation #</strong> — e.g. <span className="font-mono text-black/60">42</span></span>
+                      <span>Or search by <strong className="text-black/60">name</strong>, <strong className="text-black/60">email</strong>, or <strong className="text-black/60">phone</strong></span>
                     </div>
                   </div>
                 ) : searchResults.length === 0 && !searchLoading ? (
-                  <div className="text-center py-12 text-white/40 bg-white/5 rounded-xl border border-white/10">
+                  <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
                     <div className="text-3xl mb-2">😕</div>
-                    <div className="font-semibold text-white/50">No results found</div>
-                    <div className="text-xs text-white/30 mt-1">Try a different name, email, or ID</div>
+                    <div className="font-semibold text-black/60">No results found</div>
+                    <div className="text-xs text-black/60 mt-1">Try a different name, email, or ID</div>
                   </div>
                 ) : (
                   <div className="space-y-2.5">
@@ -8913,15 +9548,15 @@ function FrontDeskTab() {
                     <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center mb-4">
                       <span className="text-3xl">✅</span>
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-1">Walk-In Complete!</h3>
-                    <p className="text-sm text-white/60 mb-6">{wkResult.full_name} is now checked in.</p>
+                    <h3 className="text-xl font-bold text-[#000000]/87 mb-1">Walk-In Complete!</h3>
+                    <p className="text-sm text-black/60 mb-6">{wkResult.full_name} is now checked in.</p>
                     <div className="bg-green-500/15 border border-green-400/30 rounded-2xl px-12 py-5 mb-4 w-full max-w-xs">
                       <div className="text-5xl font-mono font-black text-green-300">{wkResult.room_number}</div>
                       <div className="text-xs text-green-400 font-semibold uppercase tracking-widest mt-2">Room Assigned</div>
                     </div>
-                    <div className="text-xs text-white/35 mb-5 font-mono">Confirmation #{wkResult.id}</div>
+                    <div className="text-xs text-black/60 mb-5 font-mono">Confirmation #{wkResult.id}</div>
                     <span className="inline-block bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-6">🔑 Key Ready</span>
-                    <button onClick={resetWalkin} className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all">
+                    <button onClick={resetWalkin} className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white font-semibold py-3 rounded-full transition-all">
                       + New Walk-In Guest
                     </button>
                   </div>
@@ -8935,106 +9570,106 @@ function FrontDeskTab() {
 
                         {/* Guest Profile */}
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase whitespace-nowrap">Guest Profile</span>
-                          <div className="flex-1 h-px bg-white/15" />
+                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Guest Profile</span>
+                          <div className="flex-1 h-px bg-white shadow-sm" />
                         </div>
                         <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Title</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Title</label>
                             <select value={wkTitle} onChange={e => setWkTitle(e.target.value)}
                               style={{ background: '#4B5563', color: 'white' }}
-                              className="w-full px-2 py-1 border border-white/15 text-[11px] outline-none focus:border-white/35 rounded-sm">
+                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['Mr.','Mrs.','Ms.','Dr.','Engr.','Atty.','Prof.','Rev.','Hon.'].map(t => <option key={t} value={t} style={{background:'#4B5563'}}>{t}</option>)}
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Last Name <span className="text-red-400">*</span></label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Last Name <span className="text-red-400">*</span></label>
                             <input type="text" value={wkLastName} onChange={e => setWkLastName(e.target.value)} placeholder="dela Cruz"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">First Name <span className="text-red-400">*</span></label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">First Name <span className="text-red-400">*</span></label>
                             <input type="text" value={wkFirstName} onChange={e => setWkFirstName(e.target.value)} placeholder="Juan"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Middle Name</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Middle Name</label>
                             <input type="text" value={wkMiddleName} onChange={e => setWkMiddleName(e.target.value)} placeholder="Santos"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Gender</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Gender</label>
                             <select value={wkGender} onChange={e => setWkGender(e.target.value)}
                               style={{ background: '#4B5563', color: wkGender ? 'white' : 'rgba(255,255,255,0.3)' }}
-                              className="w-full px-2 py-1 border border-white/15 text-[11px] outline-none focus:border-white/35 rounded-sm">
+                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['','Male','Female','Non-binary','Prefer not to say'].map(g => <option key={g} value={g} style={{background:'#4B5563',color:'white'}}>{g || '— select —'}</option>)}
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Date of Birth</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Date of Birth</label>
                             <input type="date" value={wkBirthDate} onChange={e => setWkBirthDate(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Nationality</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Nationality</label>
                             <input type="text" value={wkNationality} onChange={e => setWkNationality(e.target.value)} placeholder="Filipino"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Country</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Country</label>
                             <input type="text" value={wkCountry} onChange={e => setWkCountry(e.target.value)} placeholder="Philippines"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                         </div>
 
                         {/* Contact */}
                         <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase whitespace-nowrap">Contact Information</span>
-                          <div className="flex-1 h-px bg-white/15" />
+                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Contact Information</span>
+                          <div className="flex-1 h-px bg-white shadow-sm" />
                         </div>
                         <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                           <div className="col-span-2">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Email Address</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Email Address</label>
                             <input type="email" value={wkEmail} onChange={e => setWkEmail(e.target.value)} placeholder="juan@example.com"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div className="col-span-2">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Mobile / Phone</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Mobile / Phone</label>
                             <input type="tel" value={wkPhone} onChange={e => setWkPhone(e.target.value)} placeholder="09XX XXX XXXX"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div className="col-span-3">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Street / Barangay Address</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Street / Barangay Address</label>
                             <input type="text" value={wkAddress} onChange={e => setWkAddress(e.target.value)} placeholder="123 Rizal St., Brgy. San Antonio"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">City / Municipality</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">City / Municipality</label>
                             <input type="text" value={wkCity} onChange={e => setWkCity(e.target.value)} placeholder="Makati City"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                         </div>
 
                         {/* Identification */}
                         <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase whitespace-nowrap">Identification</span>
-                          <div className="flex-1 h-px bg-white/15" />
+                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Identification</span>
+                          <div className="flex-1 h-px bg-white shadow-sm" />
                         </div>
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">ID Type</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Type</label>
                             <select value={wkIdType} onChange={e => setWkIdType(e.target.value)}
                               style={{ background: '#4B5563', color: wkIdType ? 'white' : 'rgba(255,255,255,0.3)' }}
-                              className="w-full px-2 py-1 border border-white/15 text-[11px] outline-none focus:border-white/35 rounded-sm">
+                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['','Passport',"Driver's License",'SSS ID','PhilHealth ID','Postal ID','Senior Citizen ID','PWD ID','UMID','PhilSys / National ID','Other'].map(t => (
                                 <option key={t} value={t} style={{background:'#4B5563',color:'white'}}>{t || '— select ID type —'}</option>
                               ))}
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">ID Number</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Number</label>
                             <input type="text" value={wkIdNumber} onChange={e => setWkIdNumber(e.target.value)} placeholder="ID / reference number"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] font-mono placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] font-mono placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                         </div>
 
@@ -9045,15 +9680,15 @@ function FrontDeskTab() {
 
                         {/* Stay Details */}
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase whitespace-nowrap">Stay Details</span>
-                          <div className="flex-1 h-px bg-white/15" />
+                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Stay Details</span>
+                          <div className="flex-1 h-px bg-white shadow-sm" />
                         </div>
                         <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                           <div className="col-span-2">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Room Type <span className="text-red-400">*</span></label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Type <span className="text-red-400">*</span></label>
                             <select value={wkRoomType} onChange={e => { setWkRoomType(e.target.value); setWkRoomNumber(''); }}
                               style={{ background: '#4B5563', color: 'white' }}
-                              className="w-full px-2 py-1 border border-white/15 text-[11px] outline-none focus:border-white/35 rounded-sm">
+                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {wkRoomTypes.length === 0 && <option value="" style={{ background: '#4B5563' }}>Loading...</option>}
                               {wkRoomTypes.map(rt => {
                                 const full = rt.available !== undefined && rt.available <= 0;
@@ -9079,10 +9714,10 @@ function FrontDeskTab() {
                             })()}
                           </div>
                           <div className="col-span-2">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Rate Code</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Rate Code</label>
                             <select value={wkRateCode} onChange={e => setWkRateCode(e.target.value)}
                               style={{ background: '#4B5563', color: 'white' }}
-                              className="w-full px-2 py-1 border border-white/15 text-[11px] outline-none focus:border-white/35 rounded-sm">
+                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               <option value="" style={{ background: '#4B5563' }}>— No rate code —</option>
                               {wkRateCodes.map(rc => (
                                 <option key={rc.id} value={rc.code} style={{ background: '#4B5563' }}>{rc.code} — {rc.name}</option>
@@ -9099,27 +9734,27 @@ function FrontDeskTab() {
                             })()}
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Check-In <span className="text-red-400">*</span></label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-In <span className="text-red-400">*</span></label>
                             <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Check-Out <span className="text-red-400">*</span></label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-Out <span className="text-red-400">*</span></label>
                             <input type="date" value={wkCheckOut} min={wkCheckIn || today} onChange={e => setWkCheckOut(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">ETA</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ETA</label>
                             <input type="time" value={wkEta} onChange={e => setWkEta(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">No. of Guests</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">No. of Guests</label>
                             <input type="number" min="1" max="20" value={wkGuests} onChange={e => setWkGuests(parseInt(e.target.value) || 1)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div className="col-span-2">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Room Number <span className="text-red-400">*</span></label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Number <span className="text-red-400">*</span></label>
                             {(() => {
                               const typeRooms = rooms.filter(r => r.room_type === wkRoomType);
                               const selRoom = typeRooms.find(r => r.room_number === wkRoomNumber);
@@ -9129,14 +9764,14 @@ function FrontDeskTab() {
                                 return (
                                   <input type="text" value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
                                     placeholder="e.g. 201" autoComplete="off"
-                                    className="w-full px-2 py-1 border border-white/15 bg-gray-600 text-white text-[11px] font-mono font-bold placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                                    className="w-full px-2 py-1 border border-black/5 bg-gray-600 text-[#000000]/87 text-[11px] font-mono font-bold placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                                 );
                               }
                               return (
                                 <div>
                                   <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
                                     style={{ background: '#4B5563', color: 'white' }}
-                                    className={`w-full px-2 py-1 border ${isBlocked ? 'border-red-400/50' : 'border-white/15'} text-[11px] font-mono font-bold outline-none focus:border-white/35 rounded-sm`}>
+                                    className={`w-full px-2 py-1 border ${isBlocked ? 'border-red-400/50' : 'border-black/5'} text-[11px] font-mono font-bold outline-none focus:border-black/5 rounded-sm`}>
                                     <option value="" style={{ background: '#4B5563', color: 'rgba(255,255,255,0.35)' }}>— select room —</option>
                                     {typeRooms.map(r => {
                                       const cfg = roomStatusConfig[r.computed_status] || roomStatusConfig.available;
@@ -9160,10 +9795,10 @@ function FrontDeskTab() {
                             })()}
                           </div>
                           <div className="col-span-2">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Purpose of Visit</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Purpose of Visit</label>
                             <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
                               style={{ background: '#4B5563', color: wkPurpose ? 'white' : 'rgba(255,255,255,0.3)' }}
-                              className="w-full px-2 py-1 border border-white/15 text-[11px] outline-none focus:border-white/35 rounded-sm">
+                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['','Leisure / Vacation','Business','Official / Government','Medical','Honeymoon / Anniversary','Transit','Others'].map(p => (
                                 <option key={p} value={p} style={{background:'#4B5563',color:'white'}}>{p || '— select —'}</option>
                               ))}
@@ -9173,58 +9808,58 @@ function FrontDeskTab() {
 
                         {/* Payment */}
                         <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase whitespace-nowrap">Payment</span>
-                          <div className="flex-1 h-px bg-white/15" />
+                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Payment</span>
+                          <div className="flex-1 h-px bg-white shadow-sm" />
                         </div>
                         <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                           <div className="col-span-2">
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Payment Method</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Payment Method</label>
                             <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
                               style={{ background: '#4B5563', color: 'white' }}
-                              className="w-full px-2 py-1 border border-white/15 text-[11px] outline-none focus:border-white/35 rounded-sm">
+                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['Cash','Credit Card','Debit Card','GCash','Maya','Bank Transfer','Check','Other'].map(m => (
                                 <option key={m} value={m} style={{background:'#4B5563'}}>{m}</option>
                               ))}
                             </select>
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Deposit Amount</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Deposit Amount</label>
                             <input type="number" min="0" step="0.01" value={wkDepositAmount} onChange={e => setWkDepositAmount(e.target.value)} placeholder="0.00"
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] font-mono placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] font-mono placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div className="flex items-end pb-1">
                             <label className="flex items-center gap-1.5 cursor-pointer">
                               <input type="checkbox" checked={wkPayment} onChange={e => setWkPayment(e.target.checked)}
                                 className="w-3 h-3 accent-[#576CA8] cursor-pointer" />
-                              <span className="text-[10px] text-white/50 uppercase tracking-wide">Collected</span>
+                              <span className="text-[10px] text-black/60 uppercase tracking-wide">Collected</span>
                             </label>
                           </div>
                         </div>
 
                         {/* Remarks */}
                         <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase whitespace-nowrap">Remarks</span>
-                          <div className="flex-1 h-px bg-white/15" />
+                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Remarks</span>
+                          <div className="flex-1 h-px bg-white shadow-sm" />
                         </div>
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Special Requests</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Special Requests</label>
                             <input type="text" value={wkSpecialReq} onChange={e => setWkSpecialReq(e.target.value)} placeholder="non-smoking, high floor, extra pillow..."
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                           <div>
-                            <label className="block text-[9px] text-white/35 mb-0.5 uppercase tracking-widest">Front Desk Notes</label>
+                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Front Desk Notes</label>
                             <input type="text" value={wkNotes} onChange={e => setWkNotes(e.target.value)} placeholder="Internal notes..."
-                              className="w-full px-2 py-1 bg-gray-600 border border-white/15 text-white text-[11px] placeholder-white/20 focus:border-white/35 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
                           </div>
                         </div>
 
-                        <div className="h-px bg-white/10 mt-auto pt-2" />
+                        <div className="h-px bg-white shadow-sm mt-auto pt-2" />
                         {wkError && (
                           <div className="bg-red-500/15 border border-red-400/30 rounded px-3 py-1.5 text-[11px] text-red-300">{wkError}</div>
                         )}
                         <button onClick={submitWalkin} disabled={wkSubmitting}
-                          className="w-full bg-gradient-to-r from-[#2D72C0] to-[#1a4f99] hover:opacity-90 disabled:opacity-50 text-white font-bold py-2 rounded transition-all text-[11px] tracking-[0.12em] uppercase border border-white/10">
+                          className="w-full bg-gradient-to-r from-[#006241] to-[#1a4f99] hover:opacity-90 disabled:opacity-50 text-white font-bold py-2 rounded transition-all text-[11px] tracking-[0.12em] uppercase border border-black/5">
                           {wkSubmitting ? 'Processing...' : 'Complete Walk-In Check-In'}
                         </button>
 
@@ -9239,7 +9874,7 @@ function FrontDeskTab() {
             {fdView === 'rooms' && (
               <div>
                 {/* Toolbar */}
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/10">
+                <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
                   {(() => {
                     const counts = rooms.reduce((acc, r) => { acc[r.computed_status] = (acc[r.computed_status] || 0) + 1; return acc; }, {});
                     const stats = [
@@ -9257,7 +9892,7 @@ function FrontDeskTab() {
                           const active = roomFilter === s.key;
                           return (
                             <button key={s.label} onClick={() => setRoomFilter(s.key)}
-                              className={`flex flex-col items-center px-2.5 py-1 rounded-lg transition-all ${active ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/8'}`}>
+                              className={`flex flex-col items-center px-2.5 py-1 rounded-lg transition-all ${active ? 'bg-white shadow-sm text-[#000000]/87' : 'text-black/60 hover:text-black/60 hover:bg-white shadow-sm'}`}>
                               {s.svg}
                               <span className="text-base font-bold leading-tight">{s.value}</span>
                               <span className="text-[10px] font-medium">{s.label}</span>
@@ -9268,9 +9903,9 @@ function FrontDeskTab() {
                     );
                   })()}
                   <div className="flex items-center gap-2">
-                    <button onClick={fetchRooms} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg transition-all">↻ Refresh</button>
+                    <button onClick={fetchRooms} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">↻ Refresh</button>
                     <button onClick={() => { setAddRoomOpen(v => !v); if (!newRoomType && wkRoomTypes.length > 0) setNewRoomType(wkRoomTypes[0].name); }}
-                      className="text-xs font-semibold text-white bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 px-3 py-1.5 rounded-lg transition-all">
+                      className="text-xs font-semibold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-3 py-1.5 rounded-lg transition-all">
                       + Add Room
                     </button>
                   </div>
@@ -9278,53 +9913,53 @@ function FrontDeskTab() {
 
                 {/* Add Room Form */}
                 {addRoomOpen && (
-                  <div className="mb-5 rounded-xl border border-white/15 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                    <div className="text-xs font-semibold text-white/55 uppercase tracking-widest mb-3">New Room</div>
+                  <div className="mb-5 rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="text-xs font-semibold text-black/60 uppercase tracking-widest mb-3">New Room</div>
                     <div className="grid grid-cols-3 gap-3 mb-3">
                       <div>
-                        <label className="block text-xs text-white/50 mb-1">Room Number *</label>
+                        <label className="block text-xs text-black/60 mb-1">Room Number *</label>
                         <input type="text" value={newRoomNumber} onChange={e => setNewRoomNumber(e.target.value)}
                           placeholder="e.g. 201" autoComplete="off"
-                          className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/30 text-sm font-mono font-bold outline-none focus:border-white/40" />
+                          className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-sm font-mono font-bold outline-none focus:border-black/5" />
                       </div>
                       <div>
-                        <label className="block text-xs text-white/50 mb-1">Room Type</label>
+                        <label className="block text-xs text-black/60 mb-1">Room Type</label>
                         <select value={newRoomType} onChange={e => setNewRoomType(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-white/20 text-white text-sm outline-none focus:border-white/40"
+                          className="w-full px-3 py-2 rounded-lg border border-black/5 text-[#000000]/87 text-sm outline-none focus:border-black/5"
                           style={{ background: 'rgba(20,30,60,0.95)' }}>
                           <option value="" style={{ background: '#1a2744' }}>— select —</option>
                           {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name} style={{ background: '#1a2744' }}>{rt.name}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs text-white/50 mb-1">Floor</label>
+                        <label className="block text-xs text-black/60 mb-1">Floor</label>
                         <input type="number" min="1" max="99" value={newRoomFloor} onChange={e => setNewRoomFloor(parseInt(e.target.value) || 1)}
-                          className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white text-sm outline-none focus:border-white/40" />
+                          className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5" />
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={addRoom} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">Save Room</button>
-                      <button onClick={() => setAddRoomOpen(false)} className="text-white/50 hover:text-white text-xs font-semibold px-4 py-2 rounded-lg bg-white/10 transition-all">Cancel</button>
+                      <button onClick={addRoom} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">Save Room</button>
+                      <button onClick={() => setAddRoomOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-xs font-semibold px-4 py-2 rounded-lg bg-white shadow-sm transition-all">Cancel</button>
                     </div>
                   </div>
                 )}
 
                 {/* Room Grid */}
                 {roomsLoading ? (
-                  <div className="text-center py-12 text-white/40">Loading rooms...</div>
+                  <div className="text-center py-12 text-black/60">Loading rooms...</div>
                 ) : rooms.length === 0 ? (
-                  <div className="text-center py-12 text-white/40 bg-white/5 rounded-xl border border-white/10">
+                  <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
                     <div className="text-4xl mb-3">🏨</div>
-                    <div className="font-semibold text-white/50 mb-1">No rooms tracked yet</div>
-                    <div className="text-xs text-white/30 mb-4">Rooms appear here automatically after check-in, or add them manually.</div>
-                    <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 px-4 py-2 rounded-lg">+ Add Room</button>
+                    <div className="font-semibold text-black/60 mb-1">No rooms tracked yet</div>
+                    <div className="text-xs text-black/60 mb-4">Rooms appear here automatically after check-in, or add them manually.</div>
+                    <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-4 py-2 rounded-lg">+ Add Room</button>
                   </div>
                 ) : (
                   <div>
                     {(() => {
                       const filtered = roomFilter === 'all' ? rooms : rooms.filter(r => r.computed_status === roomFilter);
                       if (filtered.length === 0) return (
-                        <div className="text-center py-10 text-white/40 text-sm">No rooms match this filter.</div>
+                        <div className="text-center py-10 text-black/60 text-sm">No rooms match this filter.</div>
                       );
                       const byFloor = filtered.reduce((acc, r) => {
                         const f = r.floor || 1;
@@ -9335,9 +9970,9 @@ function FrontDeskTab() {
                       return Object.keys(byFloor).sort((a, b) => a - b).map(floor => (
                         <div key={floor} className="mb-6">
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="text-xs font-bold text-white/60 uppercase tracking-widest">Floor {floor}</span>
-                            <div className="flex-1 h-px bg-white/10" />
-                            <span className="text-xs text-white/35">{byFloor[floor].length} room{byFloor[floor].length !== 1 ? 's' : ''}</span>
+                            <span className="text-xs font-bold text-black/60 uppercase tracking-widest">Floor {floor}</span>
+                            <div className="flex-1 h-px bg-white shadow-sm" />
+                            <span className="text-xs text-black/60">{byFloor[floor].length} room{byFloor[floor].length !== 1 ? 's' : ''}</span>
                           </div>
                           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
                             {byFloor[floor].map(r => <RoomCard key={r.room_number} r={r} />)}
@@ -9441,21 +10076,21 @@ function FrontDeskTab() {
                   {/* ── Toolbar ── */}
                   <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                     <div className="flex items-center gap-1.5">
-                      <button onClick={() => shiftDays(-14)} className="px-2 py-1 rounded border border-white/15 bg-white/8 text-white/55 hover:text-white text-[11px] transition-colors">← 2w</button>
-                      <button onClick={() => shiftDays(-7)}  className="px-2 py-1 rounded border border-white/15 bg-white/8 text-white/55 hover:text-white text-[11px] transition-colors">← 1w</button>
-                      <span className="text-[11px] text-white/45 font-mono px-2 select-none">
+                      <button onClick={() => shiftDays(-14)} className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">← 2w</button>
+                      <button onClick={() => shiftDays(-7)}  className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">← 1w</button>
+                      <span className="text-[11px] text-black/60 font-mono px-2 select-none">
                         {new Date(tcFrom + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         {' – '}
                         {new Date(lastDay + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
-                      <button onClick={() => shiftDays(7)}   className="px-2 py-1 rounded border border-white/15 bg-white/8 text-white/55 hover:text-white text-[11px] transition-colors">1w →</button>
-                      <button onClick={() => shiftDays(14)}  className="px-2 py-1 rounded border border-white/15 bg-white/8 text-white/55 hover:text-white text-[11px] transition-colors">2w →</button>
+                      <button onClick={() => shiftDays(7)}   className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">1w →</button>
+                      <button onClick={() => shiftDays(14)}  className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">2w →</button>
                     </div>
                     <div className="flex items-center gap-2">
                       <button onClick={() => { setTcFrom(today); setTcSelectedRes(null); }}
-                        className="px-2.5 py-1 rounded border border-white/20 bg-white/10 text-white/70 hover:text-white text-[11px] font-semibold transition-colors">Today</button>
+                        className="px-2.5 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] font-semibold transition-colors">Today</button>
                       <button onClick={() => fetchTapeChart(tcFrom)}
-                        className="px-2 py-1 rounded border border-white/15 bg-white/8 text-white/45 hover:text-white text-[11px] transition-colors">↺</button>
+                        className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">↺</button>
                     </div>
                   </div>
 
@@ -9464,12 +10099,12 @@ function FrontDeskTab() {
                     {[['confirmed','Confirmed'],['checked_in','In-House'],['pending','Pending'],['due_out','Due Out'],['checked_out','Checked Out']].map(([s, lbl]) => (
                       <div key={s} className="flex items-center gap-1">
                         <div style={{ width: 9, height: 9, borderRadius: 2, background: TC[s]?.bg }} />
-                        <span className="text-[9px] text-white/35">{lbl}</span>
+                        <span className="text-[9px] text-black/60">{lbl}</span>
                       </div>
                     ))}
                     <div className="flex items-center gap-1">
                       <div style={{ width: 9, height: 9, borderRadius: 2, border: '1px dashed rgba(255,255,255,0.2)' }} />
-                      <span className="text-[9px] text-white/35">Available — click to book</span>
+                      <span className="text-[9px] text-black/60">Available — click to book</span>
                     </div>
                   </div>
 
@@ -9501,9 +10136,9 @@ function FrontDeskTab() {
 
                   {/* ── Chart ── */}
                   {tcLoading ? (
-                    <div className="text-center py-12 text-white/30 text-sm">Loading chart...</div>
+                    <div className="text-center py-12 text-black/60 text-sm">Loading chart...</div>
                   ) : tcRooms.length === 0 ? (
-                    <div className="text-center py-12 text-white/30 text-sm">No room types found — add room types in Admin → Settings → Rooms first.</div>
+                    <div className="text-center py-12 text-black/60 text-sm">No room types found — add room types in Admin → Settings → Rooms first.</div>
                   ) : (
                     <>
                     {tcTypeView && (
@@ -9511,14 +10146,14 @@ function FrontDeskTab() {
                         Showing by room type — no individual rooms assigned yet. Rows show all bookings of that type. Add rooms via Walk-In or the Rooms tab for per-room view.
                       </div>
                     )}
-                    <div className="overflow-x-auto rounded border border-white/10" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                    <div className="overflow-x-auto rounded border border-black/5" style={{ background: 'rgba(0,0,0,0.3)' }}>
                       <div style={{ minWidth: totalW }}>
 
                         {/* Month row */}
                         <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
                           {monthGroups.map((mg, i) => (
                             <div key={i} style={{ width: mg.count * COL_W }}
-                              className="px-2 py-0.5 text-[9px] font-bold text-white/25 uppercase tracking-widest">
+                              className="px-2 py-0.5 text-[9px] font-bold text-black/60 uppercase tracking-widest">
                               {mg.lbl}
                             </div>
                           ))}
@@ -9535,10 +10170,10 @@ function FrontDeskTab() {
                                 background: isToday ? 'rgba(87,108,168,0.4)' : 'transparent',
                                 borderRight: '1px solid rgba(255,255,255,0.05)' }}
                                 className="flex flex-col items-center justify-center">
-                                <span className={`text-[11px] font-bold leading-none ${isToday ? 'text-[#93b6f5]' : isWknd ? 'text-white/30' : 'text-white/55'}`}>
+                                <span className={`text-[11px] font-bold leading-none ${isToday ? 'text-[#93b6f5]' : isWknd ? 'text-black/60' : 'text-black/60'}`}>
                                   {dt.getDate()}
                                 </span>
-                                <span className={`text-[8px] leading-none mt-0.5 ${isToday ? 'text-[#93b6f5]/60' : isWknd ? 'text-white/18' : 'text-white/22'}`}>
+                                <span className={`text-[8px] leading-none mt-0.5 ${isToday ? 'text-[#93b6f5]/60' : isWknd ? 'text-black/60' : 'text-black/60'}`}>
                                   {DAY_ABR[dt.getDay()]}
                                 </span>
                               </div>
@@ -9552,7 +10187,7 @@ function FrontDeskTab() {
                             {/* Type header */}
                             <div className="flex items-center" style={{ height: 18, background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                               <div style={{ width: LABEL_W }} className="px-2">
-                                <span className="text-[9px] font-bold text-white/50 uppercase tracking-[0.18em] truncate block" style={{ maxWidth: LABEL_W - 16 }}>{type}</span>
+                                <span className="text-[9px] font-bold text-black/60 uppercase tracking-[0.18em] truncate block" style={{ maxWidth: LABEL_W - 16 }}>{type}</span>
                               </div>
                             </div>
                             {/* Unassigned row — reservations with no room_number for this type */}
@@ -9617,11 +10252,11 @@ function FrontDeskTab() {
                                   <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)' }}
                                     className="flex items-center px-2 gap-1.5">
                                     {tcTypeView ? (
-                                      <span className="text-[10px] font-semibold text-white/55">{room.room_number}</span>
+                                      <span className="text-[10px] font-semibold text-black/60">{room.room_number}</span>
                                     ) : (
                                       <>
-                                        <span className="text-[11px] font-mono font-bold text-white/90 truncate" style={{ maxWidth: LABEL_W - 26 }}>{room.room_number}</span>
-                                        {room.floor && <span className="text-[9px] text-white/45 flex-shrink-0">F{room.floor}</span>}
+                                        <span className="text-[11px] font-mono font-bold text-black/60 truncate" style={{ maxWidth: LABEL_W - 26 }}>{room.room_number}</span>
+                                        {room.floor && <span className="text-[9px] text-black/60 flex-shrink-0">F{room.floor}</span>}
                                       </>
                                     )}
                                   </div>
@@ -9681,7 +10316,7 @@ function FrontDeskTab() {
             {/* ── Room Detail Panel ── */}
             {selectedRoom && ReactDOM.createPortal(
               <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRoom(null)}>
-                <div className="bg-[#1a2340] border border-white/20 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                <div className="bg-[#1a2340] border border-black/5 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
                   onClick={e => e.stopPropagation()}>
                   {/* Header */}
                   {(() => {
@@ -9689,37 +10324,37 @@ function FrontDeskTab() {
                     const isActive = ['occupied', 'due_out', 'arriving'].includes(selectedRoom.computed_status);
                     return (
                       <>
-                        <div className={`px-5 py-4 border-b border-white/10 ${cfg.bg}`}>
+                        <div className={`px-5 py-4 border-b border-black/5 ${cfg.bg}`}>
                           <div className="flex items-start justify-between">
                             <div>
                               <div className={`text-3xl font-black font-mono ${cfg.text}`}>{selectedRoom.room_number}</div>
                               <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                <span className="text-xs text-white/50 bg-white/10 px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
-                                <span className="text-xs text-white/40">Floor {selectedRoom.floor}</span>
+                                <span className="text-xs text-black/60 bg-white shadow-sm px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
+                                <span className="text-xs text-black/60">Floor {selectedRoom.floor}</span>
                                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.pill}`}>{cfg.label}</span>
                               </div>
                             </div>
-                            <button onClick={() => setSelectedRoom(null)} className="text-white/40 hover:text-white text-lg font-bold leading-none mt-1">✕</button>
+                            <button onClick={() => setSelectedRoom(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold leading-none mt-1">✕</button>
                           </div>
                         </div>
                         <div className="p-5 space-y-4">
                           {/* Guest info */}
                           {isActive && selectedRoom.guest_name && (
-                            <div className="bg-white/8 border border-white/10 rounded-xl p-3.5 space-y-1.5">
-                              <div className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">Current Guest</div>
-                              <div className="font-semibold text-white">{selectedRoom.guest_name}</div>
-                              <div className="flex items-center gap-3 text-xs text-white/50">
+                            <div className="bg-white shadow-sm border border-black/5 rounded-xl p-3.5 space-y-1.5">
+                              <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2">Current Guest</div>
+                              <div className="font-semibold text-[#000000]/87">{selectedRoom.guest_name}</div>
+                              <div className="flex items-center gap-3 text-xs text-black/60">
                                 <span>CI: {selectedRoom.check_in_date ? new Date(selectedRoom.check_in_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</span>
                                 <span>→</span>
                                 <span>CO: {selectedRoom.check_out_date ? new Date(selectedRoom.check_out_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</span>
                               </div>
-                              {selectedRoom.number_of_guests && <div className="text-xs text-white/40">{selectedRoom.number_of_guests} guest{selectedRoom.number_of_guests !== 1 ? 's' : ''}</div>}
+                              {selectedRoom.number_of_guests && <div className="text-xs text-black/60">{selectedRoom.number_of_guests} guest{selectedRoom.number_of_guests !== 1 ? 's' : ''}</div>}
                             </div>
                           )}
 
                           {/* HK Status */}
                           <div>
-                            <div className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2.5">Housekeeping Status</div>
+                            <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2.5">Housekeeping Status</div>
                             <div className="grid grid-cols-2 gap-2">
                               {[
                                 { status: 'clean', label: '✓ Clean', active: 'bg-green-500/25 border-green-400/50 text-green-200' },
@@ -9732,7 +10367,7 @@ function FrontDeskTab() {
                                   <button key={status}
                                     onClick={() => updateHkStatus(selectedRoom.room_number, status)}
                                     disabled={hkUpdating === selectedRoom.room_number}
-                                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-white/15 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'}`}>
+                                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/5 bg-white shadow-sm text-black/60 hover:bg-white shadow-sm hover:text-[#000000]/87'}`}>
                                     {label}
                                   </button>
                                 );
@@ -9751,7 +10386,7 @@ function FrontDeskTab() {
                             )}
                             <button
                               onClick={() => removeRoom(selectedRoom.room_number)}
-                              className="flex-1 bg-white/5 hover:bg-white/10 border border-white/15 text-white/40 hover:text-white/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
+                              className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-black/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
                               Remove Room
                             </button>
                           </div>
@@ -9767,13 +10402,13 @@ function FrontDeskTab() {
             {wizardOpen && wizardReservation && ReactDOM.createPortal(
               <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                 <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                  <div className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] px-6 py-4 flex items-center justify-between">
+                  <div className="bg-gradient-to-br from-[#00754A] to-[#006241] px-6 py-4 flex items-center justify-between">
                     <div>
-                      <div className="text-white font-bold">Check-In Wizard</div>
-                      <div className="text-white/70 text-xs">{wizardReservation.full_name} · #{wizardReservation.id}</div>
+                      <div className="text-[#000000]/87 font-bold">Check-In Wizard</div>
+                      <div className="text-black/60 text-xs">{wizardReservation.full_name} · #{wizardReservation.id}</div>
                     </div>
                     {!wizardSuccess && (
-                      <button onClick={closeWizard} className="text-white/70 hover:text-white text-lg font-bold transition-colors">✕</button>
+                      <button onClick={closeWizard} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors">✕</button>
                     )}
                   </div>
                   <div className="p-6">
@@ -9804,7 +10439,7 @@ function FrontDeskTab() {
                             <button
                               onClick={() => { setWizardStep(s => s + 1); setWizardError(''); }}
                               disabled={wizardStep === 1 && !wizardIdVerified}
-                              className="flex-1 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
+                              className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
                             >
                               Next
                             </button>
@@ -9812,7 +10447,7 @@ function FrontDeskTab() {
                             <button
                               onClick={submitCheckin}
                               disabled={!wizardPayment || wizardSubmitting}
-                              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-bold py-2.5 rounded-xl transition-colors"
+                              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-full transition-colors"
                             >
                               {wizardSubmitting ? 'Processing...' : 'Complete Check-In'}
                             </button>
@@ -9858,7 +10493,7 @@ function FrontDeskTab() {
                     <button
                       onClick={() => submitCheckout(checkoutConfirmId)}
                       disabled={checkoutSubmitting}
-                      className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-white font-bold py-2.5 rounded-xl transition-colors"
+                      className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
                     >
                       {checkoutSubmitting ? 'Processing...' : 'Check Out'}
                     </button>
@@ -9874,39 +10509,39 @@ function FrontDeskTab() {
     {transferGuest && (
       <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>
                 <div
-                  className="rounded-2xl border border-white/20 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
+                  className="rounded-2xl border border-black/5 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
                   onClick={(e) => e.stopPropagation()}
                   style={{ background: 'rgba(20,25,40,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
                 >
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
+                  <div className="flex items-center justify-between px-6 py-5 border-b border-black/5" style={{ background: '#ffffff' }}>
                     <div>
-                      <div className="text-white font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
-                      <div className="text-white/70 text-xs mt-0.5">Assign a new room for this guest</div>
+                      <div className="text-[#000000]/87 font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
+                      <div className="text-black/60 text-xs mt-0.5">Assign a new room for this guest</div>
                     </div>
-                    <button onClick={() => setTransferGuest(null)} className="text-white/70 hover:text-white text-lg font-bold transition-colors leading-none">✕</button>
+                    <button onClick={() => setTransferGuest(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors leading-none">✕</button>
                   </div>
                   {transferSuccess ? (
                     <div className="px-6 py-12 text-center">
                       <div className="w-14 h-14 rounded-full bg-green-500/25 flex items-center justify-center mx-auto mb-4">
                         <span className="text-2xl text-green-300 font-bold">✓</span>
                       </div>
-                      <div className="text-white font-bold text-lg mb-1">{transferSuccess}</div>
-                      <div className="text-white/60 text-sm">Previous room marked dirty for housekeeping</div>
-                      <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white/15 hover:bg-white/20 border border-white/20 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm">Close</button>
+                      <div className="text-[#000000]/87 font-bold text-lg mb-1">{transferSuccess}</div>
+                      <div className="text-black/60 text-sm">Previous room marked dirty for housekeeping</div>
+                      <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-[#000000]/87 font-semibold py-2.5 rounded-xl transition-colors text-sm">Close</button>
                     </div>
                   ) : (
                     <div className="p-6 space-y-5">
                       {/* Current guest info */}
                       <div
-                        className="border border-white/20 rounded-xl px-4 py-3 flex items-center justify-between"
+                        className="border border-black/5 rounded-xl px-4 py-3 flex items-center justify-between"
                         style={{ background: 'rgba(255,255,255,0.12)' }}
                       >
               <div>
-                <div className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mb-0.5">
+                <div className="text-[10px] text-black/60 font-semibold uppercase tracking-wide mb-0.5">
                   Current Assignment
                 </div>
-                <div className="font-semibold text-white text-sm">{transferGuest?.full_name}</div>
-                <div className="text-xs text-white/50 mt-0.5">
+                <div className="font-semibold text-[#000000]/87 text-sm">{transferGuest?.full_name}</div>
+                <div className="text-xs text-black/60 mt-0.5">
                   {transferGuest?.room_type} · Check-out {fmtDate(transferGuest?.check_out_date)}
                 </div>
               </div>
@@ -9914,7 +10549,7 @@ function FrontDeskTab() {
 
             {/* Room Type Filter */}
             <div>
-              <label className="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
                 Room Type Filter
               </label>
               <div className="flex flex-wrap gap-2">
@@ -9924,8 +10559,8 @@ function FrontDeskTab() {
                     setTransferRoomNumber('');
                   }}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${transferRoomType === ''
-                      ? 'bg-teal-500/50 border-teal-400/60 text-white shadow-sm'
-                      : 'bg-white/15 border-white/20 text-white/70 hover:bg-white/20 hover:border-white/40 hover:text-white'
+                      ? 'bg-teal-500/50 border-teal-400/60 text-[#000000]/87 shadow-sm'
+                      : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
                     }`}
                 >
                   All Available
@@ -9941,12 +10576,12 @@ function FrontDeskTab() {
                         setTransferRoomNumber('');
                       }}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isSelected
-                          ? 'bg-blue-500/50 border-blue-400/60 text-white shadow-sm'
-                          : 'bg-white/15 border-white/20 text-white/70 hover:bg-white/20 hover:border-white/40 hover:text-white'
+                          ? 'bg-blue-500/50 border-blue-400/60 text-[#000000]/87 shadow-sm'
+                          : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
                         }`}
                     >
                       {rt.name}
-                      {isCurrent && <span className={isSelected ? ' text-white/50' : ' text-white/40'}> (current)</span>}
+                      {isCurrent && <span className={isSelected ? ' text-black/60' : ' text-black/60'}> (current)</span>}
                       {isSelected && !isCurrent && <span className="ml-1">↑</span>}
                     </button>
                   );
@@ -9959,7 +10594,7 @@ function FrontDeskTab() {
 
             {/* Room selection */}
             <div>
-              <label className="block text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">
+              <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
                 Select Room
               </label>
               {(() => {
@@ -9976,9 +10611,9 @@ function FrontDeskTab() {
                         onChange={(e) => setTransferRoomNumber(e.target.value)}
                         placeholder="Enter room number (e.g. 301)"
                         autoComplete="off"
-                        className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/15 text-white placeholder-white/40 text-sm font-mono font-bold outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all"
+                        className="w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 text-sm font-mono font-bold outline-none focus:border-black/5 focus:ring-2 focus:ring-white/20 transition-all"
                       />
-                      <div className="text-xs text-white/40 mt-2 italic">
+                      <div className="text-xs text-black/60 mt-2 italic">
                         {transferRoomType
                           ? 'No available rooms of this type. Enter room number manually.'
                           : 'No available rooms.'}
@@ -10014,27 +10649,27 @@ function FrontDeskTab() {
                           className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${isSelected
                               ? 'bg-blue-500/40 border-blue-400/60'
                               : isCurrent
-                                ? 'bg-white/10 border-white/10 opacity-50 cursor-not-allowed'
+                                ? 'bg-white shadow-sm border-black/5 opacity-50 cursor-not-allowed'
                                 : !isAvailable
-                                  ? 'bg-white/10 border-white/10 opacity-40 cursor-not-allowed'
-                                  : 'bg-white/15 border-white/20 hover:bg-white/20 hover:border-white/40'
+                                  ? 'bg-white shadow-sm border-black/5 opacity-40 cursor-not-allowed'
+                                  : 'bg-white shadow-sm border-black/5 hover:bg-white shadow-sm hover:border-black/5'
                             }`}
                         >
                           <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColors[r.computed_status] || 'bg-gray-300'}`} />
                           <div className="flex-1">
                             <span
-                              className={`font-mono font-bold text-sm ${isSelected ? 'text-white' : isCurrent || !isAvailable ? 'text-white/40' : 'text-white'
+                              className={`font-mono font-bold text-sm ${isSelected ? 'text-[#000000]/87' : isCurrent || !isAvailable ? 'text-black/60' : 'text-[#000000]/87'
                                 }`}
                             >
                               Room {r.room_number}
                             </span>
-                            {r.floor && <span className="text-[10px] text-white/40 ml-2">Floor {r.floor}</span>}
+                            {r.floor && <span className="text-[10px] text-black/60 ml-2">Floor {r.floor}</span>}
                           </div>
-                          <span className={`text-[10px] font-semibold ${isSelected ? 'text-white' : 'text-white/50'}`}>
+                          <span className={`text-[10px] font-semibold ${isSelected ? 'text-[#000000]/87' : 'text-black/60'}`}>
                             {cfg.label}
                           </span>
                           {isCurrent && (
-                            <span className="text-[10px] bg-white/20 text-white/70 px-2 py-0.5 rounded">Current</span>
+                            <span className="text-[10px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded">Current</span>
                           )}
                         </button>
                       );
@@ -10047,20 +10682,20 @@ function FrontDeskTab() {
             {/* Transfer summary */}
             {transferRoomNumber && (
               <div
-                className="border border-white/20 rounded-xl px-5 py-3 flex items-center gap-4"
+                className="border border-black/5 rounded-xl px-5 py-3 flex items-center gap-4"
                 style={{ background: 'rgba(59, 130, 246, 0.1)' }}
               >
                 <div className="text-center min-w-[3rem]">
-                  <div className="text-[10px] text-white/40 uppercase tracking-wide font-medium">From</div>
-                  <div className="text-2xl font-black font-mono text-white/60">{transferGuest?.room_number}</div>
+                  <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">From</div>
+                  <div className="text-2xl font-black font-mono text-black/60">{transferGuest?.room_number}</div>
                 </div>
                 <div className="flex-1 flex items-center gap-2">
-                  <div className="h-px flex-1 bg-white/15" />
-                  <span className="text-white/60 font-bold text-base">→</span>
-                  <div className="h-px flex-1 bg-white/15" />
+                  <div className="h-px flex-1 bg-white shadow-sm" />
+                  <span className="text-black/60 font-bold text-base">→</span>
+                  <div className="h-px flex-1 bg-white shadow-sm" />
                 </div>
                 <div className="text-center min-w-[3rem]">
-                  <div className="text-[10px] text-white/40 uppercase tracking-wide font-medium">To</div>
+                  <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">To</div>
                   <div className="text-2xl font-black font-mono text-blue-300">{transferRoomNumber}</div>
                 </div>
               </div>
@@ -10077,14 +10712,14 @@ function FrontDeskTab() {
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setTransferGuest(null)}
-                className="flex-1 bg-white/12 hover:bg-white/18 border border-white/15 text-white/70 hover:text-white text-sm font-semibold py-2.5 rounded-xl transition-all"
+                className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 text-sm font-semibold py-2.5 rounded-xl transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={submitTransfer}
                 disabled={!transferRoomNumber?.trim() || transferSubmitting}
-                className="flex-1 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+                className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold py-2.5 rounded-full transition-all"
               >
                 {transferSubmitting
                   ? 'Moving…'
@@ -10120,11 +10755,11 @@ function FrontDeskTab() {
             </div>
             <div className="flex items-center gap-2 mt-1">
               <button onClick={printFolio} title="Print folio"
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all">
+                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all">
                 🖨 Print
               </button>
               <button onClick={sendFolioEmail} disabled={folioEmailSending} title="Email folio to guest"
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-all disabled:opacity-50">
+                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full transition-all disabled:opacity-50">
                 {folioEmailSending ? '...' : '✉ Email'}
               </button>
               <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none ml-1">&#10005;</button>
@@ -10197,7 +10832,7 @@ function FrontDeskTab() {
                     <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
                     <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
                     <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                    <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
                       {fcSaving ? '...' : '+ Add'}
                     </button>
                   </div>
@@ -10242,7 +10877,7 @@ function FrontDeskTab() {
                     </select>
                     <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
                     <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                    <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors">
+                    <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
                       {fpSaving ? '...' : '+ Pay'}
                     </button>
                   </div>
@@ -10300,27 +10935,27 @@ function GuestsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+      <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
         <div className="flex justify-between items-center mb-10">
           <div>
-            <h2 className="text-2xl font-black text-white tracking-tight">Guest Directory</h2>
-            <p className="text-white/40 text-sm font-medium mt-1">Universal guest profiles and historical stay records</p>
+            <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Guest Directory</h2>
+            <p className="text-black/60 text-sm font-medium mt-1">Universal guest profiles and historical stay records</p>
           </div>
           <div className="flex gap-4">
             <div className="relative group">
-              <input type="text" value={guestSearch} onChange={e => setGuestSearch(e.target.value)} placeholder="Search name or email..." className="w-80 px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white text-sm outline-none focus:border-[#55A2F5]/50 transition-all pl-12" />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-lg group-focus-within:text-[#55A2F5] transition-colors">🔍</span>
+              <input type="text" value={guestSearch} onChange={e => setGuestSearch(e.target.value)} placeholder="Search name or email..." className="w-80 px-5 py-3.5 bg-white shadow-sm border border-black/5 rounded-2xl text-[#000000]/87 text-sm outline-none focus:border-[#00754A]/50 transition-all pl-12" />
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-black/60 text-lg group-focus-within:text-[#00754A] transition-colors">🔍</span>
             </div>
-            <button onClick={() => fetchGuests(guestSearch)} className="px-5 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/50 hover:text-white transition-all">↻</button>
+            <button onClick={() => fetchGuests(guestSearch)} className="px-5 py-3.5 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 rounded-2xl text-black/60 hover:text-[#000000]/87 transition-all">↻</button>
           </div>
         </div>
 
         {guestsLoading ? (
-          <div className="py-20 text-center text-white/20 font-black uppercase tracking-widest animate-pulse">Scanning guest records...</div>
+          <div className="py-20 text-center text-black/60 font-black uppercase tracking-widest animate-pulse">Scanning guest records...</div>
         ) : guestsError ? (
           <div className="py-20 text-center text-rose-400 bg-rose-500/5 rounded-3xl border border-rose-500/20">{guestsError}</div>
         ) : guestList.length === 0 ? (
-          <div className="py-20 text-center text-white/20 border border-dashed border-white/10 rounded-3xl">No guest records match your search.</div>
+          <div className="py-20 text-center text-black/60 border border-dashed border-black/5 rounded-3xl">No guest records match your search.</div>
         ) : (
           <div className="space-y-3">
             {guestList.map(g => {
@@ -10328,74 +10963,74 @@ function GuestsTab() {
               const isExpanded = expandedEmail === g.email;
               const isLoading = historyLoading === g.email;
               return (
-                <div key={g.email} className={`rounded-3xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'bg-white/[0.08] border-white/25 shadow-2xl' : 'bg-white/[0.03] border-white/10 hover:border-white/20'}`}>
+                <div key={g.email} className={`rounded-3xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'bg-white/[0.08] border-black/5 shadow-2xl' : 'bg-white/[0.03] border-black/5 hover:border-black/5'}`}>
                   <div className="flex items-center justify-between p-6 cursor-pointer" onClick={() => toggleHistory(g.email)}>
                     <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl shadow-inner border border-white/5">👤</div>
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl shadow-inner border border-black/5">👤</div>
                       <div>
-                        <div className="text-lg font-black text-white">{g.full_name}</div>
-                        <div className="text-white/40 text-xs font-medium flex items-center gap-2 mt-1">
+                        <div className="text-lg font-black text-[#000000]/87">{g.full_name}</div>
+                        <div className="text-black/60 text-xs font-medium flex items-center gap-2 mt-1">
                           <span>{g.email}</span>
-                          <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                          <span className="w-1 h-1 rounded-full bg-white shadow-sm"></span>
                           <span>{g.phone_number || 'No Phone'}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-12">
                       <div className="text-right">
-                        <div className="text-[10px] text-white/20 font-black uppercase tracking-[0.2em] mb-1">Total Stays</div>
-                        <div className="text-xl font-black text-[#55A2F5]">{g.total_bookings}</div>
+                        <div className="text-[10px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">Total Stays</div>
+                        <div className="text-xl font-black text-[#00754A]">{g.total_bookings}</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[10px] text-white/20 font-black uppercase tracking-[0.2em] mb-1">Last Stay</div>
-                        <div className="text-sm font-bold text-white/80">{fmtDate(g.last_booking)}</div>
+                        <div className="text-[10px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">Last Stay</div>
+                        <div className="text-sm font-bold text-black/60">{fmtDate(g.last_booking)}</div>
                       </div>
-                      <div className={`text-2xl transition-transform duration-300 ${isExpanded ? 'rotate-180 text-[#55A2F5]' : 'text-white/10'}`}>▾</div>
+                      <div className={`text-2xl transition-transform duration-300 ${isExpanded ? 'rotate-180 text-[#00754A]' : 'text-black/60'}`}>▾</div>
                     </div>
                   </div>
 
                   {isExpanded && (
                     <div className="px-8 pb-8 animate-in fade-in slide-in-from-top-4 duration-300">
-                      <div className="h-px bg-white/10 mb-8"></div>
+                      <div className="h-px bg-white shadow-sm mb-8"></div>
                       {isLoading ? (
                         <div className="py-12 flex flex-col items-center gap-3">
-                          <div className="w-8 h-8 border-2 border-[#55A2F5]/20 border-t-[#55A2F5] rounded-full animate-spin"></div>
-                          <p className="text-[10px] text-white/20 font-black uppercase tracking-widest">Querying stay history...</p>
+                          <div className="w-8 h-8 border-2 border-[#00754A]/20 border-t-[#00754A] rounded-full animate-spin"></div>
+                          <p className="text-[10px] text-black/60 font-black uppercase tracking-widest">Querying stay history...</p>
                         </div>
                       ) : history.length === 0 ? (
-                        <p className="text-xs text-white/30 italic py-4">No historical records found for this identity.</p>
+                        <p className="text-xs text-black/60 italic py-4">No historical records found for this identity.</p>
                       ) : (
                         <div className="space-y-6">
-                          <div className="flex flex-wrap gap-6 p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+                          <div className="flex flex-wrap gap-6 p-5 rounded-2xl bg-white/[0.02] border border-black/5">
                             <div className="flex flex-col gap-1">
-                              <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Email Identity</span>
-                              <span className="text-sm font-bold text-white/80">{g.email}</span>
+                              <span className="text-[9px] text-black/60 font-black uppercase tracking-widest">Email Identity</span>
+                              <span className="text-sm font-bold text-black/60">{g.email}</span>
                             </div>
                             <div className="flex flex-col gap-1">
-                              <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Contact Phone</span>
-                              <span className="text-sm font-bold text-white/80 font-mono">{g.phone_number || '—'}</span>
+                              <span className="text-[9px] text-black/60 font-black uppercase tracking-widest">Contact Phone</span>
+                              <span className="text-sm font-bold text-black/60 font-mono">{g.phone_number || '—'}</span>
                             </div>
                             <div className="flex flex-col gap-1">
-                              <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">First Registration</span>
-                              <span className="text-sm font-bold text-white/80">{fmtDate(g.first_booking)}</span>
+                              <span className="text-[9px] text-black/60 font-black uppercase tracking-widest">First Registration</span>
+                              <span className="text-sm font-bold text-black/60">{fmtDate(g.first_booking)}</span>
                             </div>
                           </div>
 
-                          <div className="rounded-2xl border border-white/10 overflow-hidden bg-white/[0.01]">
-                            <div className="grid gap-4 px-6 py-3 bg-white/[0.03] border-b border-white/10 text-[9px] font-black text-white/30 uppercase tracking-[0.15em]" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
+                          <div className="rounded-2xl border border-black/5 overflow-hidden bg-white/[0.01]">
+                            <div className="grid gap-4 px-6 py-3 bg-white/[0.03] border-b border-black/5 text-[9px] font-black text-black/60 uppercase tracking-[0.15em]" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
                               <span>Ref #</span><span>Room Category</span><span>Room</span><span>Arrival</span><span>Departure</span><span>Stay</span><span className="text-right">Status</span>
                             </div>
                             <div className="divide-y divide-white/[0.03]">
                               {history.map(bk => (
                                 <div key={bk.id} className="grid gap-4 px-6 py-4 text-xs items-center hover:bg-white/[0.02] transition-all" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
-                                  <span className="text-[#55A2F5] font-mono font-black">#{bk.id}</span>
-                                  <span className="text-white font-bold truncate">{bk.room_type}</span>
-                                  <span className="text-white/60 font-mono">{bk.room_number || '—'}</span>
-                                  <span className="text-white/40">{fmtDate(bk.check_in_date)}</span>
-                                  <span className="text-white/40">{fmtDate(bk.check_out_date)}</span>
-                                  <span className="text-white/20 text-[10px] font-bold uppercase">{nightsCount(bk)}</span>
+                                  <span className="text-[#00754A] font-mono font-black">#{bk.id}</span>
+                                  <span className="text-[#000000]/87 font-bold truncate">{bk.room_type}</span>
+                                  <span className="text-black/60 font-mono">{bk.room_number || '—'}</span>
+                                  <span className="text-black/60">{fmtDate(bk.check_in_date)}</span>
+                                  <span className="text-black/60">{fmtDate(bk.check_out_date)}</span>
+                                  <span className="text-black/60 text-[10px] font-bold uppercase">{nightsCount(bk)}</span>
                                   <div className="flex justify-end gap-2">
-                                    <button onClick={() => openFolio(bk)} className="px-3 py-1 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase tracking-widest text-[#55A2F5] rounded-lg transition-all border border-[#55A2F5]/10">Ledger</button>
+                                    <button onClick={() => openFolio(bk)} className="px-3 py-1 bg-white shadow-sm hover:bg-white shadow-sm text-[9px] font-black uppercase tracking-widest text-[#00754A] rounded-lg transition-all border border-[#00754A]/10">Ledger</button>
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColors[bk.status]?.bg} ${statusColors[bk.status]?.text}`}>{statusLabel(bk.status)}</span>
                                   </div>
                                 </div>
@@ -10446,74 +11081,74 @@ function FolioModal({
   const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 backdrop-blur-md" onClick={() => setFolioOpen(false)}>
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-[2rem] overflow-hidden shadow-2xl border border-white/10" 
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 " onClick={() => setFolioOpen(false)}>
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-[2rem] overflow-hidden shadow-2xl border border-black/5" 
         style={{ background: '#0f172a', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
         onClick={e => e.stopPropagation()}>
         
         {/* Header - High End Design */}
-        <div className="px-8 py-6 border-b border-white/5 bg-gradient-to-r from-white/[0.03] to-transparent">
+        <div className="px-8 py-6 border-b border-black/5 bg-gradient-to-r from-white/[0.03] to-transparent">
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-black text-white tracking-tighter uppercase">Guest Ledger</h2>
+                <h2 className="text-2xl font-black text-[#000000]/87 tracking-tighter uppercase">Guest Ledger</h2>
                 <div className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${folioTotals.balance > 0 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
                   {folioTotals.balance > 0 ? 'Balance Due' : 'Settled'}
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-2">
-                <span className="text-sm font-bold text-[#55A2F5]">{folioRes.full_name}</span>
-                <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                <span className="text-xs font-mono text-white/40">Folio #{folioRes.id}</span>
-                <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                <span className="text-xs text-white/30">{folioRes.room_type} — Room {folioRes.room_number || 'TBD'}</span>
+                <span className="text-sm font-bold text-[#00754A]">{folioRes.full_name}</span>
+                <span className="w-1 h-1 rounded-full bg-white shadow-sm"></span>
+                <span className="text-xs font-mono text-black/60">Folio #{folioRes.id}</span>
+                <span className="w-1 h-1 rounded-full bg-white shadow-sm"></span>
+                <span className="text-xs text-black/60">{folioRes.room_type} — Room {folioRes.room_number || 'TBD'}</span>
               </div>
             </div>
             <div className="flex gap-2">
-              <button onClick={printFolio} className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 transition-all shadow-sm">
+              <button onClick={printFolio} className="p-2.5 rounded-full bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 hover:bg-white shadow-sm transition-all shadow-sm">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
               </button>
-              <button onClick={() => setFolioOpen(false)} className="p-2.5 rounded-xl bg-white/5 border border-white/10 text-white/20 hover:text-white transition-all">&times;</button>
+              <button onClick={() => setFolioOpen(false)} className="p-2.5 rounded-xl bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 transition-all">&times;</button>
             </div>
           </div>
 
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4">
-              <div className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Total Charges</div>
-              <div className="text-lg font-black text-white font-mono">{fmtA(folioTotals.charges)}</div>
+            <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-4">
+              <div className="text-[9px] font-bold text-black/60 uppercase tracking-[0.2em] mb-1">Total Charges</div>
+              <div className="text-lg font-black text-[#000000]/87 font-mono">{fmtA(folioTotals.charges)}</div>
             </div>
-            <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4">
-              <div className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Total Payments</div>
+            <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-4">
+              <div className="text-[9px] font-bold text-black/60 uppercase tracking-[0.2em] mb-1">Total Payments</div>
               <div className="text-lg font-black text-emerald-400 font-mono">{fmtA(folioTotals.payments)}</div>
             </div>
             <div className={`rounded-2xl p-4 border transition-all ${folioTotals.balance > 0 ? 'bg-amber-500/5 border-amber-500/20' : 'bg-emerald-500/5 border-emerald-500/20'}`}>
-              <div className="text-[9px] font-bold text-white/30 uppercase tracking-[0.2em] mb-1">Outstanding Balance</div>
+              <div className="text-[9px] font-bold text-black/60 uppercase tracking-[0.2em] mb-1">Outstanding Balance</div>
               <div className={`text-lg font-black font-mono ${folioTotals.balance > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>{fmtA(folioTotals.balance)}</div>
             </div>
           </div>
         </div>
 
         {/* Action Bar - Post Charge/Payment */}
-        <div className="px-8 py-4 bg-white/[0.01] border-b border-white/5 flex gap-4 items-center overflow-x-auto no-scrollbar">
-          <div className="flex-shrink-0 text-[10px] font-black text-white/20 uppercase tracking-widest mr-2">Post Transaction</div>
+        <div className="px-8 py-4 bg-white/[0.01] border-b border-black/5 flex gap-4 items-center overflow-x-auto no-scrollbar">
+          <div className="flex-shrink-0 text-[10px] font-black text-black/60 uppercase tracking-widest mr-2">Post Transaction</div>
           
           {/* Quick Add Charge */}
-          <div className="flex gap-2 items-center bg-white/5 p-1 rounded-xl border border-white/10">
-            <select value={fcType} onChange={e => setFcType(e.target.value)} className="bg-transparent text-white/70 text-xs px-2 outline-none">
+          <div className="flex gap-2 items-center bg-white shadow-sm p-1 rounded-xl border border-black/5">
+            <select value={fcType} onChange={e => setFcType(e.target.value)} className="bg-transparent text-black/60 text-xs px-2 outline-none">
               <option value="Room Charge">Room</option>
               <option value="Food & Bev">F&B</option>
               <option value="Laundry">Laundry</option>
               <option value="Others">Others</option>
             </select>
-            <input type="text" placeholder="Description" value={fcDesc} onChange={e => setFcDesc(e.target.value)} className="bg-transparent text-white placeholder-white/20 text-xs px-2 w-24 outline-none border-l border-white/10" />
-            <input type="number" placeholder="Amt" value={fcPrice} onChange={e => setFcPrice(e.target.value)} className="bg-transparent text-white placeholder-white/20 text-xs px-2 w-16 outline-none border-l border-white/10 font-mono" />
-            <button onClick={addCharge} disabled={fcSaving} className="bg-[#55A2F5] hover:bg-[#4491E4] text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+            <input type="text" placeholder="Description" value={fcDesc} onChange={e => setFcDesc(e.target.value)} className="bg-transparent text-[#000000]/87 placeholder-white/20 text-xs px-2 w-24 outline-none border-l border-black/5" />
+            <input type="number" placeholder="Amt" value={fcPrice} onChange={e => setFcPrice(e.target.value)} className="bg-transparent text-[#000000]/87 placeholder-white/20 text-xs px-2 w-16 outline-none border-l border-black/5 font-mono" />
+            <button onClick={addCharge} disabled={fcSaving} className="bg-[#00754A] hover:bg-[#4491E4] text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
               {fcSaving ? '...' : '+ Charge'}
             </button>
           </div>
 
-          <div className="w-px h-6 bg-white/10 mx-1"></div>
+          <div className="w-px h-6 bg-white shadow-sm mx-1"></div>
 
           {/* Quick Record Payment */}
           <div className="flex gap-2 items-center bg-emerald-500/10 p-1 rounded-xl border border-emerald-500/20">
@@ -10523,7 +11158,7 @@ function FolioModal({
               <option value="Bank">Bank</option>
             </select>
             <input type="number" placeholder="Amount" value={fpAmount} onChange={e => setFpAmount(e.target.value)} className="bg-transparent text-emerald-100 placeholder-emerald-500/40 text-xs px-2 w-20 outline-none border-l border-emerald-500/20 font-mono" />
-            <button onClick={addPayment} disabled={fpSaving} className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all">
+            <button onClick={addPayment} disabled={fpSaving} className="bg-emerald-500 hover:bg-emerald-600 text-[#000000]/87 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
               {fpSaving ? '...' : '+ Payment'}
             </button>
           </div>
@@ -10533,18 +11168,18 @@ function FolioModal({
         <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
           {folioLoading ? (
             <div className="flex flex-col items-center justify-center py-20 opacity-40">
-              <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin mb-4" />
+              <div className="w-8 h-8 border-2 border-black/5 border-t-white rounded-full animate-spin mb-4" />
               <div className="text-[10px] font-black uppercase tracking-widest">Auditing Folio...</div>
             </div>
           ) : ledgerWithBalance.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-white/10">
+            <div className="flex flex-col items-center justify-center py-24 text-black/60">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4"><path d="M12 2v20M2 12h20M12 2l4 4-4-4-4 4 4-4z"/></svg>
               <div className="text-sm font-bold tracking-widest uppercase">Clean Folio — No Transactions</div>
             </div>
           ) : (
             <table className="w-full text-left border-collapse">
               <thead className="sticky top-0 z-10 bg-[#0f172a] shadow-sm">
-                <tr className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] border-b border-white/5">
+                <tr className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
                   <th className="px-8 py-4">Date</th>
                   <th className="px-4 py-4">Description</th>
                   <th className="px-4 py-4 text-right">Debit</th>
@@ -10560,13 +11195,13 @@ function FolioModal({
                   return (
                     <tr key={`${entry.type}-${entry.id}`} className={`group hover:bg-white/[0.02] transition-colors ${isVoid ? 'opacity-30 grayscale' : ''}`}>
                       <td className="px-8 py-4">
-                        <div className="text-[11px] font-bold text-white/60">{fmtDate(entry.timestamp)}</div>
-                        <div className="text-[9px] text-white/20 font-mono mt-0.5">{new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        <div className="text-[11px] font-bold text-black/60">{fmtDate(entry.timestamp)}</div>
+                        <div className="text-[9px] text-black/60 font-mono mt-0.5">{new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
                           <div className={`w-1 h-1 rounded-full ${isCharge ? 'bg-blue-400' : 'bg-emerald-400'}`} />
-                          <span className="text-xs font-bold text-white/80">{entry.description || entry.charge_type || entry.payment_method}</span>
+                          <span className="text-xs font-bold text-black/60">{entry.description || entry.charge_type || entry.payment_method}</span>
                         </div>
                         {isVoid && <div className="text-[9px] text-rose-500 font-black uppercase tracking-widest mt-1">Voided</div>}
                       </td>
@@ -10576,14 +11211,14 @@ function FolioModal({
                       <td className="px-4 py-4 text-right font-mono text-xs text-emerald-400">
                         {!isCharge ? fmtA(entry.amount) : '—'}
                       </td>
-                      <td className="px-4 py-4 text-right font-mono text-xs font-bold text-white/90">
+                      <td className="px-4 py-4 text-right font-mono text-xs font-bold text-black/60">
                         {fmtA(entry.currentBalance)}
                       </td>
                       <td className="px-8 py-4 text-right">
                         {!isVoid && (
                           <button 
                             onClick={() => isCharge ? voidCharge(entry.id) : voidPayment(entry.id)}
-                            className="text-[9px] font-black uppercase tracking-widest text-white/10 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
+                            className="text-[9px] font-black uppercase tracking-widest text-black/60 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
                           >
                             Void
                           </button>
@@ -10598,13 +11233,13 @@ function FolioModal({
         </div>
 
         {/* Footer Info */}
-        <div className="px-8 py-4 bg-white/[0.02] border-t border-white/5 flex justify-between items-center">
+        <div className="px-8 py-4 bg-white/[0.02] border-t border-black/5 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Audited & Real-time</span>
+            <span className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">Audited & Real-time</span>
           </div>
-          {folioEmailMsg && <div className="text-[10px] font-bold text-[#55A2F5] px-3 py-1 rounded-full bg-[#55A2F5]/10">{folioEmailMsg}</div>}
-          <button onClick={sendFolioEmail} disabled={folioEmailSending} className="text-[10px] font-black uppercase tracking-widest text-[#55A2F5] hover:text-white transition-all disabled:opacity-30">
+          {folioEmailMsg && <div className="text-[10px] font-bold text-[#00754A] px-3 py-1 rounded-full bg-[#00754A]/10">{folioEmailMsg}</div>}
+          <button onClick={sendFolioEmail} disabled={folioEmailSending} className="text-[10px] font-black uppercase tracking-widest text-[#00754A] hover:text-[#000000]/87 transition-all disabled:opacity-30">
             {folioEmailSending ? 'Sending...' : 'Email Invoice to Guest'}
           </button>
         </div>

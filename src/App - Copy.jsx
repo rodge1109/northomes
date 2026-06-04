@@ -3996,7 +3996,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
                   showBorder={false}
                   className="text-3xl font-bold tracking-tight"
                 >
-                  Service Box
+                  Northomes Pensionne
                 </GradientText>
                 <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest mt-0.5">Hotel & Wellness</p>
               </div>
