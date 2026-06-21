@@ -5,6 +5,12 @@ import LiquidEther from './components/LiquidEther/LiquidEther';
 import GradientText from './components/GradientText/GradientText';
 import Orb from './components/Orb/Orb';
 
+
+// Dynamically resolve backend API URL depending on current environment
+const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:5000'
+  : 'https://northomes.onrender.com';
+
 // Cart Context
 const CartContext = createContext();
 
@@ -480,7 +486,7 @@ export default function RestaurantApp() {
 
       {/* ── Global Admin Sidebar ── */}
       {['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) && (
-        <aside style={{ position: 'fixed', top: '80px', left: 0, width: '120px', height: 'calc(100vh - 80px)', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(30px)', WebkitBackdropFilter: 'blur(30px)', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.06)', zIndex: 200 }}>
+        <aside style={{ position: 'fixed', top: 0, left: 0, width: '120px', height: '100vh', background: '#142b22', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.08)', zIndex: 200 }}>
           {/* Primary nav */}
           <nav style={{ flex: 1, padding: '12px 6px', overflowY: 'auto' }} className="no-scrollbar">
             {[
@@ -503,37 +509,38 @@ export default function RestaurantApp() {
             ].map(item => {
               const isActive = (currentPage === 'admin' && adminTab === item.tabId) || (item.id === 'frontdesk' && currentPage === 'frontdesk');
               return (
-                <button key={item.id} onClick={item.act} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', padding: '12px 6px', borderRadius: '12px', border: '1px solid transparent', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', background: isActive ? 'rgba(85, 162, 245, 0.1)' : 'transparent', color: isActive ? '#00754A' : 'rgba(255,255,255,0.25)', marginBottom: '4px' }}
+                <button key={item.id} onClick={item.act} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease', background: isActive ? '#00754A' : 'transparent', color: isActive ? '#ffffff' : 'rgba(255,255,255,0.40)', marginBottom: '3px' }}
                   className="group relative"
-                  onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; } }}
-                  onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; } }}
+                  onMouseEnter={e => { if (!isActive) { e.currentTarget.style.background = 'rgba(0,117,74,0.15)'; e.currentTarget.style.color = 'rgba(255,255,255,0.80)'; } }}
+                  onMouseLeave={e => { if (!isActive) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(255,255,255,0.40)'; } }}
                 >
-                  <div className={`transition-all duration-500 ${isActive ? 'scale-110' : 'group-hover:scale-105 group-hover:text-[#000000]/87'}`}>
+                  <div style={{ transition: 'transform 0.2s ease', transform: isActive ? 'scale(1.05)' : 'scale(1)' }}>
                     {item.icon}
                   </div>
-                  <span style={{ fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.15em', textAlign: 'center' }}>{item.label}</span>
-                  {isActive && <div className="absolute right-0 w-1 h-6 bg-[#00754A] rounded-l-full shadow-[0_0_15px_#00754A]" />}
+                  <span style={{ fontSize: '7.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', textAlign: 'center', lineHeight: 1.3 }}>{item.label}</span>
                 </button>
               );
             })}
           </nav>
           {/* Sign out */}
-          <div style={{ padding: '12px 6px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={() => { localStorage.removeItem('adminToken'); localStorage.removeItem('adminTokenExpiry'); setCurrentPage('home'); }} style={{ width: '100%', fontSize: '8px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'rgba(255,255,255,0.2)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '10px 4px', borderRadius: '10px', transition: 'all 0.3s' }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#ff5f5f'; e.currentTarget.style.background = 'rgba(255,95,95,0.05)'; e.currentTarget.style.borderColor = 'rgba(255,95,95,0.1)'; }}
-              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.25)'; e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
+          <div style={{ padding: '12px 6px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <button onClick={() => { localStorage.removeItem('adminToken'); localStorage.removeItem('adminTokenExpiry'); setCurrentPage('home'); }} style={{ width: '100%', fontSize: '7.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.30)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '10px 4px', borderRadius: '10px', transition: 'all 0.2s ease' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#c82014'; e.currentTarget.style.background = 'rgba(200,32,20,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.30)'; e.currentTarget.style.background = 'transparent'; }}
             >Sign Out</button>
           </div>
         </aside>
       )}
 
       <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: ['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) ? '150px' : 0 }}>
-        <Header
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
+        {!['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) && (
+          <Header
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+        )}
         {currentPage === 'home' && (
           <HomePage
             setCurrentPage={setCurrentPage}
@@ -728,7 +735,7 @@ function AppointmentForm({ onSuccess }) {
 
   // Fetch all room types on mount
   useEffect(() => {
-    fetch('http://localhost:5000/api/room-types')
+    fetch(`${API_BASE_URL}/api/room-types`)
       .then(r => r.json())
       .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
       .catch(() => { });
@@ -740,7 +747,7 @@ function AppointmentForm({ onSuccess }) {
       setAvailability({});
       return;
     }
-    fetch(`http://localhost:5000/api/room-types/availability?checkIn=${formData.checkInDate}&checkOut=${formData.checkOutDate}`)
+    fetch(`${API_BASE_URL}/api/room-types/availability?checkIn=${formData.checkInDate}&checkOut=${formData.checkOutDate}`)
       .then(r => r.json())
       .then(data => {
         if (data.success) {
@@ -782,7 +789,7 @@ function AppointmentForm({ onSuccess }) {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/reservations', {
+      const response = await fetch(`${API_BASE_URL}/api/reservations`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -1176,7 +1183,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setFolioLoading(true);
     setFolioError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${reservationId}`);
+      const res = await fetch(`${API_BASE_URL}/api/folio/${reservationId}`);
       const data = await res.json();
       if (data.success) {
         setFolioItems(data.items);
@@ -1206,7 +1213,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     if (!fcPrice || isNaN(parseFloat(fcPrice))) { setFcError('Enter a valid price'); return; }
     setFcSaving(true); setFcError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${folioRes.id}/charge`, {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ charge_type: fcType, description: fcDesc, quantity: fcQty, unit_price: fcPrice }),
@@ -1222,7 +1229,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     if (!fpAmount || isNaN(parseFloat(fpAmount))) { setFpError('Enter a valid amount'); return; }
     setFpSaving(true); setFpError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${folioRes.id}/payment`, {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payment_method: fpMethod, amount: fpAmount, reference: fpRef }),
@@ -1235,14 +1242,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   };
 
   const voidCharge = async (itemId) => {
-    await fetch(`http://localhost:5000/api/folio/charge/${itemId}/void`, {
+    await fetch(`${API_BASE_URL}/api/folio/charge/${itemId}/void`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: '' }),
     });
     fetchFolio(folioRes.id);
   };
 
   const voidPayment = async (payId) => {
-    await fetch(`http://localhost:5000/api/folio/payment/${payId}/void`, { method: 'PATCH' });
+    await fetch(`${API_BASE_URL}/api/folio/payment/${payId}/void`, { method: 'PATCH' });
     fetchFolio(folioRes.id);
   };
 
@@ -1251,7 +1258,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setFolioEmailSending(true);
     setFolioEmailMsg('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${folioRes.id}/email`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/email`, { method: 'POST' });
       const data = await res.json();
       setFolioEmailMsg(data.success ? `✓ ${data.message}` : `✗ ${data.message}`);
     } catch (e) {
@@ -1425,7 +1432,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   const verifyToken = async (token) => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/verify', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/verify`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -1446,7 +1453,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setLoginError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/admin/login', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -1470,7 +1477,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const handleLogout = async () => {
     const token = localStorage.getItem('adminToken');
     try {
-      await fetch('http://localhost:5000/api/admin/logout', {
+      await fetch(`${API_BASE_URL}/api/admin/logout`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -1493,8 +1500,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       if (filter !== 'all') params.append('status', filter);
 
       const url = params.toString()
-        ? `http://localhost:5000/api/appointments/search?${params}`
-        : 'http://localhost:5000/api/appointments';
+        ? `${API_BASE_URL}/api/appointments/search?${params}`
+        : `${API_BASE_URL}/api/appointments`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -1518,7 +1525,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const updateStatus = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      const response = await fetch(`http://localhost:5000/api/appointments/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -1547,7 +1554,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   const fetchAvailableSlots = async (date) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/available-slots?date=${date}`);
+      const response = await fetch(`${API_BASE_URL}/api/available-slots?date=${date}`);
       const data = await response.json();
       if (data.success) {
         // Include the current time slot as it's the appointment's own slot
@@ -1576,7 +1583,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
     setIsRescheduling(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/appointments/${rescheduleModal.id}/reschedule`, {
+      const response = await fetch(`${API_BASE_URL}/api/appointments/${rescheduleModal.id}/reschedule`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ preferredDate: newDate, preferredTime: newTime })
@@ -1653,7 +1660,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const fetchCalendarData = useCallback(async () => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/calendar?month=${calendarMonth}&year=${calendarYear}`
+        `${API_BASE_URL}/api/calendar?month=${calendarMonth}&year=${calendarYear}`
       );
       const data = await response.json();
       if (data.success) {
@@ -1671,7 +1678,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       if (reportStartDate) params.append('startDate', reportStartDate);
       if (reportEndDate) params.append('endDate', reportEndDate);
 
-      const response = await fetch(`http://localhost:5000/api/reports/stats?${params}`);
+      const response = await fetch(`${API_BASE_URL}/api/reports/stats?${params}`);
       const data = await response.json();
       if (data.success) {
         setReportStats(data.stats);
@@ -1687,7 +1694,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     if (hotelRptStart) params.append('startDate', hotelRptStart);
     if (hotelRptEnd)   params.append('endDate',   hotelRptEnd);
     try {
-      const res  = await fetch(`http://localhost:5000/api/reports/hotel/management?${params}`);
+      const res  = await fetch(`${API_BASE_URL}/api/reports/hotel/management?${params}`);
       const data = await res.json();
       if (data.success) setMgmtData(data);
     } catch (e) { console.error(e); }
@@ -1701,8 +1708,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     if (hotelRptEnd)   params.append('endDate',   hotelRptEnd);
     try {
       const [finRes, dailyRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/reports/hotel/financial?${params}`).then(r => r.json()),
-        fetch(`http://localhost:5000/api/reports/hotel/daily?${params}`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/reports/hotel/financial?${params}`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/reports/hotel/daily?${params}`).then(r => r.json()),
       ]);
       if (finRes.success)   setFinData(finRes);
       if (dailyRes.success) setDailyRevData(dailyRes.daily);
@@ -1713,7 +1720,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const fetchMonthlyReport = async () => {
     setHotelRptLoading(true);
     try {
-      const res  = await fetch(`http://localhost:5000/api/reports/hotel/monthly?year=${finYear}`);
+      const res  = await fetch(`${API_BASE_URL}/api/reports/hotel/monthly?year=${finYear}`);
       const data = await res.json();
       if (data.success) setMonthlyRevData(data.monthly);
     } catch (e) { console.error(e); }
@@ -1723,7 +1730,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Fetch blocked dates
   const fetchBlockedDates = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/blocked-dates');
+      const response = await fetch(`${API_BASE_URL}/api/blocked-dates`);
       const data = await response.json();
       if (data.success) {
         setBlockedDates(data.blockedDates);
@@ -1737,7 +1744,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const addBlockedDate = async () => {
     if (!newBlockedDate) return;
     try {
-      const response = await fetch('http://localhost:5000/api/blocked-dates', {
+      const response = await fetch(`${API_BASE_URL}/api/blocked-dates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ blockedDate: newBlockedDate, reason: newBlockedReason })
@@ -1756,7 +1763,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Delete blocked date
   const deleteBlockedDate = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/blocked-dates/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/blocked-dates/${id}`, { method: 'DELETE' });
       setBlockedDates(blockedDates.filter(d => d.id !== id));
     } catch (error) {
       console.error('Error deleting blocked date:', error);
@@ -1766,7 +1773,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Fetch doctors
   const fetchDoctors = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/doctors');
+      const response = await fetch(`${API_BASE_URL}/api/doctors`);
       const data = await response.json();
       if (data.success) {
         setDoctors(data.doctors);
@@ -1780,7 +1787,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const addDoctor = async () => {
     if (!newDoctorName) return;
     try {
-      const response = await fetch('http://localhost:5000/api/doctors', {
+      const response = await fetch(`${API_BASE_URL}/api/doctors`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newDoctorName, specialization: newDoctorSpec })
@@ -1799,7 +1806,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Delete doctor
   const deleteDoctor = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/doctors/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/doctors/${id}`, { method: 'DELETE' });
       setDoctors(doctors.filter(d => d.id !== id));
     } catch (error) {
       console.error('Error deleting doctor:', error);
@@ -1809,7 +1816,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Fetch services
   const fetchServices = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/services');
+      const response = await fetch(`${API_BASE_URL}/api/services`);
       const data = await response.json();
       if (data.success) {
         setServices(data.services);
@@ -1823,7 +1830,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const addService = async () => {
     if (!newServiceName) return;
     try {
-      const response = await fetch('http://localhost:5000/api/services', {
+      const response = await fetch(`${API_BASE_URL}/api/services`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newServiceName, duration: newServiceDuration, price: newServicePrice })
@@ -1843,7 +1850,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Delete service
   const deleteService = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/services/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/services/${id}`, { method: 'DELETE' });
       setServices(services.filter(s => s.id !== id));
     } catch (error) {
       console.error('Error deleting service:', error);
@@ -1853,7 +1860,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Hotel Settings
   const fetchHotelSettings = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/hotel-settings');
+      const response = await fetch(`${API_BASE_URL}/api/hotel-settings`);
       const data = await response.json();
       if (data.success) setHotelSettings(prev => ({ ...prev, ...data.settings }));
     } catch (error) {
@@ -1865,7 +1872,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setSavingSettings(true);
     setSettingsSavedMsg('');
     try {
-      const response = await fetch('http://localhost:5000/api/hotel-settings', {
+      const response = await fetch(`${API_BASE_URL}/api/hotel-settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ settings: hotelSettings })
@@ -1884,7 +1891,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Admin Room Types CRUD
   const fetchAdminRoomTypes = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/admin/room-types');
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types`);
       const data = await response.json();
       if (data.success) setAdminRoomTypes(data.roomTypes);
     } catch (error) {
@@ -1896,8 +1903,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setRcLoading(true);
     try {
       const [rcRes, rtRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admin/rate-codes'),
-        fetch('http://localhost:5000/api/admin/room-types'),
+        fetch(`${API_BASE_URL}/api/admin/rate-codes`),
+        fetch(`${API_BASE_URL}/api/admin/room-types`),
       ]);
       const rcData = await rcRes.json();
       const rtData = await rtRes.json();
@@ -1914,7 +1921,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       price_per_night: rcPrices[rt.id] !== undefined && rcPrices[rt.id] !== '' ? rcPrices[rt.id] : null,
     }));
     try {
-      await fetch(`http://localhost:5000/api/admin/rate-codes/${rcId}/prices`, {
+      await fetch(`${API_BASE_URL}/api/admin/rate-codes/${rcId}/prices`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prices }),
@@ -1930,7 +1937,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const addRoomType = async () => {
     if (!newRoomForm.name || !newRoomForm.price_per_night) return;
     try {
-      const response = await fetch('http://localhost:5000/api/admin/room-types', {
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1958,7 +1965,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   const saveRoomEdit = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/room-types/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1985,7 +1992,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const deactivateRoomType = async (id) => {
     if (!confirm('Deactivate this room type? It will no longer appear in bookings.')) return;
     try {
-      await fetch(`http://localhost:5000/api/admin/room-types/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/admin/room-types/${id}`, { method: 'DELETE' });
       setAdminRoomTypes(adminRoomTypes.map(rt => rt.id === id ? { ...rt, active: false } : rt));
     } catch (error) {
       console.error('Error deactivating room type:', error);
@@ -1994,7 +2001,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   const reactivateRoomType = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/room-types/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: true })
@@ -2014,13 +2021,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
     if (filter !== 'all') params.append('status', filter);
-    window.open(`http://localhost:5000/api/export/appointments?${params}`, '_blank');
+    window.open(`${API_BASE_URL}/api/export/appointments?${params}`, '_blank');
   };
 
   // Send SMS
   const sendSMSReminder = async (apt) => {
     try {
-      const response = await fetch('http://localhost:5000/api/send-sms', {
+      const response = await fetch(`${API_BASE_URL}/api/send-sms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ appointmentId: apt.id })
@@ -2064,45 +2071,55 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
 
     return (
-      <div className="min-h-screen pt-[70px] md:pt-[30px] pb-24 flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-[#1E3932] pt-[70px] md:pt-0 flex items-center justify-center relative overflow-hidden">
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, #00754A 0%, transparent 50%), radial-gradient(circle at 75% 75%, #006241 0%, transparent 50%)' }} />
         <div className="w-full max-w-md px-6 relative z-10">
-          <div className="rounded-3xl border border-black/5 p-10 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
-            <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-white shadow-sm rounded-2xl flex items-center justify-center mx-auto mb-6 border border-black/5 shadow-2xl">
-                <svg className="w-10 h-10 text-[#000000]/87" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h2 className="text-3xl font-bold text-[#000000]/87 tracking-tight">Admin Portal</h2>
-              <p className="text-black/60 mt-2 text-sm">Secure access for hotel management</p>
+          {/* Logo / Brand */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-[#00754A] rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 16px rgba(0,0,0,0.24)' }}>
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
             </div>
+            <h4 className="text-white/50 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Northomes Pensionne</h4>
+            <h2 className="text-3xl font-bold text-white tracking-tight">Admin Portal</h2>
+            <p className="text-white/50 mt-2 text-sm">Secure access for hotel management</p>
+          </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
+          <div className="rounded-xl p-8" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
+            <form onSubmit={handleLogin} className="space-y-5">
               {loginError && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-xs font-medium animate-shake">
+                <div style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }} className="text-[#c82014] px-4 py-3 rounded-lg text-xs font-medium">
                   {loginError}
                 </div>
               )}
 
               <div>
-                <label className={labelCls}>Username</label>
+                <label className="block text-[10px] font-black text-black/60 uppercase tracking-[0.15em] mb-2">Username</label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className={inputCls}
+                  className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                  style={{ border: '1px solid rgba(0,0,0,0.15)', background: '#ffffff' }}
+                  onFocus={e => e.target.style.borderColor = '#00754A'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.15)'}
                   placeholder="Enter your username"
                   required
                 />
               </div>
 
               <div>
-                <label className={labelCls}>Password</label>
+                <label className="block text-[10px] font-black text-black/60 uppercase tracking-[0.15em] mb-2">Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={inputCls}
+                  className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                  style={{ border: '1px solid rgba(0,0,0,0.15)', background: '#ffffff' }}
+                  onFocus={e => e.target.style.borderColor = '#00754A'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.15)'}
                   placeholder="Enter your password"
                   required
                 />
@@ -2111,7 +2128,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-bold rounded-full hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 shadow-lg"
+                className="w-full py-3.5 text-white font-bold text-sm uppercase tracking-[0.1em] transition-all disabled:opacity-50"
+                style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                onMouseEnter={e => { if (!isLoggingIn) e.currentTarget.style.background = '#006241'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#00754A'; }}
+                onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
               >
                 {isLoggingIn ? (
                   <div className="flex items-center justify-center gap-2">
@@ -2124,7 +2146,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             <button
               onClick={() => setCurrentPage('home')}
-              className="w-full mt-6 py-3 text-black/60 hover:text-[#000000]/87 text-xs font-semibold transition-all uppercase tracking-widest"
+              className="w-full mt-5 py-2.5 text-black/40 hover:text-[#00754A] text-xs font-bold transition-all uppercase tracking-[0.1em]"
             >
               ← Back to Main Website
             </button>
@@ -2136,7 +2158,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   // Dashboard
   return (
-    <div className="bg-[#0F172A] min-h-screen pt-[70px] pb-24">
+    <div className="bg-[#1E3932] min-h-screen pt-[70px] pb-24">
         {activeTab === 'queue' && (
           <div style={{ position: 'fixed', inset: 0, zIndex: 10, pointerEvents: 'none', mixBlendMode: 'screen' }}>
             <Orb hoverIntensity={2} rotateOnHover hue={0} forceHoverState={false} backgroundColor="#000000" />
@@ -2146,19 +2168,32 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== DASHBOARD TAB ==================== */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Dashboard</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Overview of today's activities and operations</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* Main Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#00754A]', icon: '🛫' },
-                { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-400', icon: '🛬' },
-                { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-400', icon: '🏨' },
-                { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-purple-400', icon: '📊' },
+                { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg> },
+                { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15"/></svg> },
+                { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg> },
+                { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg> },
               ].map((stat, i) => (
-                <div key={i} className="rounded-2xl border border-black/5 p-5 bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
+                <div key={i} className="rounded-xl p-5 bg-white group hover:scale-[1.01] transition-all cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
                   <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">{stat.label}</span>
-                    <span className="text-xl opacity-40 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
+                    <span className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em]">{stat.label}</span>
+                    <span className="text-[#006241] opacity-60 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
                   </div>
                   <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
                 </div>
@@ -2167,24 +2202,24 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Recent Activity */}
-              <div className="lg:col-span-2 rounded-3xl border border-black/5 p-8 overflow-hidden bg-white/[0.02] ">
-                <h3 className="text-sm font-black text-black/60 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00754A] shadow-[0_0_10px_#00754A]"></span>
+              <div className="lg:col-span-2 rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]"></span>
                   Recent Activity
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {appointments.slice(0, 5).map((apt, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-black/5 hover:border-black/5 hover:bg-white/[0.04] transition-all group">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm border border-black/5 flex items-center justify-center text-black/60 font-black text-lg group-hover:text-[#00754A] transition-colors">
+                    <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-[#f2f0eb] hover:bg-[#edebe9] transition-all group" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-9 h-9 rounded-xl bg-[#1E3932] flex items-center justify-center text-white font-black text-sm">
                           {apt.full_name.charAt(0)}
                         </div>
                         <div>
                           <p className="font-bold text-[#000000]/87 text-sm">{apt.full_name}</p>
-                          <p className="text-[10px] text-black/60 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
+                          <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
                         </div>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
+                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
                         {apt.status}
                       </span>
                     </div>
@@ -2192,24 +2227,28 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
               </div>
               
-              {/* Housekeeping Quick View */}
-              <div className="rounded-3xl border border-black/5 p-8 bg-white/[0.02] ">
-                <h3 className="text-sm font-black text-black/60 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_#a855f7]"></span>
+              {/* Status Overview */}
+              <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#006241]"></span>
                   Status Overview
                 </h3>
                 <div className="grid grid-cols-1 gap-3">
                   {[
-                    { label: 'Clean', value: 24, color: 'text-emerald-400', border: 'border-emerald-500/20' },
-                    { label: 'Dirty', value: 8, color: 'text-rose-400', border: 'border-rose-500/20' },
-                    { label: 'Inspected', value: 15, color: 'text-[#00754A]', border: 'border-[#00754A]/20' },
-                    { label: 'Out of Order', value: 2, color: 'text-black/60', border: 'border-black/5' },
+                    { label: 'Clean', value: 24, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+                    { label: 'Dirty', value: 8, color: 'text-[#c82014]', bg: 'bg-red-50', border: 'border-red-200' },
+                    { label: 'Inspected', value: 15, color: 'text-[#006241]', bg: 'bg-[#d4e9e2]', border: 'border-[#d4e9e2]' },
+                    { label: 'Out of Order', value: 2, color: 'text-black/50', bg: 'bg-[#f9f9f9]', border: 'border-black/10' },
                   ].map((item, i) => (
-                    <div key={i} className={`rounded-2xl p-4 flex justify-between items-center border bg-white/[0.02] ${item.border}`}>
+                    <div key={i} className={`rounded-xl p-4 flex justify-between items-center border ${item.bg} ${item.border}`}>
                       <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>{item.label}</span>
                       <span className={`text-2xl font-black ${item.color}`}>{item.value}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -2218,26 +2257,39 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== RESERVATIONS TAB ==================== */}
         {activeTab === 'reservations' && (
-          <div className="space-y-6">
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Bookings</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Manage room reservations and availability</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+                  <div className="space-y-6">
             {/* Analytics Chart */}
             {(() => {
               const chartData = [
                 { label: 'Pending', value: stats.pending, color: '#F59E0B' },
-                { label: 'Confirmed', value: stats.confirmed, color: '#3B82F6' },
+                { label: 'Confirmed', value: stats.confirmed, color: '#00754A' },
                 { label: 'Completed', value: stats.completed, color: '#10B981' },
-                { label: 'Cancelled', value: stats.cancelled, color: '#EF4444' },
+                { label: 'Cancelled', value: stats.cancelled, color: '#c82014' },
               ];
               const total = stats.total || 1;
               const radius = 54;
               const circumference = 2 * Math.PI * radius;
               let cumulative = 0;
               return (
-                <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
                   <div className="flex flex-col md:flex-row items-center gap-10">
                     {/* Donut Chart */}
                     <div className="relative flex-shrink-0">
                       <svg width="160" height="160" viewBox="0 0 128 128">
-                        <circle cx="64" cy="64" r={radius} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
+                        <circle cx="64" cy="64" r={radius} fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="12" />
                         {chartData.map((seg, i) => {
                           const pct = seg.value / total;
                           const dashLen = pct * circumference;
@@ -2259,8 +2311,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             />
                           );
                         })}
-                        <text x="64" y="62" textAnchor="middle" className="text-2xl font-black fill-white tracking-tighter">{stats.total}</text>
-                        <text x="64" y="78" textAnchor="middle" className="text-[10px] font-bold fill-white/30 uppercase tracking-widest">Total</text>
+                        <text x="64" y="62" textAnchor="middle" className="text-2xl font-black fill-[#1E3932] tracking-tighter">{stats.total}</text>
+                        <text x="64" y="78" textAnchor="middle" className="text-[10px] font-bold fill-[#1E3932]/40 uppercase tracking-widest">Total</text>
                       </svg>
                     </div>
                     {/* Legend + Bar Breakdown */}
@@ -2271,12 +2323,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           <div key={i} className="space-y-2">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: seg.color, color: seg.color }}></div>
-                                <span className="text-xs font-bold text-black/60 uppercase tracking-wider">{seg.label}</span>
+                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: seg.color }}></div>
+                                <span className="text-xs font-bold text-black/50 uppercase tracking-wider">{seg.label}</span>
                               </div>
-                              <span className="text-sm font-black text-[#000000]/87">{seg.value} <span className="text-black/60 font-medium ml-1">({pct}%)</span></span>
+                              <span className="text-sm font-black text-[#000000]/87">{seg.value} <span className="text-black/40 font-medium ml-1">({pct}%)</span></span>
                             </div>
-                            <div className="w-full bg-white shadow-sm rounded-full h-1.5 overflow-hidden">
+                            <div className="w-full bg-[#f2f0eb] rounded-full h-1.5 overflow-hidden">
                               <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
                             </div>
                           </div>
@@ -2289,42 +2341,51 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             })()}
 
             {/* Search & Filter Bar */}
-            <div className="rounded-2xl border border-black/5 p-6 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-xl p-6 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="md:col-span-2">
-                  <label className="block text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">Search Guest</label>
+                  <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">Search Guest</label>
                   <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/60" />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Name, phone, or email..."
-                      className="w-full pl-12 pr-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 focus:outline-none focus:border-black/5 transition-all text-sm"
+                      className="w-full pl-12 pr-4 py-3 rounded-lg text-[#000000]/87 placeholder-black/30 text-sm outline-none transition-all"
+                      style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
+                      onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">From Date</label>
+                  <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">From Date</label>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-black/5 transition-all text-sm [color-scheme:dark]"
+                    className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                    style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
+                    onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                    onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">To Date</label>
+                  <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">To Date</label>
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-black/5 transition-all text-sm [color-scheme:dark]"
+                    className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                    style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
+                    onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                    onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
                   />
                 </div>
               </div>
               {(searchQuery || startDate || endDate) && (
-                <button onClick={clearFilters} className="mt-4 text-xs font-bold text-[#00754A] hover:text-[#000000]/87 transition-colors uppercase tracking-widest">
+                <button onClick={clearFilters} className="mt-4 text-xs font-bold text-[#00754A] hover:text-[#006241] transition-colors uppercase tracking-[0.1em]">
                   × Clear active filters
                 </button>
               )}
@@ -2336,10 +2397,16 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${filter === f
-                      ? 'bg-white text-[#006241] border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]'
-                      : 'bg-white shadow-sm text-black/60 border-black/5 hover:bg-white shadow-sm hover:text-[#000000]/87'
-                    }`}
+                  className="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap"
+                  style={{
+                    borderRadius: '50px',
+                    border: filter === f ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
+                    background: filter === f ? '#00754A' : '#ffffff',
+                    color: filter === f ? '#ffffff' : 'rgba(0,0,0,0.58)',
+                    boxShadow: filter === f ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
+                  }}
+                  onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                  onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
                 >
                   {f}
                 </button>
@@ -2432,6 +2499,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 📥 Export to CSV
               </button>
             </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -2440,92 +2511,126 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <div className="flex justify-between items-center mb-10">
-                <div>
-                  <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Room Inventory</h2>
-                  <p className="text-black/60 text-sm font-medium mt-1">Manage room types, pricing models, and global availability</p>
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Room Inventory</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Manage room types, pricing models, and global availability</p>
+                    </div>
+                    <button 
+                      onClick={() => { setActiveTab('settings'); setSettingsSubTab('property'); }}
+                      className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
+                      style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#006241'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                      onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                      onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      Configure Room Types
+                    </button>
+                  </div>
                 </div>
-                <button 
-                  onClick={() => { setActiveTab('settings'); setSettingsSubTab('property'); }}
-                  className="px-6 py-3 bg-[#00754A] text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all"
-                >
-                  Configure Room Types
-                </button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {adminRoomTypes.map(rt => (
-                  <div key={rt.id} className="bg-white shadow-sm rounded-2xl border border-black/5 p-6 hover:bg-white shadow-sm transition-all group">
+                  <div key={rt.id} className="rounded-xl p-6 border border-black/5 bg-[#f9f9f9] hover:bg-white hover:shadow-md transition-all group cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.08)' }}>
                     <div className="flex justify-between items-start mb-6">
-                      <h4 className="font-bold text-[#000000]/87 text-lg group-hover:text-[#00754A] transition-colors">{rt.name}</h4>
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${rt.active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white shadow-sm text-black/60 border-black/5'}`}>
+                      <h4 className="font-bold text-[#006241] text-lg">{rt.name}</h4>
+                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${rt.active ? 'bg-[#d4e9e2] text-[#006241] border-[#d4e9e2]' : 'bg-[#f9f9f9] text-black/40 border-black/10'}`}>
                         {rt.active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
                     <div className="space-y-3 mb-8">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Total Inventory</span>
+                        <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Total Inventory</span>
                         <span className="text-sm font-black text-[#000000]/87">{rt.total_rooms} Rooms</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Base Rate</span>
-                        <span className="text-sm font-black text-[#00754A]">₱{Number(rt.price_per_night).toLocaleString()}</span>
+                        <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Base Rate</span>
+                        <span className="text-sm font-black text-[#006241]">₱{Number(rt.price_per_night).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Max Guests</span>
+                        <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Max Guests</span>
                         <span className="text-sm font-black text-[#000000]/87">{rt.max_guests} Persons</span>
                       </div>
                     </div>
                     <div className="flex gap-2 pt-6 border-t border-black/5">
-                      <button className="flex-1 py-2.5 bg-white shadow-sm border border-black/5 rounded-full text-[10px] font-black text-black/60 uppercase tracking-widest hover:bg-white shadow-sm hover:text-[#000000]/87 transition-all">
-                        Inventory
-                      </button>
-                      <button className="flex-1 py-2.5 bg-white shadow-sm border border-black/5 rounded-full text-[10px] font-black text-black/60 uppercase tracking-widest hover:bg-white shadow-sm hover:text-[#000000]/87 transition-all">
-                        Rates
-                      </button>
+                      <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                      >Inventory</button>
+                      <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                      >Rates</button>
                     </div>
                   </div>
                 ))}
               </div>
+                  </div>
+                </div>
             </div>
           </div>
         )}
 
         {/* ==================== HOUSEKEEPING TAB ==================== */}
         {activeTab === 'housekeeping' && (
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <div className="flex justify-between items-center mb-10">
-                <div>
-                  <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Housekeeping</h2>
-                  <p className="text-black/60 text-sm font-medium mt-1">Real-time room status monitoring and staff assignment</p>
-                </div>
-                <div className="flex gap-3">
-                  <button className="px-5 py-2.5 bg-white shadow-sm border border-black/5 text-black/60 rounded-full font-bold text-[10px] uppercase tracking-widest hover:bg-white shadow-sm transition-all">Export</button>
-                  <button className="px-5 py-2.5 bg-emerald-600 text-[#000000]/87 rounded-full font-bold text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-all">+ Assign Task</button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {Array.from({ length: 24 }).map((_, i) => {
-                  const status = i % 5 === 0 ? 'Dirty' : i % 3 === 0 ? 'Inspected' : 'Clean';
-                  const color = status === 'Clean' ? 'bg-emerald-400' : status === 'Dirty' ? 'bg-red-400' : 'bg-[#00754A]';
-                  const textColor = status === 'Clean' ? 'text-emerald-400' : status === 'Dirty' ? 'text-red-400' : 'text-[#00754A]';
-                  return (
-                    <div key={i} className="bg-white shadow-sm border border-black/5 rounded-2xl p-5 hover:bg-white shadow-sm transition-all cursor-pointer group">
-                      <div className="flex justify-between items-center mb-4">
-                        <span className="font-bold text-black/60 text-[10px] uppercase tracking-widest">Room</span>
-                        <div className={`w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] ${color}`} style={{ color: color.replace('bg-', '') }}></div>
-                      </div>
-                      <p className="text-2xl font-black text-[#000000]/87 group-hover:text-[#00754A] transition-colors">{101 + i}</p>
-                      <p className={`text-[10px] font-black uppercase tracking-widest mt-2 ${textColor}`}>
-                        {status}
-                      </p>
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Housekeeping</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Real-time room status monitoring and staff assignment</p>
                     </div>
-                  );
-                })}
+                    <div className="flex gap-4 items-center">
+                      <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">4 Clean</span>
+                      </div>
+                      <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">2 Dirty</span>
+                      </div>
+                      <button 
+                        className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
+                        style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#006241'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        + Assign Task
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    {Array.from({ length: 24 }).map((_, i) => {
+                      const status = i % 5 === 0 ? 'Dirty' : i % 3 === 0 ? 'Inspected' : 'Clean';
+                      const dotColor = status === 'Clean' ? '#10B981' : status === 'Dirty' ? '#c82014' : '#006241';
+                      const textColor = status === 'Clean' ? 'text-emerald-600' : status === 'Dirty' ? 'text-[#c82014]' : 'text-[#006241]';
+                      const bg = status === 'Clean' ? 'bg-emerald-50 border-emerald-200' : status === 'Dirty' ? 'bg-red-50 border-red-200' : 'bg-[#d4e9e2] border-[#d4e9e2]';
+                      return (
+                        <div key={i} className={`border rounded-xl p-4 hover:scale-[1.02] transition-all cursor-pointer ${bg}`}>
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-black text-black/50 text-[9px] uppercase tracking-widest">Room</span>
+                            <div className="w-2 h-2 rounded-full" style={{ background: dotColor }}></div>
+                          </div>
+                          <p className="text-2xl font-black text-[#1E3932]">{101 + i}</p>
+                          <p className={`text-[9px] font-black uppercase tracking-widest mt-1.5 ${textColor}`}>{status}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2533,43 +2638,50 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== BILLING TAB ==================== */}
         {activeTab === 'billing' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            {/* Header section */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div>
-                <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight uppercase">Billing & Ledger</h2>
-                <div className="flex items-center gap-2 mt-1">
-                  <p className="text-black/60 text-xs font-medium">Financial operations and guest folios</p>
-                  <span className="text-[10px] font-black text-emerald-400/60 uppercase tracking-widest flex items-center gap-1.5">
-                    <span className="w-1 h-1 rounded-full bg-emerald-500"></span> Live Sync
-                  </span>
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Billing & Ledger</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Financial operations and guest folios</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          placeholder="Search invoices..." 
+                          className="pl-8 pr-4 py-2 rounded-xl bg-[#f9f9f9] border border-black/5 text-[#000000]/87 text-[10px] placeholder-black/40 focus:border-[#00754A]/40 outline-none transition-all w-48"
+                        />
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 text-[10px]">🔍</span>
+                      </div>
+                      <button 
+                        className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
+                        style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#006241'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        + New Invoice
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Search invoices..." 
-                    className="pl-8 pr-4 py-2 rounded-xl bg-white/[0.03] border border-black/5 text-[#000000]/87 text-[10px] placeholder-white/20 focus:border-[#00754A]/40 outline-none transition-all w-48"
-                  />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 text-[10px]">🔍</span>
-                </div>
-                <button className="px-5 py-2 bg-[#00754A] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-lg hover:brightness-110 transition-all">
-                  + New Invoice
-                </button>
-              </div>
-            </div>
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-6">
 
-            {/* Metric Cards - Sleek & Minimal */}
+            {/* Metric Cards */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {[
-                { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#00754A]' },
-                { label: 'Outstanding', value: `₱${Number(stats.pending * 8500).toLocaleString()}`, color: 'text-amber-400' },
-                { label: 'Collected', value: `₱${Number(stats.confirmed * 10200).toLocaleString()}`, color: 'text-emerald-400' },
-                { label: 'Avg. Stay', value: '₱12,400', color: 'text-purple-400' },
+                { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#006241]' },
+                { label: 'Outstanding', value: `₱${Number(stats.pending * 8500).toLocaleString()}`, color: 'text-amber-600' },
+                { label: 'Collected', value: `₱${Number(stats.confirmed * 10200).toLocaleString()}`, color: 'text-emerald-600' },
+                { label: 'Avg. Stay', value: '₱12,400', color: 'text-[#006241]' },
               ].map((card, i) => (
-                <div key={i} className="rounded-2xl border border-black/5 p-4 bg-white/[0.02] flex flex-col justify-between min-h-[90px]">
-                  <span className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em]">{card.label}</span>
+                <div key={i} className="rounded-xl p-5 bg-white flex flex-col justify-between min-h-[90px]" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                  <span className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em]">{card.label}</span>
                   <div className={`text-xl font-black ${card.color}`}>{card.value}</div>
                 </div>
               ))}
@@ -2623,6 +2735,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <div className="px-6 py-3 bg-white/[0.02] border-t border-black/5 flex items-center justify-between text-[9px] font-bold text-black/60 uppercase">
                 <span>{appointments.length} Stay Records Found</span>
               </div>
+            </div>
+                  </div>
+                </div>
             </div>
           </div>
         )}
@@ -2736,18 +2851,46 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
           const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
           const subBtnCls = (id) => `px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all rounded-xl border ${reportsSubTab === id ? 'bg-[#00754A] text-[#000000]/87 border-[#00754A] shadow-[0_0_20px_rgba(85,162,245,0.3)]' : 'bg-white shadow-sm text-black/60 border-black/5 hover:bg-white shadow-sm hover:text-white'}`;
           return (
-            <div className="space-y-8">
-              {/* Sub-tab navigation */}
-              <div className="flex gap-3 flex-wrap bg-white/[0.02] p-1.5 rounded-2xl border border-black/5 w-fit">
-                <button className={subBtnCls('appointments')} onClick={() => setReportsSubTab('appointments')}>Appointments</button>
-                <button className={subBtnCls('management')}   onClick={() => setReportsSubTab('management')}>Stay Reports</button>
-                <button className={subBtnCls('financial')}    onClick={() => setReportsSubTab('financial')}>Financials</button>
+            <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+              <div className="flex-1 flex flex-col min-h-0 w-full">
+                <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                  {/* Header bar */}
+                  <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="shrink-0">
+                        <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Analytics & Reports</h2>
+                        <p className="text-black/60 text-xs mt-0.5">Comprehensive insights on property performance</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-8">
+                    {/* Sub-tab navigation */}
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { id: 'appointments', label: 'Appointments' },
+                  { id: 'management', label: 'Stay Reports' },
+                  { id: 'financial', label: 'Financials' },
+                ].map(sub => (
+                  <button key={sub.id} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all"
+                    style={{
+                      borderRadius: '50px',
+                      border: reportsSubTab === sub.id ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
+                      background: reportsSubTab === sub.id ? '#00754A' : '#ffffff',
+                      color: reportsSubTab === sub.id ? '#ffffff' : 'rgba(0,0,0,0.58)',
+                      boxShadow: reportsSubTab === sub.id ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
+                    }}
+                    onClick={() => setReportsSubTab(sub.id)}
+                    onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                    onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                  >{sub.label}</button>
+                ))}
               </div>
 
               {/* ── Appointments sub-tab (existing) ── */}
               {reportsSubTab === 'appointments' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5 ">
+                {/* Appointments filter bar */}
+                <div className="bg-white rounded-xl p-6" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
                     <div className="flex flex-wrap gap-6 items-end">
                       <div className="flex-1 min-w-[200px]">
                         <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
@@ -3195,14 +3338,29 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   )}
                 </div>
               )}
+                  </div>
+                </div>
+              </div>
             </div>
           );
         })()}
 
         {/* ==================== SETTINGS TAB ==================== */}
         {activeTab === 'settings' && (
-          <div>
-            {/* Settings sub-tab navigation */}
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">System Settings</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Configure property details, rooms, and integrations</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-8">
+                  {/* Settings sub-tab navigation */}
             <div className="flex overflow-x-auto gap-1 mb-6 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
               {[
                 { id: 'property', label: 'Property' },
@@ -3434,7 +3592,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     onClick={async () => {
                       if (!rcNewForm.code || !rcNewForm.name) return;
                       try {
-                        const res = await fetch('http://localhost:5000/api/admin/rate-codes', {
+                        const res = await fetch(`${API_BASE_URL}/api/admin/rate-codes`, {
                           method: 'POST', headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify(rcNewForm),
                         });
@@ -3498,7 +3656,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                     </button>
                                     <button
                                       onClick={async () => {
-                                        await fetch(`http://localhost:5000/api/admin/rate-codes/${rc.id}`, {
+                                        await fetch(`${API_BASE_URL}/api/admin/rate-codes/${rc.id}`, {
                                           method: 'PUT', headers: { 'Content-Type': 'application/json' },
                                           body: JSON.stringify({ is_active: !rc.is_active }),
                                         });
@@ -3870,6 +4028,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
               </div>
             )}
+                  </div>
+                </div>
+            </div>
           </div>
         )}
         </div>
@@ -3995,7 +4156,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:5000/api/patient/appointment/${token}`);
+      const response = await fetch(`${API_BASE_URL}/api/patient/appointment/${token}`);
       const data = await response.json();
       if (data.success) {
         setAppointment(data.appointment);
@@ -4016,7 +4177,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
     setAppointment(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/patient/lookup', {
+      const response = await fetch(`${API_BASE_URL}/api/patient/lookup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, referenceId: parseInt(referenceId) })
@@ -4040,7 +4201,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 
     setIsCancelling(true);
     try {
-      const response = await fetch('http://localhost:5000/api/patient/cancel', {
+      const response = await fetch(`${API_BASE_URL}/api/patient/cancel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -4301,7 +4462,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
   const [roomTypes, setRoomTypes] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/room-types')
+    fetch(`${API_BASE_URL}/api/room-types`)
       .then(r => r.json())
       .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
       .catch(() => { });
@@ -4312,12 +4473,12 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
   return (
     <header className="sticky top-0 z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
       {/* Top Pre-header Bar */}
-      <div className="h-[30px] w-full bg-[#1E3932] flex items-center px-4 md:px-8 gap-6">
-        <a href="mailto:bogonorthomes@gmail.com" className="text-white/90 text-[11px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
+      <div className="h-[50px] w-full bg-[#1E3932] flex items-center px-4 md:px-8 gap-6">
+        <a href="mailto:bogonorthomes@gmail.com" className="text-white/90 text-[15px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
           bogonorthomes@gmail.com
         </a>
-        <a href="tel:+639171323715" className="text-white/90 text-[11px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
+        <a href="tel:+639171323715" className="text-white/90 text-[15px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
           +63 917 132 3715
         </a>
@@ -4735,9 +4896,9 @@ function AccommodationsPage({ setCurrentPage }) {
     if (checkIn && checkOut) {
       setIsChecking(true);
       setHasCheckedAvailability(true);
-      fetchRooms(`http://localhost:5000/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+      fetchRooms(`${API_BASE_URL}/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
     } else {
-      fetchRooms('http://localhost:5000/api/room-types');
+      fetchRooms(`${API_BASE_URL}/api/room-types`);
     }
   }, []);
 
@@ -4747,7 +4908,7 @@ function AccommodationsPage({ setCurrentPage }) {
     sessionStorage.setItem('northomes_checkout', checkOut);
     setIsChecking(true);
     setHasCheckedAvailability(true);
-    fetchRooms(`http://localhost:5000/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+    fetchRooms(`${API_BASE_URL}/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
   };
 
   if (loading && roomTypes.length === 0) {
@@ -4914,7 +5075,7 @@ function HomePage({ setCurrentPage }) {
   const [roomTypes, setRoomTypes] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/room-types')
+    fetch(`${API_BASE_URL}/api/room-types`)
       .then(r => r.json())
       .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
       .catch(() => {});
@@ -4935,6 +5096,9 @@ function HomePage({ setCurrentPage }) {
           alt="Northomes Pensionne" 
           className="w-full h-full object-cover"
         />
+        {/* Beautiful Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#006241]/40 via-[#1E3932]/10 to-[#CBA258]/30 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#f2f0eb] via-transparent to-transparent opacity-80"></div>
       </div>
 
       {/* Horizontal Booking Bar - Overlapping the Hero */}
@@ -6196,17 +6360,17 @@ function QueueAdminTab({ setCurrentPage }) {
   const fetchAll = async () => {
     try {
       const [ticketsRes, typesRes, tellersRes, marqueeRes] = await Promise.all([
-        fetch('http://localhost:5000/api/queue/tickets').then(r => r.json()),
-        fetch('http://localhost:5000/api/queue/transaction-types').then(r => r.json()),
-        fetch('http://localhost:5000/api/queue/tellers').then(r => r.json()),
-        fetch('http://localhost:5000/api/queue/marquee').then(r => r.json())
+        fetch(`${API_BASE_URL}/api/queue/tickets`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/queue/transaction-types`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/queue/tellers`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/queue/marquee`).then(r => r.json())
       ]);
       if (ticketsRes.success) { setTickets(ticketsRes.tickets); setStats(ticketsRes.stats); }
       if (typesRes.success) setTransactionTypes(typesRes.types);
       if (tellersRes.success) setTellers(tellersRes.tellers);
       if (marqueeRes.success) setMarqueeText(marqueeRes.text);
       try {
-        const templateRes = await fetch('http://localhost:5000/api/queue/display-template').then(r => r.json());
+        const templateRes = await fetch(`${API_BASE_URL}/api/queue/display-template`).then(r => r.json());
         if (templateRes.success && VALID_TEMPLATES.includes(templateRes.template)) {
           setDisplayTemplate(templateRes.template);
           localStorage.setItem(TEMPLATE_STORAGE_KEY, templateRes.template);
@@ -6227,7 +6391,7 @@ function QueueAdminTab({ setCurrentPage }) {
 
   const resetQueue = async () => {
     try {
-      await fetch('http://localhost:5000/api/queue/reset', { method: 'POST' });
+      await fetch(`${API_BASE_URL}/api/queue/reset`, { method: 'POST' });
       setShowResetConfirm(false);
       fetchAll();
     } catch (err) { console.error('Error resetting queue:', err); }
@@ -6236,7 +6400,7 @@ function QueueAdminTab({ setCurrentPage }) {
   const addTransactionType = async () => {
     if (!newTypeName || !newTypePrefix) return;
     try {
-      await fetch('http://localhost:5000/api/queue/transaction-types', {
+      await fetch(`${API_BASE_URL}/api/queue/transaction-types`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newTypeName, prefix: newTypePrefix })
@@ -6248,7 +6412,7 @@ function QueueAdminTab({ setCurrentPage }) {
 
   const deleteTransactionType = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/queue/transaction-types/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/queue/transaction-types/${id}`, { method: 'DELETE' });
       fetchAll();
     } catch (err) { console.error('Error deleting type:', err); }
   };
@@ -6256,7 +6420,7 @@ function QueueAdminTab({ setCurrentPage }) {
   const addTeller = async () => {
     if (!newWindowName) return;
     try {
-      await fetch('http://localhost:5000/api/queue/tellers', {
+      await fetch(`${API_BASE_URL}/api/queue/tellers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ windowName: newWindowName })
@@ -6268,7 +6432,7 @@ function QueueAdminTab({ setCurrentPage }) {
 
   const deleteTeller = async (id) => {
     try {
-      await fetch(`http://localhost:5000/api/queue/tellers/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE_URL}/api/queue/tellers/${id}`, { method: 'DELETE' });
       fetchAll();
     } catch (err) { console.error('Error deleting teller:', err); }
   };
@@ -6281,7 +6445,7 @@ function QueueAdminTab({ setCurrentPage }) {
       ? [...currentIds, typeId]
       : currentIds.filter(id => id !== typeId);
     try {
-      await fetch(`http://localhost:5000/api/queue/window-transactions/${tellerId}`, {
+      await fetch(`${API_BASE_URL}/api/queue/window-transactions/${tellerId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ transactionTypeIds: newIds })
@@ -6293,7 +6457,7 @@ function QueueAdminTab({ setCurrentPage }) {
   const fetchReport = async () => {
     setReportLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/queue/reports?startDate=${reportStartDate}&endDate=${reportEndDate}`);
+      const res = await fetch(`${API_BASE_URL}/api/queue/reports?startDate=${reportStartDate}&endDate=${reportEndDate}`);
       const data = await res.json();
       if (data.success) setReportData(data);
     } catch (err) { console.error('Error fetching report:', err); }
@@ -6480,7 +6644,7 @@ function QueueAdminTab({ setCurrentPage }) {
         <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200">
           <h3 className="text-gray-800 font-bold text-lg">Today's Tickets</h3>
           <div className="flex gap-2">
-            <button onClick={() => window.open('http://localhost:5000/api/export/queue-tickets', '_blank')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-blue-200">
+            <button onClick={() => window.open(`${API_BASE_URL}/api/export/queue-tickets`, '_blank')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-blue-200">
               Export CSV
             </button>
             <button onClick={fetchAll} className="text-blue-600 hover:text-blue-800 text-sm transition-all">Refresh</button>
@@ -6625,7 +6789,7 @@ function QueueAdminTab({ setCurrentPage }) {
             onClick={async () => {
               setMarqueeSaving(true);
               try {
-                await fetch('http://localhost:5000/api/queue/marquee', {
+                await fetch(`${API_BASE_URL}/api/queue/marquee`, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ text: marqueeText })
@@ -6663,7 +6827,7 @@ function QueueAdminTab({ setCurrentPage }) {
               localStorage.setItem(TEMPLATE_STORAGE_KEY, displayTemplate);
               setTemplateSaving(true);
               try {
-                const res = await fetch('http://localhost:5000/api/queue/display-template', {
+                const res = await fetch(`${API_BASE_URL}/api/queue/display-template`, {
                   method: 'PUT',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ template: displayTemplate })
@@ -6716,7 +6880,7 @@ function QueueAdminTab({ setCurrentPage }) {
               </button>
               <button onClick={() => {
                 const params = new URLSearchParams({ startDate: reportStartDate, endDate: reportEndDate });
-                window.open(`http://localhost:5000/api/export/queue-tickets?${params}`, '_blank');
+                window.open(`${API_BASE_URL}/api/export/queue-tickets?${params}`, '_blank');
               }}
                 className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-blue-200">
                 Export to CSV
@@ -6850,7 +7014,7 @@ function QueuePage({ setCurrentPage }) {
   const [position, setPosition] = useState(0);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/queue/transaction-types')
+    fetch(`${API_BASE_URL}/api/queue/transaction-types`)
       .then(res => res.json())
       .then(data => { if (data.success) setTransactionTypes(data.types); })
       .catch(err => console.error('Error fetching transaction types:', err));
@@ -6860,7 +7024,7 @@ function QueuePage({ setCurrentPage }) {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await fetch('http://localhost:5000/api/queue/tickets', {
+      const response = await fetch(`${API_BASE_URL}/api/queue/tickets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -7111,7 +7275,7 @@ function QueueDisplayPage() {
 
   useEffect(() => {
     const fetchDisplay = () => {
-      fetch('http://localhost:5000/api/queue/display')
+      fetch(`${API_BASE_URL}/api/queue/display`)
         .then(res => res.json())
         .then(data => {
           if (data.success) {
@@ -7132,13 +7296,13 @@ function QueueDisplayPage() {
         .catch(err => console.error('Display fetch error:', err));
     };
     const fetchMarquee = () => {
-      fetch('http://localhost:5000/api/queue/marquee')
+      fetch(`${API_BASE_URL}/api/queue/marquee`)
         .then(res => res.json())
         .then(data => { if (data.success) setMarqueeText(data.text); })
         .catch(err => console.error('Marquee fetch error:', err));
     };
     const fetchTemplate = () => {
-      fetch('http://localhost:5000/api/queue/display-template')
+      fetch(`${API_BASE_URL}/api/queue/display-template`)
         .then(res => res.json())
         .then(data => {
           if (data.success && VALID_TEMPLATES.includes(data.template)) {
@@ -7570,7 +7734,7 @@ function QueueTellerPage({ setCurrentPage }) {
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/queue/tellers')
+    fetch(`${API_BASE_URL}/api/queue/tellers`)
       .then(res => res.json())
       .then(data => { if (data.success) setTellers(data.tellers); })
       .catch(err => console.error('Error fetching tellers:', err));
@@ -7579,7 +7743,7 @@ function QueueTellerPage({ setCurrentPage }) {
   const fetchCurrentTicket = async () => {
     if (!selectedWindow) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/queue/teller/${encodeURIComponent(selectedWindow)}/current`);
+      const res = await fetch(`${API_BASE_URL}/api/queue/teller/${encodeURIComponent(selectedWindow)}/current`);
       const data = await res.json();
       if (data.success) {
         setCurrentTicket(data.current);
@@ -7606,7 +7770,7 @@ function QueueTellerPage({ setCurrentPage }) {
   const callNext = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/queue/teller/next', {
+      const res = await fetch(`${API_BASE_URL}/api/queue/teller/next`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ windowName: selectedWindow, tellerName })
@@ -7628,7 +7792,7 @@ function QueueTellerPage({ setCurrentPage }) {
   const completeTicket = async () => {
     if (!currentTicket) return;
     try {
-      await fetch(`http://localhost:5000/api/queue/tickets/${currentTicket.id}/complete`, { method: 'PATCH' });
+      await fetch(`${API_BASE_URL}/api/queue/tickets/${currentTicket.id}/complete`, { method: 'PATCH' });
       setCurrentTicket(null);
       fetchCurrentTicket();
     } catch (err) {
@@ -7639,7 +7803,7 @@ function QueueTellerPage({ setCurrentPage }) {
   const skipTicket = async () => {
     if (!currentTicket) return;
     try {
-      await fetch(`http://localhost:5000/api/queue/tickets/${currentTicket.id}/skip`, { method: 'PATCH' });
+      await fetch(`${API_BASE_URL}/api/queue/tickets/${currentTicket.id}/skip`, { method: 'PATCH' });
       setCurrentTicket(null);
       fetchCurrentTicket();
     } catch (err) {
@@ -7649,7 +7813,7 @@ function QueueTellerPage({ setCurrentPage }) {
 
   const recallTicket = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/queue/tickets/${id}/recall`, {
+      const res = await fetch(`${API_BASE_URL}/api/queue/tickets/${id}/recall`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ windowName: selectedWindow, tellerName })
@@ -7669,7 +7833,7 @@ function QueueTellerPage({ setCurrentPage }) {
   const transferTicket = async (targetWindow) => {
     if (!currentTicket) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/queue/tickets/${currentTicket.id}/transfer`, {
+      const res = await fetch(`${API_BASE_URL}/api/queue/tickets/${currentTicket.id}/transfer`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ targetWindow })
@@ -7960,46 +8124,56 @@ function GuestCheckinPage({ setCurrentPage }) {
   const [ckReservation, setCkReservation] = React.useState(null);
   const [ckArriving, setCkArriving] = React.useState(false);
 
-  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[#000000]/87 placeholder-white/40 text-sm";
-  const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
+  const inputCls = "w-full px-3 py-2.5 rounded-lg text-[#000000]/87 placeholder-black/30 text-sm outline-none transition-all";
+  const inputStyle = { border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' };
+  const labelCls = "block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-1.5";
 
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{ background: '#1E3932' }}>
+      {/* Subtle radial gradient overlay */}
+      <div className="fixed inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, #00754A 0%, transparent 60%)' }} />
+      <div className="w-full max-w-md relative z-10">
 
         {/* ── Step 1 — Lookup ── */}
         {ckStep === 1 && (
           <>
-            {/* Glass card */}
-            <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            {/* White DESIGN.md card */}
+            <div className="rounded-xl overflow-hidden" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
 
-              {/* Header — matches booking form header exactly */}
-              <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-black/5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">Guest Check-In</h3>
-                    <p className="text-black/60 text-xs mt-0.5">Find your reservation to begin check-in</p>
+                    <h3 className="text-[#006241] font-bold text-lg tracking-tight">Guest Check-In</h3>
+                    <p className="text-black/50 text-xs mt-0.5">Find your reservation to begin check-in</p>
                   </div>
-                  <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: '#d4e9e2', border: '1px solid #a8d5c2' }}>
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00754A] opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00754A]" />
                     </span>
-                    <span className="text-[#000000]/87 text-xs font-semibold tracking-wide">Check-In Open</span>
+                    <span className="text-[#006241] text-xs font-bold tracking-wide">Check-In Open</span>
                   </div>
                 </div>
               </div>
 
               <div className="p-6">
-                {/* Method toggle */}
-                <div className="flex bg-white shadow-sm rounded-xl p-1 mb-5 gap-1">
+                {/* Method toggle — segmented pill control */}
+                <div className="flex p-1 mb-5 gap-1 rounded-full" style={{ background: '#f2f0eb', border: '1px solid rgba(0,0,0,0.08)' }}>
                   {[
                     { id: 'id', label: 'Confirmation #' },
                     { id: 'email', label: 'Email & Name' },
                   ].map((m) => (
                     <button key={m.id} onClick={() => { setCkMethod(m.id); setCkError(''); }}
-                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${ckMethod === m.id ? 'bg-white shadow-sm text-[#000000]/87 shadow' : 'text-black/60 hover:text-black/60'}`}>
+                      className="flex-1 py-2 text-xs font-bold transition-all"
+                      style={{
+                        borderRadius: '50px',
+                        background: ckMethod === m.id ? '#00754A' : 'transparent',
+                        color: ckMethod === m.id ? '#ffffff' : 'rgba(0,0,0,0.50)',
+                        border: 'none',
+                      }}
+                    >
                       {m.label}
                     </button>
                   ))}
@@ -8015,28 +8189,37 @@ function GuestCheckinPage({ setCurrentPage }) {
                       onKeyDown={(e) => e.key === 'Enter' && ckConfId && handleLookup()}
                       placeholder="e.g. 1042"
                       className={inputCls + " text-xl font-mono font-bold"}
+                      style={inputStyle}
+                      onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
                       autoFocus
                     />
-                    <p className="text-black/60 text-xs mt-2">Your confirmation number was sent in your booking email or SMS.</p>
+                    <p className="text-black/40 text-xs mt-2">Your confirmation number was sent in your booking email or SMS.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
                     <div>
                       <label className={labelCls}>Email Address</label>
                       <input type="email" value={ckEmail} onChange={(e) => setCkEmail(e.target.value)}
-                        placeholder="you@example.com" className={inputCls} autoFocus />
+                        placeholder="you@example.com" className={inputCls} style={inputStyle}
+                        onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                        autoFocus />
                     </div>
                     <div>
                       <label className={labelCls}>Last Name</label>
                       <input type="text" value={ckLastName} onChange={(e) => setCkLastName(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && ckEmail && ckLastName && handleLookup()}
-                        placeholder="Your last name" className={inputCls} />
+                        placeholder="Your last name" className={inputCls} style={inputStyle}
+                        onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                      />
                     </div>
                   </div>
                 )}
 
                 {ckError && (
-                  <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 text-red-200 text-sm">
+                  <div className="mt-4 px-4 py-3 text-[#c82014] text-sm rounded-lg" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>
                     {ckError}
                   </div>
                 )}
@@ -8044,7 +8227,12 @@ function GuestCheckinPage({ setCurrentPage }) {
                 <button
                   onClick={handleLookup}
                   disabled={ckLoading || (ckMethod === 'id' ? !ckConfId : !ckEmail || !ckLastName)}
-                  className="w-full mt-5 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-white shadow-sm disabled:text-black/60 text-white font-bold py-3 rounded-full transition-colors text-sm"
+                  className="w-full mt-5 text-white font-bold py-3 transition-all text-sm disabled:opacity-40"
+                  style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                  onMouseEnter={e => { if (!ckLoading) e.currentTarget.style.background = '#006241'; }}
+                  onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                  onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                  onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
                 >
                   {ckLoading ? 'Searching...' : 'Find My Reservation →'}
                 </button>
@@ -8052,7 +8240,7 @@ function GuestCheckinPage({ setCurrentPage }) {
             </div>
 
             <div className="text-center mt-5">
-              <button onClick={() => setCurrentPage('home')} className="text-black/60 hover:text-black/60 text-sm transition-colors">
+              <button onClick={() => setCurrentPage('home')} className="text-white/50 hover:text-white/80 text-sm transition-colors">
                 ← Back to Home
               </button>
             </div>
@@ -8062,54 +8250,61 @@ function GuestCheckinPage({ setCurrentPage }) {
         {/* ── Step 2 — Confirm ── */}
         {ckStep === 2 && ckReservation && (
           <>
-            <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-xl overflow-hidden" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
 
               {/* Header */}
-              <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+              <div className="px-6 py-5 border-b border-black/5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">Confirm Your Stay</h3>
-                    <p className="text-black/60 text-xs mt-0.5">Please verify your reservation details</p>
+                    <h3 className="text-[#006241] font-bold text-lg tracking-tight">Confirm Your Stay</h3>
+                    <p className="text-black/50 text-xs mt-0.5">Please verify your reservation details</p>
                   </div>
-                  <span className="text-black/60 text-xs bg-white shadow-sm px-3 py-1.5 rounded-full font-mono">#{ckReservation.id}</span>
+                  <span className="text-[#006241] text-xs px-3 py-1.5 rounded-full font-mono" style={{ background: '#d4e9e2' }}>#{ckReservation.id}</span>
                 </div>
               </div>
 
               <div className="p-6">
                 <SectionDivider title="Guest" icon={<span className="text-sm">👤</span>} />
-                <div className="bg-white shadow-sm rounded-xl border border-black/5 p-4 space-y-2 mb-2">
-                  <div className="flex justify-between text-sm"><span className="text-black/60">Name</span><span className="font-semibold text-[#000000]/87">{ckReservation.full_name}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/60">Email</span><span className="text-black/60">{ckReservation.email}</span></div>
+                <div className="rounded-xl p-4 space-y-2 mb-2" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                  <div className="flex justify-between text-sm"><span className="text-black/50">Name</span><span className="font-semibold text-[#000000]/87">{ckReservation.full_name}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/50">Email</span><span className="text-black/50">{ckReservation.email}</span></div>
                 </div>
 
                 <SectionDivider title="Reservation" icon={<span className="text-sm">🏨</span>} />
-                <div className="bg-white shadow-sm rounded-xl border border-black/5 p-4 space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-black/60">Room Type</span><span className="font-semibold text-[#000000]/87 bg-white shadow-sm px-2 py-0.5 rounded text-xs">{ckReservation.room_type}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/60">Check-In</span><span className="text-black/60">{fmtDate(ckReservation.check_in_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/60">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/60">Duration</span><span className="text-black/60">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
+                <div className="rounded-xl p-4 space-y-2" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                  <div className="flex justify-between text-sm"><span className="text-black/50">Room Type</span><span className="font-semibold text-[#006241] px-2 py-0.5 rounded text-xs" style={{ background: '#d4e9e2' }}>{ckReservation.room_type}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/50">Check-In</span><span className="text-black/70">{fmtDate(ckReservation.check_in_date)}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/50">Check-Out</span><span className="text-black/70">{fmtDate(ckReservation.check_out_date)}</span></div>
+                  <div className="flex justify-between text-sm"><span className="text-black/50">Duration</span><span className="text-black/70">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
                   {ckReservation.number_of_guests && (
-                    <div className="flex justify-between text-sm"><span className="text-black/60">Guests</span><span className="text-black/60">{ckReservation.number_of_guests}</span></div>
+                    <div className="flex justify-between text-sm"><span className="text-black/50">Guests</span><span className="text-black/70">{ckReservation.number_of_guests}</span></div>
                   )}
                 </div>
 
                 {ckReservation.special_requests && (
-                  <div className="mt-4 bg-amber-500/20 border border-amber-400/30 rounded-xl px-4 py-3">
-                    <div className="text-xs font-bold text-amber-300/80 uppercase tracking-widest mb-1">Special Requests</div>
-                    <p className="text-amber-100/80 text-sm italic">"{ckReservation.special_requests}"</p>
+                  <div className="mt-4 rounded-xl px-4 py-3" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                    <div className="text-xs font-bold text-amber-600/80 uppercase tracking-widest mb-1">Special Requests</div>
+                    <p className="text-amber-800/70 text-sm italic">"{ckReservation.special_requests}"</p>
                   </div>
                 )}
 
                 {ckError && (
-                  <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 text-red-200 text-sm">{ckError}</div>
+                  <div className="mt-4 px-4 py-3 text-[#c82014] text-sm rounded-lg" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>{ckError}</div>
                 )}
 
                 <button onClick={handleArrive} disabled={ckArriving}
-                  className="w-full mt-5 bg-green-600 hover:bg-green-700 disabled:bg-white shadow-sm disabled:text-black/60 text-[#000000]/87 font-bold py-3 rounded-full transition-colors text-sm">
+                  className="w-full mt-5 text-white font-bold py-3 transition-all text-sm disabled:opacity-40"
+                  style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                  onMouseEnter={e => { if (!ckArriving) e.currentTarget.style.background = '#006241'; }}
+                  onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                  onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                  onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
                   {ckArriving ? 'Checking you in...' : "Yes, I'm here — Check Me In ✓"}
                 </button>
                 <button onClick={() => { setCkStep(1); setCkReservation(null); setCkError(''); }}
-                  className="w-full mt-2 bg-white shadow-sm hover:bg-white shadow-sm text-black/60 font-semibold py-2.5 rounded-xl transition-colors text-sm">
+                  className="w-full mt-2 text-black/40 hover:text-black/60 font-semibold py-2.5 rounded-xl transition-colors text-sm"
+                >
                   Not my reservation
                 </button>
               </div>
@@ -8119,56 +8314,62 @@ function GuestCheckinPage({ setCurrentPage }) {
 
         {/* ── Step 3 — Success ── */}
         {ckStep === 3 && ckReservation && (
-          <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="rounded-xl overflow-hidden" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
 
             {/* Header */}
-            <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+            <div className="px-6 py-5 border-b border-black/5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">You&apos;re Checked In!</h3>
-                  <p className="text-black/60 text-xs mt-0.5">Please proceed to the front desk for your key</p>
+                  <h3 className="text-[#006241] font-bold text-lg tracking-tight">You&apos;re Checked In!</h3>
+                  <p className="text-black/50 text-xs mt-0.5">Please proceed to the front desk for your key</p>
                 </div>
-                <div className="flex items-center gap-2 bg-green-500/30 border border-green-400/40 px-3 py-1.5 rounded-full">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.30)' }}>
                   <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                   </span>
-                  <span className="text-green-300 text-xs font-semibold tracking-wide">Arrived</span>
+                  <span className="text-emerald-600 text-xs font-bold tracking-wide">Arrived</span>
                 </div>
               </div>
             </div>
 
             <div className="p-6 text-center">
               {/* Checkmark */}
-              <div className="w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-400/50 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#d4e9e2', border: '2px solid #00754A' }}>
+                <svg className="w-8 h-8 text-[#006241]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
 
-              <h2 className="text-2xl font-black text-[#000000]/87 mb-1">Welcome, {firstName(ckReservation.full_name)}!</h2>
-              <p className="text-black/60 text-sm mb-6">You are now in our system.</p>
+              <h2 className="text-2xl font-black text-[#006241] mb-1">Welcome, {firstName(ckReservation.full_name)}!</h2>
+              <p className="text-black/50 text-sm mb-6">You are now in our system.</p>
 
               {/* Key instructions */}
-              <div className="bg-white shadow-sm border border-black/5 rounded-xl px-5 py-4 mb-5 text-left">
+              <div className="rounded-xl px-5 py-4 mb-5 text-left" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">🔑</span>
-                  <span className="text-[#000000]/87 font-semibold text-sm">Please head to the front desk</span>
+                  <span className="text-[#006241] font-bold text-sm">Please head to the front desk</span>
                 </div>
-                <p className="text-black/60 text-xs leading-relaxed">
+                <p className="text-black/50 text-xs leading-relaxed">
                   Our staff will verify your ID, assign your room, and hand you your key. Your stay is all set!
                 </p>
               </div>
 
               {/* Summary */}
-              <div className="bg-white shadow-sm rounded-xl border border-black/5 p-4 space-y-2 text-left mb-5">
-                <div className="flex justify-between text-sm"><span className="text-black/60">Confirmation #</span><span className="font-mono font-bold text-[#000000]/87">#{ckReservation.id}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-black/60">Room Type</span><span className="text-black/60">{ckReservation.room_type}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-black/60">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
+              <div className="rounded-xl p-4 space-y-2 text-left mb-5" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                <div className="flex justify-between text-sm"><span className="text-black/50">Confirmation #</span><span className="font-mono font-bold text-[#006241]">#{ckReservation.id}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-black/50">Room Type</span><span className="text-black/60">{ckReservation.room_type}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-black/50">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
               </div>
 
               <button onClick={() => setCurrentPage('home')}
-                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white font-bold py-3 rounded-xl transition-colors text-sm">
+                className="w-full text-white font-bold py-3 transition-all text-sm"
+                style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#006241'}
+                onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+              >
                 Return to Home
               </button>
             </div>
@@ -8320,7 +8521,7 @@ function FrontDeskTab() {
   const fetchArrivals = React.useCallback(async (date) => {
     setArrivalsLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/front-desk/arrivals?date=${date}`);
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/arrivals?date=${date}`);
       const data = await res.json();
       const fresh = data.arrivals || [];
       setArrivals(fresh);
@@ -8333,7 +8534,7 @@ function FrontDeskTab() {
   const fetchInHouse = React.useCallback(async () => {
     setInHouseLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/front-desk/in-house');
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/in-house`);
       const data = await res.json();
       setInHouseGuests(data.guests || []);
     } catch (e) { console.error(e); }
@@ -8344,7 +8545,7 @@ function FrontDeskTab() {
     if (!q.trim()) { setSearchResults([]); return; }
     setSearchLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/front-desk/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/search?q=${encodeURIComponent(q)}`);
       const data = await res.json();
       setSearchResults(data.reservations || []);
     } catch (e) { console.error(e); }
@@ -8387,7 +8588,7 @@ function FrontDeskTab() {
     setWizardSubmitting(true);
     setWizardError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/reservations/${wizardReservation.id}/checkin`, {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${wizardReservation.id}/checkin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -8412,7 +8613,7 @@ function FrontDeskTab() {
   const submitCheckout = async (id) => {
     setCheckoutSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/reservations/${id}/checkout`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, { method: 'POST' });
       if (res.ok) {
         setCheckoutConfirmId(null);
         fetchInHouse();
@@ -8427,7 +8628,7 @@ function FrontDeskTab() {
     setFolioLoading(true);
     setFolioError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${reservationId}`);
+      const res = await fetch(`${API_BASE_URL}/api/folio/${reservationId}`);
       const data = await res.json();
       if (data.success) {
         setFolioItems(data.items);
@@ -8457,7 +8658,7 @@ function FrontDeskTab() {
     if (!fcPrice || isNaN(parseFloat(fcPrice))) { setFcError('Enter a valid price'); return; }
     setFcSaving(true); setFcError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${folioRes.id}/charge`, {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ charge_type: fcType, description: fcDesc, quantity: fcQty, unit_price: fcPrice }),
@@ -8473,7 +8674,7 @@ function FrontDeskTab() {
     if (!fpAmount || isNaN(parseFloat(fpAmount))) { setFpError('Enter a valid amount'); return; }
     setFpSaving(true); setFpError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${folioRes.id}/payment`, {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ payment_method: fpMethod, amount: fpAmount, reference: fpRef }),
@@ -8486,21 +8687,21 @@ function FrontDeskTab() {
   };
 
   const voidCharge = async (itemId) => {
-    await fetch(`http://localhost:5000/api/folio/charge/${itemId}/void`, {
+    await fetch(`${API_BASE_URL}/api/folio/charge/${itemId}/void`, {
       method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: '' }),
     });
     fetchFolio(folioRes.id);
   };
 
   const voidPayment = async (payId) => {
-    await fetch(`http://localhost:5000/api/folio/payment/${payId}/void`, { method: 'PATCH' });
+    await fetch(`${API_BASE_URL}/api/folio/payment/${payId}/void`, { method: 'PATCH' });
     fetchFolio(folioRes.id);
   };
 
   const fetchCheckoutBalance = React.useCallback(async (id) => {
     setCheckoutFolioBalance(null);
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${id}`);
+      const res = await fetch(`${API_BASE_URL}/api/folio/${id}`);
       const data = await res.json();
       if (data.success) setCheckoutFolioBalance(data.totals.balance);
     } catch (e) {}
@@ -8511,7 +8712,7 @@ function FrontDeskTab() {
     setFolioEmailSending(true);
     setFolioEmailMsg('');
     try {
-      const res = await fetch(`http://localhost:5000/api/folio/${folioRes.id}/email`, { method: 'POST' });
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/email`, { method: 'POST' });
       const data = await res.json();
       setFolioEmailMsg(data.success ? `✓ ${data.message}` : `✗ ${data.message}`);
     } catch (e) {
@@ -8605,7 +8806,7 @@ function FrontDeskTab() {
     setTransferSubmitting(true);
     setTransferError('');
     try {
-      const res = await fetch(`http://localhost:5000/api/reservations/${transferGuest.id}/transfer`, {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${transferGuest.id}/transfer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newRoomNumber: transferRoomNumber.trim(), newRoomType: transferRoomType }),
@@ -8628,7 +8829,7 @@ function FrontDeskTab() {
   const updateStatus = async (id, status) => {
     setStatusUpdating(id);
     try {
-      await fetch(`http://localhost:5000/api/reservations/${id}/status`, {
+      await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
@@ -8644,8 +8845,8 @@ function FrontDeskTab() {
   const fetchWkRoomTypes = React.useCallback(async (checkIn, checkOut) => {
     try {
       const url = (checkIn && checkOut)
-        ? `http://localhost:5000/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`
-        : 'http://localhost:5000/api/room-types';
+        ? `${API_BASE_URL}/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`
+        : `${API_BASE_URL}/api/room-types`;
       const res = await fetch(url);
       const data = await res.json();
       const list = data.availability || data.roomTypes || [];
@@ -8661,7 +8862,7 @@ function FrontDeskTab() {
 
   React.useEffect(() => {
     if (fdView === 'walkin' && wkRateCodes.length === 0) {
-      fetch('http://localhost:5000/api/rate-codes')
+      fetch(`${API_BASE_URL}/api/rate-codes`)
         .then(r => r.json())
         .then(d => { if (d.rateCodes) setWkRateCodes(d.rateCodes); })
         .catch(() => {});
@@ -8677,7 +8878,7 @@ function FrontDeskTab() {
     }
     setWkError(''); setWkSubmitting(true);
     try {
-      const res = await fetch('http://localhost:5000/api/front-desk/walkin', {
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/walkin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -8754,7 +8955,7 @@ function FrontDeskTab() {
     setGpSaving(true); setGpError(''); setGpSaved(false);
     try {
       const full_name = `${gpForm.last_name.trim()}, ${gpForm.first_name.trim()}${gpForm.middle_name.trim() ? ' ' + gpForm.middle_name.trim() : ''}`;
-      const res = await fetch(`http://localhost:5000/api/reservations/${gpRes.id}/profile`, {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${gpRes.id}/profile`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...gpForm, full_name }),
@@ -8796,7 +8997,7 @@ function FrontDeskTab() {
   const fetchRooms = React.useCallback(async () => {
     setRoomsLoading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/rooms');
+      const res = await fetch(`${API_BASE_URL}/api/rooms`);
       const data = await res.json();
       setRooms(data.rooms || []);
     } catch (e) { console.error(e); }
@@ -8808,7 +9009,7 @@ function FrontDeskTab() {
   const fetchTapeChart = React.useCallback(async (from) => {
     setTcLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/front-desk/tape-chart?from=${from}`);
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/tape-chart?from=${from}`);
       const data = await res.json();
       if (data.success) { setTcRooms(data.rooms || []); setTcReservations(data.reservations || []); setTcTypeView(!!data.typeView); }
     } catch (e) { console.error(e); }
@@ -8820,7 +9021,7 @@ function FrontDeskTab() {
   const updateHkStatus = async (roomNumber, status) => {
     setHkUpdating(roomNumber);
     try {
-      await fetch(`http://localhost:5000/api/rooms/${encodeURIComponent(roomNumber)}/hk-status`, {
+      await fetch(`${API_BASE_URL}/api/rooms/${encodeURIComponent(roomNumber)}/hk-status`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
@@ -8833,7 +9034,7 @@ function FrontDeskTab() {
   const addRoom = async () => {
     if (!newRoomNumber.trim()) return;
     try {
-      await fetch('http://localhost:5000/api/rooms', {
+      await fetch(`${API_BASE_URL}/api/rooms`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ room_number: newRoomNumber.trim(), room_type: newRoomType, floor: newRoomFloor }),
       });
@@ -8843,7 +9044,7 @@ function FrontDeskTab() {
   };
 
   const removeRoom = async (roomNumber) => {
-    await fetch(`http://localhost:5000/api/rooms/${encodeURIComponent(roomNumber)}`, { method: 'DELETE' });
+    await fetch(`${API_BASE_URL}/api/rooms/${encodeURIComponent(roomNumber)}`, { method: 'DELETE' });
     setSelectedRoom(null);
     fetchRooms();
   };
@@ -9030,16 +9231,16 @@ function FrontDeskTab() {
     const nights = nightsCount(r);
     const isDueOut = r.check_out_date && r.check_out_date.slice(0, 10) === today;
     return (
-      <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all"
-        style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3rem 3.5rem 3.5rem 5rem', borderBottom: `1px solid ${isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.06)'}`, background: isDueOut ? 'rgba(251,191,36,0.05)' : 'transparent' }}>
+      <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all group"
+        style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3rem 3.5rem 3.5rem 5rem', borderBottom: `1px solid ${isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(0,0,0,0.05)'}`, background: isDueOut ? 'rgba(251,191,36,0.05)' : '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
         {/* Room */}
-        <span className={`font-mono font-bold text-sm ${isDueOut ? 'text-amber-300' : 'text-black/60'}`}>
+        <span className={`font-mono font-bold text-sm ${isDueOut ? 'text-amber-600' : 'text-[#000000]/87'}`}>
           {r.room_number || '—'}
         </span>
         {/* Name */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className={`font-semibold text-sm truncate ${isDueOut ? 'text-amber-100' : 'text-[#000000]/87'}`}>{r.full_name}</span>
-          {isDueOut && <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider text-amber-400">Due Out</span>}
+          <span className={`font-semibold text-sm truncate ${isDueOut ? 'text-amber-700' : 'text-[#000000]/87'}`}>{r.full_name}</span>
+          {isDueOut && <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider text-amber-600">Due Out</span>}
         </div>
         {/* Room type */}
         <span className="text-xs text-black/60 truncate">{r.room_type_name || r.room_type}</span>
@@ -9075,7 +9276,7 @@ function FrontDeskTab() {
     const sc = statusColors[r.status] || statusColors.pending;
     const nights = nightsCount(r);
     return (
-      <div className="relative rounded-xl border border-black/5 overflow-hidden flex" style={{ background: 'rgba(255,255,255,0.07)' }}>
+      <div className="relative rounded-xl border border-black/5 overflow-hidden flex shadow-sm bg-white hover:shadow-md transition-all">
         <div className={`w-1.5 flex-shrink-0 ${sc.bar}`} />
         <div className="flex-1 p-4 flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -9299,7 +9500,7 @@ function FrontDeskTab() {
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <>
-    <div style={{ position: 'fixed', top: '80px', left: '150px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <div className="flex-1 flex flex-col min-h-0 w-full">
         <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
           {/* Header bar */}
@@ -9333,8 +9534,17 @@ function FrontDeskTab() {
                 const active = fdView === v.id;
                 return (
                   <button key={v.id} onClick={() => setFdView(v.id)}
-                    className="flex items-center gap-1.5 px-4 py-2 text-[11px] font-semibold whitespace-nowrap transition-all border-b-2 shrink-0"
-                    style={{ borderBottomColor: active ? 'rgba(147,182,245,0.9)' : 'transparent', color: active ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.38)', background: active ? 'rgba(255,255,255,0.06)' : 'transparent' }}>
+                    className="flex items-center gap-2 px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all shrink-0"
+                    style={{
+                      borderRadius: '50px',
+                      border: active ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
+                      background: active ? '#00754A' : '#ffffff',
+                      color: active ? '#ffffff' : 'rgba(0,0,0,0.58)',
+                      boxShadow: active ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
+                    }}
+                    onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                    onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
                     {v.svg}
                     {v.label}
                   </button>
@@ -9377,9 +9587,9 @@ function FrontDeskTab() {
                 </div>
 
                 {/* Arrivals Grid */}
-                <div className="border border-black/5 overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', marginLeft: '10px' }}>
+                <div className="border border-black/5 overflow-hidden bg-white rounded-xl shadow-sm mt-2" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
                   {/* Column headers */}
-                  <div className="grid gap-x-3 px-3 py-1.5 border-b border-black/5" style={{ gridTemplateColumns: '1fr 6rem 6rem 2.5rem 5.5rem', background: '#ffffff' }}>
+                  <div className="grid gap-x-3 px-4 py-3 border-b border-black/5" style={{ gridTemplateColumns: '1fr 6rem 6rem 2.5rem 5.5rem', background: '#f9f9f9' }}>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Guest</span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Room Type</span>
                     <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Check-In</span>
@@ -9487,14 +9697,14 @@ function FrontDeskTab() {
                     <div className="text-xs text-black/60">All rooms are currently vacant</div>
                   </div>
                 ) : (
-                  <div>
+                  <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                     {/* Column header */}
-                    <div className="grid gap-x-3 px-3 mb-1" style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3.5rem 3.5rem 5rem' }}>
+                    <div className="grid gap-x-3 px-3 py-2 bg-[#f9f9f9] border-b border-black/5" style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3.5rem 3.5rem 5rem' }}>
                       {['Room', 'Guest', 'Type', 'Check-Out', 'Nts', '', '', ''].map((h, i) => (
                         <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-black/60">{h}</span>
                       ))}
                     </div>
-                    <div className="space-y-1">
+                    <div className="flex flex-col">
                       {inHouseGuests.map((r) => <InHouseCard key={r.id} r={r} />)}
                     </div>
                   </div>
@@ -9577,48 +9787,48 @@ function FrontDeskTab() {
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Title</label>
                             <select value={wkTitle} onChange={e => setWkTitle(e.target.value)}
-                              style={{ background: '#4B5563', color: 'white' }}
+                              style={{ background: '#f8f9fa', color: '#000000' }}
                               className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {['Mr.','Mrs.','Ms.','Dr.','Engr.','Atty.','Prof.','Rev.','Hon.'].map(t => <option key={t} value={t} style={{background:'#4B5563'}}>{t}</option>)}
+                              {['Mr.','Mrs.','Ms.','Dr.','Engr.','Atty.','Prof.','Rev.','Hon.'].map(t => <option key={t} value={t} style={{background:'#f8f9fa'}}>{t}</option>)}
                             </select>
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Last Name <span className="text-red-400">*</span></label>
                             <input type="text" value={wkLastName} onChange={e => setWkLastName(e.target.value)} placeholder="dela Cruz"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">First Name <span className="text-red-400">*</span></label>
                             <input type="text" value={wkFirstName} onChange={e => setWkFirstName(e.target.value)} placeholder="Juan"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Middle Name</label>
                             <input type="text" value={wkMiddleName} onChange={e => setWkMiddleName(e.target.value)} placeholder="Santos"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Gender</label>
                             <select value={wkGender} onChange={e => setWkGender(e.target.value)}
-                              style={{ background: '#4B5563', color: wkGender ? 'white' : 'rgba(255,255,255,0.3)' }}
+                              style={{ background: '#f8f9fa', color: wkGender ? '#000000' : 'rgba(0,0,0,0.4)' }}
                               className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {['','Male','Female','Non-binary','Prefer not to say'].map(g => <option key={g} value={g} style={{background:'#4B5563',color:'white'}}>{g || '— select —'}</option>)}
+                              {['','Male','Female','Non-binary','Prefer not to say'].map(g => <option key={g} value={g} style={{background:'#f8f9fa',color:'#000000'}}>{g || '— select —'}</option>)}
                             </select>
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Date of Birth</label>
                             <input type="date" value={wkBirthDate} onChange={e => setWkBirthDate(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Nationality</label>
                             <input type="text" value={wkNationality} onChange={e => setWkNationality(e.target.value)} placeholder="Filipino"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Country</label>
                             <input type="text" value={wkCountry} onChange={e => setWkCountry(e.target.value)} placeholder="Philippines"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                         </div>
 
@@ -9631,22 +9841,22 @@ function FrontDeskTab() {
                           <div className="col-span-2">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Email Address</label>
                             <input type="email" value={wkEmail} onChange={e => setWkEmail(e.target.value)} placeholder="juan@example.com"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div className="col-span-2">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Mobile / Phone</label>
                             <input type="tel" value={wkPhone} onChange={e => setWkPhone(e.target.value)} placeholder="09XX XXX XXXX"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div className="col-span-3">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Street / Barangay Address</label>
                             <input type="text" value={wkAddress} onChange={e => setWkAddress(e.target.value)} placeholder="123 Rizal St., Brgy. San Antonio"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">City / Municipality</label>
                             <input type="text" value={wkCity} onChange={e => setWkCity(e.target.value)} placeholder="Makati City"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                         </div>
 
@@ -9659,17 +9869,17 @@ function FrontDeskTab() {
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Type</label>
                             <select value={wkIdType} onChange={e => setWkIdType(e.target.value)}
-                              style={{ background: '#4B5563', color: wkIdType ? 'white' : 'rgba(255,255,255,0.3)' }}
+                              style={{ background: '#f8f9fa', color: wkIdType ? '#000000' : 'rgba(0,0,0,0.4)' }}
                               className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['','Passport',"Driver's License",'SSS ID','PhilHealth ID','Postal ID','Senior Citizen ID','PWD ID','UMID','PhilSys / National ID','Other'].map(t => (
-                                <option key={t} value={t} style={{background:'#4B5563',color:'white'}}>{t || '— select ID type —'}</option>
+                                <option key={t} value={t} style={{background:'#f8f9fa',color:'#000000'}}>{t || '— select ID type —'}</option>
                               ))}
                             </select>
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Number</label>
                             <input type="text" value={wkIdNumber} onChange={e => setWkIdNumber(e.target.value)} placeholder="ID / reference number"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] font-mono placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                         </div>
 
@@ -9687,9 +9897,9 @@ function FrontDeskTab() {
                           <div className="col-span-2">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Type <span className="text-red-400">*</span></label>
                             <select value={wkRoomType} onChange={e => { setWkRoomType(e.target.value); setWkRoomNumber(''); }}
-                              style={{ background: '#4B5563', color: 'white' }}
+                              style={{ background: '#f8f9fa', color: '#000000' }}
                               className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {wkRoomTypes.length === 0 && <option value="" style={{ background: '#4B5563' }}>Loading...</option>}
+                              {wkRoomTypes.length === 0 && <option value="" style={{ background: '#f8f9fa' }}>Loading...</option>}
                               {wkRoomTypes.map(rt => {
                                 const full = rt.available !== undefined && rt.available <= 0;
                                 const label = rt.available !== undefined ? `${rt.name} (${rt.available}/${rt.total_rooms} avail)` : rt.name;
@@ -9716,11 +9926,11 @@ function FrontDeskTab() {
                           <div className="col-span-2">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Rate Code</label>
                             <select value={wkRateCode} onChange={e => setWkRateCode(e.target.value)}
-                              style={{ background: '#4B5563', color: 'white' }}
+                              style={{ background: '#f8f9fa', color: '#000000' }}
                               className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              <option value="" style={{ background: '#4B5563' }}>— No rate code —</option>
+                              <option value="" style={{ background: '#f8f9fa' }}>— No rate code —</option>
                               {wkRateCodes.map(rc => (
-                                <option key={rc.id} value={rc.code} style={{ background: '#4B5563' }}>{rc.code} — {rc.name}</option>
+                                <option key={rc.id} value={rc.code} style={{ background: '#f8f9fa' }}>{rc.code} — {rc.name}</option>
                               ))}
                             </select>
                             {(() => {
@@ -9736,22 +9946,22 @@ function FrontDeskTab() {
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-In <span className="text-red-400">*</span></label>
                             <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-Out <span className="text-red-400">*</span></label>
                             <input type="date" value={wkCheckOut} min={wkCheckIn || today} onChange={e => setWkCheckOut(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ETA</label>
                             <input type="time" value={wkEta} onChange={e => setWkEta(e.target.value)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">No. of Guests</label>
                             <input type="number" min="1" max="20" value={wkGuests} onChange={e => setWkGuests(parseInt(e.target.value) || 1)}
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div className="col-span-2">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Number <span className="text-red-400">*</span></label>
@@ -9764,13 +9974,13 @@ function FrontDeskTab() {
                                 return (
                                   <input type="text" value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
                                     placeholder="e.g. 201" autoComplete="off"
-                                    className="w-full px-2 py-1 border border-black/5 bg-gray-600 text-[#000000]/87 text-[11px] font-mono font-bold placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                                    className="w-full px-2 py-1 border border-black/10 bg-[#f8f9fa] text-[#000000]/87 text-[11px] font-mono font-bold placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                                 );
                               }
                               return (
                                 <div>
                                   <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
-                                    style={{ background: '#4B5563', color: 'white' }}
+                                    style={{ background: '#f8f9fa', color: '#000000' }}
                                     className={`w-full px-2 py-1 border ${isBlocked ? 'border-red-400/50' : 'border-black/5'} text-[11px] font-mono font-bold outline-none focus:border-black/5 rounded-sm`}>
                                     <option value="" style={{ background: '#4B5563', color: 'rgba(255,255,255,0.35)' }}>— select room —</option>
                                     {typeRooms.map(r => {
@@ -9797,10 +10007,10 @@ function FrontDeskTab() {
                           <div className="col-span-2">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Purpose of Visit</label>
                             <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
-                              style={{ background: '#4B5563', color: wkPurpose ? 'white' : 'rgba(255,255,255,0.3)' }}
+                              style={{ background: '#f8f9fa', color: wkPurpose ? '#000000' : 'rgba(0,0,0,0.4)' }}
                               className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['','Leisure / Vacation','Business','Official / Government','Medical','Honeymoon / Anniversary','Transit','Others'].map(p => (
-                                <option key={p} value={p} style={{background:'#4B5563',color:'white'}}>{p || '— select —'}</option>
+                                <option key={p} value={p} style={{background:'#f8f9fa',color:'#000000'}}>{p || '— select —'}</option>
                               ))}
                             </select>
                           </div>
@@ -9815,17 +10025,17 @@ function FrontDeskTab() {
                           <div className="col-span-2">
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Payment Method</label>
                             <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
-                              style={{ background: '#4B5563', color: 'white' }}
+                              style={{ background: '#f8f9fa', color: '#000000' }}
                               className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
                               {['Cash','Credit Card','Debit Card','GCash','Maya','Bank Transfer','Check','Other'].map(m => (
-                                <option key={m} value={m} style={{background:'#4B5563'}}>{m}</option>
+                                <option key={m} value={m} style={{background:'#f8f9fa'}}>{m}</option>
                               ))}
                             </select>
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Deposit Amount</label>
                             <input type="number" min="0" step="0.01" value={wkDepositAmount} onChange={e => setWkDepositAmount(e.target.value)} placeholder="0.00"
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] font-mono placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div className="flex items-end pb-1">
                             <label className="flex items-center gap-1.5 cursor-pointer">
@@ -9845,12 +10055,12 @@ function FrontDeskTab() {
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Special Requests</label>
                             <input type="text" value={wkSpecialReq} onChange={e => setWkSpecialReq(e.target.value)} placeholder="non-smoking, high floor, extra pillow..."
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                           <div>
                             <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Front Desk Notes</label>
                             <input type="text" value={wkNotes} onChange={e => setWkNotes(e.target.value)} placeholder="Internal notes..."
-                              className="w-full px-2 py-1 bg-gray-600 border border-black/5 text-[#000000]/87 text-[11px] placeholder-white/20 focus:border-black/5 outline-none rounded-sm" />
+                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
                           </div>
                         </div>
 
@@ -10103,7 +10313,7 @@ function FrontDeskTab() {
                       </div>
                     ))}
                     <div className="flex items-center gap-1">
-                      <div style={{ width: 9, height: 9, borderRadius: 2, border: '1px dashed rgba(255,255,255,0.2)' }} />
+                      <div style={{ width: 9, height: 9, borderRadius: 2, border: '1px dashed rgba(0,0,0,0.2)' }} />
                       <span className="text-[9px] text-black/60">Available — click to book</span>
                     </div>
                   </div>
@@ -10146,11 +10356,11 @@ function FrontDeskTab() {
                         Showing by room type — no individual rooms assigned yet. Rows show all bookings of that type. Add rooms via Walk-In or the Rooms tab for per-room view.
                       </div>
                     )}
-                    <div className="overflow-x-auto rounded border border-black/5" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                    <div className="overflow-x-auto rounded-xl border border-black/5 bg-white shadow-sm" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
                       <div style={{ minWidth: totalW }}>
 
                         {/* Month row */}
-                        <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                        <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
                           {monthGroups.map((mg, i) => (
                             <div key={i} style={{ width: mg.count * COL_W }}
                               className="px-2 py-0.5 text-[9px] font-bold text-black/60 uppercase tracking-widest">
@@ -10160,20 +10370,20 @@ function FrontDeskTab() {
                         </div>
 
                         {/* Day header row */}
-                        <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '2px solid rgba(255,255,255,0.12)' }}>
+                        <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '2px solid rgba(0,0,0,0.12)' }}>
                           {tcDays.map(d => {
                             const dt = new Date(d + 'T00:00:00');
                             const isToday = d === today;
                             const isWknd = dt.getDay() === 0 || dt.getDay() === 6;
                             return (
                               <div key={d} style={{ width: COL_W, flexShrink: 0, height: 30,
-                                background: isToday ? 'rgba(87,108,168,0.4)' : 'transparent',
-                                borderRight: '1px solid rgba(255,255,255,0.05)' }}
+                                background: isToday ? 'rgba(37,99,235,0.05)' : 'transparent',
+                                borderRight: '1px solid rgba(0,0,0,0.03)' }}
                                 className="flex flex-col items-center justify-center">
-                                <span className={`text-[11px] font-bold leading-none ${isToday ? 'text-[#93b6f5]' : isWknd ? 'text-black/60' : 'text-black/60'}`}>
+                                <span className={`text-[11px] font-bold leading-none ${isToday ? 'text-blue-600' : isWknd ? 'text-black/40' : 'text-black/60'}`}>
                                   {dt.getDate()}
                                 </span>
-                                <span className={`text-[8px] leading-none mt-0.5 ${isToday ? 'text-[#93b6f5]/60' : isWknd ? 'text-black/60' : 'text-black/60'}`}>
+                                <span className={`text-[8px] leading-none mt-0.5 ${isToday ? 'text-blue-600/60' : isWknd ? 'text-black/40' : 'text-black/40'}`}>
                                   {DAY_ABR[dt.getDay()]}
                                 </span>
                               </div>
@@ -10185,7 +10395,7 @@ function FrontDeskTab() {
                         {Object.entries(tcGrouped).map(([type, typeRooms]) => (
                           <React.Fragment key={type}>
                             {/* Type header */}
-                            <div className="flex items-center" style={{ height: 18, background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                            <div className="flex items-center" style={{ height: 18, background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid rgba(0,0,0,0.05)', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
                               <div style={{ width: LABEL_W }} className="px-2">
                                 <span className="text-[9px] font-bold text-black/60 uppercase tracking-[0.18em] truncate block" style={{ maxWidth: LABEL_W - 16 }}>{type}</span>
                               </div>
@@ -10195,8 +10405,8 @@ function FrontDeskTab() {
                               const unassigned = tcReservations.filter(r => !r.room_number && r.room_type === type);
                               if (!unassigned.length) return null;
                               return (
-                                <div className="flex" style={{ height: ROW_H, borderBottom: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,180,0,0.03)' }}>
-                                  <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)' }}
+                                <div className="flex" style={{ height: ROW_H, borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'rgba(255,180,0,0.03)' }}>
+                                  <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(0,0,0,0.05)' }}
                                     className="flex items-center px-2">
                                     <span className="text-[9px] text-amber-400/60 italic">unassigned</span>
                                   </div>
@@ -10206,8 +10416,8 @@ function FrontDeskTab() {
                                       const isWknd = new Date(d + 'T00:00:00').getDay() === 0 || new Date(d + 'T00:00:00').getDay() === 6;
                                       return (
                                         <div key={d} style={{ width: COL_W, flexShrink: 0, height: ROW_H,
-                                          background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(255,255,255,0.012)' : 'transparent',
-                                          borderRight: '1px solid rgba(255,255,255,0.035)' }} />
+                                          background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(0,0,0,0.015)' : 'transparent',
+                                          borderRight: '1px solid rgba(0,0,0,0.05)' }} />
                                       );
                                     })}
                                     {unassigned.map(r => {
@@ -10247,9 +10457,9 @@ function FrontDeskTab() {
                               const roomResv = rowResv(room);
                               return (
                                 <div key={room.room_number} className="flex"
-                                  style={{ height: tcTypeView ? 32 : ROW_H, borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                                  style={{ height: tcTypeView ? 32 : ROW_H, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                                   {/* Label */}
-                                  <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(255,255,255,0.08)' }}
+                                  <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(0,0,0,0.05)' }}
                                     className="flex items-center px-2 gap-1.5">
                                     {tcTypeView ? (
                                       <span className="text-[10px] font-semibold text-black/60">{room.room_number}</span>
@@ -10269,8 +10479,8 @@ function FrontDeskTab() {
                                       const occupied = isOccupied(room, d);
                                       return (
                                         <div key={d} style={{ width: COL_W, flexShrink: 0, height: tcTypeView ? 32 : ROW_H,
-                                          background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(255,255,255,0.012)' : 'transparent',
-                                          borderRight: '1px solid rgba(255,255,255,0.035)',
+                                          background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(0,0,0,0.015)' : 'transparent',
+                                          borderRight: '1px solid rgba(0,0,0,0.05)',
                                           cursor: occupied ? 'default' : 'cell' }}
                                           onClick={() => handleCellClick(room, d)}
                                         />
@@ -10908,7 +11118,7 @@ function GuestsTab() {
     setGuestsError('');
     try {
       const params = q ? `?search=${encodeURIComponent(q)}` : '';
-      const res = await fetch(`http://localhost:5000/api/guests${params}`);
+      const res = await fetch(`${API_BASE_URL}/api/guests${params}`);
       if (res.ok) setGuestList(await res.json());
       else setGuestsError('Failed to load guest directory.');
     } catch (e) { setGuestsError('Server error connecting to guest database.'); }
@@ -10926,7 +11136,7 @@ function GuestsTab() {
     if (!historyCache[email]) {
       setHistoryLoading(email);
       try {
-        const res = await fetch(`http://localhost:5000/api/guests/history?email=${encodeURIComponent(email)}`);
+        const res = await fetch(`${API_BASE_URL}/api/guests/history?email=${encodeURIComponent(email)}`);
         if (res.ok) { const data = await res.json(); setHistoryCache(prev => ({ ...prev, [email]: data })); }
       } catch (e) {}
       setHistoryLoading(null);
