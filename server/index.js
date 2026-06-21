@@ -135,7 +135,7 @@ app.get('/api/health', (req, res) => {
 // Ensure the reservations table exists
 const initReservationsTable = async () => {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS reservations (
+    CREATE TABLE IF NOT EXISTS hotel_reservations (
       id            SERIAL PRIMARY KEY,
       full_name     TEXT NOT NULL,
       phone_number  TEXT NOT NULL,
@@ -155,27 +155,27 @@ initReservationsTable().catch(err => console.error('Failed to init reservations 
 // ─── Front Desk columns (safe, additive migrations) ───────────────────────────
 const initFrontDeskColumns = async () => {
   const migrations = [
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS room_number TEXT`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMP`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS checked_out_at TIMESTAMP`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS id_verified BOOLEAN DEFAULT false`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS payment_collected BOOLEAN DEFAULT false`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS front_desk_notes TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS room_number TEXT`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMP`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_out_at TIMESTAMP`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS id_verified BOOLEAN DEFAULT false`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS payment_collected BOOLEAN DEFAULT false`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS front_desk_notes TEXT DEFAULT ''`,
     // Guest profile extended fields
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS title TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS middle_name TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS gender TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS date_of_birth DATE`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS nationality TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS country TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS address TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS city TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS id_type TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS id_number TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS purpose_of_visit TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS eta TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT ''`,
-    `ALTER TABLE reservations ADD COLUMN IF NOT EXISTS deposit_amount NUMERIC(10,2) DEFAULT 0`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS title TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS middle_name TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS gender TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS date_of_birth DATE`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS nationality TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS country TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS address TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS city TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS id_type TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS id_number TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS purpose_of_visit TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS eta TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS deposit_amount NUMERIC(10,2) DEFAULT 0`,
   ];
   for (const sql of migrations) await pool.query(sql);
   console.log('Front desk columns ready.');
@@ -185,7 +185,7 @@ initFrontDeskColumns().catch(err => console.error('Front desk column migration f
 // ─── Folio Tables ──────────────────────────────────────────────────────────────
 const initFolioTables = async () => {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS folio_items (
+    CREATE TABLE IF NOT EXISTS hotel_folio_items (
       id             SERIAL PRIMARY KEY,
       reservation_id INTEGER NOT NULL,
       charge_type    TEXT NOT NULL,
@@ -199,7 +199,7 @@ const initFolioTables = async () => {
     )
   `);
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS folio_payments (
+    CREATE TABLE IF NOT EXISTS hotel_folio_payments (
       id             SERIAL PRIMARY KEY,
       reservation_id INTEGER NOT NULL,
       payment_method TEXT NOT NULL,
@@ -215,7 +215,7 @@ initFolioTables().catch(err => console.error('Folio table init failed:', err));
 
 
 const initGuestCheckinColumn = async () => {
-  await pool.query(`ALTER TABLE reservations ADD COLUMN IF NOT EXISTS guest_arrived_at TIMESTAMP`);
+  await pool.query(`ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_arrived_at TIMESTAMP`);
   console.log('Guest arrived column ready.');
 };
 initGuestCheckinColumn().catch(err => console.error('Guest checkin column migration failed:', err));
@@ -244,7 +244,7 @@ initQueueSettings().catch(err => console.error('Queue settings table init failed
 // Ensure rooms table exists and auto-discover from existing reservations
 const initRoomsTable = async () => {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS rooms (
+    CREATE TABLE IF NOT EXISTS hotel_rooms (
       room_number TEXT PRIMARY KEY,
       room_type   TEXT NOT NULL DEFAULT '',
       floor       INTEGER NOT NULL DEFAULT 1,
@@ -254,13 +254,13 @@ const initRoomsTable = async () => {
       created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
-  // (removed: no longer auto-seed rooms from reservations)
+  // (removed: no longer auto-seed rooms from hotel_reservations)
   
   // Create sample rooms if none exist
-  const check = await pool.query('SELECT COUNT(*) FROM rooms');
+  const check = await pool.query('SELECT COUNT(*) FROM hotel_rooms');
   if (parseInt(check.rows[0].count) === 0) {
     await pool.query(`
-      INSERT INTO rooms (room_number, room_type, floor) VALUES
+      INSERT INTO hotel_rooms (room_number, room_type, floor) VALUES
         ('101', 'Standard Room', 1), ('102', 'Standard Room', 1), ('103', 'Standard Room', 1), ('104', 'Standard Room', 1), ('105', 'Standard Room', 1),
         ('201', 'Deluxe Room', 2), ('202', 'Deluxe Room', 2), ('203', 'Deluxe Room', 2), ('204', 'Deluxe Room', 2),
         ('301', 'Suite', 3), ('302', 'Suite', 3),
@@ -277,7 +277,7 @@ initRoomsTable().catch(err => console.error('Rooms table init failed:', err));
 // Ensure room_types table exists and seed defaults
 const initRoomTypesTable = async () => {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS room_types (
+    CREATE TABLE IF NOT EXISTS hotel_room_types (
       id              SERIAL PRIMARY KEY,
       name            TEXT NOT NULL UNIQUE,
       description     TEXT DEFAULT '',
@@ -292,12 +292,12 @@ const initRoomTypesTable = async () => {
     )
   `);
   // Migrate existing tables that may not have these columns yet
-  await pool.query(`ALTER TABLE room_types ADD COLUMN IF NOT EXISTS floor INTEGER NOT NULL DEFAULT 1`);
-  await pool.query(`ALTER TABLE room_types ADD COLUMN IF NOT EXISTS area  TEXT DEFAULT ''`);
-  const { rows } = await pool.query('SELECT COUNT(*) FROM room_types');
+  await pool.query(`ALTER TABLE hotel_room_types ADD COLUMN IF NOT EXISTS floor INTEGER NOT NULL DEFAULT 1`);
+  await pool.query(`ALTER TABLE hotel_room_types ADD COLUMN IF NOT EXISTS area  TEXT DEFAULT ''`);
+  const { rows } = await pool.query('SELECT COUNT(*) FROM hotel_room_types');
   if (parseInt(rows[0].count) === 0) {
     await pool.query(`
-      INSERT INTO room_types (name, description, total_rooms, price_per_night, max_guests, amenities) VALUES
+      INSERT INTO hotel_room_types (name, description, total_rooms, price_per_night, max_guests, amenities) VALUES
         ('Standard Room',      '1 Queen Bed · City or Garden View',            5, 2500,  2, 'Free Wi-Fi, Air Conditioning, TV'),
         ('Deluxe Room',        '1 King Bed · City or Garden View',             4, 4500,  2, 'Free Wi-Fi, Air Conditioning, TV, Mini Bar'),
         ('Suite',              'Separate living area · Premium Amenities',     2, 9000,  3, 'Free Wi-Fi, Air Conditioning, TV, Mini Bar, Jacuzzi'),
@@ -341,7 +341,7 @@ app.post('/api/reservations', async (req, res) => {
 
     // 1. Exact duplicate — same guest email booking the same room type on the same check-in date
     const exactDupe = await pool.query(
-      `SELECT id FROM reservations
+      `SELECT id FROM hotel_reservations
        WHERE email = $1
          AND room_type = $2
          AND check_in_date = $3
@@ -358,13 +358,13 @@ app.post('/api/reservations', async (req, res) => {
 
     // 2. Room inventory check — count overlapping bookings vs total rooms of this type
     const roomTypeInfo = await pool.query(
-      'SELECT total_rooms FROM room_types WHERE name = $1 AND active = true',
+      'SELECT total_rooms FROM hotel_room_types WHERE name = $1 AND active = true',
       [roomType]
     );
     const totalRooms = roomTypeInfo.rows.length > 0 ? roomTypeInfo.rows[0].total_rooms : 1;
 
     const overlapCount = await pool.query(
-      `SELECT COUNT(*) as count FROM reservations
+      `SELECT COUNT(*) as count FROM hotel_reservations
        WHERE room_type = $1
          AND status NOT IN ('cancelled', 'checked_out', 'no_show')
          AND check_in_date < $3
@@ -381,7 +381,7 @@ app.post('/api/reservations', async (req, res) => {
 
     // Insert the reservation
     const result = await pool.query(
-      `INSERT INTO reservations
+      `INSERT INTO hotel_reservations
          (full_name, phone_number, email, room_type, check_in_date, check_out_date, number_of_guests, special_requests)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING *`,
@@ -412,7 +412,7 @@ app.post('/api/reservations', async (req, res) => {
 // GET /api/reservations — list all reservations (admin)
 app.get('/api/reservations', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM reservations ORDER BY created_at DESC');
+    const result = await pool.query('SELECT * FROM hotel_reservations ORDER BY created_at DESC');
     res.json({ success: true, reservations: result.rows });
   } catch (error) {
     console.error('Error fetching reservations:', error);
@@ -424,7 +424,7 @@ app.get('/api/reservations', async (req, res) => {
 app.get('/api/room-types', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT * FROM room_types WHERE active = true ORDER BY price_per_night ASC'
+      'SELECT * FROM hotel_room_types WHERE active = true ORDER BY price_per_night ASC'
     );
     res.json({ success: true, roomTypes: result.rows });
   } catch (error) {
@@ -442,13 +442,13 @@ app.get('/api/room-types/availability', async (req, res) => {
     }
 
     const roomTypes = await pool.query(
-      'SELECT * FROM room_types WHERE active = true ORDER BY price_per_night ASC'
+      'SELECT * FROM hotel_room_types WHERE active = true ORDER BY price_per_night ASC'
     );
 
     const availability = await Promise.all(
       roomTypes.rows.map(async (rt) => {
         const booked = await pool.query(
-          `SELECT COUNT(*) as count FROM reservations
+          `SELECT COUNT(*) as count FROM hotel_reservations
            WHERE room_type = $1
              AND status NOT IN ('cancelled', 'checked_out', 'no_show')
              AND check_in_date < $3
@@ -471,7 +471,7 @@ app.get('/api/room-types/availability', async (req, res) => {
 
 app.get('/api/admin/room-types', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM room_types ORDER BY price_per_night ASC');
+    const result = await pool.query('SELECT * FROM hotel_room_types ORDER BY price_per_night ASC');
     res.json({ success: true, roomTypes: result.rows });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to fetch room types.' });
@@ -485,7 +485,7 @@ app.post('/api/admin/room-types', async (req, res) => {
       return res.status(400).json({ success: false, message: 'name, totalRooms, and pricePerNight are required.' });
     }
     const result = await pool.query(
-      `INSERT INTO room_types (name, description, total_rooms, price_per_night, max_guests, amenities, floor, area)
+      `INSERT INTO hotel_room_types (name, description, total_rooms, price_per_night, max_guests, amenities, floor, area)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [name, description || '', totalRooms, pricePerNight, maxGuests || 2, amenities || '', floor || 1, area || '']
     );
@@ -503,7 +503,7 @@ app.put('/api/admin/room-types/:id', async (req, res) => {
     const { id } = req.params;
     const { name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, active } = req.body;
     const result = await pool.query(
-      `UPDATE room_types SET
+      `UPDATE hotel_room_types SET
          name            = COALESCE($1, name),
          description     = COALESCE($2, description),
          total_rooms     = COALESCE($3, total_rooms),
@@ -527,7 +527,7 @@ app.put('/api/admin/room-types/:id', async (req, res) => {
 
 app.delete('/api/admin/room-types/:id', async (req, res) => {
   try {
-    await pool.query('UPDATE room_types SET active = false WHERE id = $1', [req.params.id]);
+    await pool.query('UPDATE hotel_room_types SET active = false WHERE id = $1', [req.params.id]);
     res.json({ success: true, message: 'Room type deactivated.' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to deactivate room type.' });
@@ -606,14 +606,14 @@ app.get('/api/front-desk/arrivals', async (req, res) => {
   try {
     const date = req.query.date || new Date().toISOString().split('T')[0];
     const arrivals = await pool.query(
-      `SELECT *, guest_arrived_at FROM reservations
+      `SELECT *, guest_arrived_at FROM hotel_reservations
        WHERE check_in_date = $1
          AND status IN ('pending', 'confirmed', 'arrived')
        ORDER BY guest_arrived_at ASC NULLS LAST, created_at ASC`,
       [date]
     );
     const statsRes = await pool.query(
-      `SELECT status, COUNT(*) as count FROM reservations
+      `SELECT status, COUNT(*) as count FROM hotel_reservations
        WHERE check_in_date = $1
          AND status IN ('pending','confirmed','checked_in','no_show')
        GROUP BY status`,
@@ -639,7 +639,7 @@ app.get('/api/front-desk/arrivals', async (req, res) => {
 app.get('/api/front-desk/in-house', async (req, res) => {
   try {
     const result = await pool.query(
-      `SELECT * FROM reservations WHERE status = 'checked_in' ORDER BY checked_in_at ASC`
+      `SELECT * FROM hotel_reservations WHERE status = 'checked_in' ORDER BY checked_in_at ASC`
     );
     res.json({ success: true, guests: result.rows });
   } catch (err) {
@@ -655,7 +655,7 @@ app.get('/api/front-desk/search', async (req, res) => {
     if (!q) return res.json({ success: true, reservations: [] });
     const term = `%${q}%`;
     const result = await pool.query(
-      `SELECT * FROM reservations
+      `SELECT * FROM hotel_reservations
        WHERE full_name    ILIKE $1
           OR email        ILIKE $1
           OR phone_number ILIKE $1
@@ -686,7 +686,7 @@ app.get('/api/admin/guests', async (req, res) => {
           MAX(check_in_date) AS last_stay,
           MIN(created_at)    AS first_booking,
           MAX(room_type)     AS fav_room
-        FROM reservations
+        FROM hotel_reservations
         WHERE email ILIKE $1 OR full_name ILIKE $1 OR phone_number ILIKE $1
         GROUP BY email
         ORDER BY last_stay DESC NULLS LAST
@@ -702,7 +702,7 @@ app.get('/api/admin/guests', async (req, res) => {
           MAX(check_in_date) AS last_stay,
           MIN(created_at)    AS first_booking,
           MAX(room_type)     AS fav_room
-        FROM reservations
+        FROM hotel_reservations
         GROUP BY email
         ORDER BY last_stay DESC NULLS LAST
         LIMIT 200`;
@@ -725,7 +725,7 @@ app.get('/api/admin/guests/history', async (req, res) => {
       `SELECT id, room_type, room_number, check_in_date, check_out_date,
               number_of_guests, status, special_requests,
               checked_in_at, checked_out_at, front_desk_notes, created_at
-       FROM reservations
+       FROM hotel_reservations
        WHERE email = $1
        ORDER BY check_in_date DESC`,
       [email]
@@ -744,9 +744,9 @@ app.get('/api/folio/:reservationId', async (req, res) => {
   try {
     const { reservationId } = req.params;
     const [resResult, itemsResult, paymentsResult] = await Promise.all([
-      pool.query('SELECT * FROM reservations WHERE id = $1', [reservationId]),
-      pool.query('SELECT * FROM folio_items WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
-      pool.query('SELECT * FROM folio_payments WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
+      pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [reservationId]),
+      pool.query('SELECT * FROM hotel_folio_items WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
+      pool.query('SELECT * FROM hotel_folio_payments WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
     ]);
     if (resResult.rows.length === 0)
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
@@ -780,7 +780,7 @@ app.post('/api/folio/:reservationId/charge', async (req, res) => {
     const price = parseFloat(unit_price);
     const amount = qty * price;
     const result = await pool.query(
-      `INSERT INTO folio_items (reservation_id, charge_type, description, quantity, unit_price, amount)
+      `INSERT INTO hotel_folio_items (reservation_id, charge_type, description, quantity, unit_price, amount)
        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
       [reservationId, charge_type, description || '', qty, price, amount]
     );
@@ -799,7 +799,7 @@ app.post('/api/folio/:reservationId/payment', async (req, res) => {
     if (!payment_method || !amount)
       return res.status(400).json({ success: false, message: 'payment_method and amount are required.' });
     const result = await pool.query(
-      `INSERT INTO folio_payments (reservation_id, payment_method, amount, reference)
+      `INSERT INTO hotel_folio_payments (reservation_id, payment_method, amount, reference)
        VALUES ($1, $2, $3, $4) RETURNING *`,
       [reservationId, payment_method, parseFloat(amount), reference || '']
     );
@@ -816,7 +816,7 @@ app.patch('/api/folio/charge/:itemId/void', async (req, res) => {
     const { itemId } = req.params;
     const { void_reason } = req.body;
     await pool.query(
-      `UPDATE folio_items SET voided = true, void_reason = $1 WHERE id = $2`,
+      `UPDATE hotel_folio_items SET voided = true, void_reason = $1 WHERE id = $2`,
       [void_reason || '', itemId]
     );
     res.json({ success: true });
@@ -830,7 +830,7 @@ app.patch('/api/folio/charge/:itemId/void', async (req, res) => {
 app.patch('/api/folio/payment/:paymentId/void', async (req, res) => {
   try {
     const { paymentId } = req.params;
-    await pool.query(`UPDATE folio_payments SET voided = true WHERE id = $1`, [paymentId]);
+    await pool.query(`UPDATE hotel_folio_payments SET voided = true WHERE id = $1`, [paymentId]);
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -844,7 +844,7 @@ app.post('/api/folio/:reservationId/email', async (req, res) => {
     const { reservationId } = req.params;
 
     // Fetch reservation
-    const resResult = await pool.query(`SELECT * FROM reservations WHERE id = $1`, [reservationId]);
+    const resResult = await pool.query(`SELECT * FROM hotel_reservations WHERE id = $1`, [reservationId]);
     if (!resResult.rows.length) return res.status(404).json({ success: false, message: 'Reservation not found.' });
     const reservation = resResult.rows[0];
 
@@ -852,14 +852,14 @@ app.post('/api/folio/:reservationId/email', async (req, res) => {
 
     // Fetch charges
     const itemsResult = await pool.query(
-      `SELECT * FROM folio_items WHERE reservation_id = $1 ORDER BY posted_at ASC`,
+      `SELECT * FROM hotel_folio_items WHERE reservation_id = $1 ORDER BY posted_at ASC`,
       [reservationId]
     );
     const items = itemsResult.rows;
 
     // Fetch payments
     const paymentsResult = await pool.query(
-      `SELECT * FROM folio_payments WHERE reservation_id = $1 ORDER BY posted_at ASC`,
+      `SELECT * FROM hotel_folio_payments WHERE reservation_id = $1 ORDER BY posted_at ASC`,
       [reservationId]
     );
     const payments = paymentsResult.rows;
@@ -983,12 +983,12 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     }
     // 1. Room-type inventory check — prevent overbooking
     const rtInfo = await pool.query(
-      'SELECT total_rooms FROM room_types WHERE name = $1 AND active = true',
+      'SELECT total_rooms FROM hotel_room_types WHERE name = $1 AND active = true',
       [room_type]
     );
     const totalRooms = rtInfo.rows.length > 0 ? parseInt(rtInfo.rows[0].total_rooms) : 999;
     const overlap = await pool.query(
-      `SELECT COUNT(*) as count FROM reservations
+      `SELECT COUNT(*) as count FROM hotel_reservations
        WHERE room_type = $1
          AND status NOT IN ('cancelled', 'checked_out', 'no_show')
          AND check_in_date < $2
@@ -1004,7 +1004,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
 
     // 2. Room-number conflict check — prevent double-assigning same physical room
     const roomConflict = await pool.query(
-      `SELECT id, full_name, check_in_date, check_out_date FROM reservations
+      `SELECT id, full_name, check_in_date, check_out_date FROM hotel_reservations
        WHERE room_number = $1
          AND status NOT IN ('cancelled', 'checked_out', 'no_show')
          AND check_in_date < $2
@@ -1023,7 +1023,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     const isFuture = checkInDate > new Date();
     const initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';
     const result = await pool.query(
-      `INSERT INTO reservations
+      `INSERT INTO hotel_reservations
          (full_name, email, phone_number, room_type, check_in_date, check_out_date,
           number_of_guests, room_number, payment_collected, special_requests,
           front_desk_notes, rate_code, status, checked_in_at, guest_arrived_at,
@@ -1049,7 +1049,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     );
     // Auto-upsert room record
     await pool.query(
-      `INSERT INTO rooms (room_number, room_type) VALUES ($1,$2) ON CONFLICT (room_number) DO NOTHING`,
+      `INSERT INTO hotel_rooms (room_number, room_type) VALUES ($1,$2) ON CONFLICT (room_number) DO NOTHING`,
       [room_number, room_type || '']
     );
     res.json({ success: true, reservation: result.rows[0] });
@@ -1073,7 +1073,7 @@ app.patch('/api/reservations/:id/profile', async (req, res) => {
       special_requests, front_desk_notes,
     } = req.body;
     const result = await pool.query(
-      `UPDATE reservations SET
+      `UPDATE hotel_reservations SET
          title = COALESCE($1, title),
          full_name = COALESCE($2, full_name),
          middle_name = COALESCE($3, middle_name),
@@ -1124,19 +1124,19 @@ app.get('/api/front-desk/tape-chart', async (req, res) => {
     const to = toDate.toISOString().slice(0, 10);
     const [roomsRes, resvRes] = await Promise.all([
       pool.query(`
-        SELECT room_number, room_type, floor FROM rooms WHERE active = true
+        SELECT room_number, room_type, floor FROM hotel_rooms WHERE active = true
         UNION
-        SELECT DISTINCT room_number, room_type, NULL::integer as floor FROM reservations
+        SELECT DISTINCT room_number, room_type, NULL::integer as floor FROM hotel_reservations
           WHERE status NOT IN ('cancelled', 'no_show', 'checked_out')
             AND room_number IS NOT NULL AND room_number <> ''
             AND check_out_date >= CURRENT_DATE
-            AND room_number NOT IN (SELECT room_number FROM rooms WHERE active = true)
+            AND room_number NOT IN (SELECT room_number FROM hotel_rooms WHERE active = true)
         ORDER BY room_type, room_number
       `),
       pool.query(
         `SELECT id, full_name, room_number, room_type, check_in_date, check_out_date,
                 checked_out_at, status, rate_code, number_of_guests
-         FROM reservations
+         FROM hotel_reservations
          WHERE status NOT IN ('cancelled', 'no_show')
            AND check_in_date < $1
            AND check_out_date > $2
@@ -1149,7 +1149,7 @@ app.get('/api/front-desk/tape-chart', async (req, res) => {
     // Fallback: no individual rooms configured → show room_types as rows
     if (rooms.length === 0) {
       const rtRes = await pool.query(
-        `SELECT name as room_type, total_rooms FROM room_types WHERE active = true ORDER BY name`
+        `SELECT name as room_type, total_rooms FROM hotel_room_types WHERE active = true ORDER BY name`
       );
       rooms = rtRes.rows.map(rt => ({
         room_number: rt.room_type,
@@ -1186,8 +1186,8 @@ app.get('/api/rooms', async (req, res) => {
         res.id as reservation_id, res.full_name as guest_name,
         res.check_in_date, res.check_out_date, res.number_of_guests,
         res.status as reservation_status
-      FROM rooms r
-      LEFT JOIN reservations res ON res.room_number = r.room_number
+      FROM hotel_rooms r
+      LEFT JOIN hotel_reservations res ON res.room_number = r.room_number
         AND res.status IN ('checked_in','pending','confirmed')
         AND res.check_out_date >= CURRENT_DATE
       WHERE r.active = true
@@ -1206,7 +1206,7 @@ app.post('/api/rooms', async (req, res) => {
     const { room_number, room_type, floor } = req.body;
     if (!room_number) return res.status(400).json({ success: false, message: 'room_number required.' });
     const result = await pool.query(
-      `INSERT INTO rooms (room_number, room_type, floor)
+      `INSERT INTO hotel_rooms (room_number, room_type, floor)
        VALUES ($1, $2, $3)
        ON CONFLICT (room_number) DO UPDATE SET room_type=$2, floor=$3, active=true
        RETURNING *`,
@@ -1227,7 +1227,7 @@ app.put('/api/rooms/:roomNumber/hk-status', async (req, res) => {
     const valid = ['clean', 'dirty', 'inspected', 'out_of_order'];
     if (!valid.includes(status)) return res.status(400).json({ success: false, message: 'Invalid status.' });
     const result = await pool.query(
-      `UPDATE rooms SET hk_status=$1${notes !== undefined ? ', notes=$3' : ''} WHERE room_number=$2 RETURNING *`,
+      `UPDATE hotel_rooms SET hk_status=$1${notes !== undefined ? ', notes=$3' : ''} WHERE room_number=$2 RETURNING *`,
       notes !== undefined ? [status, roomNumber, notes] : [status, roomNumber]
     );
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Room not found.' });
@@ -1241,7 +1241,7 @@ app.put('/api/rooms/:roomNumber/hk-status', async (req, res) => {
 // DELETE /api/rooms/:roomNumber — soft delete
 app.delete('/api/rooms/:roomNumber', async (req, res) => {
   try {
-    await pool.query(`UPDATE rooms SET active=false WHERE room_number=$1`, [req.params.roomNumber]);
+    await pool.query(`UPDATE hotel_rooms SET active=false WHERE room_number=$1`, [req.params.roomNumber]);
     res.json({ success: true });
   } catch (err) {
     console.error(err);
@@ -1254,7 +1254,7 @@ app.post('/api/reservations/:id/checkin', async (req, res) => {
   try {
     const { id } = req.params;
     const { roomNumber, idVerified, paymentCollected, notes } = req.body;
-    const existing = await pool.query('SELECT * FROM reservations WHERE id = $1', [id]);
+    const existing = await pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [id]);
     if (existing.rows.length === 0)
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
     if (['checked_in', 'checked_out'].includes(existing.rows[0].status))
@@ -1263,7 +1263,7 @@ app.post('/api/reservations/:id/checkin', async (req, res) => {
     if (roomNumber) {
       const res_ = existing.rows[0];
       const roomConflict = await pool.query(
-        `SELECT id, full_name, check_in_date, check_out_date FROM reservations
+        `SELECT id, full_name, check_in_date, check_out_date FROM hotel_reservations
          WHERE room_number = $1
            AND id != $2
            AND status NOT IN ('cancelled', 'checked_out', 'no_show')
@@ -1280,7 +1280,7 @@ app.post('/api/reservations/:id/checkin', async (req, res) => {
       }
     }
     const result = await pool.query(
-      `UPDATE reservations SET
+      `UPDATE hotel_reservations SET
          status            = 'checked_in',
          checked_in_at     = NOW(),
          room_number       = $1,
@@ -1294,7 +1294,7 @@ app.post('/api/reservations/:id/checkin', async (req, res) => {
     // Auto-upsert room record
     if (roomNumber) {
       await pool.query(
-        `INSERT INTO rooms (room_number, room_type) VALUES ($1,$2) ON CONFLICT (room_number) DO NOTHING`,
+        `INSERT INTO hotel_rooms (room_number, room_type) VALUES ($1,$2) ON CONFLICT (room_number) DO NOTHING`,
         [roomNumber, existing.rows[0].room_type || '']
       );
     }
@@ -1312,7 +1312,7 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
     const { newRoomNumber, newRoomType } = req.body;
     if (!newRoomNumber) return res.status(400).json({ success: false, message: 'newRoomNumber is required.' });
 
-    const existing = await pool.query('SELECT * FROM reservations WHERE id = $1', [id]);
+    const existing = await pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [id]);
     if (existing.rows.length === 0) return res.status(404).json({ success: false, message: 'Reservation not found.' });
     if (existing.rows[0].status !== 'checked_in') return res.status(409).json({ success: false, message: 'Guest is not currently checked in.' });
 
@@ -1321,7 +1321,7 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
 
     // Conflict check on new room (exclude this reservation)
     const conflict = await pool.query(
-      `SELECT id, full_name FROM reservations
+      `SELECT id, full_name FROM hotel_reservations
        WHERE room_number = $1 AND id != $2
          AND status NOT IN ('cancelled', 'checked_out', 'no_show')
          AND check_in_date < $3 AND check_out_date > $4`,
@@ -1334,16 +1334,16 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
     // Update reservation
     const roomType = newRoomType || existing.rows[0].room_type;
     const result = await pool.query(
-      `UPDATE reservations SET room_number = $1, room_type = $2 WHERE id = $3 RETURNING *`,
+      `UPDATE hotel_reservations SET room_number = $1, room_type = $2 WHERE id = $3 RETURNING *`,
       [newRoomNumber, roomType, id]
     );
 
     // Mark old room dirty, upsert new room
     if (oldRoom && oldRoom !== newRoomNumber) {
-      await pool.query(`UPDATE rooms SET hk_status = 'dirty' WHERE room_number = $1`, [oldRoom]);
+      await pool.query(`UPDATE hotel_rooms SET hk_status = 'dirty' WHERE room_number = $1`, [oldRoom]);
     }
     await pool.query(
-      `INSERT INTO rooms (room_number, room_type) VALUES ($1, $2) ON CONFLICT (room_number) DO NOTHING`,
+      `INSERT INTO hotel_rooms (room_number, room_type) VALUES ($1, $2) ON CONFLICT (room_number) DO NOTHING`,
       [newRoomNumber, roomType]
     );
 
@@ -1358,19 +1358,19 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
 app.post('/api/reservations/:id/checkout', async (req, res) => {
   try {
     const { id } = req.params;
-    const existing = await pool.query('SELECT * FROM reservations WHERE id = $1', [id]);
+    const existing = await pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [id]);
     if (existing.rows.length === 0)
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
     if (existing.rows[0].status !== 'checked_in')
       return res.status(409).json({ success: false, message: 'Guest is not currently checked in.' });
     const result = await pool.query(
-      `UPDATE reservations SET status = 'checked_out', checked_out_at = NOW()
+      `UPDATE hotel_reservations SET status = 'checked_out', checked_out_at = NOW()
        WHERE id = $1 RETURNING *`,
       [id]
     );
     // Auto-mark room as dirty after checkout
     if (existing.rows[0].room_number) {
-      await pool.query(`UPDATE rooms SET hk_status='dirty' WHERE room_number=$1`, [existing.rows[0].room_number]);
+      await pool.query(`UPDATE hotel_rooms SET hk_status='dirty' WHERE room_number=$1`, [existing.rows[0].room_number]);
     }
     res.json({ success: true, reservation: result.rows[0], message: 'Check-out complete.' });
   } catch (err) {
@@ -1388,7 +1388,7 @@ app.patch('/api/reservations/:id/status', async (req, res) => {
     if (!allowed.includes(status))
       return res.status(400).json({ success: false, message: `Invalid status. Allowed: ${allowed.join(', ')}` });
     const result = await pool.query(
-      'UPDATE reservations SET status = $1 WHERE id = $2 RETURNING *',
+      'UPDATE hotel_reservations SET status = $1 WHERE id = $2 RETURNING *',
       [status, id]
     );
     if (result.rows.length === 0)
@@ -1409,7 +1409,7 @@ app.post('/api/checkin/lookup', async (req, res) => {
       result = await pool.query(
         `SELECT id, full_name, email, room_type, check_in_date, check_out_date,
                 number_of_guests, special_requests, status, guest_arrived_at
-           FROM reservations
+           FROM hotel_reservations
           WHERE id = $1 AND status IN ('pending','confirmed')`,
         [parseInt(confirmationId, 10)]
       );
@@ -1417,7 +1417,7 @@ app.post('/api/checkin/lookup', async (req, res) => {
       result = await pool.query(
         `SELECT id, full_name, email, room_type, check_in_date, check_out_date,
                 number_of_guests, special_requests, status, guest_arrived_at
-           FROM reservations
+           FROM hotel_reservations
           WHERE LOWER(email) = LOWER($1)
             AND full_name ILIKE $2
             AND status IN ('pending','confirmed')
@@ -1441,7 +1441,7 @@ app.post('/api/checkin/arrive', async (req, res) => {
   try {
     const { id } = req.body;
     const result = await pool.query(
-      `UPDATE reservations
+      `UPDATE hotel_reservations
           SET guest_arrived_at = NOW()
         WHERE id = $1 AND status IN ('pending','confirmed')
         RETURNING id, full_name, room_type, check_in_date, check_out_date, status, guest_arrived_at`,
@@ -1459,7 +1459,7 @@ app.post('/api/checkin/arrive', async (req, res) => {
 // ─── Rate Codes ───────────────────────────────────────────────────────────────
 const initRateCodesTables = async () => {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS rate_codes (
+    CREATE TABLE IF NOT EXISTS hotel_rate_codes (
       id          SERIAL PRIMARY KEY,
       code        TEXT NOT NULL UNIQUE,
       name        TEXT NOT NULL,
@@ -1469,17 +1469,17 @@ const initRateCodesTables = async () => {
     )
   `);
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS rate_code_prices (
+    CREATE TABLE IF NOT EXISTS hotel_rate_code_prices (
       id              SERIAL PRIMARY KEY,
-      rate_code_id    INTEGER NOT NULL REFERENCES rate_codes(id) ON DELETE CASCADE,
-      room_type_id    INTEGER NOT NULL REFERENCES room_types(id) ON DELETE CASCADE,
+      rate_code_id    INTEGER NOT NULL REFERENCES hotel_rate_codes(id) ON DELETE CASCADE,
+      room_type_id    INTEGER NOT NULL REFERENCES hotel_room_types(id) ON DELETE CASCADE,
       price_per_night NUMERIC(10,2) NOT NULL,
       UNIQUE(rate_code_id, room_type_id)
     )
   `);
-  await pool.query(`ALTER TABLE reservations ADD COLUMN IF NOT EXISTS rate_code TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS rate_code TEXT DEFAULT ''`);
   await pool.query(`
-    INSERT INTO rate_codes (code, name, description) VALUES
+    INSERT INTO hotel_rate_codes (code, name, description) VALUES
       ('RACK', 'Rack Rate',        'Full published rate'),
       ('CORP', 'Corporate Rate',   'Discounted rate for corporate clients'),
       ('GOV',  'Government Rate',  'Rate for government employees'),
@@ -1496,8 +1496,8 @@ app.get('/api/rate-codes', async (req, res) => {
   try {
     const codes = await pool.query(
       `SELECT rc.*, json_agg(json_build_object('room_type_id', rcp.room_type_id, 'price_per_night', rcp.price_per_night)) FILTER (WHERE rcp.id IS NOT NULL) as prices
-       FROM rate_codes rc
-       LEFT JOIN rate_code_prices rcp ON rc.id = rcp.rate_code_id
+       FROM hotel_rate_codes rc
+       LEFT JOIN hotel_rate_code_prices rcp ON rc.id = rcp.rate_code_id
        WHERE rc.is_active = true
        GROUP BY rc.id ORDER BY rc.code`
     );
@@ -1513,9 +1513,9 @@ app.get('/api/admin/rate-codes', async (req, res) => {
   try {
     const codes = await pool.query(
       `SELECT rc.*, json_agg(json_build_object('room_type_id', rcp.room_type_id, 'room_type_name', rt.name, 'price_per_night', rcp.price_per_night)) FILTER (WHERE rcp.id IS NOT NULL) as prices
-       FROM rate_codes rc
-       LEFT JOIN rate_code_prices rcp ON rc.id = rcp.rate_code_id
-       LEFT JOIN room_types rt ON rcp.room_type_id = rt.id
+       FROM hotel_rate_codes rc
+       LEFT JOIN hotel_rate_code_prices rcp ON rc.id = rcp.rate_code_id
+       LEFT JOIN hotel_room_types rt ON rcp.room_type_id = rt.id
        GROUP BY rc.id ORDER BY rc.code`
     );
     res.json({ success: true, rateCodes: codes.rows });
@@ -1531,7 +1531,7 @@ app.post('/api/admin/rate-codes', async (req, res) => {
     const { code, name, description } = req.body;
     if (!code || !name) return res.status(400).json({ success: false, message: 'Code and name required.' });
     const result = await pool.query(
-      `INSERT INTO rate_codes (code, name, description) VALUES ($1, $2, $3) RETURNING *`,
+      `INSERT INTO hotel_rate_codes (code, name, description) VALUES ($1, $2, $3) RETURNING *`,
       [code.toUpperCase().trim(), name.trim(), description || '']
     );
     res.json({ success: true, rateCode: result.rows[0] });
@@ -1546,7 +1546,7 @@ app.put('/api/admin/rate-codes/:id', async (req, res) => {
   try {
     const { name, description, is_active } = req.body;
     const result = await pool.query(
-      `UPDATE rate_codes SET name = COALESCE($1, name), description = COALESCE($2, description), is_active = COALESCE($3, is_active) WHERE id = $4 RETURNING *`,
+      `UPDATE hotel_rate_codes SET name = COALESCE($1, name), description = COALESCE($2, description), is_active = COALESCE($3, is_active) WHERE id = $4 RETURNING *`,
       [name, description, is_active, req.params.id]
     );
     if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Rate code not found.' });
@@ -1563,10 +1563,10 @@ app.put('/api/admin/rate-codes/:id/prices', async (req, res) => {
     if (!Array.isArray(prices)) return res.status(400).json({ success: false, message: 'prices must be an array.' });
     for (const p of prices) {
       if (p.price_per_night === null || p.price_per_night === '') {
-        await pool.query(`DELETE FROM rate_code_prices WHERE rate_code_id = $1 AND room_type_id = $2`, [req.params.id, p.room_type_id]);
+        await pool.query(`DELETE FROM hotel_rate_code_prices WHERE rate_code_id = $1 AND room_type_id = $2`, [req.params.id, p.room_type_id]);
       } else {
         await pool.query(
-          `INSERT INTO rate_code_prices (rate_code_id, room_type_id, price_per_night) VALUES ($1,$2,$3)
+          `INSERT INTO hotel_rate_code_prices (rate_code_id, room_type_id, price_per_night) VALUES ($1,$2,$3)
            ON CONFLICT (rate_code_id, room_type_id) DO UPDATE SET price_per_night = $3`,
           [req.params.id, p.room_type_id, p.price_per_night]
         );
@@ -2604,14 +2604,14 @@ app.get('/api/reports/hotel/management', async (req, res) => {
           COUNT(*) FILTER (WHERE status = 'cancelled')   as cancelled,
           COUNT(*) FILTER (WHERE status = 'no_show')     as no_show,
           COUNT(DISTINCT email) as unique_guests
-        FROM reservations WHERE 1=1 ${where}
+        FROM hotel_reservations WHERE 1=1 ${where}
       `, p),
       pool.query(`
         SELECT room_type,
           COUNT(*) as total_bookings,
           COUNT(*) FILTER (WHERE status NOT IN ('cancelled','no_show')) as valid_bookings,
           COUNT(*) FILTER (WHERE status = 'cancelled') as cancellations
-        FROM reservations WHERE 1=1 ${where}
+        FROM hotel_reservations WHERE 1=1 ${where}
         GROUP BY room_type ORDER BY valid_bookings DESC
       `, p),
     ]);
@@ -2638,11 +2638,11 @@ app.get('/api/reports/hotel/financial', async (req, res) => {
     if (endDate)   { rp.push(endDate);   resWhere += ` AND r.check_in_date <= $${rp.length}::date`; }
 
     const [chargesRes, paymentsRes, methodsRes, roomRevRes, outListRes] = await Promise.all([
-      pool.query(`SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM folio_items${folioWhere}`, fp),
-      pool.query(`SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM folio_payments${folioWhere}`, fp),
+      pool.query(`SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM hotel_folio_items${folioWhere}`, fp),
+      pool.query(`SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM hotel_folio_payments${folioWhere}`, fp),
       pool.query(`
         SELECT payment_method, COUNT(*) as count, COALESCE(SUM(amount),0) as total
-        FROM folio_payments${folioWhere}
+        FROM hotel_folio_payments${folioWhere}
         GROUP BY payment_method ORDER BY total DESC
       `, fp),
       pool.query(`
@@ -2650,9 +2650,9 @@ app.get('/api/reports/hotel/financial', async (req, res) => {
           COUNT(DISTINCT r.id) as bookings,
           COALESCE(SUM(fi.charged),0) as charged,
           COALESCE(SUM(fp2.paid),0) as paid
-        FROM reservations r
-        LEFT JOIN (SELECT reservation_id, SUM(amount) as charged FROM folio_items WHERE voided=false GROUP BY reservation_id) fi ON fi.reservation_id = r.id
-        LEFT JOIN (SELECT reservation_id, SUM(amount) as paid   FROM folio_payments WHERE voided=false GROUP BY reservation_id) fp2 ON fp2.reservation_id = r.id
+        FROM hotel_reservations r
+        LEFT JOIN (SELECT reservation_id, SUM(amount) as charged FROM hotel_folio_items WHERE voided=false GROUP BY reservation_id) fi ON fi.reservation_id = r.id
+        LEFT JOIN (SELECT reservation_id, SUM(amount) as paid   FROM hotel_folio_payments WHERE voided=false GROUP BY reservation_id) fp2 ON fp2.reservation_id = r.id
         WHERE ${resWhere}
         GROUP BY r.room_type ORDER BY charged DESC
       `, rp),
@@ -2662,9 +2662,9 @@ app.get('/api/reports/hotel/financial', async (req, res) => {
                COALESCE(fi.charged,0) as charged,
                COALESCE(fp2.paid,0)   as paid,
                COALESCE(fi.charged,0) - COALESCE(fp2.paid,0) as balance
-        FROM reservations r
-        LEFT JOIN (SELECT reservation_id, SUM(amount) as charged FROM folio_items WHERE voided=false GROUP BY reservation_id) fi ON fi.reservation_id = r.id
-        LEFT JOIN (SELECT reservation_id, SUM(amount) as paid   FROM folio_payments WHERE voided=false GROUP BY reservation_id) fp2 ON fp2.reservation_id = r.id
+        FROM hotel_reservations r
+        LEFT JOIN (SELECT reservation_id, SUM(amount) as charged FROM hotel_folio_items WHERE voided=false GROUP BY reservation_id) fi ON fi.reservation_id = r.id
+        LEFT JOIN (SELECT reservation_id, SUM(amount) as paid   FROM hotel_folio_payments WHERE voided=false GROUP BY reservation_id) fp2 ON fp2.reservation_id = r.id
         WHERE COALESCE(fi.charged,0) - COALESCE(fp2.paid,0) > 0
         ORDER BY balance DESC LIMIT 25
       `),
@@ -2703,8 +2703,8 @@ app.get('/api/reports/hotel/daily', async (req, res) => {
     if (endDate)   { p.push(endDate);   where += ` AND posted_at::date <= $${p.length}::date`; }
 
     const [chargesRes, paymentsRes] = await Promise.all([
-      pool.query(`SELECT posted_at::date as date, SUM(amount) as charged FROM folio_items${where} GROUP BY posted_at::date`, p),
-      pool.query(`SELECT posted_at::date as date, SUM(amount) as paid    FROM folio_payments${where} GROUP BY posted_at::date`, p),
+      pool.query(`SELECT posted_at::date as date, SUM(amount) as charged FROM hotel_folio_items${where} GROUP BY posted_at::date`, p),
+      pool.query(`SELECT posted_at::date as date, SUM(amount) as paid    FROM hotel_folio_payments${where} GROUP BY posted_at::date`, p),
     ]);
 
     const map = {};
@@ -2730,13 +2730,13 @@ app.get('/api/reports/hotel/monthly', async (req, res) => {
 
     const [chargesRes, paymentsRes, bookingsRes] = await Promise.all([
       pool.query(`SELECT TO_CHAR(posted_at,'MM') as month, SUM(amount) as charged
-                  FROM folio_items WHERE voided=false AND EXTRACT(year FROM posted_at)=$1
+                  FROM hotel_folio_items WHERE voided=false AND EXTRACT(year FROM posted_at)=$1
                   GROUP BY month ORDER BY month`, [year]),
       pool.query(`SELECT TO_CHAR(posted_at,'MM') as month, SUM(amount) as paid
-                  FROM folio_payments WHERE voided=false AND EXTRACT(year FROM posted_at)=$1
+                  FROM hotel_folio_payments WHERE voided=false AND EXTRACT(year FROM posted_at)=$1
                   GROUP BY month ORDER BY month`, [year]),
       pool.query(`SELECT TO_CHAR(check_in_date,'MM') as month, COUNT(*) as bookings
-                  FROM reservations WHERE EXTRACT(year FROM check_in_date)=$1
+                  FROM hotel_reservations WHERE EXTRACT(year FROM check_in_date)=$1
                     AND status NOT IN ('cancelled','no_show')
                   GROUP BY month ORDER BY month`, [year]),
     ]);
