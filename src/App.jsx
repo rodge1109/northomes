@@ -4638,12 +4638,10 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
         <p className="text-black/60 font-medium leading-relaxed mb-8">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
 
         {room.amenities && (
-          <div className="flex flex-wrap justify-center gap-2 mb-8">
-            {room.amenities.split(',').map((amenity, idx) => (
-              <span key={idx} className="px-3 py-1 bg-[#00754A]/5 border border-[#00754A]/10 text-[#00754A] rounded-full text-[10px] font-bold uppercase tracking-widest">
-                {amenity.trim()}
-              </span>
-            ))}
+          <div className="mb-8 px-2 sm:px-4">
+            <p className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium">
+              {room.amenities}
+            </p>
           </div>
         )}
 
