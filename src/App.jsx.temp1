@@ -776,7 +776,7 @@ function AppointmentForm({ onSuccess }) {
         {icon}
       </div>
       <span className="text-xs font-bold text-black/60 uppercase tracking-widest">{title}</span>
-      <div className="flex-1 h-px bg-black/5" />
+      <div className="flex-1 h-px bg-white shadow-sm" />
     </div>
   );
 
@@ -1294,9 +1294,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Dashboard state
-  const [appointments, setAppointments] = useState([]);
-  const [masterRes, setMasterRes] = useState([]);
-  const [masterResLoading, setMasterResLoading] = useState(false);
+  const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [updatingId, setUpdatingId] = useState(null);
@@ -1316,14 +1314,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Calendar state
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth() + 1);
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
-  const [calendarData, setCalendarData] = useState({ appointments: [], blockedDates: [] });
+  const [calendarData, setCalendarData] = useState({ reservations: [], blockedDates: [] });
 
   // Reports state
   const [reportStats, setReportStats] = useState(null);
   const [reportStartDate, setReportStartDate] = useState('');
   const [reportEndDate, setReportEndDate] = useState('');
   // Hotel reports sub-tab
-  const [reportsSubTab, setReportsSubTab] = useState('appointments');
+  const [reportsSubTab, setReportsSubTab] = useState('reservations');
   const [hotelRptStart, setHotelRptStart] = useState('');
   const [hotelRptEnd, setHotelRptEnd] = useState('');
   const [hotelRptLoading, setHotelRptLoading] = useState(false);
@@ -1392,7 +1390,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const data = await response.json();
       if (data.valid) {
         setIsLoggedIn(true);
-        fetchAppointments();
+        fetchReservations();
       } else {
         localStorage.removeItem('adminToken');
       }
@@ -1417,7 +1415,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       if (data.success) {
         localStorage.setItem('adminToken', data.token);
         setIsLoggedIn(true);
-        fetchAppointments();
+        fetchReservations();
       } else {
         setLoginError(data.message || 'Invalid credentials');
       }
@@ -1444,17 +1442,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setPassword('');
   };
 
-  const fetchMasterRes = useCallback(async () => {
-    try {
-      setMasterResLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/reservations`);
-      const data = await res.json();
-      setMasterRes(data.reservations || []);
-    } catch (e) { console.error(e); }
-    setMasterResLoading(false);
-  }, []);
-
-  const fetchAppointments = useCallback(async () => {
+  const fetchReservations = useCallback(async () => {
     try {
       setIsLoading(true);
       const params = new URLSearchParams();
@@ -1464,63 +1452,40 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       if (filter !== 'all') params.append('status', filter);
 
       const url = params.toString()
-        ? `${API_BASE_URL}/api/appointments/search?${params}`
-        : `${API_BASE_URL}/api/appointments`;
+        ? `${API_BASE_URL}/api/reservations/search?${params}`
+        : `${API_BASE_URL}/api/reservations`;
 
       const response = await fetch(url);
       const data = await response.json();
       if (data.success) {
-        setAppointments(data.appointments);
+        setReservations(data.reservations);
       }
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      console.error('Error fetching reservations:', error);
     } finally {
       setIsLoading(false);
     }
   }, [searchQuery, startDate, endDate, filter]);
 
-  // Fetch all appointments once on login
+  // Fetch all reservations once on login
   useEffect(() => {
     if (isLoggedIn) {
-      fetchAppointments();
-      fetchMasterRes();
+      fetchReservations();
     }
-  }, [isLoggedIn, fetchAppointments, fetchMasterRes]);
-
-  
-  const updateMasterResStatus = async (id, newStatus) => {
-    setUpdatingId(id);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      });
-      const data = await response.json();
-      if (data.success) {
-        setMasterRes(prev => prev.map(apt =>
-          apt.id === id ? { ...apt, status: newStatus } : apt
-        ));
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
+  }, [isLoggedIn]);
 
   const updateStatus = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
       const data = await response.json();
       if (data.success) {
-        setAppointments(prev => prev.map(apt =>
-          apt.id === id ? { ...apt, status: newStatus } : apt
+        setReservations(prev => prev.map(apt =>
+          res.id === id ? { ...apt, status: newStatus } : apt
         ));
       }
     } catch (error) {
@@ -1533,10 +1498,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Reschedule functions
   const openRescheduleModal = async (apt) => {
     setRescheduleModal(apt);
-    setNewDate(apt.preferred_date);
-    setNewTime(apt.preferred_time);
+    setNewDate(res.preferred_date);
+    setNewTime(res.preferred_time);
     // Fetch available slots for current date
-    await fetchAvailableSlots(apt.preferred_date);
+    await fetchAvailableSlots(res.preferred_date);
   };
 
   const fetchAvailableSlots = async (date) => {
@@ -1570,7 +1535,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
     setIsRescheduling(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/appointments/${rescheduleModal.id}/reschedule`, {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${rescheduleModal.id}/reschedule`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ preferredDate: newDate, preferredTime: newTime })
@@ -1578,8 +1543,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const data = await response.json();
 
       if (data.success) {
-        setAppointments(prev => prev.map(apt =>
-          apt.id === rescheduleModal.id
+        setReservations(prev => prev.map(apt =>
+          res.id === rescheduleModal.id
             ? { ...apt, preferred_date: newDate, preferred_time: newTime }
             : apt
         ));
@@ -1606,58 +1571,35 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   };
 
   // Client-side filtering
-  const filteredAppointments = appointments.filter(apt => {
+  const filteredReservations = reservations.filter(apt => {
     // Search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const matchesSearch =
-        (apt.full_name && apt.full_name.toLowerCase().includes(q)) ||
-        (apt.phone_number && apt.phone_number.includes(q)) ||
-        (apt.email && apt.email.toLowerCase().includes(q));
+        (res.full_name && res.full_name.toLowerCase().includes(q)) ||
+        (res.phone_number && res.phone_number.includes(q)) ||
+        (res.email && res.email.toLowerCase().includes(q));
       if (!matchesSearch) return false;
     }
     // Status filter
-    if (filter !== 'all' && apt.status !== filter) return false;
+    if (filter !== 'all' && res.status !== filter) return false;
     // Date range filter
-    if (startDate && apt.preferred_date && apt.preferred_date.slice(0, 10) < startDate) return false;
-    if (endDate && apt.preferred_date && apt.preferred_date.slice(0, 10) > endDate) return false;
-    return true;
-  });
-
-  const filteredMasterRes = masterRes.filter(apt => {
-    if (apt.status === 'checked_in') return false; // User requested to hide checked_in from Bookings grid
-    
-    // Search filter
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesSearch =
-        (apt.full_name && apt.full_name.toLowerCase().includes(q)) ||
-        (apt.phone_number && apt.phone_number.includes(q)) ||
-        (apt.email && apt.email.toLowerCase().includes(q));
-      if (!matchesSearch) return false;
-    }
-    // Status filter
-    let aptStatus = apt.status;
-    if (aptStatus === 'checked_out') aptStatus = 'completed'; // map backend status to UI filter
-    if (filter !== 'all' && aptStatus !== filter) return false;
-    
-    // Date range filter
-    if (startDate && apt.check_in_date && apt.check_in_date.slice(0, 10) < startDate) return false;
-    if (endDate && apt.check_in_date && apt.check_in_date.slice(0, 10) > endDate) return false;
+    if (startDate && res.preferred_date && res.preferred_date.slice(0, 10) < startDate) return false;
+    if (endDate && res.preferred_date && res.preferred_date.slice(0, 10) > endDate) return false;
     return true;
   });
 
   const stats = useMemo(() => {
-    if (!appointments) return { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0, arrivals_today: 0 };
+    if (!reservations) return { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0, arrivals_today: 0 };
     return {
-      total: appointments.length,
-      pending: appointments.filter(a => a.status === 'pending').length,
-      confirmed: appointments.filter(a => a.status === 'confirmed').length,
-      completed: appointments.filter(a => a.status === 'completed').length,
-      cancelled: appointments.filter(a => a.status === 'cancelled').length,
-      arrivals_today: appointments.filter(a => a.status === 'confirmed' && a.preferred_date === new Date().toISOString().split('T')[0]).length,
+      total: reservations.length,
+      pending: reservations.filter(a => a.status === 'pending').length,
+      confirmed: reservations.filter(a => a.status === 'confirmed').length,
+      completed: reservations.filter(a => a.status === 'completed').length,
+      cancelled: reservations.filter(a => a.status === 'cancelled').length,
+      arrivals_today: reservations.filter(a => a.status === 'confirmed' && a.preferred_date === new Date().toISOString().split('T')[0]).length,
     };
-  }, [appointments]);
+  }, [reservations]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -2031,7 +1973,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
     if (filter !== 'all') params.append('status', filter);
-    window.open(`${API_BASE_URL}/api/export/appointments?${params}`, '_blank');
+    window.open(`${API_BASE_URL}/api/export/reservations?${params}`, '_blank');
   };
 
   // Send SMS
@@ -2040,7 +1982,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const response = await fetch(`${API_BASE_URL}/api/send-sms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appointmentId: apt.id })
+        body: JSON.stringify({ appointmentId: res.id })
       });
       const data = await response.json();
       alert(data.message);
@@ -2060,7 +2002,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Load data when tab changes
   useEffect(() => {
     if (isLoggedIn) {
-      if (activeTab === 'dashboard') fetchAppointments();
+      if (activeTab === 'dashboard') fetchReservations();
       if (activeTab === 'calendar') fetchCalendarData();
       if (activeTab === 'reports') fetchReports();
       if (activeTab === 'rooms') fetchAdminRoomTypes();
@@ -2196,9 +2138,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       {[
                         { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg> },
-                        { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15" /></svg> },
-                        { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg> },
-                        { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg> },
+                        { label: 'Departures Today', value: reservations.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15" /></svg> },
+                        { label: 'In-House', value: reservations.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg> },
+                        { label: 'Occupancy', value: `${Math.round((reservations.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg> },
                       ].map((stat, i) => (
                         <div key={i} className="rounded-xl p-5 bg-white group hover:scale-[1.01] transition-all cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
                           <div className="flex justify-between items-start mb-3">
@@ -2218,19 +2160,19 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           Recent Activity
                         </h3>
                         <div className="space-y-3">
-                          {appointments.slice(0, 5).map((apt, i) => (
+                          {reservations.slice(0, 5).map((apt, i) => (
                             <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-[#f2f0eb] hover:bg-[#edebe9] transition-all group" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                               <div className="flex items-center gap-3.5">
                                 <div className="w-9 h-9 rounded-xl bg-[#1E3932] flex items-center justify-center text-white font-black text-sm">
-                                  {apt.full_name.charAt(0)}
+                                  {res.full_name.charAt(0)}
                                 </div>
                                 <div>
-                                  <p className="font-bold text-[#000000]/87 text-sm">{apt.full_name}</p>
-                                  <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
+                                  <p className="font-bold text-[#000000]/87 text-sm">{res.full_name}</p>
+                                  <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{res.service_type} • {res.preferred_date}</p>
                                 </div>
                               </div>
-                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
-                                {apt.status}
+                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(res.status)}`}>
+                                {res.status}
                               </span>
                             </div>
                           ))}
@@ -2424,72 +2366,76 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
 
                     {/* Appointments List */}
-                    {masterResLoading ? (
+                    {isLoading ? (
                       <div className="text-center py-24">
                         <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#00754A] mb-4"></div>
                         <p className="text-black/60 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
                       </div>
-                    ) : filteredMasterRes.length === 0 ? (
+                    ) : filteredReservations.length === 0 ? (
                       <div className="text-center py-24 rounded-2xl border border-black/5 bg-white shadow-sm ">
                         <p className="text-black/60 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
                       </div>
                     ) : (
                       <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                         {/* Table Header */}
-                        <div className="hidden md:grid md:grid-cols-[60px_repeat(4,1fr)_220px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
+                        <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
                           <span>#</span>
                           <span>Guest Name</span>
-                          <span>Room</span>
-                          <span>Dates</span>
+                          <span>Service</span>
+                          <span>Check-in</span>
+                          <span>Time</span>
                           <span>Status</span>
                           <span className="text-right">Actions</span>
                         </div>
-                        {filteredMasterRes.map((apt, index) => (
-                          <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(4,1fr)_220px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
-                            <span className="text-black/60 font-mono text-xs">{apt.id}</span>
+                        {filteredReservations.map((apt, index) => (
+                          <div key={res.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
+                            <span className="text-black/60 font-mono text-xs">{res.id}</span>
                             <div className="min-w-0">
-                              <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{apt.full_name}</p>
-                              <p className="text-black/60 text-[10px] truncate md:hidden">{apt.phone_number}</p>
+                              <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{res.full_name}</p>
+                              <p className="text-black/60 text-[10px] truncate md:hidden">{res.phone_number}</p>
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-black/60 text-xs font-bold truncate">Room {apt.room_number || 'TBA'}</p>
-                              <p className="text-black/60 text-[10px] truncate">{apt.room_type}</p>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-black/60 text-[10px] font-medium truncate uppercase tracking-widest">In: {new Date(apt.check_in_date).toLocaleDateString()}</p>
-                              <p className="text-black/60 text-[10px] font-medium truncate uppercase tracking-widest">Out: {new Date(apt.check_out_date).toLocaleDateString()}</p>
-                            </div>
-                            <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(apt.status)}`}>
-                              {apt.status}
+                            <span className="text-black/60 text-xs font-medium truncate">{res.service_type}</span>
+                            <span className="text-black/60 text-xs font-medium">{res.preferred_date}</span>
+                            <span className="text-black/60 text-xs font-medium">{res.preferred_time}</span>
+                            <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(res.status)}`}>
+                              {res.status}
                             </span>
-                            <div className="flex flex-nowrap gap-1.5 justify-end">
-                              {apt.status === 'pending' && (
+                            <div className="flex flex-wrap gap-1 justify-end">
+                              {(res.status === 'pending' || res.status === 'confirmed') && (
+                                <button onClick={() => openRescheduleModal(apt)} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition-all border border-purple-200">
+                                  Reschedule
+                                </button>
+                              )}
+                              {res.status === 'pending' && (
                                 <>
-                                  <button onClick={() => updateMasterResStatus(apt.id, 'confirmed')} disabled={updatingId === apt.id} className="px-2 py-1 bg-green-50 text-green-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-green-100 transition-all border border-green-200 disabled:opacity-50 shadow-sm">
+                                  <button onClick={() => updateStatus(res.id, 'confirmed')} disabled={updatingId === res.id} className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs hover:bg-green-100 transition-all border border-green-200 disabled:opacity-50">
                                     Confirm
                                   </button>
-                                  <button onClick={() => updateMasterResStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50 shadow-sm">
+                                  <button onClick={() => updateStatus(res.id, 'cancelled')} disabled={updatingId === res.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
                                     Cancel
                                   </button>
                                 </>
                               )}
-                              {apt.status === 'confirmed' && (
-                                <button onClick={() => updateMasterResStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50 shadow-sm">
-                                  Cancel
-                                </button>
+                              {res.status === 'confirmed' && (
+                                <>
+                                  <button onClick={() => updateStatus(res.id, 'completed')} disabled={updatingId === res.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
+                                    Complete
+                                  </button>
+                                  <button onClick={() => updateStatus(res.id, 'cancelled')} disabled={updatingId === res.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
+                                    Cancel
+                                  </button>
+                                </>
                               )}
-                              {apt.status === 'checked_in' && (
-                                <button onClick={() => updateMasterResStatus(apt.id, 'checked_out')} disabled={updatingId === apt.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50 shadow-sm">
-                                  Complete
-                                </button>
-                              )}
-                              {(apt.status === 'cancelled' || apt.status === 'checked_out' || apt.status === 'completed') && (
-                                <button onClick={() => updateMasterResStatus(apt.id, 'pending')} disabled={updatingId === apt.id} className="px-2 py-1 bg-amber-50 text-amber-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-amber-100 transition-all border border-amber-200 disabled:opacity-50 shadow-sm">
+                              {(res.status === 'cancelled' || res.status === 'completed') && (
+                                <button onClick={() => updateStatus(res.id, 'pending')} disabled={updatingId === res.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
                                   Reopen
                                 </button>
                               )}
-                              <button onClick={() => { setActiveTab('frontdesk'); }} className="px-3 py-1.5 bg-[#00754A] text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-[#006241] transition-all shadow-sm ml-1">
-                                Manage
+                              <button onClick={() => sendSMSReminder(apt)} className="px-2 py-1 bg-cyan-50 text-cyan-600 rounded text-xs hover:bg-cyan-100 transition-all border border-cyan-200" title="Send SMS Reminder">
+                                📱
+                              </button>
+                              <button onClick={() => printSlip(apt)} className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs hover:bg-gray-100 transition-all border border-gray-200" title="Print Appointment Slip">
+                                🖨️
                               </button>
                             </div>
                           </div>
@@ -2708,22 +2654,22 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/[0.03]">
-                          {appointments.length === 0 ? (
+                          {reservations.length === 0 ? (
                             <tr><td colSpan="6" className="px-6 py-12 text-center text-black/60 italic text-xs">No stay records found for billing.</td></tr>
-                          ) : appointments.map((apt, i) => (
+                          ) : reservations.map((apt, i) => (
                             <tr key={i} onClick={() => openFolio(apt)} className="hover:bg-white/[0.03] transition-all group cursor-pointer text-xs">
                               <td className="px-6 py-4">
-                                <span className="font-mono font-bold text-[#00754A]">#{apt.id}</span>
-                                <span className="text-[9px] text-black/60 ml-2">{new Date(apt.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                <span className="font-mono font-bold text-[#00754A]">#{res.id}</span>
+                                <span className="text-[9px] text-black/60 ml-2">{new Date(res.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                               </td>
-                              <td className="px-6 py-4 font-bold text-black/60">{apt.full_name}</td>
+                              <td className="px-6 py-4 font-bold text-black/60">{res.full_name}</td>
                               <td className="px-6 py-4">
-                                <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{apt.room_number || 'TBA'}</span>
+                                <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{res.room_number || 'TBA'}</span>
                               </td>
-                              <td className="px-6 py-4 text-black/60">{apt.service_type || apt.room_type}</td>
+                              <td className="px-6 py-4 text-black/60">{res.service_type || res.room_type}</td>
                               <td className="px-6 py-4">
-                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
-                                  {apt.status}
+                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(res.status)}`}>
+                                  {res.status}
                                 </div>
                               </td>
                               <td className="px-6 py-4 text-right">
@@ -2739,7 +2685,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
 
                     <div className="px-6 py-3 bg-white/[0.02] border-t border-black/5 flex items-center justify-between text-[9px] font-bold text-black/60 uppercase">
-                      <span>{appointments.length} Stay Records Found</span>
+                      <span>{reservations.length} Stay Records Found</span>
                     </div>
                   </div>
                 </div>
@@ -2807,7 +2753,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
                 for (let day = 1; day <= daysInMonth; day++) {
                   const dateStr = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                  const dayAppointments = calendarData.appointments?.filter(a => a.preferred_date === dateStr) || [];
+                  const dayAppointments = calendarData.reservations?.filter(a => a.preferred_date === dateStr) || [];
                   const isBlocked = calendarData.blockedDates?.some(b => b.blocked_date === dateStr);
                   const isToday = dateStr === new Date().toISOString().split('T')[0];
 
@@ -2828,13 +2774,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       {dayAppointments.slice(0, 3).map((apt, idx) => (
                         <div
                           key={idx}
-                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
-                            apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
-                              apt.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
+                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${res.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
+                            res.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
+                              res.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
                                 'bg-white shadow-sm text-black/60'
                             }`}
                         >
-                          {apt.full_name.split(' ')[0]}
+                          {res.full_name.split(' ')[0]}
                         </div>
                       ))}
                       {dayAppointments.length > 3 && (
@@ -2871,7 +2817,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     {/* Sub-tab navigation */}
                     <div className="flex gap-2 flex-wrap">
                       {[
-                        { id: 'appointments', label: 'Appointments' },
+                        { id: 'reservations', label: 'Appointments' },
                         { id: 'management', label: 'Stay Reports' },
                         { id: 'financial', label: 'Financials' },
                       ].map(sub => (
@@ -2891,7 +2837,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
 
                     {/* ── Appointments sub-tab (existing) ── */}
-                    {reportsSubTab === 'appointments' && (
+                    {reportsSubTab === 'reservations' && (
                       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                         {/* Appointments filter bar */}
                         <div className="bg-white rounded-xl p-6" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
@@ -4692,10 +4638,12 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
         <p className="text-black/60 font-medium leading-relaxed mb-8">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
 
         {room.amenities && (
-          <div className="mb-8 px-2 sm:px-4">
-            <p className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium">
-              {room.amenities}
-            </p>
+          <div className="mb-8 px-2 sm:px-4 flex flex-col gap-3">
+            {room.amenities.split(/(?=FEATURES:)/i).map((part, idx) => (
+              <p key={idx} className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium">
+                {part.trim()}
+              </p>
+            ))}
           </div>
         )}
 
@@ -9187,12 +9135,12 @@ function FrontDeskTab() {
     const inp = (field, placeholder, type = 'text', extra = {}) => (
       <input type={type} placeholder={placeholder} value={gpForm[field] || ''}
         onChange={e => setGpForm(f => ({ ...f, [field]: e.target.value }))}
-        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-[#00754A]/30 transition-colors"
+        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors"
         {...extra} />
     );
     const sel = (field, opts) => (
       <select value={gpForm[field] || ''} onChange={e => setGpForm(f => ({ ...f, [field]: e.target.value }))}
-        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-[#00754A]/30 transition-colors">
+        className="w-full px-2 py-1 bg-[#1e2a3a] border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors">
         <option value="">—</option>
         {opts.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -9200,23 +9148,23 @@ function FrontDeskTab() {
     const divider = (title) => (
       <div className="flex items-center gap-2 mt-3 mb-2">
         <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">{title}</span>
-        <div className="flex-1 h-px bg-black/5" />
+        <div className="flex-1 h-px bg-white shadow-sm" />
       </div>
     );
     const nights = nightsCount(gpRes);
     return ReactDOM.createPortal(
       <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
         <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl overflow-hidden"
-          className="relative bg-white shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden">
+          style={{ background: '#111827', border: '1px solid rgba(255,255,255,0.12)' }}>
           {/* Header */}
-          <div className="bg-[#00754A] flex items-center justify-between px-6 py-4">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/5">
             <div>
-              <div className="text-white font-bold text-lg">Guest Profile</div>
-              <div className="text-emerald-100 text-sm mt-0.5">
+              <div className="text-[#000000]/87 font-semibold text-sm">Guest Profile</div>
+              <div className="text-black/60 text-[11px] mt-0.5">
                 Room {gpRes.room_number || '—'} &middot; {gpRes.room_type_name || gpRes.room_type} &middot; {fmtDate(gpRes.check_in_date)} – {fmtDate(gpRes.check_out_date)} ({nights} nights)
               </div>
             </div>
-            <button onClick={() => setGpOpen(false)} className="text-emerald-200 hover:text-white text-2xl font-bold leading-none transition-colors ml-2 mb-1">&times;</button>
+            <button onClick={() => setGpOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-lg leading-none transition-colors">&times;</button>
           </div>
 
           {/* Scrollable body */}
@@ -9254,7 +9202,7 @@ function FrontDeskTab() {
               <div>{lbl('Payment Method')}{sel('payment_method', ['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'])}</div>
               <div className="col-span-2">{lbl('Deposit Amount')}<input type="number" min="0" step="0.01" placeholder="0.00" value={gpForm.deposit_amount || ''}
                 onChange={e => setGpForm(f => ({ ...f, deposit_amount: e.target.value }))}
-                className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-[#00754A]/30 transition-colors" /></div>
+                className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors" /></div>
             </div>
 
             {divider('REMARKS')}
@@ -9280,7 +9228,7 @@ function FrontDeskTab() {
                 Close
               </button>
               <button onClick={saveGuestProfile} disabled={gpSaving}
-                className="px-4 py-2 text-xs font-bold bg-[#00754A] hover:bg-[#006241] text-white rounded-lg uppercase tracking-widest transition-colors disabled:opacity-50">
+                className="px-4 py-1.5 text-xs font-semibold bg-[#576CA8] hover:bg-[#4a5d9a] text-[#000000]/87 rounded transition-colors disabled:opacity-50">
                 {gpSaving ? 'Saving…' : 'Save Profile'}
               </button>
             </div>
@@ -9845,7 +9793,7 @@ function FrontDeskTab() {
                           {/* Guest Profile */}
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Guest Profile</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div>
@@ -9899,7 +9847,7 @@ function FrontDeskTab() {
                           {/* Contact */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Contact Information</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div className="col-span-2">
@@ -9927,7 +9875,7 @@ function FrontDeskTab() {
                           {/* Identification */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Identification</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                             <div>
@@ -9955,7 +9903,7 @@ function FrontDeskTab() {
                           {/* Stay Details */}
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Stay Details</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div className="col-span-2">
@@ -10083,7 +10031,7 @@ function FrontDeskTab() {
                           {/* Payment */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Payment</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div className="col-span-2">
@@ -10113,7 +10061,7 @@ function FrontDeskTab() {
                           {/* Remarks */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Remarks</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                             <div>
@@ -10245,7 +10193,7 @@ function FrontDeskTab() {
                           <div key={floor} className="mb-6">
                             <div className="flex items-center gap-2 mb-3">
                               <span className="text-xs font-bold text-black/60 uppercase tracking-widest">Floor {floor}</span>
-                              <div className="flex-1 h-px bg-black/5" />
+                              <div className="flex-1 h-px bg-white shadow-sm" />
                               <span className="text-xs text-black/60">{byFloor[floor].length} room{byFloor[floor].length !== 1 ? 's' : ''}</span>
                             </div>
                             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
@@ -10795,15 +10743,16 @@ function FrontDeskTab() {
       {transferGuest && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
+            className="rounded-2xl border border-black/5 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
+            style={{ background: 'rgba(20,25,40,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
           >
-            <div className="bg-[#00754A] flex items-center justify-between px-6 py-5">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-black/5" style={{ background: '#ffffff' }}>
               <div>
-                <div className="text-white font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
-                <div className="text-emerald-100 text-xs mt-0.5">Assign a new room for this guest</div>
+                <div className="text-[#000000]/87 font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
+                <div className="text-black/60 text-xs mt-0.5">Assign a new room for this guest</div>
               </div>
-              <button onClick={() => setTransferGuest(null)} className="text-emerald-200 hover:text-white text-xl font-bold transition-colors leading-none ml-2 mb-1">✕</button>
+              <button onClick={() => setTransferGuest(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors leading-none">✕</button>
             </div>
             {transferSuccess ? (
               <div className="px-6 py-12 text-center">
@@ -10817,7 +10766,10 @@ function FrontDeskTab() {
             ) : (
               <div className="p-6 space-y-5">
                 {/* Current guest info */}
-                <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 flex items-center justify-between">
+                <div
+                  className="border border-black/5 rounded-xl px-4 py-3 flex items-center justify-between"
+                  style={{ background: 'rgba(255,255,255,0.12)' }}
+                >
                   <div>
                     <div className="text-[10px] text-black/60 font-semibold uppercase tracking-wide mb-0.5">
                       Current Assignment
@@ -10841,7 +10793,7 @@ function FrontDeskTab() {
                         setTransferRoomNumber('');
                       }}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${transferRoomType === ''
-                        ? 'bg-[#00754A]/20 border-[#00754A]/30 text-[#00754A] shadow-sm'
+                        ? 'bg-teal-500/50 border-teal-400/60 text-[#000000]/87 shadow-sm'
                         : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
                         }`}
                     >
@@ -10858,7 +10810,7 @@ function FrontDeskTab() {
                             setTransferRoomNumber('');
                           }}
                           className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isSelected
-                            ? 'bg-[#00754A]/20 border-[#00754A]/30 text-[#00754A] shadow-sm'
+                            ? 'bg-blue-500/50 border-blue-400/60 text-[#000000]/87 shadow-sm'
                             : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
                             }`}
                         >
@@ -10870,7 +10822,7 @@ function FrontDeskTab() {
                     })}
                   </div>
                   {transferRoomType && transferRoomType !== transferGuest?.room_type && (
-                    <p className="mt-2 text-xs text-[#00754A] font-medium">Filtering: {transferRoomType}</p>
+                    <p className="mt-2 text-xs text-blue-300 font-medium">Filtering: {transferRoomType}</p>
                   )}
                 </div>
 
@@ -10929,7 +10881,7 @@ function FrontDeskTab() {
                               onClick={() => setTransferRoomNumber(isSelected ? '' : r.room_number)}
                               title={`Room ${r.room_number} — ${cfg.label}`}
                               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${isSelected
-                                ? 'bg-[#00754A]/20 border-[#00754A]/30 text-[#00754A]'
+                                ? 'bg-blue-500/40 border-blue-400/60'
                                 : isCurrent
                                   ? 'bg-white shadow-sm border-black/5 opacity-50 cursor-not-allowed'
                                   : !isAvailable
@@ -10963,7 +10915,10 @@ function FrontDeskTab() {
 
                 {/* Transfer summary */}
                 {transferRoomNumber && (
-                  <div className="bg-[#00754A]/5 border border-[#00754A]/20 rounded-xl px-5 py-3 flex items-center gap-4">
+                  <div
+                    className="border border-black/5 rounded-xl px-5 py-3 flex items-center gap-4"
+                    style={{ background: 'rgba(59, 130, 246, 0.1)' }}
+                  >
                     <div className="text-center min-w-[3rem]">
                       <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">From</div>
                       <div className="text-2xl font-black font-mono text-black/60">{transferGuest?.room_number}</div>
@@ -10975,7 +10930,7 @@ function FrontDeskTab() {
                     </div>
                     <div className="text-center min-w-[3rem]">
                       <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">To</div>
-                      <div className="text-2xl font-black font-mono text-[#00754A]">{transferRoomNumber}</div>
+                      <div className="text-2xl font-black font-mono text-blue-300">{transferRoomNumber}</div>
                     </div>
                   </div>
                 )}
@@ -11022,26 +10977,26 @@ function FrontDeskTab() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setFolioOpen(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="bg-[#00754A] flex items-start justify-between px-6 py-4">
+            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
               <div>
-                <h2 className="text-lg font-bold text-white">Guest Folio</h2>
-                <p className="text-sm text-emerald-100 mt-0.5">
+                <h2 className="text-lg font-bold text-gray-900">Guest Folio</h2>
+                <p className="text-sm text-gray-500 mt-0.5">
                   {folioRes.full_name} &nbsp;&middot;&nbsp; Room {folioRes.room_number || '—'} &nbsp;&middot;&nbsp; {folioRes.room_type}
                 </p>
-                <p className="text-xs text-emerald-100/70 mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   {fmtDate(folioRes.check_in_date)} &rarr; {fmtDate(folioRes.check_out_date)} &nbsp;({nightsCount(folioRes)} nights)
                 </p>
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <button onClick={printFolio} title="Print folio"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all">
                   🖨 Print
                 </button>
                 <button onClick={sendFolioEmail} disabled={folioEmailSending} title="Email folio to guest"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-full transition-all disabled:opacity-50">
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full transition-all disabled:opacity-50">
                   {folioEmailSending ? '...' : '✉ Email'}
                 </button>
-                <button onClick={() => setFolioOpen(false)} className="text-emerald-200 hover:text-white text-xl font-bold leading-none ml-1">&#10005;</button>
+                <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none ml-1">&#10005;</button>
               </div>
             </div>
             {folioEmailMsg && (
@@ -11058,13 +11013,13 @@ function FrontDeskTab() {
               <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
                 {/* Balance summary */}
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-[#00754A]/5 rounded-xl p-3 text-center">
-                    <div className="text-xs text-[#00754A]/80 font-semibold uppercase tracking-wide mb-1">Total Charges</div>
-                    <div className="text-lg font-bold text-[#00754A]">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                  <div className="bg-blue-50 rounded-xl p-3 text-center">
+                    <div className="text-xs text-blue-500 font-semibold uppercase tracking-wide mb-1">Total Charges</div>
+                    <div className="text-lg font-bold text-blue-700">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
-                  <div className="bg-emerald-500/10 rounded-xl p-3 text-center">
-                    <div className="text-xs text-emerald-600 font-semibold uppercase tracking-wide mb-1">Total Payments</div>
-                    <div className="text-lg font-bold text-emerald-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                  <div className="bg-green-50 rounded-xl p-3 text-center">
+                    <div className="text-xs text-green-500 font-semibold uppercase tracking-wide mb-1">Total Payments</div>
+                    <div className="text-lg font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
                   <div className={`rounded-xl p-3 text-center ${folioTotals.balance > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
                     <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${folioTotals.balance > 0 ? 'text-red-500' : 'text-gray-400'}`}>Balance Due</div>
@@ -11102,16 +11057,16 @@ function FrontDeskTab() {
                       </div>
                     )}
                   </div>
-                  <div className="mt-3 bg-[#00754A]/5 rounded-xl p-3 space-y-2">
-                    <div className="text-xs font-semibold text-[#00754A] uppercase tracking-wide">Post Charge</div>
+                  <div className="mt-3 bg-blue-50 rounded-xl p-3 space-y-2">
+                    <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Post Charge</div>
                     <div className="flex gap-2 flex-wrap">
-                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-[#00754A]/20 rounded-lg bg-white text-gray-700 focus:outline-none">
+                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none">
                         {['Room Charge', 'Food & Beverage', 'Minibar', 'Laundry', 'Parking', 'Damage', 'Miscellaneous'].map(t => <option key={t}>{t}</option>)}
                       </select>
-                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-[#00754A]/20 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
                       <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
                       <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-[#00754A] hover:bg-[#006241] disabled:opacity-50 text-white text-sm font-semibold rounded-full transition-colors">
+                      <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
                         {fcSaving ? '...' : '+ Add'}
                       </button>
                     </div>
@@ -11148,15 +11103,15 @@ function FrontDeskTab() {
                       </div>
                     )}
                   </div>
-                  <div className="mt-3 bg-emerald-500/10 rounded-xl p-3 space-y-2">
-                    <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Record Payment</div>
+                  <div className="mt-3 bg-green-50 rounded-xl p-3 space-y-2">
+                    <div className="text-xs font-semibold text-green-600 uppercase tracking-wide">Record Payment</div>
                     <div className="flex gap-2 flex-wrap">
-                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-emerald-500/30 rounded-lg bg-white text-gray-700 focus:outline-none">
+                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none">
                         {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'].map(m => <option key={m}>{m}</option>)}
                       </select>
-                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-emerald-500/30 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-emerald-500/30 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold rounded-full transition-colors">
+                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
                         {fpSaving ? '...' : '+ Pay'}
                       </button>
                     </div>

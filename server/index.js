@@ -213,6 +213,17 @@ const initFolioTables = async () => {
 };
 initFolioTables().catch(err => console.error('Folio table init failed:', err));
 
+const initNightAuditTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hotel_night_audit_logs (
+      audit_date DATE PRIMARY KEY,
+      run_by TEXT,
+      total_charges_posted INTEGER DEFAULT 0,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+};
+initNightAuditTable().catch(err => console.error('Night audit table init failed:', err));
 
 const initGuestCheckinColumn = async () => {
   await pool.query(`ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_arrived_at TIMESTAMP`);
@@ -412,7 +423,36 @@ app.post('/api/reservations', async (req, res) => {
 // GET /api/reservations — list all reservations (admin)
 app.get('/api/reservations', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM hotel_reservations ORDER BY created_at DESC');
+    const { query, startDate, endDate, status } = req.query;
+    
+    let sql = 'SELECT * FROM hotel_reservations WHERE 1=1';
+    const params = [];
+    let paramIdx = 1;
+
+    if (query) {
+      sql += ` AND (full_name ILIKE $${paramIdx} OR email ILIKE $${paramIdx} OR phone_number ILIKE $${paramIdx})`;
+      params.push(`%${query}%`);
+      paramIdx++;
+    }
+    if (startDate) {
+      sql += ` AND check_in_date >= $${paramIdx}`;
+      params.push(startDate);
+      paramIdx++;
+    }
+    if (endDate) {
+      sql += ` AND check_in_date <= $${paramIdx}`;
+      params.push(endDate);
+      paramIdx++;
+    }
+    if (status && status !== 'all') {
+      sql += ` AND status = $${paramIdx}`;
+      params.push(status);
+      paramIdx++;
+    }
+
+    sql += ' ORDER BY created_at DESC';
+
+    const result = await pool.query(sql, params);
     res.json({ success: true, reservations: result.rows });
   } catch (error) {
     console.error('Error fetching reservations:', error);
@@ -3539,6 +3579,55 @@ app.get('/api/export/queue-tickets', async (req, res) => {
   } catch (error) {
     console.error('Queue export error:', error);
     res.status(500).json({ success: false, message: 'Failed to export queue data' });
+  }
+});
+
+// POST /api/admin/night-audit - Run End of Day room rate posting
+app.post('/api/admin/night-audit', async (req, res) => {
+  try {
+    // 1. Check if audit already run for today
+    const checkAudit = await pool.query(`SELECT * FROM hotel_night_audit_logs WHERE audit_date = CURRENT_DATE`);
+    if (checkAudit.rows.length > 0) {
+      return res.status(400).json({ success: false, message: 'Night audit has already been run for today.' });
+    }
+
+    // 2. Fetch all checked-in reservations and determine their room rate
+    const resResult = await pool.query(`
+      SELECT res.id, res.room_type, res.rate_code, 
+             rt.price_per_night as base_price,
+             rcp.price_per_night as discounted_price
+      FROM hotel_reservations res
+      JOIN hotel_room_types rt ON rt.name = res.room_type
+      LEFT JOIN hotel_rate_codes rc ON rc.code = res.rate_code
+      LEFT JOIN hotel_rate_code_prices rcp ON rcp.rate_code_id = rc.id AND rcp.room_type_id = rt.id
+      WHERE res.status = 'checked_in'
+    `);
+
+    const checkedInGuests = resResult.rows;
+    let chargesPosted = 0;
+
+    // 3. Post charges
+    for (const guest of checkedInGuests) {
+      const priceToCharge = guest.discounted_price !== null ? guest.discounted_price : guest.base_price;
+      if (priceToCharge > 0) {
+        await pool.query(`
+          INSERT INTO hotel_folio_items (reservation_id, charge_type, description, quantity, unit_price, amount)
+          VALUES ($1, $2, $3, $4, $5, $6)
+        `, [guest.id, 'Room Rate', 'Daily Room Charge', 1, priceToCharge, priceToCharge]);
+        chargesPosted++;
+      }
+    }
+
+    // 4. Record audit completion
+    await pool.query(`
+      INSERT INTO hotel_night_audit_logs (audit_date, run_by, total_charges_posted)
+      VALUES (CURRENT_DATE, 'Admin', $1)
+    `, [chargesPosted]);
+
+    res.json({ success: true, message: `Night audit complete. Posted ${chargesPosted} room charges.`, chargesPosted });
+  } catch (err) {
+    console.error('Night audit error:', err);
+    res.status(500).json({ success: false, message: 'Failed to run night audit.' });
   }
 });
 
