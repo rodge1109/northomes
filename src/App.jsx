@@ -2761,8 +2761,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     <div
                       key={day}
                       className={`min-h-[100px] p-2 rounded-2xl border transition-all ${isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
-                          isToday ? 'bg-[#00754A]/10 border-[#00754A]' :
-                            'bg-white/[0.03] border-black/5 hover:border-black/5'
+                        isToday ? 'bg-[#00754A]/10 border-[#00754A]' :
+                          'bg-white/[0.03] border-black/5 hover:border-black/5'
                         }`}
                     >
                       <div className={`text-xs font-black mb-2 ${isToday ? 'text-[#00754A]' : isBlocked ? 'text-rose-400' : 'text-black/60'}`}>
@@ -2775,9 +2775,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         <div
                           key={idx}
                           className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
-                              apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
-                                apt.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
-                                  'bg-white shadow-sm text-black/60'
+                            apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
+                              apt.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
+                                'bg-white shadow-sm text-black/60'
                             }`}
                         >
                           {apt.full_name.split(' ')[0]}
@@ -4761,7 +4761,7 @@ function ContactPage({ setCurrentPage }) {
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Email Address</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
                     General Inquiries:<br />
-                    <a href="mailto:rodge.tonacao@gmail.com" className="text-[#00754A] font-bold hover:underline">rodge.tonacao@gmail.com</a>
+                    <a href="mailto:info@northomespensione.com" className="text-[#00754A] font-bold hover:underline"></a>
                   </p>
                 </div>
               </div>
