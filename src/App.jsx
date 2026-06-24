@@ -485,27 +485,43 @@ export default function RestaurantApp() {
       </div>
 
       {/* ── Global Admin Sidebar ── */}
-      {['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) && (
+      {['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
         <aside style={{ position: 'fixed', top: 0, left: 0, width: '120px', height: '100vh', background: '#142b22', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.08)', zIndex: 200 }}>
           {/* Primary nav */}
           <nav style={{ flex: 1, padding: '12px 6px', overflowY: 'auto' }} className="no-scrollbar">
             {[
-              { id: 'dashboard',    label: 'Dashboard',   tabId: 'dashboard',    act: () => { setAdminTab('dashboard'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 006 3.75h2.25A2.25 2.25 0 0010.5 6v2.25a2.25 2.25 0 00-2.25 2.25H6a2.25 2.25 0 00-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 006 18h2.25a2.25 2.25 0 002.25-2.25V13.5a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25v2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg> },
-              { id: 'reservations', label: 'Bookings',    tabId: 'reservations', act: () => { setAdminTab('reservations'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg> },
-              { id: 'frontdesk',    label: 'Front Desk',  tabId: 'frontdesk',    act: () => { setAdminTab('frontdesk'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg> },
-              { id: 'rooms',        label: 'Rooms',       tabId: 'rooms',        act: () => { setAdminTab('rooms'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg> },
-              { id: 'housekeeping', label: 'Service',     tabId: 'housekeeping', act: () => { setAdminTab('housekeeping'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/></svg> },
-              { id: 'billing',      label: 'Billing',     tabId: 'billing',      act: () => { setAdminTab('billing'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg> },
-              { id: 'reports',      label: 'Reports',     tabId: 'reports',      act: () => { setAdminTab('reports'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg> },
-              { id: 'settings',     label: 'Settings',    tabId: 'settings',     act: () => { setAdminTab('settings'); setCurrentPage('admin'); },
-                icon: <svg style={{width:20,height:20}} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg> },
+              {
+                id: 'dashboard', label: 'Dashboard', tabId: 'dashboard', act: () => { setAdminTab('dashboard'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 006 3.75h2.25A2.25 2.25 0 0010.5 6v2.25a2.25 2.25 0 00-2.25 2.25H6a2.25 2.25 0 00-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 006 18h2.25a2.25 2.25 0 002.25-2.25V13.5a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25v2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+              },
+              {
+                id: 'reservations', label: 'Bookings', tabId: 'reservations', act: () => { setAdminTab('reservations'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+              },
+              {
+                id: 'frontdesk', label: 'Front Desk', tabId: 'frontdesk', act: () => { setAdminTab('frontdesk'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+              },
+              {
+                id: 'rooms', label: 'Rooms', tabId: 'rooms', act: () => { setAdminTab('rooms'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg>
+              },
+              {
+                id: 'housekeeping', label: 'Service', tabId: 'housekeeping', act: () => { setAdminTab('housekeeping'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" /></svg>
+              },
+              {
+                id: 'billing', label: 'Billing', tabId: 'billing', act: () => { setAdminTab('billing'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z" /></svg>
+              },
+              {
+                id: 'reports', label: 'Reports', tabId: 'reports', act: () => { setAdminTab('reports'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
+              },
+              {
+                id: 'settings', label: 'Settings', tabId: 'settings', act: () => { setAdminTab('settings'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              },
             ].map(item => {
               const isActive = (currentPage === 'admin' && adminTab === item.tabId) || (item.id === 'frontdesk' && currentPage === 'frontdesk');
               return (
@@ -532,8 +548,8 @@ export default function RestaurantApp() {
         </aside>
       )}
 
-      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: ['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) ? '150px' : 0 }}>
-        {!['admin','frontdesk','checkin','queue','queue-teller'].includes(currentPage) && (
+      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: ['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) ? '150px' : 0 }}>
+        {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
           <Header
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
@@ -586,71 +602,7 @@ export default function RestaurantApp() {
           />
         )}
 
-        {/* Mobile Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-[#F5F3F5] border-t border-[#F5F3F5] md:hidden z-50 pb-safe">
-          <div className="flex justify-around items-center py-2">
-            <button
-              onClick={() => setCurrentPage('home')}
-              className={`flex flex-col items-center px-4 py-1 ${currentPage === 'home' ? 'text-[#302B27]' : 'text-[#302B27]'}`}
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span className="text-xs font-medium">Home</span>
-            </button>
-            <button
-              onClick={() => setCurrentPage('checkin')}
-              className={`flex flex-col items-center px-4 py-1 ${currentPage === 'checkin' ? 'text-[#576CA8]' : 'text-[#302B27]'}`}
-            >
-              <span className="text-xl leading-none">🏨</span>
-              <span className="text-xs font-medium mt-0.5">Check In</span>
-            </button>
-            <button
-              onClick={() => setCurrentPage('frontdesk')}
-              className={`flex flex-col items-center px-4 py-1 ${currentPage === 'frontdesk' ? 'text-[#576CA8]' : 'text-[#302B27]'}`}
-            >
-              <span className="text-xl leading-none">🛎️</span>
-              <span className="text-xs font-medium mt-0.5">Front Desk</span>
-            </button>
-            <div className="relative">
-              <button
-                onClick={() => setShowLoginMenu(!showLoginMenu)}
-                className={`flex flex-col items-center px-4 py-1 ${showLoginMenu ? 'text-[#576CA8]' : 'text-[#302B27]'}`}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                <span className="text-xs font-medium">Login</span>
-              </button>
-              {showLoginMenu && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowLoginMenu(false)} />
-                  <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 w-44 z-50">
-                    <button
-                      onClick={() => { setCurrentPage('queue-teller'); setShowLoginMenu(false); }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                      </svg>
-                      Teller Station
-                    </button>
-                    <button
-                      onClick={() => { setCurrentPage('admin'); setShowLoginMenu(false); }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 flex items-center gap-2"
-                    >
-                      <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      </svg>
-                      Admin Panel
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </nav>
+
       </div>
     </CartContext.Provider>
   );
@@ -857,8 +809,8 @@ function AppointmentForm({ onSuccess }) {
         {/* Status message */}
         {submitStatus.message && (
           <div className={`mb-6 p-4 rounded-xl text-sm flex items-start gap-3 ${submitStatus.type === 'success'
-              ? 'bg-green-50 text-green-800 border border-green-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+            ? 'bg-green-50 text-green-800 border border-green-200'
+            : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
             <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {submitStatus.type === 'success'
@@ -982,7 +934,7 @@ function AppointmentForm({ onSuccess }) {
             <div className="grid grid-cols-12 gap-3 mb-3">
               <div className="col-span-3">
                 <label className={labelCls}>Title</label>
-                <select name="title" value={formData.title} onChange={handleChange} 
+                <select name="title" value={formData.title} onChange={handleChange}
                   style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   <option style={{ background: '#1e293b', color: 'white' }}>Mr.</option>
@@ -1060,7 +1012,7 @@ function AppointmentForm({ onSuccess }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelCls}>Adults</label>
-                <select name="adults" value={formData.adults} onChange={handleChange} required 
+                <select name="adults" value={formData.adults} onChange={handleChange} required
                   style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[1, 2, 3, 4, 5, 6].map(n => (
@@ -1070,7 +1022,7 @@ function AppointmentForm({ onSuccess }) {
               </div>
               <div>
                 <label className={labelCls}>Children <span className="normal-case font-normal text-gray-400">(under 12)</span></label>
-                <select name="children" value={formData.children} onChange={handleChange} 
+                <select name="children" value={formData.children} onChange={handleChange}
                   style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[0, 1, 2, 3, 4, 5].map(n => (
@@ -1159,7 +1111,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const [folioTotals, setFolioTotals] = useState({ charges: 0, payments: 0, balance: 0 });
   const [folioLoading, setFolioLoading] = useState(false);
   const [folioError, setFolioError] = useState('');
-  
+
   // Charge form state
   const [fcType, setFcType] = useState('Room Charge');
   const [fcDesc, setFcDesc] = useState('');
@@ -1167,14 +1119,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const [fcPrice, setFcPrice] = useState('');
   const [fcSaving, setFcSaving] = useState(false);
   const [fcError, setFcError] = useState('');
-  
+
   // Payment form state
   const [fpMethod, setFpMethod] = useState('Cash');
   const [fpAmount, setFpAmount] = useState('');
   const [fpRef, setFpRef] = useState('');
   const [fpSaving, setFpSaving] = useState(false);
   const [fpError, setFpError] = useState('');
-  
+
   const [folioEmailSending, setFolioEmailSending] = useState(false);
   const [folioEmailMsg, setFolioEmailMsg] = useState('');
 
@@ -1274,7 +1226,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
     const fmtA = (n) => `₱${parseFloat(n).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
     const nights = Math.round((new Date(folioRes.check_out_date) - new Date(folioRes.check_in_date)) / 86400000);
-    
+
     const chargeRows = folioItems.map(i => `
       <tr style="${i.voided ? 'opacity:0.4;text-decoration:line-through;' : ''}">
         <td>${i.charge_type}</td><td>${i.description || '—'}</td>
@@ -1610,11 +1562,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending':   return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+      case 'pending': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
       case 'confirmed': return 'bg-[#00754A]/10 text-[#00754A] border-[#00754A]/20';
       case 'completed': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'cancelled': return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
-      default:          return 'bg-white shadow-sm text-black/60 border-black/5';
+      default: return 'bg-white shadow-sm text-black/60 border-black/5';
     }
   };
 
@@ -1692,9 +1644,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setHotelRptLoading(true);
     const params = new URLSearchParams();
     if (hotelRptStart) params.append('startDate', hotelRptStart);
-    if (hotelRptEnd)   params.append('endDate',   hotelRptEnd);
+    if (hotelRptEnd) params.append('endDate', hotelRptEnd);
     try {
-      const res  = await fetch(`${API_BASE_URL}/api/reports/hotel/management?${params}`);
+      const res = await fetch(`${API_BASE_URL}/api/reports/hotel/management?${params}`);
       const data = await res.json();
       if (data.success) setMgmtData(data);
     } catch (e) { console.error(e); }
@@ -1705,13 +1657,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setHotelRptLoading(true);
     const params = new URLSearchParams();
     if (hotelRptStart) params.append('startDate', hotelRptStart);
-    if (hotelRptEnd)   params.append('endDate',   hotelRptEnd);
+    if (hotelRptEnd) params.append('endDate', hotelRptEnd);
     try {
       const [finRes, dailyRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/reports/hotel/financial?${params}`).then(r => r.json()),
         fetch(`${API_BASE_URL}/api/reports/hotel/daily?${params}`).then(r => r.json()),
       ]);
-      if (finRes.success)   setFinData(finRes);
+      if (finRes.success) setFinData(finRes);
       if (dailyRes.success) setDailyRevData(dailyRes.daily);
     } catch (e) { console.error(e); }
     setHotelRptLoading(false);
@@ -1720,7 +1672,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const fetchMonthlyReport = async () => {
     setHotelRptLoading(true);
     try {
-      const res  = await fetch(`${API_BASE_URL}/api/reports/hotel/monthly?year=${finYear}`);
+      const res = await fetch(`${API_BASE_URL}/api/reports/hotel/monthly?year=${finYear}`);
       const data = await res.json();
       if (data.success) setMonthlyRevData(data.monthly);
     } catch (e) { console.error(e); }
@@ -2159,12 +2111,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Dashboard
   return (
     <div className="bg-[#1E3932] min-h-screen pt-[70px] pb-24">
-        {activeTab === 'queue' && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 10, pointerEvents: 'none', mixBlendMode: 'screen' }}>
-            <Orb hoverIntensity={2} rotateOnHover hue={0} forceHoverState={false} backgroundColor="#000000" />
-          </div>
-        )}
-        <div className="w-full px-4 md:px-8 py-6">
+      {activeTab === 'queue' && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10, pointerEvents: 'none', mixBlendMode: 'screen' }}>
+          <Orb hoverIntensity={2} rotateOnHover hue={0} forceHoverState={false} backgroundColor="#000000" />
+        </div>
+      )}
+      <div className="w-full px-4 md:px-8 py-6">
 
         {/* ==================== DASHBOARD TAB ==================== */}
         {activeTab === 'dashboard' && (
@@ -2182,72 +2134,72 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
                 <div className="p-6 md:p-8 flex-1 overflow-y-auto">
                   <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            {/* Main Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg> },
-                { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15"/></svg> },
-                { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg> },
-                { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg> },
-              ].map((stat, i) => (
-                <div key={i} className="rounded-xl p-5 bg-white group hover:scale-[1.01] transition-all cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                  <div className="flex justify-between items-start mb-3">
-                    <span className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em]">{stat.label}</span>
-                    <span className="text-[#006241] opacity-60 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
-                  </div>
-                  <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
-                </div>
-              ))}
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Recent Activity */}
-              <div className="lg:col-span-2 rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]"></span>
-                  Recent Activity
-                </h3>
-                <div className="space-y-3">
-                  {appointments.slice(0, 5).map((apt, i) => (
-                    <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-[#f2f0eb] hover:bg-[#edebe9] transition-all group" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
-                      <div className="flex items-center gap-3.5">
-                        <div className="w-9 h-9 rounded-xl bg-[#1E3932] flex items-center justify-center text-white font-black text-sm">
-                          {apt.full_name.charAt(0)}
+                    {/* Main Stats */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      {[
+                        { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg> },
+                        { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15" /></svg> },
+                        { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg> },
+                        { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg> },
+                      ].map((stat, i) => (
+                        <div key={i} className="rounded-xl p-5 bg-white group hover:scale-[1.01] transition-all cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                          <div className="flex justify-between items-start mb-3">
+                            <span className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em]">{stat.label}</span>
+                            <span className="text-[#006241] opacity-60 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
+                          </div>
+                          <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
                         </div>
-                        <div>
-                          <p className="font-bold text-[#000000]/87 text-sm">{apt.full_name}</p>
-                          <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
+                      ))}
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      {/* Recent Activity */}
+                      <div className="lg:col-span-2 rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                        <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]"></span>
+                          Recent Activity
+                        </h3>
+                        <div className="space-y-3">
+                          {appointments.slice(0, 5).map((apt, i) => (
+                            <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-[#f2f0eb] hover:bg-[#edebe9] transition-all group" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
+                              <div className="flex items-center gap-3.5">
+                                <div className="w-9 h-9 rounded-xl bg-[#1E3932] flex items-center justify-center text-white font-black text-sm">
+                                  {apt.full_name.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="font-bold text-[#000000]/87 text-sm">{apt.full_name}</p>
+                                  <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
+                                </div>
+                              </div>
+                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
+                                {apt.status}
+                              </span>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
-                        {apt.status}
-                      </span>
+
+                      {/* Status Overview */}
+                      <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                        <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#006241]"></span>
+                          Status Overview
+                        </h3>
+                        <div className="grid grid-cols-1 gap-3">
+                          {[
+                            { label: 'Clean', value: 24, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+                            { label: 'Dirty', value: 8, color: 'text-[#c82014]', bg: 'bg-red-50', border: 'border-red-200' },
+                            { label: 'Inspected', value: 15, color: 'text-[#006241]', bg: 'bg-[#d4e9e2]', border: 'border-[#d4e9e2]' },
+                            { label: 'Out of Order', value: 2, color: 'text-black/50', bg: 'bg-[#f9f9f9]', border: 'border-black/10' },
+                          ].map((item, i) => (
+                            <div key={i} className={`rounded-xl p-4 flex justify-between items-center border ${item.bg} ${item.border}`}>
+                              <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>{item.label}</span>
+                              <span className={`text-2xl font-black ${item.color}`}>{item.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Status Overview */}
-              <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#006241]"></span>
-                  Status Overview
-                </h3>
-                <div className="grid grid-cols-1 gap-3">
-                  {[
-                    { label: 'Clean', value: 24, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-                    { label: 'Dirty', value: 8, color: 'text-[#c82014]', bg: 'bg-red-50', border: 'border-red-200' },
-                    { label: 'Inspected', value: 15, color: 'text-[#006241]', bg: 'bg-[#d4e9e2]', border: 'border-[#d4e9e2]' },
-                    { label: 'Out of Order', value: 2, color: 'text-black/50', bg: 'bg-[#f9f9f9]', border: 'border-black/10' },
-                  ].map((item, i) => (
-                    <div key={i} className={`rounded-xl p-4 flex justify-between items-center border ${item.bg} ${item.border}`}>
-                      <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>{item.label}</span>
-                      <span className={`text-2xl font-black ${item.color}`}>{item.value}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
                   </div>
                 </div>
               </div>
@@ -2271,234 +2223,234 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
                 <div className="p-6 md:p-8 flex-1 overflow-y-auto">
                   <div className="space-y-6">
-            {/* Analytics Chart */}
-            {(() => {
-              const chartData = [
-                { label: 'Pending', value: stats.pending, color: '#F59E0B' },
-                { label: 'Confirmed', value: stats.confirmed, color: '#00754A' },
-                { label: 'Completed', value: stats.completed, color: '#10B981' },
-                { label: 'Cancelled', value: stats.cancelled, color: '#c82014' },
-              ];
-              const total = stats.total || 1;
-              const radius = 54;
-              const circumference = 2 * Math.PI * radius;
-              let cumulative = 0;
-              return (
-                <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                  <div className="flex flex-col md:flex-row items-center gap-10">
-                    {/* Donut Chart */}
-                    <div className="relative flex-shrink-0">
-                      <svg width="160" height="160" viewBox="0 0 128 128">
-                        <circle cx="64" cy="64" r={radius} fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="12" />
-                        {chartData.map((seg, i) => {
-                          const pct = seg.value / total;
-                          const dashLen = pct * circumference;
-                          const offset = -cumulative * circumference;
-                          cumulative += pct;
-                          if (seg.value === 0) return null;
-                          return (
-                            <circle
-                              key={i}
-                              cx="64" cy="64" r={radius}
-                              fill="none"
-                              stroke={seg.color}
-                              strokeWidth="12"
-                              strokeDasharray={`${dashLen} ${circumference - dashLen}`}
-                              strokeDashoffset={offset}
-                              strokeLinecap="round"
-                              transform="rotate(-90 64 64)"
-                              className="transition-all duration-1000"
-                            />
-                          );
-                        })}
-                        <text x="64" y="62" textAnchor="middle" className="text-2xl font-black fill-[#1E3932] tracking-tighter">{stats.total}</text>
-                        <text x="64" y="78" textAnchor="middle" className="text-[10px] font-bold fill-[#1E3932]/40 uppercase tracking-widest">Total</text>
-                      </svg>
-                    </div>
-                    {/* Legend + Bar Breakdown */}
-                    <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {chartData.map((seg, i) => {
-                        const pct = stats.total > 0 ? Math.round((seg.value / stats.total) * 100) : 0;
-                        return (
-                          <div key={i} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: seg.color }}></div>
-                                <span className="text-xs font-bold text-black/50 uppercase tracking-wider">{seg.label}</span>
-                              </div>
-                              <span className="text-sm font-black text-[#000000]/87">{seg.value} <span className="text-black/40 font-medium ml-1">({pct}%)</span></span>
+                    {/* Analytics Chart */}
+                    {(() => {
+                      const chartData = [
+                        { label: 'Pending', value: stats.pending, color: '#F59E0B' },
+                        { label: 'Confirmed', value: stats.confirmed, color: '#00754A' },
+                        { label: 'Completed', value: stats.completed, color: '#10B981' },
+                        { label: 'Cancelled', value: stats.cancelled, color: '#c82014' },
+                      ];
+                      const total = stats.total || 1;
+                      const radius = 54;
+                      const circumference = 2 * Math.PI * radius;
+                      let cumulative = 0;
+                      return (
+                        <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                          <div className="flex flex-col md:flex-row items-center gap-10">
+                            {/* Donut Chart */}
+                            <div className="relative flex-shrink-0">
+                              <svg width="160" height="160" viewBox="0 0 128 128">
+                                <circle cx="64" cy="64" r={radius} fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="12" />
+                                {chartData.map((seg, i) => {
+                                  const pct = seg.value / total;
+                                  const dashLen = pct * circumference;
+                                  const offset = -cumulative * circumference;
+                                  cumulative += pct;
+                                  if (seg.value === 0) return null;
+                                  return (
+                                    <circle
+                                      key={i}
+                                      cx="64" cy="64" r={radius}
+                                      fill="none"
+                                      stroke={seg.color}
+                                      strokeWidth="12"
+                                      strokeDasharray={`${dashLen} ${circumference - dashLen}`}
+                                      strokeDashoffset={offset}
+                                      strokeLinecap="round"
+                                      transform="rotate(-90 64 64)"
+                                      className="transition-all duration-1000"
+                                    />
+                                  );
+                                })}
+                                <text x="64" y="62" textAnchor="middle" className="text-2xl font-black fill-[#1E3932] tracking-tighter">{stats.total}</text>
+                                <text x="64" y="78" textAnchor="middle" className="text-[10px] font-bold fill-[#1E3932]/40 uppercase tracking-widest">Total</text>
+                              </svg>
                             </div>
-                            <div className="w-full bg-[#f2f0eb] rounded-full h-1.5 overflow-hidden">
-                              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
+                            {/* Legend + Bar Breakdown */}
+                            <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                              {chartData.map((seg, i) => {
+                                const pct = stats.total > 0 ? Math.round((seg.value / stats.total) * 100) : 0;
+                                return (
+                                  <div key={i} className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: seg.color }}></div>
+                                        <span className="text-xs font-bold text-black/50 uppercase tracking-wider">{seg.label}</span>
+                                      </div>
+                                      <span className="text-sm font-black text-[#000000]/87">{seg.value} <span className="text-black/40 font-medium ml-1">({pct}%)</span></span>
+                                    </div>
+                                    <div className="w-full bg-[#f2f0eb] rounded-full h-1.5 overflow-hidden">
+                                      <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
+                        </div>
+                      );
+                    })()}
 
-            {/* Search & Filter Bar */}
-            <div className="rounded-xl p-6 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="md:col-span-2">
-                  <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">Search Guest</label>
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Name, phone, or email..."
-                      className="w-full pl-12 pr-4 py-3 rounded-lg text-[#000000]/87 placeholder-black/30 text-sm outline-none transition-all"
-                      style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
-                      onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
-                      onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">From Date</label>
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
-                    style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
-                    onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">To Date</label>
-                  <input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
-                    style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
-                    onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
-                    onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
-                  />
-                </div>
-              </div>
-              {(searchQuery || startDate || endDate) && (
-                <button onClick={clearFilters} className="mt-4 text-xs font-bold text-[#00754A] hover:text-[#006241] transition-colors uppercase tracking-[0.1em]">
-                  × Clear active filters
-                </button>
-              )}
-            </div>
-
-            {/* Filter Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-              {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(f => (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap"
-                  style={{
-                    borderRadius: '50px',
-                    border: filter === f ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
-                    background: filter === f ? '#00754A' : '#ffffff',
-                    color: filter === f ? '#ffffff' : 'rgba(0,0,0,0.58)',
-                    boxShadow: filter === f ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
-                  }}
-                  onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
-                  onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
-
-            {/* Appointments List */}
-            {isLoading ? (
-              <div className="text-center py-24">
-                <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#00754A] mb-4"></div>
-                <p className="text-black/60 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
-              </div>
-            ) : filteredAppointments.length === 0 ? (
-              <div className="text-center py-24 rounded-2xl border border-black/5 bg-white shadow-sm ">
-                <p className="text-black/60 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                {/* Table Header */}
-                <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
-                  <span>#</span>
-                  <span>Guest Name</span>
-                  <span>Service</span>
-                  <span>Check-in</span>
-                  <span>Time</span>
-                  <span>Status</span>
-                  <span className="text-right">Actions</span>
-                </div>
-                {filteredAppointments.map((apt, index) => (
-                  <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
-                    <span className="text-black/60 font-mono text-xs">{apt.id}</span>
-                    <div className="min-w-0">
-                      <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{apt.full_name}</p>
-                      <p className="text-black/60 text-[10px] truncate md:hidden">{apt.phone_number}</p>
-                    </div>
-                    <span className="text-black/60 text-xs font-medium truncate">{apt.service_type}</span>
-                    <span className="text-black/60 text-xs font-medium">{apt.preferred_date}</span>
-                    <span className="text-black/60 text-xs font-medium">{apt.preferred_time}</span>
-                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(apt.status)}`}>
-                      {apt.status}
-                    </span>
-                    <div className="flex flex-wrap gap-1 justify-end">
-                      {(apt.status === 'pending' || apt.status === 'confirmed') && (
-                        <button onClick={() => openRescheduleModal(apt)} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition-all border border-purple-200">
-                          Reschedule
+                    {/* Search & Filter Bar */}
+                    <div className="rounded-xl p-6 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="md:col-span-2">
+                          <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">Search Guest</label>
+                          <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
+                            <input
+                              type="text"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              placeholder="Name, phone, or email..."
+                              className="w-full pl-12 pr-4 py-3 rounded-lg text-[#000000]/87 placeholder-black/30 text-sm outline-none transition-all"
+                              style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
+                              onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                              onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">From Date</label>
+                          <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                            style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
+                            onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                            onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">To Date</label>
+                          <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                            style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
+                            onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                            onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                          />
+                        </div>
+                      </div>
+                      {(searchQuery || startDate || endDate) && (
+                        <button onClick={clearFilters} className="mt-4 text-xs font-bold text-[#00754A] hover:text-[#006241] transition-colors uppercase tracking-[0.1em]">
+                          × Clear active filters
                         </button>
                       )}
-                      {apt.status === 'pending' && (
-                        <>
-                          <button onClick={() => updateStatus(apt.id, 'confirmed')} disabled={updatingId === apt.id} className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs hover:bg-green-100 transition-all border border-green-200 disabled:opacity-50">
-                            Confirm
-                          </button>
-                          <button onClick={() => updateStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
-                            Cancel
-                          </button>
-                        </>
-                      )}
-                      {apt.status === 'confirmed' && (
-                        <>
-                          <button onClick={() => updateStatus(apt.id, 'completed')} disabled={updatingId === apt.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
-                            Complete
-                          </button>
-                          <button onClick={() => updateStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
-                            Cancel
-                          </button>
-                        </>
-                      )}
-                      {(apt.status === 'cancelled' || apt.status === 'completed') && (
-                        <button onClick={() => updateStatus(apt.id, 'pending')} disabled={updatingId === apt.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
-                          Reopen
+                    </div>
+
+                    {/* Filter Tabs */}
+                    <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+                      {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(f => (
+                        <button
+                          key={f}
+                          onClick={() => setFilter(f)}
+                          className="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap"
+                          style={{
+                            borderRadius: '50px',
+                            border: filter === f ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
+                            background: filter === f ? '#00754A' : '#ffffff',
+                            color: filter === f ? '#ffffff' : 'rgba(0,0,0,0.58)',
+                            boxShadow: filter === f ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
+                          }}
+                          onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                        >
+                          {f}
                         </button>
-                      )}
-                      <button onClick={() => sendSMSReminder(apt)} className="px-2 py-1 bg-cyan-50 text-cyan-600 rounded text-xs hover:bg-cyan-100 transition-all border border-cyan-200" title="Send SMS Reminder">
-                        📱
-                      </button>
-                      <button onClick={() => printSlip(apt)} className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs hover:bg-gray-100 transition-all border border-gray-200" title="Print Appointment Slip">
-                        🖨️
+                      ))}
+                    </div>
+
+                    {/* Appointments List */}
+                    {isLoading ? (
+                      <div className="text-center py-24">
+                        <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#00754A] mb-4"></div>
+                        <p className="text-black/60 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
+                      </div>
+                    ) : filteredAppointments.length === 0 ? (
+                      <div className="text-center py-24 rounded-2xl border border-black/5 bg-white shadow-sm ">
+                        <p className="text-black/60 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
+                      </div>
+                    ) : (
+                      <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                        {/* Table Header */}
+                        <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
+                          <span>#</span>
+                          <span>Guest Name</span>
+                          <span>Service</span>
+                          <span>Check-in</span>
+                          <span>Time</span>
+                          <span>Status</span>
+                          <span className="text-right">Actions</span>
+                        </div>
+                        {filteredAppointments.map((apt, index) => (
+                          <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
+                            <span className="text-black/60 font-mono text-xs">{apt.id}</span>
+                            <div className="min-w-0">
+                              <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{apt.full_name}</p>
+                              <p className="text-black/60 text-[10px] truncate md:hidden">{apt.phone_number}</p>
+                            </div>
+                            <span className="text-black/60 text-xs font-medium truncate">{apt.service_type}</span>
+                            <span className="text-black/60 text-xs font-medium">{apt.preferred_date}</span>
+                            <span className="text-black/60 text-xs font-medium">{apt.preferred_time}</span>
+                            <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(apt.status)}`}>
+                              {apt.status}
+                            </span>
+                            <div className="flex flex-wrap gap-1 justify-end">
+                              {(apt.status === 'pending' || apt.status === 'confirmed') && (
+                                <button onClick={() => openRescheduleModal(apt)} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition-all border border-purple-200">
+                                  Reschedule
+                                </button>
+                              )}
+                              {apt.status === 'pending' && (
+                                <>
+                                  <button onClick={() => updateStatus(apt.id, 'confirmed')} disabled={updatingId === apt.id} className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs hover:bg-green-100 transition-all border border-green-200 disabled:opacity-50">
+                                    Confirm
+                                  </button>
+                                  <button onClick={() => updateStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
+                                    Cancel
+                                  </button>
+                                </>
+                              )}
+                              {apt.status === 'confirmed' && (
+                                <>
+                                  <button onClick={() => updateStatus(apt.id, 'completed')} disabled={updatingId === apt.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
+                                    Complete
+                                  </button>
+                                  <button onClick={() => updateStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
+                                    Cancel
+                                  </button>
+                                </>
+                              )}
+                              {(apt.status === 'cancelled' || apt.status === 'completed') && (
+                                <button onClick={() => updateStatus(apt.id, 'pending')} disabled={updatingId === apt.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
+                                  Reopen
+                                </button>
+                              )}
+                              <button onClick={() => sendSMSReminder(apt)} className="px-2 py-1 bg-cyan-50 text-cyan-600 rounded text-xs hover:bg-cyan-100 transition-all border border-cyan-200" title="Send SMS Reminder">
+                                📱
+                              </button>
+                              <button onClick={() => printSlip(apt)} className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs hover:bg-gray-100 transition-all border border-gray-200" title="Print Appointment Slip">
+                                🖨️
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Export Button */}
+                    <div className="mt-6 flex gap-2">
+                      <button
+                        onClick={exportToCSV}
+                        className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-full hover:bg-green-100 transition-all text-sm flex items-center gap-2"
+                      >
+                        📥 Export to CSV
                       </button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Export Button */}
-            <div className="mt-6 flex gap-2">
-              <button
-                onClick={exportToCSV}
-                className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-full hover:bg-green-100 transition-all text-sm flex items-center gap-2"
-              >
-                📥 Export to CSV
-              </button>
-            </div>
                   </div>
                 </div>
               </div>
@@ -2521,7 +2473,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Room Inventory</h2>
                       <p className="text-black/60 text-xs mt-0.5">Manage room types, pricing models, and global availability</p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => { setActiveTab('settings'); setSettingsSubTab('property'); }}
                       className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
                       style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
@@ -2536,43 +2488,43 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
                 <div className="p-6 md:p-8 flex-1 overflow-y-auto">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {adminRoomTypes.map(rt => (
-                  <div key={rt.id} className="rounded-xl p-6 border border-black/5 bg-[#f9f9f9] hover:bg-white hover:shadow-md transition-all group cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.08)' }}>
-                    <div className="flex justify-between items-start mb-6">
-                      <h4 className="font-bold text-[#006241] text-lg">{rt.name}</h4>
-                      <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${rt.active ? 'bg-[#d4e9e2] text-[#006241] border-[#d4e9e2]' : 'bg-[#f9f9f9] text-black/40 border-black/10'}`}>
-                        {rt.active ? 'Active' : 'Inactive'}
-                      </span>
-                    </div>
-                    <div className="space-y-3 mb-8">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Total Inventory</span>
-                        <span className="text-sm font-black text-[#000000]/87">{rt.total_rooms} Rooms</span>
+                    {adminRoomTypes.map(rt => (
+                      <div key={rt.id} className="rounded-xl p-6 border border-black/5 bg-[#f9f9f9] hover:bg-white hover:shadow-md transition-all group cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.08)' }}>
+                        <div className="flex justify-between items-start mb-6">
+                          <h4 className="font-bold text-[#006241] text-lg">{rt.name}</h4>
+                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${rt.active ? 'bg-[#d4e9e2] text-[#006241] border-[#d4e9e2]' : 'bg-[#f9f9f9] text-black/40 border-black/10'}`}>
+                            {rt.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                        <div className="space-y-3 mb-8">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Total Inventory</span>
+                            <span className="text-sm font-black text-[#000000]/87">{rt.total_rooms} Rooms</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Base Rate</span>
+                            <span className="text-sm font-black text-[#006241]">₱{Number(rt.price_per_night).toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Max Guests</span>
+                            <span className="text-sm font-black text-[#000000]/87">{rt.max_guests} Persons</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 pt-6 border-t border-black/5">
+                          <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                          >Inventory</button>
+                          <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                          >Rates</button>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Base Rate</span>
-                        <span className="text-sm font-black text-[#006241]">₱{Number(rt.price_per_night).toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Max Guests</span>
-                        <span className="text-sm font-black text-[#000000]/87">{rt.max_guests} Persons</span>
-                      </div>
-                    </div>
-                    <div className="flex gap-2 pt-6 border-t border-black/5">
-                      <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
-                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
-                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-                      >Inventory</button>
-                      <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
-                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
-                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-                      >Rates</button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    ))}
                   </div>
                 </div>
+              </div>
             </div>
           </div>
         )}
@@ -2598,7 +2550,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         <div className="w-2 h-2 rounded-full bg-red-500"></div>
                         <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">2 Dirty</span>
                       </div>
-                      <button 
+                      <button
                         className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
                         style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#006241'}
@@ -2650,14 +2602,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <input 
-                          type="text" 
-                          placeholder="Search invoices..." 
+                        <input
+                          type="text"
+                          placeholder="Search invoices..."
                           className="pl-8 pr-4 py-2 rounded-xl bg-[#f9f9f9] border border-black/5 text-[#000000]/87 text-[10px] placeholder-black/40 focus:border-[#00754A]/40 outline-none transition-all w-48"
                         />
                         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 text-[10px]">🔍</span>
                       </div>
-                      <button 
+                      <button
                         className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
                         style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#006241'}
@@ -2672,72 +2624,72 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
                 <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-6">
 
-            {/* Metric Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#006241]' },
-                { label: 'Outstanding', value: `₱${Number(stats.pending * 8500).toLocaleString()}`, color: 'text-amber-600' },
-                { label: 'Collected', value: `₱${Number(stats.confirmed * 10200).toLocaleString()}`, color: 'text-emerald-600' },
-                { label: 'Avg. Stay', value: '₱12,400', color: 'text-[#006241]' },
-              ].map((card, i) => (
-                <div key={i} className="rounded-xl p-5 bg-white flex flex-col justify-between min-h-[90px]" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                  <span className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em]">{card.label}</span>
-                  <div className={`text-xl font-black ${card.color}`}>{card.value}</div>
-                </div>
-              ))}
-            </div>
-
-            {/* Transactions Table */}
-            <div className="rounded-2xl border border-black/5 bg-white/[0.01] overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                  <thead className="bg-white/[0.03] text-black/60 text-[9px] font-black uppercase tracking-[0.2em] border-b border-black/5">
-                    <tr>
-                      <th className="px-6 py-4">Stay Ref</th>
-                      <th className="px-6 py-4">Guest</th>
-                      <th className="px-6 py-4">Room</th>
-                      <th className="px-6 py-4">Category</th>
-                      <th className="px-6 py-4">Status</th>
-                      <th className="px-6 py-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/[0.03]">
-                    {appointments.length === 0 ? (
-                      <tr><td colSpan="6" className="px-6 py-12 text-center text-black/60 italic text-xs">No stay records found for billing.</td></tr>
-                    ) : appointments.map((apt, i) => (
-                      <tr key={i} onClick={() => openFolio(apt)} className="hover:bg-white/[0.03] transition-all group cursor-pointer text-xs">
-                        <td className="px-6 py-4">
-                          <span className="font-mono font-bold text-[#00754A]">#{apt.id}</span>
-                          <span className="text-[9px] text-black/60 ml-2">{new Date(apt.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                        </td>
-                        <td className="px-6 py-4 font-bold text-black/60">{apt.full_name}</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{apt.room_number || 'TBA'}</span>
-                        </td>
-                        <td className="px-6 py-4 text-black/60">{apt.service_type || apt.room_type}</td>
-                        <td className="px-6 py-4">
-                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
-                            {apt.status}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="View Ledger">📄</button>
-                            <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="Print Invoice">🖨</button>
-                          </div>
-                        </td>
-                      </tr>
+                  {/* Metric Cards */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                      { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#006241]' },
+                      { label: 'Outstanding', value: `₱${Number(stats.pending * 8500).toLocaleString()}`, color: 'text-amber-600' },
+                      { label: 'Collected', value: `₱${Number(stats.confirmed * 10200).toLocaleString()}`, color: 'text-emerald-600' },
+                      { label: 'Avg. Stay', value: '₱12,400', color: 'text-[#006241]' },
+                    ].map((card, i) => (
+                      <div key={i} className="rounded-xl p-5 bg-white flex flex-col justify-between min-h-[90px]" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                        <span className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em]">{card.label}</span>
+                        <div className={`text-xl font-black ${card.color}`}>{card.value}</div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-              
-              <div className="px-6 py-3 bg-white/[0.02] border-t border-black/5 flex items-center justify-between text-[9px] font-bold text-black/60 uppercase">
-                <span>{appointments.length} Stay Records Found</span>
-              </div>
-            </div>
+                  </div>
+
+                  {/* Transactions Table */}
+                  <div className="rounded-2xl border border-black/5 bg-white/[0.01] overflow-hidden">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-white/[0.03] text-black/60 text-[9px] font-black uppercase tracking-[0.2em] border-b border-black/5">
+                          <tr>
+                            <th className="px-6 py-4">Stay Ref</th>
+                            <th className="px-6 py-4">Guest</th>
+                            <th className="px-6 py-4">Room</th>
+                            <th className="px-6 py-4">Category</th>
+                            <th className="px-6 py-4">Status</th>
+                            <th className="px-6 py-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/[0.03]">
+                          {appointments.length === 0 ? (
+                            <tr><td colSpan="6" className="px-6 py-12 text-center text-black/60 italic text-xs">No stay records found for billing.</td></tr>
+                          ) : appointments.map((apt, i) => (
+                            <tr key={i} onClick={() => openFolio(apt)} className="hover:bg-white/[0.03] transition-all group cursor-pointer text-xs">
+                              <td className="px-6 py-4">
+                                <span className="font-mono font-bold text-[#00754A]">#{apt.id}</span>
+                                <span className="text-[9px] text-black/60 ml-2">{new Date(apt.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                              </td>
+                              <td className="px-6 py-4 font-bold text-black/60">{apt.full_name}</td>
+                              <td className="px-6 py-4">
+                                <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{apt.room_number || 'TBA'}</span>
+                              </td>
+                              <td className="px-6 py-4 text-black/60">{apt.service_type || apt.room_type}</td>
+                              <td className="px-6 py-4">
+                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
+                                  {apt.status}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-right">
+                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="View Ledger">📄</button>
+                                  <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="Print Invoice">🖨</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="px-6 py-3 bg-white/[0.02] border-t border-black/5 flex items-center justify-between text-[9px] font-bold text-black/60 uppercase">
+                      <span>{appointments.length} Stay Records Found</span>
+                    </div>
                   </div>
                 </div>
+              </div>
             </div>
           </div>
         )}
@@ -2808,11 +2760,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   days.push(
                     <div
                       key={day}
-                      className={`min-h-[100px] p-2 rounded-2xl border transition-all ${
-                        isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
-                        isToday ? 'bg-[#00754A]/10 border-[#00754A]' :
-                        'bg-white/[0.03] border-black/5 hover:border-black/5'
-                      }`}
+                      className={`min-h-[100px] p-2 rounded-2xl border transition-all ${isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
+                          isToday ? 'bg-[#00754A]/10 border-[#00754A]' :
+                            'bg-white/[0.03] border-black/5 hover:border-black/5'
+                        }`}
                     >
                       <div className={`text-xs font-black mb-2 ${isToday ? 'text-[#00754A]' : isBlocked ? 'text-rose-400' : 'text-black/60'}`}>
                         {String(day).padStart(2, '0')}
@@ -2823,12 +2774,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       {dayAppointments.slice(0, 3).map((apt, idx) => (
                         <div
                           key={idx}
-                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${
-                            apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
-                            apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
-                            apt.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
-                            'bg-white shadow-sm text-black/60'
-                          }`}
+                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
+                              apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
+                                apt.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
+                                  'bg-white shadow-sm text-black/60'
+                            }`}
                         >
                           {apt.full_name.split(' ')[0]}
                         </div>
@@ -2847,7 +2797,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== REPORTS TAB ==================== */}
         {activeTab === 'reports' && (() => {
-          const fmtA = (n) => `₱${Number(n||0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+          const fmtA = (n) => `₱${Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
           const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
           const subBtnCls = (id) => `px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all rounded-xl border ${reportsSubTab === id ? 'bg-[#00754A] text-[#000000]/87 border-[#00754A] shadow-[0_0_20px_rgba(85,162,245,0.3)]' : 'bg-white shadow-sm text-black/60 border-black/5 hover:bg-white shadow-sm hover:text-white'}`;
           return (
@@ -2865,479 +2815,479 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   </div>
                   <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-8">
                     {/* Sub-tab navigation */}
-              <div className="flex gap-2 flex-wrap">
-                {[
-                  { id: 'appointments', label: 'Appointments' },
-                  { id: 'management', label: 'Stay Reports' },
-                  { id: 'financial', label: 'Financials' },
-                ].map(sub => (
-                  <button key={sub.id} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all"
-                    style={{
-                      borderRadius: '50px',
-                      border: reportsSubTab === sub.id ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
-                      background: reportsSubTab === sub.id ? '#00754A' : '#ffffff',
-                      color: reportsSubTab === sub.id ? '#ffffff' : 'rgba(0,0,0,0.58)',
-                      boxShadow: reportsSubTab === sub.id ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
-                    }}
-                    onClick={() => setReportsSubTab(sub.id)}
-                    onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
-                    onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                  >{sub.label}</button>
-                ))}
-              </div>
-
-              {/* ── Appointments sub-tab (existing) ── */}
-              {reportsSubTab === 'appointments' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Appointments filter bar */}
-                <div className="bg-white rounded-xl p-6" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                    <div className="flex flex-wrap gap-6 items-end">
-                      <div className="flex-1 min-w-[200px]">
-                        <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          <input type="date" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)} 
-                            className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                          <input type="date" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)} 
-                            className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                        </div>
-                      </div>
-                      <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
+                    <div className="flex gap-2 flex-wrap">
+                      {[
+                        { id: 'appointments', label: 'Appointments' },
+                        { id: 'management', label: 'Stay Reports' },
+                        { id: 'financial', label: 'Financials' },
+                      ].map(sub => (
+                        <button key={sub.id} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all"
+                          style={{
+                            borderRadius: '50px',
+                            border: reportsSubTab === sub.id ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
+                            background: reportsSubTab === sub.id ? '#00754A' : '#ffffff',
+                            color: reportsSubTab === sub.id ? '#ffffff' : 'rgba(0,0,0,0.58)',
+                            boxShadow: reportsSubTab === sub.id ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
+                          }}
+                          onClick={() => setReportsSubTab(sub.id)}
+                          onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                        >{sub.label}</button>
+                      ))}
                     </div>
-                  </div>
-                  {reportStats && (
-                    <>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[
-                          { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#00754A' },
-                          { label: 'Completed',    value: reportStats.totals?.completed || 0, color: '#10B981' },
-                          { label: 'Cancelled',    value: reportStats.totals?.cancelled || 0, color: '#F43F5E' },
-                          { label: 'Conversion',   value: `${reportStats.totals?.total > 0 ? Math.round((reportStats.totals.completed / reportStats.totals.total) * 100) : 0}%`, color: '#F59E0B' },
-                        ].map((c, i) => (
-                          <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
-                            <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                            <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                            <p className="text-3xl font-black text-[#000000]/87">{c.value}</p>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                            <span>Service Distribution</span>
-                            <div className="flex-1 h-px bg-white shadow-sm"></div>
-                          </h3>
-                          <div className="space-y-5">
-                            {reportStats.byService?.map((item, idx) => (
-                              <div key={idx} className="group">
-                                <div className="flex items-center justify-between text-xs mb-2">
-                                  <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors">{item.service_type}</span>
-                                  <span className="text-[#000000]/87 font-black font-mono">{item.count} <span className="text-black/60 font-medium ml-1">bookings</span></span>
-                                </div>
-                                <div className="w-full h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                  <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.3)]" style={{ width: `${(item.count / reportStats.totals.total) * 100}%` }} />
-                                </div>
+
+                    {/* ── Appointments sub-tab (existing) ── */}
+                    {reportsSubTab === 'appointments' && (
+                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* Appointments filter bar */}
+                        <div className="bg-white rounded-xl p-6" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                          <div className="flex flex-wrap gap-6 items-end">
+                            <div className="flex-1 min-w-[200px]">
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
+                              <div className="grid grid-cols-2 gap-3">
+                                <input type="date" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)}
+                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
+                                <input type="date" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)}
+                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                               </div>
-                            ))}
+                            </div>
+                            <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
                           </div>
                         </div>
-
-                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                            <span>Peak Occupancy Times</span>
-                            <div className="flex-1 h-px bg-white shadow-sm"></div>
-                          </h3>
-                          <div className="grid grid-cols-2 gap-3">
-                            {reportStats.hourly?.map((item, idx) => (
-                              <div key={idx} className="bg-white shadow-sm border border-black/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
-                                <p className="text-[#00754A] font-black text-sm font-mono tracking-tighter">{item.time}</p>
-                                <p className="text-black/60 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* ── Management sub-tab ── */}
-              {reportsSubTab === 'management' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {/* Filter bar */}
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
-                    <div className="flex-1 min-w-[200px]">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Check-in Window</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                        <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                      </div>
-                    </div>
-                    <button onClick={fetchManagementReport} disabled={hotelRptLoading}
-                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
-                      {hotelRptLoading ? 'Generating...' : 'Generate Analytics'}
-                    </button>
-                  </div>
-
-                  {mgmtData && (() => {
-                    const s = mgmtData.summary;
-                    const total = parseInt(s.total) || 1;
-                    return (
-                      <>
-                        {/* Summary cards */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                          {[
-                            { label: 'Total Stays',   value: s.total,         color: '#00754A' },
-                            { label: 'Confirmed',     value: s.confirmed,     color: '#00754A' },
-                            { label: 'In-House',      value: s.checked_in,    color: '#10B981' },
-                            { label: 'Checked Out',   value: s.checked_out,   color: '#94A3B8' },
-                            { label: 'Cancelled',     value: s.cancelled,     color: '#F43F5E' },
-                            { label: 'Guest Count',   value: s.unique_guests, color: '#8B5CF6' },
-                          ].map((c, i) => (
-                            <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-4 relative overflow-hidden group">
-                              <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                              <p className="text-[8px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                              <p className="text-2xl font-black text-[#000000]/87">{c.value || 0}</p>
-                            </div>
-                          ))}
-                        </div>
-
-                        {/* Status mix & callouts */}
-                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-6  flex flex-wrap gap-8 items-center">
-                          <div className="flex gap-8 divide-x divide-white/5">
-                            <div className="text-center px-4">
-                              <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">Loss Rate</p>
-                              <p className="text-2xl font-black text-rose-400">{total > 0 ? Math.round((parseInt(s.cancelled)/total)*100) : 0}%</p>
-                            </div>
-                            <div className="text-center px-8">
-                              <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">No-Shows</p>
-                              <p className="text-2xl font-black text-amber-500">{s.no_show || 0}</p>
-                            </div>
-                          </div>
-                          
-                          <div className="flex-1 min-w-[240px]">
-                            <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-3">Occupancy Status Mix</p>
-                            <div className="h-3 rounded-full overflow-hidden flex gap-0.5 bg-white shadow-sm border border-black/5">
+                        {reportStats && (
+                          <>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                               {[
-                                { val: parseInt(s.checked_out), color: '#94A3B8' },
-                                { val: parseInt(s.checked_in),  color: '#10B981' },
-                                { val: parseInt(s.confirmed),   color: '#00754A' },
-                                { val: parseInt(s.cancelled),   color: '#F43F5E' },
-                              ].filter(x => x.val > 0).map((x, i) => (
-                                <div key={i} className="h-full transition-all hover:brightness-125" style={{ width: `${(x.val/total)*100}%`, background: x.color }} />
+                                { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#00754A' },
+                                { label: 'Completed', value: reportStats.totals?.completed || 0, color: '#10B981' },
+                                { label: 'Cancelled', value: reportStats.totals?.cancelled || 0, color: '#F43F5E' },
+                                { label: 'Conversion', value: `${reportStats.totals?.total > 0 ? Math.round((reportStats.totals.completed / reportStats.totals.total) * 100) : 0}%`, color: '#F59E0B' },
+                              ].map((c, i) => (
+                                <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
+                                  <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
+                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
+                                  <p className="text-3xl font-black text-[#000000]/87">{c.value}</p>
+                                </div>
                               ))}
                             </div>
-                            <div className="flex flex-wrap gap-4 mt-3 text-[9px] font-black uppercase tracking-widest">
-                              <span className="flex items-center gap-1.5 text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />In-House</span>
-                              <span className="flex items-center gap-1.5 text-[#00754A]"><span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />Confirmed</span>
-                              <span className="flex items-center gap-1.5 text-slate-400"><span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Completed</span>
-                              <span className="flex items-center gap-1.5 text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400" />Cancelled</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Room Type Performance */}
-                        <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                            <span>Inventory Performance by Tier</span>
-                            <div className="flex-1 h-px bg-white shadow-sm"></div>
-                          </h3>
-                          {mgmtData.byRoomType.length === 0 ? (
-                            <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">No inventory metrics found for this window.</div>
-                          ) : (
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
-                              {mgmtData.byRoomType.map((rt, i) => {
-                                const pct = total > 0 ? Math.round((parseInt(rt.valid_bookings)/total)*100) : 0;
-                                return (
-                                  <div key={i} className="group">
-                                    <div className="flex items-center justify-between text-xs mb-2">
-                                      <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors uppercase tracking-widest text-[10px]">{rt.room_type}</span>
-                                      <div className="flex gap-4 text-black/60 font-black text-[9px] uppercase">
-                                        <span>{rt.valid_bookings} stays</span>
-                                        <span className="text-rose-400/50">{rt.cancellations} voids</span>
-                                        <span className="text-[#00754A]">{pct}%</span>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
+                                  <span>Service Distribution</span>
+                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
+                                </h3>
+                                <div className="space-y-5">
+                                  {reportStats.byService?.map((item, idx) => (
+                                    <div key={idx} className="group">
+                                      <div className="flex items-center justify-between text-xs mb-2">
+                                        <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors">{item.service_type}</span>
+                                        <span className="text-[#000000]/87 font-black font-mono">{item.count} <span className="text-black/60 font-medium ml-1">bookings</span></span>
+                                      </div>
+                                      <div className="w-full h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.3)]" style={{ width: `${(item.count / reportStats.totals.total) * 100}%` }} />
                                       </div>
                                     </div>
-                                    <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                      <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)]" style={{ width: `${pct}%` }} />
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
+                                  <span>Peak Occupancy Times</span>
+                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
+                                </h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                  {reportStats.hourly?.map((item, idx) => (
+                                    <div key={idx} className="bg-white shadow-sm border border-black/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
+                                      <p className="text-[#00754A] font-black text-sm font-mono tracking-tighter">{item.time}</p>
+                                      <p className="text-black/60 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
                                     </div>
-                                  </div>
-                                );
-                              })}
+                                  ))}
+                                </div>
+                              </div>
                             </div>
-                          )}
+                          </>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ── Management sub-tab ── */}
+                    {reportsSubTab === 'management' && (
+                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* Filter bar */}
+                        <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Check-in Window</label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
+                              <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
+                            </div>
+                          </div>
+                          <button onClick={fetchManagementReport} disabled={hotelRptLoading}
+                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                            {hotelRptLoading ? 'Generating...' : 'Generate Analytics'}
+                          </button>
                         </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              )}
 
-              {/* ── Financial sub-tab ── */}
-              {reportsSubTab === 'financial' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {/* Filter bar */}
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
-                    <div className="flex-1 min-w-[200px]">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                        <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)} 
-                          className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
+                        {mgmtData && (() => {
+                          const s = mgmtData.summary;
+                          const total = parseInt(s.total) || 1;
+                          return (
+                            <>
+                              {/* Summary cards */}
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                                {[
+                                  { label: 'Total Stays', value: s.total, color: '#00754A' },
+                                  { label: 'Confirmed', value: s.confirmed, color: '#00754A' },
+                                  { label: 'In-House', value: s.checked_in, color: '#10B981' },
+                                  { label: 'Checked Out', value: s.checked_out, color: '#94A3B8' },
+                                  { label: 'Cancelled', value: s.cancelled, color: '#F43F5E' },
+                                  { label: 'Guest Count', value: s.unique_guests, color: '#8B5CF6' },
+                                ].map((c, i) => (
+                                  <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-4 relative overflow-hidden group">
+                                    <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
+                                    <p className="text-[8px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
+                                    <p className="text-2xl font-black text-[#000000]/87">{c.value || 0}</p>
+                                  </div>
+                                ))}
+                              </div>
+
+                              {/* Status mix & callouts */}
+                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-6  flex flex-wrap gap-8 items-center">
+                                <div className="flex gap-8 divide-x divide-white/5">
+                                  <div className="text-center px-4">
+                                    <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">Loss Rate</p>
+                                    <p className="text-2xl font-black text-rose-400">{total > 0 ? Math.round((parseInt(s.cancelled) / total) * 100) : 0}%</p>
+                                  </div>
+                                  <div className="text-center px-8">
+                                    <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">No-Shows</p>
+                                    <p className="text-2xl font-black text-amber-500">{s.no_show || 0}</p>
+                                  </div>
+                                </div>
+
+                                <div className="flex-1 min-w-[240px]">
+                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-3">Occupancy Status Mix</p>
+                                  <div className="h-3 rounded-full overflow-hidden flex gap-0.5 bg-white shadow-sm border border-black/5">
+                                    {[
+                                      { val: parseInt(s.checked_out), color: '#94A3B8' },
+                                      { val: parseInt(s.checked_in), color: '#10B981' },
+                                      { val: parseInt(s.confirmed), color: '#00754A' },
+                                      { val: parseInt(s.cancelled), color: '#F43F5E' },
+                                    ].filter(x => x.val > 0).map((x, i) => (
+                                      <div key={i} className="h-full transition-all hover:brightness-125" style={{ width: `${(x.val / total) * 100}%`, background: x.color }} />
+                                    ))}
+                                  </div>
+                                  <div className="flex flex-wrap gap-4 mt-3 text-[9px] font-black uppercase tracking-widest">
+                                    <span className="flex items-center gap-1.5 text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />In-House</span>
+                                    <span className="flex items-center gap-1.5 text-[#00754A]"><span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />Confirmed</span>
+                                    <span className="flex items-center gap-1.5 text-slate-400"><span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Completed</span>
+                                    <span className="flex items-center gap-1.5 text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400" />Cancelled</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Room Type Performance */}
+                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
+                                  <span>Inventory Performance by Tier</span>
+                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
+                                </h3>
+                                {mgmtData.byRoomType.length === 0 ? (
+                                  <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">No inventory metrics found for this window.</div>
+                                ) : (
+                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
+                                    {mgmtData.byRoomType.map((rt, i) => {
+                                      const pct = total > 0 ? Math.round((parseInt(rt.valid_bookings) / total) * 100) : 0;
+                                      return (
+                                        <div key={i} className="group">
+                                          <div className="flex items-center justify-between text-xs mb-2">
+                                            <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors uppercase tracking-widest text-[10px]">{rt.room_type}</span>
+                                            <div className="flex gap-4 text-black/60 font-black text-[9px] uppercase">
+                                              <span>{rt.valid_bookings} stays</span>
+                                              <span className="text-rose-400/50">{rt.cancellations} voids</span>
+                                              <span className="text-[#00754A]">{pct}%</span>
+                                            </div>
+                                          </div>
+                                          <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)]" style={{ width: `${pct}%` }} />
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
-                    </div>
-                    <button onClick={fetchFinancialReport} disabled={hotelRptLoading}
-                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
-                      {hotelRptLoading ? 'Auditing...' : 'Run Financial Audit'}
-                    </button>
-                  </div>
+                    )}
 
-                  {finData && (
-                    <>
-                      {/* Summary cards */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[
-                          { label: 'Revenue Accrued', value: fmtA(finData.summary.totalCharged),    color: '#00754A', sub: `${finData.summary.chargeCount} items posted` },
-                          { label: 'Revenue Collected', value: fmtA(finData.summary.totalCollected),  color: '#10B981', sub: `${finData.summary.paymentCount} payments` },
-                          { label: 'Total Receivables', value: fmtA(finData.summary.totalOutstanding),color: finData.summary.totalOutstanding > 0 ? '#F43F5E' : '#94A3B8', sub: 'unsettled folios' },
-                          { label: 'Capture Rate',     value: `${finData.summary.collectionRate}%`,  color: '#8B5CF6', sub: 'efficiency metric' },
-                        ].map((c, i) => (
-                          <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
-                            <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                            <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                            <p className="text-2xl font-black text-[#000000]/87">{c.value}</p>
-                            <p className="text-[9px] font-bold text-black/60 mt-1 uppercase tracking-widest">{c.sub}</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Revenue view toggle */}
-                      <div className="bg-white/[0.03] rounded-2xl border border-black/5  overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-5 border-b border-black/5 bg-white/[0.02]">
-                          <div>
-                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60">Revenue Distribution</h3>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className="flex bg-white shadow-sm p-1 rounded-xl border border-black/5">
-                              <button onClick={() => setFinView('daily')}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView==='daily' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
-                                Daily
-                              </button>
-                              <button onClick={() => { setFinView('monthly'); fetchMonthlyReport(); }}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView==='monthly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
-                                Monthly
-                              </button>
+                    {/* ── Financial sub-tab ── */}
+                    {reportsSubTab === 'financial' && (
+                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* Filter bar */}
+                        <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
+                            <div className="grid grid-cols-2 gap-3">
+                              <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
+                              <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
                             </div>
-                            {finView === 'monthly' && (
-                              <div className="flex items-center gap-3 pl-4 border-l border-black/5">
-                                <label className="text-[9px] font-black text-black/60 uppercase tracking-widest">Year</label>
-                                <input type="number" value={finYear} min="2020" max="2099"
-                                  onChange={e => setFinYear(parseInt(e.target.value))}
-                                  onBlur={fetchMonthlyReport}
-                                  className="w-20 px-3 py-1.5 text-xs bg-white shadow-sm border border-black/5 rounded-lg text-[#000000]/87 font-mono outline-none focus:border-[#00754A]/50 transition-all" />
+                          </div>
+                          <button onClick={fetchFinancialReport} disabled={hotelRptLoading}
+                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                            {hotelRptLoading ? 'Auditing...' : 'Run Financial Audit'}
+                          </button>
+                        </div>
+
+                        {finData && (
+                          <>
+                            {/* Summary cards */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              {[
+                                { label: 'Revenue Accrued', value: fmtA(finData.summary.totalCharged), color: '#00754A', sub: `${finData.summary.chargeCount} items posted` },
+                                { label: 'Revenue Collected', value: fmtA(finData.summary.totalCollected), color: '#10B981', sub: `${finData.summary.paymentCount} payments` },
+                                { label: 'Total Receivables', value: fmtA(finData.summary.totalOutstanding), color: finData.summary.totalOutstanding > 0 ? '#F43F5E' : '#94A3B8', sub: 'unsettled folios' },
+                                { label: 'Capture Rate', value: `${finData.summary.collectionRate}%`, color: '#8B5CF6', sub: 'efficiency metric' },
+                              ].map((c, i) => (
+                                <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
+                                  <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
+                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
+                                  <p className="text-2xl font-black text-[#000000]/87">{c.value}</p>
+                                  <p className="text-[9px] font-bold text-black/60 mt-1 uppercase tracking-widest">{c.sub}</p>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Revenue view toggle */}
+                            <div className="bg-white/[0.03] rounded-2xl border border-black/5  overflow-hidden">
+                              <div className="flex items-center justify-between px-6 py-5 border-b border-black/5 bg-white/[0.02]">
+                                <div>
+                                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60">Revenue Distribution</h3>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <div className="flex bg-white shadow-sm p-1 rounded-xl border border-black/5">
+                                    <button onClick={() => setFinView('daily')}
+                                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'daily' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
+                                      Daily
+                                    </button>
+                                    <button onClick={() => { setFinView('monthly'); fetchMonthlyReport(); }}
+                                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'monthly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
+                                      Monthly
+                                    </button>
+                                  </div>
+                                  {finView === 'monthly' && (
+                                    <div className="flex items-center gap-3 pl-4 border-l border-black/5">
+                                      <label className="text-[9px] font-black text-black/60 uppercase tracking-widest">Year</label>
+                                      <input type="number" value={finYear} min="2020" max="2099"
+                                        onChange={e => setFinYear(parseInt(e.target.value))}
+                                        onBlur={fetchMonthlyReport}
+                                        className="w-20 px-3 py-1.5 text-xs bg-white shadow-sm border border-black/5 rounded-lg text-[#000000]/87 font-mono outline-none focus:border-[#00754A]/50 transition-all" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Daily table */}
+                              {finView === 'daily' && (
+                                dailyRevData.length === 0 ? (
+                                  <div className="py-16 text-center text-black/60 italic text-xs font-medium">No ledger entries for this window.</div>
+                                ) : (
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                      <thead>
+                                        <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
+                                          <th className="px-6 py-4">Transaction Date</th>
+                                          <th className="px-6 py-4 text-right">Revenue Charged</th>
+                                          <th className="px-6 py-4 text-right">Cash Collected</th>
+                                          <th className="px-6 py-4 text-right">Net Balance</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-white/[0.03]">
+                                        {dailyRevData.map((r, i) => (
+                                          <tr key={i} className="hover:bg-white/[0.02] transition-all group">
+                                            <td className="px-6 py-4 text-black/60 text-xs font-bold">{fmtD(r.date)}</td>
+                                            <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
+                                            <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
+                                            <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                      <tfoot>
+                                        <tr className="bg-white/[0.05] font-black border-t border-black/5">
+                                          <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
+                                          <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.charged, 0))}</td>
+                                          <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.paid, 0))}</td>
+                                          <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.balance, 0))}</td>
+                                        </tr>
+                                      </tfoot>
+                                    </table>
+                                  </div>
+                                )
+                              )}
+
+                              {/* Monthly table */}
+                              {finView === 'monthly' && (
+                                hotelRptLoading ? (
+                                  <div className="py-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Synchronizing monthly metrics...</div>
+                                ) : (
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                      <thead>
+                                        <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
+                                          <th className="px-6 py-4">Fiscal Month</th>
+                                          <th className="px-6 py-4 text-right">Unit Stays</th>
+                                          <th className="px-6 py-4 text-right">Revenue Accrued</th>
+                                          <th className="px-6 py-4 text-right">Total Collected</th>
+                                          <th className="px-6 py-4 text-right">Audit Balance</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-white/[0.03]">
+                                        {monthlyRevData.map((r, i) => (
+                                          <tr key={i} className={`hover:bg-white/[0.02] transition-all group ${r.charged === 0 && r.paid === 0 ? 'opacity-20' : ''}`}>
+                                            <td className="px-6 py-4 text-[#000000]/87 font-black text-xs uppercase tracking-widest">{r.month}</td>
+                                            <td className="px-6 py-4 text-right text-black/60 font-mono text-xs">{r.bookings}</td>
+                                            <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
+                                            <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
+                                            <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                      <tfoot>
+                                        <tr className="bg-white/[0.05] font-black border-t border-black/5">
+                                          <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Annual Summary</td>
+                                          <td className="px-6 py-5 text-right text-black/60 font-mono text-sm">{monthlyRevData.reduce((s, r) => s + r.bookings, 0)}</td>
+                                          <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.charged, 0))}</td>
+                                          <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.paid, 0))}</td>
+                                          <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.balance, 0))}</td>
+                                        </tr>
+                                      </tfoot>
+                                    </table>
+                                  </div>
+                                )
+                              )}
+                            </div>
+
+
+                            {/* Payment Methods + Room Revenue */}
+                            <div className="grid md:grid-cols-2 gap-8">
+                              {/* Payment method breakdown */}
+                              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
+                                <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
+                                  Payment Channels
+                                </h3>
+                                {finData.byPaymentMethod.length === 0 ? (
+                                  <div className="py-8 text-center text-black/60 italic text-xs font-medium">No transaction data recorded.</div>
+                                ) : (
+                                  <div className="space-y-6">
+                                    {finData.byPaymentMethod.map((m, i) => {
+                                      const maxAmt = Math.max(...finData.byPaymentMethod.map(x => parseFloat(x.total)));
+                                      const pct = maxAmt > 0 ? (parseFloat(m.total) / maxAmt) * 100 : 0;
+                                      return (
+                                        <div key={i} className="group">
+                                          <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
+                                            <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{m.payment_method}</span>
+                                            <div className="flex gap-4 items-center">
+                                              <span className="text-black/60 font-bold">{m.count} TX</span>
+                                              <span className="text-emerald-400">{fmtA(m.total)}</span>
+                                            </div>
+                                          </div>
+                                          <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Revenue by room type */}
+                              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
+                                <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-[#00754A] shadow-[0_0_8px_#00754A]"></div>
+                                  Room Category Revenue
+                                </h3>
+                                {finData.byRoomType.length === 0 ? (
+                                  <div className="py-8 text-center text-black/60 italic text-xs font-medium">No category revenue data.</div>
+                                ) : (
+                                  <div className="space-y-6">
+                                    {finData.byRoomType.map((rt, i) => {
+                                      const maxC = Math.max(...finData.byRoomType.map(x => parseFloat(x.charged)));
+                                      const pct = maxC > 0 ? (parseFloat(rt.charged) / maxC) * 100 : 0;
+                                      return (
+                                        <div key={i} className="group">
+                                          <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
+                                            <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{rt.room_type}</span>
+                                            <div className="flex gap-4 items-center">
+                                              <span className="text-black/60 font-bold">{rt.bookings} STAYS</span>
+                                              <span className="text-[#00754A]">{fmtA(rt.charged)}</span>
+                                            </div>
+                                          </div>
+                                          <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                            <div className="h-full bg-gradient-to-r from-[#00754A]/50 to-[#00754A] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+
+                            {/* Outstanding Balances */}
+                            {finData.outstandingList.length > 0 && (
+                              <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl overflow-hidden  mt-8">
+                                <div className="px-8 py-5 border-b border-rose-500/10 flex items-center justify-between bg-rose-500/5">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_#f43f5e]"></div>
+                                    <h3 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em]">Aging Receivables / Outstanding Folios</h3>
+                                  </div>
+                                  <span className="text-[9px] font-black text-rose-400/50 uppercase tracking-widest">{finData.outstandingList.length} Accounts Pending</span>
+                                </div>
+                                <div className="overflow-x-auto">
+                                  <table className="w-full text-left border-collapse">
+                                    <thead>
+                                      <tr className="bg-white/[0.02] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
+                                        <th className="px-8 py-4">Guest Identity</th>
+                                        <th className="px-8 py-4">Unit Assignment</th>
+                                        <th className="px-8 py-4">Status</th>
+                                        <th className="px-8 py-4 text-right">Accrued</th>
+                                        <th className="px-8 py-4 text-right">Settled</th>
+                                        <th className="px-8 py-4 text-right">Net Due</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/[0.03]">
+                                      {finData.outstandingList.map((r, i) => (
+                                        <tr key={i} className="hover:bg-white/[0.02] transition-all group">
+                                          <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{r.full_name}</td>
+                                          <td className="px-8 py-4 text-black/60 text-xs font-medium">{r.room_number || '—'} · {r.room_type}</td>
+                                          <td className="px-8 py-4">
+                                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${r.status === 'checked_in' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : r.status === 'checked_out' ? 'bg-white shadow-sm text-black/60 border-black/5' : 'bg-[#00754A]/10 text-[#00754A] border-[#00754A]/20'}`}>
+                                              {r.status.replace('_', ' ')}
+                                            </span>
+                                          </td>
+                                          <td className="px-8 py-4 text-right text-black/60 font-mono text-xs">{fmtA(r.charged)}</td>
+                                          <td className="px-8 py-4 text-right text-emerald-400/50 font-mono text-xs">{fmtA(r.paid)}</td>
+                                          <td className="px-8 py-4 text-right text-rose-400 font-black font-mono text-xs">{fmtA(r.balance)}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
                               </div>
                             )}
-                          </div>
-                        </div>
-
-                        {/* Daily table */}
-                        {finView === 'daily' && (
-                          dailyRevData.length === 0 ? (
-                            <div className="py-16 text-center text-black/60 italic text-xs font-medium">No ledger entries for this window.</div>
-                          ) : (
-                            <div className="overflow-x-auto">
-                              <table className="w-full text-left border-collapse">
-                                <thead>
-                                  <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                                    <th className="px-6 py-4">Transaction Date</th>
-                                    <th className="px-6 py-4 text-right">Revenue Charged</th>
-                                    <th className="px-6 py-4 text-right">Cash Collected</th>
-                                    <th className="px-6 py-4 text-right">Net Balance</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/[0.03]">
-                                  {dailyRevData.map((r, i) => (
-                                    <tr key={i} className="hover:bg-white/[0.02] transition-all group">
-                                      <td className="px-6 py-4 text-black/60 text-xs font-bold">{fmtD(r.date)}</td>
-                                      <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
-                                      <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
-                                      <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                                <tfoot>
-                                  <tr className="bg-white/[0.05] font-black border-t border-black/5">
-                                    <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
-                                    <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(dailyRevData.reduce((s,r)=>s+r.charged,0))}</td>
-                                    <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s,r)=>s+r.paid,0))}</td>
-                                    <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s,r)=>s+r.balance,0))}</td>
-                                  </tr>
-                                </tfoot>
-                              </table>
-                            </div>
-                          )
-                        )}
-
-                        {/* Monthly table */}
-                        {finView === 'monthly' && (
-                          hotelRptLoading ? (
-                            <div className="py-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Synchronizing monthly metrics...</div>
-                          ) : (
-                            <div className="overflow-x-auto">
-                              <table className="w-full text-left border-collapse">
-                                <thead>
-                                  <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                                    <th className="px-6 py-4">Fiscal Month</th>
-                                    <th className="px-6 py-4 text-right">Unit Stays</th>
-                                    <th className="px-6 py-4 text-right">Revenue Accrued</th>
-                                    <th className="px-6 py-4 text-right">Total Collected</th>
-                                    <th className="px-6 py-4 text-right">Audit Balance</th>
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/[0.03]">
-                                  {monthlyRevData.map((r, i) => (
-                                    <tr key={i} className={`hover:bg-white/[0.02] transition-all group ${r.charged===0&&r.paid===0 ? 'opacity-20' : ''}`}>
-                                      <td className="px-6 py-4 text-[#000000]/87 font-black text-xs uppercase tracking-widest">{r.month}</td>
-                                      <td className="px-6 py-4 text-right text-black/60 font-mono text-xs">{r.bookings}</td>
-                                      <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
-                                      <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
-                                      <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                                <tfoot>
-                                  <tr className="bg-white/[0.05] font-black border-t border-black/5">
-                                    <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Annual Summary</td>
-                                    <td className="px-6 py-5 text-right text-black/60 font-mono text-sm">{monthlyRevData.reduce((s,r)=>s+r.bookings,0)}</td>
-                                    <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(monthlyRevData.reduce((s,r)=>s+r.charged,0))}</td>
-                                    <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s,r)=>s+r.paid,0))}</td>
-                                    <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s,r)=>s+r.balance,0))}</td>
-                                  </tr>
-                                </tfoot>
-                              </table>
-                            </div>
-                          )
+                          </>
                         )}
                       </div>
-
-
-                      {/* Payment Methods + Room Revenue */}
-                      <div className="grid md:grid-cols-2 gap-8">
-                        {/* Payment method breakdown */}
-                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
-                            Payment Channels
-                          </h3>
-                          {finData.byPaymentMethod.length === 0 ? (
-                            <div className="py-8 text-center text-black/60 italic text-xs font-medium">No transaction data recorded.</div>
-                          ) : (
-                            <div className="space-y-6">
-                              {finData.byPaymentMethod.map((m, i) => {
-                                const maxAmt = Math.max(...finData.byPaymentMethod.map(x => parseFloat(x.total)));
-                                const pct = maxAmt > 0 ? (parseFloat(m.total)/maxAmt)*100 : 0;
-                                return (
-                                  <div key={i} className="group">
-                                    <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
-                                      <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{m.payment_method}</span>
-                                      <div className="flex gap-4 items-center">
-                                        <span className="text-black/60 font-bold">{m.count} TX</span>
-                                        <span className="text-emerald-400">{fmtA(m.total)}</span>
-                                      </div>
-                                    </div>
-                                    <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                      <div className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Revenue by room type */}
-                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#00754A] shadow-[0_0_8px_#00754A]"></div>
-                            Room Category Revenue
-                          </h3>
-                          {finData.byRoomType.length === 0 ? (
-                            <div className="py-8 text-center text-black/60 italic text-xs font-medium">No category revenue data.</div>
-                          ) : (
-                            <div className="space-y-6">
-                              {finData.byRoomType.map((rt, i) => {
-                                const maxC = Math.max(...finData.byRoomType.map(x => parseFloat(x.charged)));
-                                const pct = maxC > 0 ? (parseFloat(rt.charged)/maxC)*100 : 0;
-                                return (
-                                  <div key={i} className="group">
-                                    <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
-                                      <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{rt.room_type}</span>
-                                      <div className="flex gap-4 items-center">
-                                        <span className="text-black/60 font-bold">{rt.bookings} STAYS</span>
-                                        <span className="text-[#00754A]">{fmtA(rt.charged)}</span>
-                                      </div>
-                                    </div>
-                                    <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                      <div className="h-full bg-gradient-to-r from-[#00754A]/50 to-[#00754A] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-
-                      {/* Outstanding Balances */}
-                      {finData.outstandingList.length > 0 && (
-                        <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl overflow-hidden  mt-8">
-                          <div className="px-8 py-5 border-b border-rose-500/10 flex items-center justify-between bg-rose-500/5">
-                            <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_#f43f5e]"></div>
-                              <h3 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em]">Aging Receivables / Outstanding Folios</h3>
-                            </div>
-                            <span className="text-[9px] font-black text-rose-400/50 uppercase tracking-widest">{finData.outstandingList.length} Accounts Pending</span>
-                          </div>
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                              <thead>
-                                <tr className="bg-white/[0.02] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                                  <th className="px-8 py-4">Guest Identity</th>
-                                  <th className="px-8 py-4">Unit Assignment</th>
-                                  <th className="px-8 py-4">Status</th>
-                                  <th className="px-8 py-4 text-right">Accrued</th>
-                                  <th className="px-8 py-4 text-right">Settled</th>
-                                  <th className="px-8 py-4 text-right">Net Due</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-white/[0.03]">
-                                {finData.outstandingList.map((r, i) => (
-                                  <tr key={i} className="hover:bg-white/[0.02] transition-all group">
-                                    <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{r.full_name}</td>
-                                    <td className="px-8 py-4 text-black/60 text-xs font-medium">{r.room_number || '—'} · {r.room_type}</td>
-                                    <td className="px-8 py-4">
-                                      <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${r.status==='checked_in'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':r.status==='checked_out'?'bg-white shadow-sm text-black/60 border-black/5':'bg-[#00754A]/10 text-[#00754A] border-[#00754A]/20'}`}>
-                                        {r.status.replace('_',' ')}
-                                      </span>
-                                    </td>
-                                    <td className="px-8 py-4 text-right text-black/60 font-mono text-xs">{fmtA(r.charged)}</td>
-                                    <td className="px-8 py-4 text-right text-emerald-400/50 font-mono text-xs">{fmtA(r.paid)}</td>
-                                    <td className="px-8 py-4 text-right text-rose-400 font-black font-mono text-xs">{fmtA(r.balance)}</td>
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
+                    )}
                   </div>
                 </div>
               </div>
@@ -3361,679 +3311,679 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
                 <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-8">
                   {/* Settings sub-tab navigation */}
-            <div className="flex overflow-x-auto gap-1 mb-6 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
-              {[
-                { id: 'property', label: 'Property' },
-                { id: 'rooms', label: 'Rooms & Inventory' },
-                { id: 'rate-codes', label: 'Rate Codes' },
-                { id: 'reservations', label: 'Reservations' },
-                { id: 'availability', label: 'Availability' },
-                { id: 'notifications', label: 'Notifications' },
-                { id: 'clinic', label: 'Clinic' },
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setSettingsSubTab(tab.id)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${settingsSubTab === tab.id
-                      ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white shadow-sm'
-                      : 'text-gray-500 hover:text-gray-800 hover:bg-blue-50'
-                    }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* ── Property ── */}
-            {settingsSubTab === 'property' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
-                  <div>
-                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Property Information</h3>
-                    <p className="text-black/60 text-xs mt-1">Global settings for your hotel identity and guest communication</p>
-                  </div>
-                  {settingsSavedMsg && (
-                    <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
-                      {settingsSavedMsg}
-                    </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[
-                    { key: 'hotel_name', label: 'Hotel Name', type: 'text', placeholder: 'Grand Hotel' },
-                    { key: 'hotel_address', label: 'Address', type: 'text', placeholder: '123 Main Street, City' },
-                    { key: 'hotel_phone', label: 'Phone Number', type: 'text', placeholder: '+63 912 345 6789' },
-                    { key: 'hotel_email', label: 'Email Address', type: 'email', placeholder: 'info@grandhotel.com' },
-                    { key: 'hotel_website', label: 'Website', type: 'text', placeholder: 'www.grandhotel.com' },
-                    { key: 'currency', label: 'Currency Code', type: 'text', placeholder: 'PHP' },
-                    { key: 'check_in_time', label: 'Check-in Time', type: 'time', placeholder: '' },
-                    { key: 'check_out_time', label: 'Check-out Time', type: 'time', placeholder: '' },
-                  ].map(field => (
-                    <div key={field.key} className="space-y-2">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
-                      <input
-                        type={field.type}
-                        value={hotelSettings[field.key] || ''}
-                        onChange={(e) => setHotelSettings(prev => ({ ...prev, [field.key]: e.target.value }))}
-                        placeholder={field.placeholder}
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-end pt-4 border-t border-black/5">
-                  <button
-                    onClick={saveHotelSettings}
-                    disabled={savingSettings}
-                    className="px-10 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30"
-                  >
-                    {savingSettings ? 'Synchronizing...' : 'Commit Changes'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Rooms & Inventory ── */}
-            {settingsSubTab === 'rooms' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Add new room type */}
-                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                  <div className="mb-8 flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Room Type</h3>
-                      <p className="text-black/60 text-xs mt-1">Configure a new bookable unit with distinct pricing and rules</p>
-                    </div>
-                    <button
-                      onClick={addRoomType}
-                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all"
-                    >
-                      Provision Unit
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="flex overflow-x-auto gap-1 mb-6 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
                     {[
-                      { key: 'name', label: 'Room Name', type: 'text', placeholder: 'e.g. Deluxe Room' },
-                      { key: 'description', label: 'Description', type: 'text', placeholder: 'e.g. 1 King Bed · City View' },
-                      { key: 'price_per_night', label: 'Base Rate (₱)', type: 'number', placeholder: '0' },
-                      { key: 'total_rooms', label: 'Total Units', type: 'number', placeholder: '1' },
-                      { key: 'max_guests', label: 'Max Capacity', type: 'number', placeholder: '2' },
-                      { key: 'floor', label: 'Floor Level', type: 'number', placeholder: '1' },
-                      { key: 'area', label: 'Wing / Area', type: 'text', placeholder: 'e.g. East Wing' },
-                      { key: 'amenities', label: 'Amenities', type: 'text', placeholder: 'comma-separated' },
-                    ].map(field => (
-                      <div key={field.key} className="space-y-2">
-                        <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
-                        <input
-                          type={field.type}
-                          value={newRoomForm[field.key]}
-                          onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
-                          placeholder={field.placeholder}
-                          min={field.type === 'number' ? '0' : undefined}
-                          className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
-                        />
-                      </div>
+                      { id: 'property', label: 'Property' },
+                      { id: 'rooms', label: 'Rooms & Inventory' },
+                      { id: 'rate-codes', label: 'Rate Codes' },
+                      { id: 'reservations', label: 'Reservations' },
+                      { id: 'availability', label: 'Availability' },
+                      { id: 'notifications', label: 'Notifications' },
+                      { id: 'clinic', label: 'Clinic' },
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setSettingsSubTab(tab.id)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${settingsSubTab === tab.id
+                          ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white shadow-sm'
+                          : 'text-gray-500 hover:text-gray-800 hover:bg-blue-50'
+                          }`}
+                      >
+                        {tab.label}
+                      </button>
                     ))}
                   </div>
-                </div>
 
-                {/* Room type list */}
-                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                  <div className="mb-8 border-b border-black/5 pb-6">
-                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Active Inventory</h3>
-                    <p className="text-black/60 text-xs mt-1">Currently managing {adminRoomTypes.length} bookable tiers</p>
-                  </div>
-                  <div className="space-y-4">
-                    {adminRoomTypes.map(rt => (
-                      <div key={rt.id} className={`rounded-2xl border p-6 transition-all group ${rt.active ? 'bg-white/[0.02] border-black/5 hover:border-black/5' : 'bg-white/[0.01] border-black/5 opacity-40'}`}>
-                        {editRoomId === rt.id ? (
-                          <div className="space-y-6">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              {[
-                                { key: 'name', label: 'Name' },
-                                { key: 'description', label: 'Description' },
-                                { key: 'price_per_night', label: 'Rate (₱)' },
-                                { key: 'total_rooms', label: 'Units' },
-                                { key: 'max_guests', label: 'Capacity' },
-                                { key: 'floor', label: 'Floor' },
-                                { key: 'area', label: 'Wing' },
-                                { key: 'amenities', label: 'Amenities' },
-                              ].map(f => (
-                                <div key={f.key}>
-                                  <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">{f.label}</label>
-                                  <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))} 
-                                    className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
-                                </div>
-                              ))}
-                            </div>
-                            <div className="flex gap-3">
-                              <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#00754A] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
-                              <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white shadow-sm text-black/60 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#000000]/87">Cancel</button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="flex items-start justify-between gap-6">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-3 mb-2">
-                                <span className="font-black text-[#000000]/87 tracking-tight uppercase text-sm group-hover:text-[#00754A] transition-colors">{rt.name}</span>
-                                {!rt.active && <span className="text-[9px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded-full uppercase font-black tracking-widest">Inactive</span>}
-                              </div>
-                              <p className="text-xs text-black/60 mb-4 line-clamp-2">{rt.description}</p>
-                              <div className="flex flex-wrap gap-4 text-[9px] font-black uppercase tracking-widest">
-                                <span className="text-[#00754A] font-mono text-[11px]">₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')} / Night</span>
-                                <span className="text-black/60">{rt.total_rooms} Units Available</span>
-                                <span className="text-black/60">Max {rt.max_guests} Guests</span>
-                                <span className="text-black/60">Level {rt.floor || 1}</span>
-                                {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-lg border border-emerald-400/20">{rt.area}</span>}
-                              </div>
-                            </div>
-                            <div className="flex gap-2 flex-shrink-0">
-                              <button
-                                onClick={() => { setEditRoomId(rt.id); setEditRoomForm({ name: rt.name, description: rt.description, price_per_night: rt.price_per_night, total_rooms: rt.total_rooms, max_guests: rt.max_guests, amenities: rt.amenities, floor: rt.floor || 1, area: rt.area || '' }); }}
-                                className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-black/60 border border-black/5 rounded-xl hover:bg-[#00754A] hover:text-white hover:border-[#00754A] transition-all"
-                                title="Edit Configuration"
-                              >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                              </button>
-                              {rt.active ? (
-                                <button onClick={() => deactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-rose-400/40 border border-black/5 rounded-xl hover:bg-rose-500 hover:text-[#000000]/87 hover:border-rose-500 transition-all" title="Deactivate Unit">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
-                                </button>
-                              ) : (
-                                <button onClick={() => reactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-emerald-400/40 border border-black/5 rounded-xl hover:bg-emerald-500 hover:text-[#000000]/87 hover:border-emerald-500 transition-all" title="Reactivate Unit">
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                                </button>
-                              )}
-                            </div>
+                  {/* ── Property ── */}
+                  {settingsSubTab === 'property' && (
+                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Property Information</h3>
+                          <p className="text-black/60 text-xs mt-1">Global settings for your hotel identity and guest communication</p>
+                        </div>
+                        {settingsSavedMsg && (
+                          <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                            {settingsSavedMsg}
                           </div>
                         )}
                       </div>
-                    ))}
-                    {adminRoomTypes.length === 0 && (
-                      <div className="py-16 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">Inventory is empty. Use the form above to add room tiers.</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[
+                          { key: 'hotel_name', label: 'Hotel Name', type: 'text', placeholder: 'Grand Hotel' },
+                          { key: 'hotel_address', label: 'Address', type: 'text', placeholder: '123 Main Street, City' },
+                          { key: 'hotel_phone', label: 'Phone Number', type: 'text', placeholder: '+63 912 345 6789' },
+                          { key: 'hotel_email', label: 'Email Address', type: 'email', placeholder: 'info@grandhotel.com' },
+                          { key: 'hotel_website', label: 'Website', type: 'text', placeholder: 'www.grandhotel.com' },
+                          { key: 'currency', label: 'Currency Code', type: 'text', placeholder: 'PHP' },
+                          { key: 'check_in_time', label: 'Check-in Time', type: 'time', placeholder: '' },
+                          { key: 'check_out_time', label: 'Check-out Time', type: 'time', placeholder: '' },
+                        ].map(field => (
+                          <div key={field.key} className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
+                            <input
+                              type={field.type}
+                              value={hotelSettings[field.key] || ''}
+                              onChange={(e) => setHotelSettings(prev => ({ ...prev, [field.key]: e.target.value }))}
+                              placeholder={field.placeholder}
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex justify-end pt-4 border-t border-black/5">
+                        <button
+                          onClick={saveHotelSettings}
+                          disabled={savingSettings}
+                          className="px-10 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30"
+                        >
+                          {savingSettings ? 'Synchronizing...' : 'Commit Changes'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
-            {/* ── Rate Codes ── */}
-            {settingsSubTab === 'rate-codes' && (
-              <div className="space-y-4">
-                {/* Add new rate code */}
-                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                  <div className="mb-8 flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Rate Code</h3>
-                      <p className="text-black/60 text-xs mt-1">Define a new pricing tier or promotional code</p>
-                    </div>
-                    {rcMsg && <div className="px-4 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div>
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Reference Code</label>
-                      <input value={rcNewForm.code} onChange={e => setRcNewForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
-                        placeholder="e.g. CORP" maxLength={10}
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all" />
-                    </div>
-                    <div>
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Display Name</label>
-                      <input value={rcNewForm.name} onChange={e => setRcNewForm(f => ({ ...f, name: e.target.value }))}
-                        placeholder="e.g. Corporate Rate"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
-                    </div>
-                    <div>
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Description</label>
-                      <input value={rcNewForm.description} onChange={e => setRcNewForm(f => ({ ...f, description: e.target.value }))}
-                        placeholder="e.g. Standard corporate discount"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
-                    </div>
-                  </div>
-                  <button
-                    onClick={async () => {
-                      if (!rcNewForm.code || !rcNewForm.name) return;
-                      try {
-                        const res = await fetch(`${API_BASE_URL}/api/admin/rate-codes`, {
-                          method: 'POST', headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify(rcNewForm),
-                        });
-                        const data = await res.json();
-                        if (data.success) { setRcNewForm({ code: '', name: '', description: '' }); fetchAdminRateCodes(); }
-                        else setRcMsg(data.message || 'Failed.');
-                      } catch { setRcMsg('Error saving.'); }
-                      setTimeout(() => setRcMsg(''), 3000);
-                    }}
-                    className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all">
-                    Register Rate Code
-                  </button>
-                </div>
+                  {/* ── Rooms & Inventory ── */}
+                  {settingsSubTab === 'rooms' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      {/* Add new room type */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                        <div className="mb-8 flex items-center justify-between">
+                          <div>
+                            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Room Type</h3>
+                            <p className="text-black/60 text-xs mt-1">Configure a new bookable unit with distinct pricing and rules</p>
+                          </div>
+                          <button
+                            onClick={addRoomType}
+                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all"
+                          >
+                            Provision Unit
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                          {[
+                            { key: 'name', label: 'Room Name', type: 'text', placeholder: 'e.g. Deluxe Room' },
+                            { key: 'description', label: 'Description', type: 'text', placeholder: 'e.g. 1 King Bed · City View' },
+                            { key: 'price_per_night', label: 'Base Rate (₱)', type: 'number', placeholder: '0' },
+                            { key: 'total_rooms', label: 'Total Units', type: 'number', placeholder: '1' },
+                            { key: 'max_guests', label: 'Max Capacity', type: 'number', placeholder: '2' },
+                            { key: 'floor', label: 'Floor Level', type: 'number', placeholder: '1' },
+                            { key: 'area', label: 'Wing / Area', type: 'text', placeholder: 'e.g. East Wing' },
+                            { key: 'amenities', label: 'Amenities', type: 'text', placeholder: 'comma-separated' },
+                          ].map(field => (
+                            <div key={field.key} className="space-y-2">
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
+                              <input
+                                type={field.type}
+                                value={newRoomForm[field.key]}
+                                onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                placeholder={field.placeholder}
+                                min={field.type === 'number' ? '0' : undefined}
+                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
 
-                {/* Rate codes list */}
-                <div className="bg-white/[0.03] border border-black/5 rounded-2xl overflow-hidden ">
-                  <div className="px-8 py-5 border-b border-black/5 flex items-center justify-between bg-white/[0.02]">
-                    <h3 className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">Configured Tiers</h3>
-                    <button onClick={fetchAdminRateCodes} className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">Refresh Records</button>
-                  </div>
-                  {rcLoading ? (
-                    <div className="p-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Querying database...</div>
-                  ) : adminRateCodes.length === 0 ? (
-                    <div className="p-16 text-center text-black/60 italic text-xs font-medium">No rate codes defined yet.</div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="bg-white/[0.01] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                            <th className="px-8 py-4">Reference</th>
-                            <th className="px-8 py-4">Descriptor</th>
-                            <th className="px-8 py-4">Internal Memo</th>
-                            <th className="px-8 py-4 text-center">Status</th>
-                            <th className="px-8 py-4 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/[0.03]">
-                          {adminRateCodes.map(rc => (
-                            <React.Fragment key={rc.id}>
-                              <tr className="hover:bg-white/[0.02] transition-all group">
-                                <td className="px-8 py-4 text-[#00754A] font-mono text-xs font-black uppercase">{rc.code}</td>
-                                <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{rc.name}</td>
-                                <td className="px-8 py-4 text-black/60 text-xs">{rc.description || '—'}</td>
-                                <td className="px-8 py-4 text-center">
-                                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${rc.is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-white shadow-sm text-black/60 border-black/5'}`}>
-                                    {rc.is_active ? 'Active' : 'Inactive'}
-                                  </span>
-                                </td>
-                                <td className="px-8 py-4 text-right">
-                                  <div className="flex items-center justify-end gap-3">
-                                    <button
-                                      onClick={() => {
-                                        if (rcPriceEdit === rc.id) { setRcPriceEdit(null); return; }
-                                        const initPrices = {};
-                                        (rc.prices || []).forEach(p => { initPrices[p.room_type_id] = p.price_per_night; });
-                                        setRcPrices(initPrices);
-                                        setRcPriceEdit(rc.id);
-                                      }}
-                                      className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">
-                                      {rcPriceEdit === rc.id ? 'Close' : 'Set Rates'}
-                                    </button>
-                                    <button
-                                      onClick={async () => {
-                                        await fetch(`${API_BASE_URL}/api/admin/rate-codes/${rc.id}`, {
-                                          method: 'PUT', headers: { 'Content-Type': 'application/json' },
-                                          body: JSON.stringify({ is_active: !rc.is_active }),
-                                        });
-                                        fetchAdminRateCodes();
-                                      }}
-                                      className={`text-[9px] font-black uppercase tracking-widest transition-colors ${rc.is_active ? 'text-rose-400 hover:text-rose-300' : 'text-emerald-400 hover:text-emerald-300'}`}>
-                                      {rc.is_active ? 'Archive' : 'Restore'}
-                                    </button>
-                                  </div>
-                                </td>
-                            </tr>
-                            {/* Price matrix row */}
-                            {rcPriceEdit === rc.id && (
-                              <tr className="bg-white/[0.04]">
-                                <td colSpan={5} className="px-8 py-8 border-t border-black/5">
-                                  <div className="flex items-center justify-between mb-8">
-                                    <div>
-                                      <h4 className="text-[10px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Price Configuration</h4>
-                                      <p className="text-black/60 text-[10px] mt-1 font-medium italic">Leave blank to inherit global default rates for the selected tier</p>
-                                    </div>
-                                    <button onClick={() => saveRcPrices(rc.id)} disabled={rcSaving}
-                                      className="px-6 py-2 bg-[#00754A] text-white rounded-lg font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
-                                      {rcSaving ? 'Syncing...' : 'Apply Overrides'}
-                                    </button>
-                                  </div>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                                    {adminRoomTypesForRates.filter(rt => rt.active).map(rt => (
-                                      <div key={rt.id} className="flex items-center justify-between group/row">
-                                        <div className="flex flex-col">
-                                          <span className="text-[10px] font-black text-black/60 uppercase tracking-widest truncate max-w-[180px]">{rt.name}</span>
-                                          <span className="text-[9px] text-black/60 font-medium">Standard: ₱{Number(rt.price_per_night).toLocaleString()}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3">
-                                          <span className="text-black/60 text-[10px] font-mono">₱</span>
-                                          <input
-                                            type="number" min="0" placeholder="Inherit"
-                                            value={rcPrices[rt.id] ?? ''}
-                                            onChange={e => setRcPrices(p => ({ ...p, [rt.id]: e.target.value }))}
-                                            className="w-32 px-4 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-xs focus:border-[#00754A]/50 outline-none transition-all placeholder:text-black/60"
-                                          />
-                                        </div>
+                      {/* Room type list */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                        <div className="mb-8 border-b border-black/5 pb-6">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Active Inventory</h3>
+                          <p className="text-black/60 text-xs mt-1">Currently managing {adminRoomTypes.length} bookable tiers</p>
+                        </div>
+                        <div className="space-y-4">
+                          {adminRoomTypes.map(rt => (
+                            <div key={rt.id} className={`rounded-2xl border p-6 transition-all group ${rt.active ? 'bg-white/[0.02] border-black/5 hover:border-black/5' : 'bg-white/[0.01] border-black/5 opacity-40'}`}>
+                              {editRoomId === rt.id ? (
+                                <div className="space-y-6">
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    {[
+                                      { key: 'name', label: 'Name' },
+                                      { key: 'description', label: 'Description' },
+                                      { key: 'price_per_night', label: 'Rate (₱)' },
+                                      { key: 'total_rooms', label: 'Units' },
+                                      { key: 'max_guests', label: 'Capacity' },
+                                      { key: 'floor', label: 'Floor' },
+                                      { key: 'area', label: 'Wing' },
+                                      { key: 'amenities', label: 'Amenities' },
+                                    ].map(f => (
+                                      <div key={f.key}>
+                                        <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">{f.label}</label>
+                                        <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
+                                          className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
                                       </div>
                                     ))}
                                   </div>
-                                </td>
-                              </tr>
-                            )}
-                          </React.Fragment>
+                                  <div className="flex gap-3">
+                                    <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#00754A] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
+                                    <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white shadow-sm text-black/60 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#000000]/87">Cancel</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-start justify-between gap-6">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <span className="font-black text-[#000000]/87 tracking-tight uppercase text-sm group-hover:text-[#00754A] transition-colors">{rt.name}</span>
+                                      {!rt.active && <span className="text-[9px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded-full uppercase font-black tracking-widest">Inactive</span>}
+                                    </div>
+                                    <p className="text-xs text-black/60 mb-4 line-clamp-2">{rt.description}</p>
+                                    <div className="flex flex-wrap gap-4 text-[9px] font-black uppercase tracking-widest">
+                                      <span className="text-[#00754A] font-mono text-[11px]">₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')} / Night</span>
+                                      <span className="text-black/60">{rt.total_rooms} Units Available</span>
+                                      <span className="text-black/60">Max {rt.max_guests} Guests</span>
+                                      <span className="text-black/60">Level {rt.floor || 1}</span>
+                                      {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-lg border border-emerald-400/20">{rt.area}</span>}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2 flex-shrink-0">
+                                    <button
+                                      onClick={() => { setEditRoomId(rt.id); setEditRoomForm({ name: rt.name, description: rt.description, price_per_night: rt.price_per_night, total_rooms: rt.total_rooms, max_guests: rt.max_guests, amenities: rt.amenities, floor: rt.floor || 1, area: rt.area || '' }); }}
+                                      className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-black/60 border border-black/5 rounded-xl hover:bg-[#00754A] hover:text-white hover:border-[#00754A] transition-all"
+                                      title="Edit Configuration"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    </button>
+                                    {rt.active ? (
+                                      <button onClick={() => deactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-rose-400/40 border border-black/5 rounded-xl hover:bg-rose-500 hover:text-[#000000]/87 hover:border-rose-500 transition-all" title="Deactivate Unit">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                      </button>
+                                    ) : (
+                                      <button onClick={() => reactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-emerald-400/40 border border-black/5 rounded-xl hover:bg-emerald-500 hover:text-[#000000]/87 hover:border-emerald-500 transition-all" title="Reactivate Unit">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          {adminRoomTypes.length === 0 && (
+                            <div className="py-16 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">Inventory is empty. Use the form above to add room tiers.</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Rate Codes ── */}
+                  {settingsSubTab === 'rate-codes' && (
+                    <div className="space-y-4">
+                      {/* Add new rate code */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                        <div className="mb-8 flex items-center justify-between">
+                          <div>
+                            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Rate Code</h3>
+                            <p className="text-black/60 text-xs mt-1">Define a new pricing tier or promotional code</p>
+                          </div>
+                          {rcMsg && <div className="px-4 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Reference Code</label>
+                            <input value={rcNewForm.code} onChange={e => setRcNewForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
+                              placeholder="e.g. CORP" maxLength={10}
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Display Name</label>
+                            <input value={rcNewForm.name} onChange={e => setRcNewForm(f => ({ ...f, name: e.target.value }))}
+                              placeholder="e.g. Corporate Rate"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Description</label>
+                            <input value={rcNewForm.description} onChange={e => setRcNewForm(f => ({ ...f, description: e.target.value }))}
+                              placeholder="e.g. Standard corporate discount"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
+                          </div>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            if (!rcNewForm.code || !rcNewForm.name) return;
+                            try {
+                              const res = await fetch(`${API_BASE_URL}/api/admin/rate-codes`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(rcNewForm),
+                              });
+                              const data = await res.json();
+                              if (data.success) { setRcNewForm({ code: '', name: '', description: '' }); fetchAdminRateCodes(); }
+                              else setRcMsg(data.message || 'Failed.');
+                            } catch { setRcMsg('Error saving.'); }
+                            setTimeout(() => setRcMsg(''), 3000);
+                          }}
+                          className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all">
+                          Register Rate Code
+                        </button>
+                      </div>
+
+                      {/* Rate codes list */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl overflow-hidden ">
+                        <div className="px-8 py-5 border-b border-black/5 flex items-center justify-between bg-white/[0.02]">
+                          <h3 className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">Configured Tiers</h3>
+                          <button onClick={fetchAdminRateCodes} className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">Refresh Records</button>
+                        </div>
+                        {rcLoading ? (
+                          <div className="p-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Querying database...</div>
+                        ) : adminRateCodes.length === 0 ? (
+                          <div className="p-16 text-center text-black/60 italic text-xs font-medium">No rate codes defined yet.</div>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-white/[0.01] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
+                                  <th className="px-8 py-4">Reference</th>
+                                  <th className="px-8 py-4">Descriptor</th>
+                                  <th className="px-8 py-4">Internal Memo</th>
+                                  <th className="px-8 py-4 text-center">Status</th>
+                                  <th className="px-8 py-4 text-right">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/[0.03]">
+                                {adminRateCodes.map(rc => (
+                                  <React.Fragment key={rc.id}>
+                                    <tr className="hover:bg-white/[0.02] transition-all group">
+                                      <td className="px-8 py-4 text-[#00754A] font-mono text-xs font-black uppercase">{rc.code}</td>
+                                      <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{rc.name}</td>
+                                      <td className="px-8 py-4 text-black/60 text-xs">{rc.description || '—'}</td>
+                                      <td className="px-8 py-4 text-center">
+                                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${rc.is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-white shadow-sm text-black/60 border-black/5'}`}>
+                                          {rc.is_active ? 'Active' : 'Inactive'}
+                                        </span>
+                                      </td>
+                                      <td className="px-8 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-3">
+                                          <button
+                                            onClick={() => {
+                                              if (rcPriceEdit === rc.id) { setRcPriceEdit(null); return; }
+                                              const initPrices = {};
+                                              (rc.prices || []).forEach(p => { initPrices[p.room_type_id] = p.price_per_night; });
+                                              setRcPrices(initPrices);
+                                              setRcPriceEdit(rc.id);
+                                            }}
+                                            className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">
+                                            {rcPriceEdit === rc.id ? 'Close' : 'Set Rates'}
+                                          </button>
+                                          <button
+                                            onClick={async () => {
+                                              await fetch(`${API_BASE_URL}/api/admin/rate-codes/${rc.id}`, {
+                                                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ is_active: !rc.is_active }),
+                                              });
+                                              fetchAdminRateCodes();
+                                            }}
+                                            className={`text-[9px] font-black uppercase tracking-widest transition-colors ${rc.is_active ? 'text-rose-400 hover:text-rose-300' : 'text-emerald-400 hover:text-emerald-300'}`}>
+                                            {rc.is_active ? 'Archive' : 'Restore'}
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                    {/* Price matrix row */}
+                                    {rcPriceEdit === rc.id && (
+                                      <tr className="bg-white/[0.04]">
+                                        <td colSpan={5} className="px-8 py-8 border-t border-black/5">
+                                          <div className="flex items-center justify-between mb-8">
+                                            <div>
+                                              <h4 className="text-[10px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Price Configuration</h4>
+                                              <p className="text-black/60 text-[10px] mt-1 font-medium italic">Leave blank to inherit global default rates for the selected tier</p>
+                                            </div>
+                                            <button onClick={() => saveRcPrices(rc.id)} disabled={rcSaving}
+                                              className="px-6 py-2 bg-[#00754A] text-white rounded-lg font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                                              {rcSaving ? 'Syncing...' : 'Apply Overrides'}
+                                            </button>
+                                          </div>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                            {adminRoomTypesForRates.filter(rt => rt.active).map(rt => (
+                                              <div key={rt.id} className="flex items-center justify-between group/row">
+                                                <div className="flex flex-col">
+                                                  <span className="text-[10px] font-black text-black/60 uppercase tracking-widest truncate max-w-[180px]">{rt.name}</span>
+                                                  <span className="text-[9px] text-black/60 font-medium">Standard: ₱{Number(rt.price_per_night).toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                  <span className="text-black/60 text-[10px] font-mono">₱</span>
+                                                  <input
+                                                    type="number" min="0" placeholder="Inherit"
+                                                    value={rcPrices[rt.id] ?? ''}
+                                                    onChange={e => setRcPrices(p => ({ ...p, [rt.id]: e.target.value }))}
+                                                    className="w-32 px-4 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-xs focus:border-[#00754A]/50 outline-none transition-all placeholder:text-black/60"
+                                                  />
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Reservations ── */}
+                  {settingsSubTab === 'reservations' && (
+                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Reservation Rules</h3>
+                          <p className="text-black/60 text-xs mt-1">Define stay limits, booking window, and cancellation policy</p>
+                        </div>
+                        {settingsSavedMsg && (
+                          <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                            {settingsSavedMsg}
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Minimum Stay (nights)</label>
+                          <input
+                            type="number"
+                            value={hotelSettings.min_stay_nights || '1'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, min_stay_nights: e.target.value }))}
+                            min="1"
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Maximum Stay (nights)</label>
+                          <input
+                            type="number"
+                            value={hotelSettings.max_stay_nights || '30'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, max_stay_nights: e.target.value }))}
+                            min="1"
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Advance Booking Window (days)</label>
+                          <input
+                            type="number"
+                            value={hotelSettings.advance_booking_days || '365'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, advance_booking_days: e.target.value }))}
+                            min="1"
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Required</label>
+                          <select
+                            value={hotelSettings.deposit_required || 'false'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_required: e.target.value }))}
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all appearance-none"
+                          >
+                            <option value="false" className="bg-[#1A1F2C]">No</option>
+                            <option value="true" className="bg-[#1A1F2C]">Yes</option>
+                          </select>
+                        </div>
+                        {hotelSettings.deposit_required === 'true' && (
+                          <div className="md:col-span-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Percentage (%)</label>
+                            <input
+                              type="number"
+                              value={hotelSettings.deposit_percentage || '50'}
+                              onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_percentage: e.target.value }))}
+                              min="1" max="100"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Cancellation Policy</label>
+                        <textarea
+                          value={hotelSettings.cancellation_policy || ''}
+                          onChange={(e) => setHotelSettings(prev => ({ ...prev, cancellation_policy: e.target.value }))}
+                          rows={4}
+                          placeholder="e.g. Free cancellation up to 24 hours before check-in."
+                          className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all resize-none"
+                        />
+                      </div>
+                      <div className="flex justify-end pt-4">
+                        <button
+                          onClick={saveHotelSettings}
+                          disabled={savingSettings}
+                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                        >
+                          {savingSettings ? 'Synchronizing...' : 'Save Reservation Policy'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Availability ── */}
+                  {settingsSubTab === 'availability' && (
+                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
+                          <p className="text-black/60 text-xs mt-1">Restrict availability for maintenance or seasonal holidays</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-4 items-end">
+                        <div className="flex-1 min-w-[200px]">
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Blackout Date</label>
+                          <input
+                            type="date"
+                            value={newBlockedDate}
+                            onChange={(e) => setNewBlockedDate(e.target.value)}
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
+                          />
+                        </div>
+                        <div className="flex-[2] min-w-[300px]">
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Reason / Memo</label>
+                          <input
+                            type="text"
+                            value={newBlockedReason}
+                            onChange={(e) => setNewBlockedReason(e.target.value)}
+                            placeholder="e.g. Annual HVAC Maintenance"
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
+                          />
+                        </div>
+                        <button
+                          onClick={addBlockedDate}
+                          className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
+                        >
+                          Commit Blackout
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Current Restricted Dates</h4>
+                        {blockedDates.map(bd => (
+                          <div key={bd.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
+                            <div className="flex items-center gap-6">
+                              <span className="text-[#000000]/87 font-mono text-sm font-bold">{bd.blocked_date}</span>
+                              {bd.reason && <span className="text-black/60 text-xs font-medium tracking-wide">— {bd.reason}</span>}
+                            </div>
+                            <button
+                              onClick={() => deleteBlockedDate(bd.id)}
+                              className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all"
+                            >
+                              Release
+                            </button>
+                          </div>
                         ))}
-                      </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* ── Reservations ── */}
-            {settingsSubTab === 'reservations' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
-                  <div>
-                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Reservation Rules</h3>
-                    <p className="text-black/60 text-xs mt-1">Define stay limits, booking window, and cancellation policy</p>
-                  </div>
-                  {settingsSavedMsg && (
-                    <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
-                      {settingsSavedMsg}
-                    </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Minimum Stay (nights)</label>
-                    <input
-                      type="number"
-                      value={hotelSettings.min_stay_nights || '1'}
-                      onChange={(e) => setHotelSettings(prev => ({ ...prev, min_stay_nights: e.target.value }))}
-                      min="1"
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Maximum Stay (nights)</label>
-                    <input
-                      type="number"
-                      value={hotelSettings.max_stay_nights || '30'}
-                      onChange={(e) => setHotelSettings(prev => ({ ...prev, max_stay_nights: e.target.value }))}
-                      min="1"
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Advance Booking Window (days)</label>
-                    <input
-                      type="number"
-                      value={hotelSettings.advance_booking_days || '365'}
-                      onChange={(e) => setHotelSettings(prev => ({ ...prev, advance_booking_days: e.target.value }))}
-                      min="1"
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Required</label>
-                    <select
-                      value={hotelSettings.deposit_required || 'false'}
-                      onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_required: e.target.value }))}
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all appearance-none"
-                    >
-                      <option value="false" className="bg-[#1A1F2C]">No</option>
-                      <option value="true" className="bg-[#1A1F2C]">Yes</option>
-                    </select>
-                  </div>
-                  {hotelSettings.deposit_required === 'true' && (
-                    <div className="md:col-span-2">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Percentage (%)</label>
-                      <input
-                        type="number"
-                        value={hotelSettings.deposit_percentage || '50'}
-                        onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_percentage: e.target.value }))}
-                        min="1" max="100"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                      />
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Cancellation Policy</label>
-                  <textarea
-                    value={hotelSettings.cancellation_policy || ''}
-                    onChange={(e) => setHotelSettings(prev => ({ ...prev, cancellation_policy: e.target.value }))}
-                    rows={4}
-                    placeholder="e.g. Free cancellation up to 24 hours before check-in."
-                    className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all resize-none"
-                  />
-                </div>
-                <div className="flex justify-end pt-4">
-                  <button
-                    onClick={saveHotelSettings}
-                    disabled={savingSettings}
-                    className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
-                  >
-                    {savingSettings ? 'Synchronizing...' : 'Save Reservation Policy'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Availability ── */}
-            {settingsSubTab === 'availability' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
-                  <div>
-                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
-                    <p className="text-black/60 text-xs mt-1">Restrict availability for maintenance or seasonal holidays</p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-4 items-end">
-                  <div className="flex-1 min-w-[200px]">
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Blackout Date</label>
-                    <input
-                      type="date"
-                      value={newBlockedDate}
-                      onChange={(e) => setNewBlockedDate(e.target.value)}
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
-                    />
-                  </div>
-                  <div className="flex-[2] min-w-[300px]">
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Reason / Memo</label>
-                    <input
-                      type="text"
-                      value={newBlockedReason}
-                      onChange={(e) => setNewBlockedReason(e.target.value)}
-                      placeholder="e.g. Annual HVAC Maintenance"
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
-                    />
-                  </div>
-                  <button
-                    onClick={addBlockedDate}
-                    className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
-                  >
-                    Commit Blackout
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Current Restricted Dates</h4>
-                  {blockedDates.map(bd => (
-                    <div key={bd.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
-                      <div className="flex items-center gap-6">
-                        <span className="text-[#000000]/87 font-mono text-sm font-bold">{bd.blocked_date}</span>
-                        {bd.reason && <span className="text-black/60 text-xs font-medium tracking-wide">— {bd.reason}</span>}
+                        {blockedDates.length === 0 && (
+                          <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">
+                            No restricted dates in the registry.
+                          </div>
+                        )}
                       </div>
-                      <button
-                        onClick={() => deleteBlockedDate(bd.id)}
-                        className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all"
-                      >
-                        Release
-                      </button>
-                    </div>
-                  ))}
-                  {blockedDates.length === 0 && (
-                    <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">
-                      No restricted dates in the registry.
                     </div>
                   )}
-                </div>
-              </div>
-            )}
 
-            {/* ── Notifications ── */}
-            {settingsSubTab === 'notifications' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
-                  <div>
-                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Notification Settings</h3>
-                    <p className="text-black/60 text-xs mt-1">Configure sender identities for automated guest communications</p>
-                  </div>
-                  {settingsSavedMsg && (
-                    <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
-                      {settingsSavedMsg}
-                    </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div>
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Display Name</label>
-                    <input
-                      type="text"
-                      value={hotelSettings.email_sender_name || ''}
-                      onChange={(e) => setHotelSettings(prev => ({ ...prev, email_sender_name: e.target.value }))}
-                      placeholder="e.g. Grand Horizon Hotel"
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                    />
-                    <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">This name appears in the "From" field of guest emails</p>
-                  </div>
-                  <div>
-                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">SMS Mask / ID</label>
-                    <input
-                      type="text"
-                      value={hotelSettings.sms_sender_name || ''}
-                      onChange={(e) => setHotelSettings(prev => ({ ...prev, sms_sender_name: e.target.value }))}
-                      placeholder="e.g. HOTEL"
-                      maxLength={11}
-                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                    />
-                    <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
-                  </div>
-                </div>
-                <div className="flex justify-end pt-4">
-                  <button
-                    onClick={saveHotelSettings}
-                    disabled={savingSettings}
-                    className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
-                  >
-                    {savingSettings ? 'Synchronizing...' : 'Save Communication Settings'}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── Clinic ── */}
-            {settingsSubTab === 'clinic' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Doctors */}
-                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                  <div className="mb-8">
-                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Practitioner Registry</h3>
-                    <p className="text-black/60 text-xs mt-1">Manage specialists available for appointment scheduling</p>
-                  </div>
-                  <div className="flex flex-wrap gap-4 items-end mb-8">
-                    <div className="flex-1 min-w-[200px]">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Full Name</label>
-                      <input
-                        type="text"
-                        value={newDoctorName}
-                        onChange={(e) => setNewDoctorName(e.target.value)}
-                        placeholder="e.g. Dr. Jane Smith"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="flex-[2] min-w-[250px]">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Medical Specialization</label>
-                      <input
-                        type="text"
-                        value={newDoctorSpec}
-                        onChange={(e) => setNewDoctorSpec(e.target.value)}
-                        placeholder="e.g. General Physician"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                      />
-                    </div>
-                    <button
-                      onClick={addDoctor}
-                      className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
-                    >
-                      Add Practitioner
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Active Staff</h4>
-                    {doctors.map(doc => (
-                      <div key={doc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
-                        <div className="flex items-center gap-6">
-                          <span className="text-[#000000]/87 font-bold text-sm">{doc.name}</span>
-                          <span className="text-black/60 text-xs font-medium tracking-wide">— {doc.specialization}</span>
+                  {/* ── Notifications ── */}
+                  {settingsSubTab === 'notifications' && (
+                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Notification Settings</h3>
+                          <p className="text-black/60 text-xs mt-1">Configure sender identities for automated guest communications</p>
                         </div>
-                        <button onClick={() => deleteDoctor(doc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Revoke</button>
+                        {settingsSavedMsg && (
+                          <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                            {settingsSavedMsg}
+                          </div>
+                        )}
                       </div>
-                    ))}
-                    {doctors.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No practitioners registered.</div>}
-                  </div>
-                </div>
-
-                {/* Services */}
-                <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                  <div className="mb-8">
-                    <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Service Catalog</h3>
-                    <p className="text-black/60 text-xs mt-1">Define clinic procedures, estimated durations, and standard pricing</p>
-                  </div>
-                  <div className="flex flex-wrap gap-4 items-end mb-8">
-                    <div className="flex-[3] min-w-[250px]">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Service Descriptor</label>
-                      <input
-                        type="text"
-                        value={newServiceName}
-                        onChange={(e) => setNewServiceName(e.target.value)}
-                        placeholder="e.g. Diagnostic Consultation"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-[120px]">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Duration (Min)</label>
-                      <input
-                        type="number"
-                        value={newServiceDuration}
-                        onChange={(e) => setNewServiceDuration(parseInt(e.target.value))}
-                        placeholder="30"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-[120px]">
-                      <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Base Price (₱)</label>
-                      <input
-                        type="number"
-                        value={newServicePrice}
-                        onChange={(e) => setNewServicePrice(parseFloat(e.target.value))}
-                        placeholder="0.00"
-                        className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                      />
-                    </div>
-                    <button onClick={addService} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all">
-                      Add Service
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Offered Procedures</h4>
-                    {services.map(svc => (
-                      <div key={svc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
-                        <div className="flex items-center gap-6">
-                          <span className="text-[#000000]/87 font-bold text-sm">{svc.name}</span>
-                          <span className="text-black/60 text-xs font-medium tracking-wide">— {svc.duration} Min</span>
-                          {svc.price > 0 && <span className="text-[#00754A] font-mono text-sm font-black">₱{svc.price.toLocaleString()}</span>}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Display Name</label>
+                          <input
+                            type="text"
+                            value={hotelSettings.email_sender_name || ''}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, email_sender_name: e.target.value }))}
+                            placeholder="e.g. Grand Horizon Hotel"
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                          <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">This name appears in the "From" field of guest emails</p>
                         </div>
-                        <button onClick={() => deleteService(svc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Remove</button>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">SMS Mask / ID</label>
+                          <input
+                            type="text"
+                            value={hotelSettings.sms_sender_name || ''}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, sms_sender_name: e.target.value }))}
+                            placeholder="e.g. HOTEL"
+                            maxLength={11}
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                          <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
+                        </div>
                       </div>
-                    ))}
-                    {services.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No services defined in the catalog.</div>}
-                  </div>
+                      <div className="flex justify-end pt-4">
+                        <button
+                          onClick={saveHotelSettings}
+                          disabled={savingSettings}
+                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                        >
+                          {savingSettings ? 'Synchronizing...' : 'Save Communication Settings'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Clinic ── */}
+                  {settingsSubTab === 'clinic' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      {/* Doctors */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                        <div className="mb-8">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Practitioner Registry</h3>
+                          <p className="text-black/60 text-xs mt-1">Manage specialists available for appointment scheduling</p>
+                        </div>
+                        <div className="flex flex-wrap gap-4 items-end mb-8">
+                          <div className="flex-1 min-w-[200px]">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                            <input
+                              type="text"
+                              value={newDoctorName}
+                              onChange={(e) => setNewDoctorName(e.target.value)}
+                              placeholder="e.g. Dr. Jane Smith"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            />
+                          </div>
+                          <div className="flex-[2] min-w-[250px]">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Medical Specialization</label>
+                            <input
+                              type="text"
+                              value={newDoctorSpec}
+                              onChange={(e) => setNewDoctorSpec(e.target.value)}
+                              placeholder="e.g. General Physician"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            />
+                          </div>
+                          <button
+                            onClick={addDoctor}
+                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
+                          >
+                            Add Practitioner
+                          </button>
+                        </div>
+                        <div className="space-y-3">
+                          <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Active Staff</h4>
+                          {doctors.map(doc => (
+                            <div key={doc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
+                              <div className="flex items-center gap-6">
+                                <span className="text-[#000000]/87 font-bold text-sm">{doc.name}</span>
+                                <span className="text-black/60 text-xs font-medium tracking-wide">— {doc.specialization}</span>
+                              </div>
+                              <button onClick={() => deleteDoctor(doc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Revoke</button>
+                            </div>
+                          ))}
+                          {doctors.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No practitioners registered.</div>}
+                        </div>
+                      </div>
+
+                      {/* Services */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                        <div className="mb-8">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Service Catalog</h3>
+                          <p className="text-black/60 text-xs mt-1">Define clinic procedures, estimated durations, and standard pricing</p>
+                        </div>
+                        <div className="flex flex-wrap gap-4 items-end mb-8">
+                          <div className="flex-[3] min-w-[250px]">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Service Descriptor</label>
+                            <input
+                              type="text"
+                              value={newServiceName}
+                              onChange={(e) => setNewServiceName(e.target.value)}
+                              placeholder="e.g. Diagnostic Consultation"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-[120px]">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Duration (Min)</label>
+                            <input
+                              type="number"
+                              value={newServiceDuration}
+                              onChange={(e) => setNewServiceDuration(parseInt(e.target.value))}
+                              placeholder="30"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-[120px]">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Base Price (₱)</label>
+                            <input
+                              type="number"
+                              value={newServicePrice}
+                              onChange={(e) => setNewServicePrice(parseFloat(e.target.value))}
+                              placeholder="0.00"
+                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            />
+                          </div>
+                          <button onClick={addService} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all">
+                            Add Service
+                          </button>
+                        </div>
+                        <div className="space-y-3">
+                          <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Offered Procedures</h4>
+                          {services.map(svc => (
+                            <div key={svc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
+                              <div className="flex items-center gap-6">
+                                <span className="text-[#000000]/87 font-bold text-sm">{svc.name}</span>
+                                <span className="text-black/60 text-xs font-medium tracking-wide">— {svc.duration} Min</span>
+                                {svc.price > 0 && <span className="text-[#00754A] font-mono text-sm font-black">₱{svc.price.toLocaleString()}</span>}
+                              </div>
+                              <button onClick={() => deleteService(svc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Remove</button>
+                            </div>
+                          ))}
+                          {services.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No services defined in the catalog.</div>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-                  </div>
-                </div>
             </div>
           </div>
         )}
-        </div>
+      </div>
 
       {/* Reschedule Modal */}
       {rescheduleModal && (
@@ -4460,6 +4410,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 // Header Component
 function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
   const [roomTypes, setRoomTypes] = useState([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/room-types`)
@@ -4473,24 +4424,36 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
   return (
     <header className="sticky top-0 z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
       {/* Top Pre-header Bar */}
-      <div className="h-[50px] w-full bg-[#1E3932] flex items-center px-4 md:px-8 gap-6">
-        <a href="mailto:bogonorthomes@gmail.com" className="text-white/90 text-[15px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-          bogonorthomes@gmail.com
-        </a>
-        <a href="tel:+639171323715" className="text-white/90 text-[15px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-2">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-          +63 917 132 3715
-        </a>
+      <div className="h-[50px] w-full bg-[#1E3932] flex items-center justify-between px-3 md:px-8 overflow-hidden">
+        <div className="flex items-center gap-2 sm:gap-6 w-full">
+          <a href="mailto:info@northomespensione.com" className="text-white/90 text-[12px] sm:text-[15px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+            <svg className="w-3.5 h-3.5 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <span>info@northomespensione.com</span>
+          </a>
+          <a href="tel:+639171323715" className="text-white/90 text-[12px] sm:text-[15px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-1 sm:gap-2 whitespace-nowrap">
+            <svg className="w-3.5 h-3.5 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+            +63 917 132 3715
+          </a>
+        </div>
+        <button
+          onClick={(e) => { e.stopPropagation(); setIsMobileMenuOpen(!isMobileMenuOpen); }}
+          className="lg:hidden text-white/90 hover:text-white p-1 ml-2 flex-shrink-0 z-50"
+        >
+          {isMobileMenuOpen ? (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          ) : (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          )}
+        </button>
       </div>
 
       <div className="relative">
         <div className="w-full px-8 py-4 relative z-10">
           <div className="flex flex-col items-center justify-center gap-3">
             <div className="flex flex-col items-center justify-center cursor-pointer group text-center" onClick={() => setCurrentPage('home')}>
-              <img 
-                src="/assets/images/hero/logo.jpg" 
-                alt="Northomes Pensionne Logo" 
+              <img
+                src="/assets/images/hero/logo.jpg"
+                alt="Northomes Pensionne Logo"
                 className="h-[178px] w-auto object-contain rounded-lg"
               />
             </div>
@@ -4529,7 +4492,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
                       <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                     )}
                   </button>
-                  
+
                   {item.hasSubmenu && roomTypes.length > 0 && (
                     <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-48">
                       <div className="bg-white rounded-xl shadow-lg border border-black/5 overflow-hidden py-1">
@@ -4556,6 +4519,45 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
             </nav>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <nav className="lg:hidden flex flex-col items-center space-y-4 py-6 bg-white border-t border-black/5 shadow-lg absolute top-full left-0 w-full z-50">
+            {[
+              { name: 'Home', id: 'home' },
+              { name: 'About Us', id: 'about' },
+              { name: 'Accommodations', id: 'accommodations' },
+              { name: 'Dining', id: 'menu' },
+              { name: 'Gallery', id: 'gallery' },
+              { name: 'Monthly Promo', id: 'promo' },
+              { name: 'Contact', id: 'contact' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  if (item.id === 'gallery') {
+                    setCurrentPage('home');
+                    setTimeout(() => {
+                      const el = document.getElementById('gallery');
+                      if (el) {
+                        const offset = 80;
+                        const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                      }
+                    }, 100);
+                  } else {
+                    setCurrentPage(item.id);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+                className={`font-bold transition-all py-2 px-3 text-sm uppercase tracking-widest ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery') ? 'text-[#00754A]' : 'text-black/60 hover:text-[#000000]/87'}`}
+              >
+                {item.name}
+              </button>
+            ))}
+          </nav>
+        )}
       </div>
     </header>
   );
@@ -4564,7 +4566,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
 // Room Card Component with Image Carousel
 function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
   const [currentImg, setCurrentImg] = useState(0);
-  
+
   // Here you can pull room-specific images if available from the backend.
   // For now, we cycle through some placeholders based on room ID to give variety.
   const images = room.id % 2 === 0 ? [
@@ -4591,16 +4593,16 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
     <div className="w-full bg-white rounded-3xl shadow-sm border border-black/5 overflow-hidden group flex flex-col">
       {/* Top Section: Photo Carousel */}
       <div className="w-full h-[300px] bg-[#f2f0eb] relative overflow-hidden flex items-center justify-center shrink-0">
-        <img 
-          src={images[currentImg]} 
-          alt={`${room.name} view ${currentImg + 1}`} 
+        <img
+          src={images[currentImg]}
+          alt={`${room.name} view ${currentImg + 1}`}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           onError={(e) => {
             e.target.style.display = 'none';
             e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full bg-black/5 p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Missing Image</span></div>`;
           }}
         />
-        
+
         {/* Navigation Arrows */}
         {images.length > 1 && (
           <>
@@ -4610,7 +4612,7 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
             <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-black/60 hover:text-black hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm border border-black/5">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7"></path></svg>
             </button>
-            
+
             {/* Dots */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
               {images.map((_, idx) => (
@@ -4620,29 +4622,39 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
           </>
         )}
       </div>
-      
+
       {/* Info Section */}
       <div className="w-full p-8 md:p-12 flex flex-col items-center text-center bg-white relative grow">
-        
+
         <h2 className="text-3xl font-bold text-[#006241] tracking-tight mb-2">{room.name}</h2>
         <div className="text-2xl font-black text-black/80 mb-6">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-sm text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
-        
+
         {hasCheckedAvailability && (
           <div className={`mb-6 inline-block w-fit px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${room.available > 0 ? 'bg-[#00754A]/5 border-[#00754A]/20 text-[#00754A]' : 'bg-red-500/5 border-red-500/20 text-red-600'}`}>
             {room.available > 0 ? `${room.available} ${room.available === 1 ? 'Room' : 'Rooms'} Available` : 'Fully Booked for these dates'}
           </div>
         )}
-        
+
         <p className="text-black/60 font-medium leading-relaxed mb-8">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
-        
-        <button 
-          onClick={() => { sessionStorage.setItem('northomes_roomtype', room.name); setCurrentPage('booking'); }} 
+
+        {room.amenities && (
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {room.amenities.split(',').map((amenity, idx) => (
+              <span key={idx} className="px-3 py-1 bg-[#00754A]/5 border border-[#00754A]/10 text-[#00754A] rounded-full text-[10px] font-bold uppercase tracking-widest">
+                {amenity.trim()}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={() => { sessionStorage.setItem('northomes_roomtype', room.name); setCurrentPage('booking'); }}
           disabled={hasCheckedAvailability && room.available === 0}
           className={`w-fit mt-auto px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-all ${hasCheckedAvailability && room.available === 0 ? 'bg-black/5 text-black/30 cursor-not-allowed' : 'bg-gradient-to-br from-[#00754A] to-[#006241] hover:scale-105 active:scale-95 text-white shadow-[0_0_20px_rgba(0,117,74,0.2)]'}`}
         >
           {hasCheckedAvailability && room.available === 0 ? 'Sold Out' : 'Book Now'}
         </button>
-        
+
         {/* Arrow pointing down into the dark section */}
         <div className="absolute -bottom-[20px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[20px] border-r-[20px] border-t-[20px] border-l-transparent border-r-transparent border-t-white z-20"></div>
       </div>
@@ -4691,9 +4703,9 @@ function ContactPage({ setCurrentPage }) {
       {/* Hero Section */}
       <div className="relative h-[300px] md:h-[400px] w-full bg-[#1E3932] overflow-hidden flex items-center justify-center shrink-0">
         <div className="absolute inset-0 opacity-20">
-          <img 
-            src="/assets/images/gallery/exterior.jpg" 
-            alt="Northomes Exterior" 
+          <img
+            src="/assets/images/gallery/exterior.jpg"
+            alt="Northomes Exterior"
             className="w-full h-full object-cover"
           />
         </div>
@@ -4709,11 +4721,11 @@ function ContactPage({ setCurrentPage }) {
       {/* Main Content Area */}
       <div className="max-w-6xl mx-auto px-4 -mt-16 md:-mt-24 relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column: Contact Details */}
           <div className="lg:col-span-1 flex flex-col gap-8">
             <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 flex flex-col gap-8">
-              
+
               <div className="flex gap-4 items-start">
                 <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -4721,8 +4733,8 @@ function ContactPage({ setCurrentPage }) {
                 <div>
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Our Location</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
-                    San Vicente<br/>
-                    Bogo City, Cebu<br/>
+                    San Vicente<br />
+                    Bogo City, Cebu<br />
                     Philippines 6010
                   </p>
                 </div>
@@ -4735,7 +4747,7 @@ function ContactPage({ setCurrentPage }) {
                 <div>
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Contact Number</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
-                    Front Desk / Reservations:<br/>
+                    Front Desk / Reservations:<br />
                     <a href="tel:+639276230491" className="text-[#00754A] font-bold hover:underline">+63 927 623 0491</a>
                   </p>
                 </div>
@@ -4748,7 +4760,7 @@ function ContactPage({ setCurrentPage }) {
                 <div>
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Email Address</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
-                    General Inquiries:<br/>
+                    General Inquiries:<br />
                     <a href="mailto:rodge.tonacao@gmail.com" className="text-[#00754A] font-bold hover:underline">rodge.tonacao@gmail.com</a>
                   </p>
                 </div>
@@ -4761,8 +4773,8 @@ function ContactPage({ setCurrentPage }) {
                 <div>
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Operating Hours</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
-                    Front Desk is open 24/7.<br/>
-                    Check-in: 2:00 PM<br/>
+                    Front Desk is open 24/7.<br />
+                    Check-in: 2:00 PM<br />
                     Check-out: 12:00 PM
                   </p>
                 </div>
@@ -4790,22 +4802,22 @@ function ContactPage({ setCurrentPage }) {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Your Name</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         required
                         value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
                         placeholder="John Doe"
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Email Address</label>
-                      <input 
-                        type="email" 
+                      <input
+                        type="email"
                         required
                         value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
                         placeholder="john@example.com"
                       />
@@ -4814,11 +4826,11 @@ function ContactPage({ setCurrentPage }) {
 
                   <div>
                     <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Subject</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       required
                       value={formData.subject}
-                      onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
                       placeholder="How can we help?"
                     />
@@ -4826,16 +4838,16 @@ function ContactPage({ setCurrentPage }) {
 
                   <div className="flex-1 flex flex-col">
                     <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Message</label>
-                    <textarea 
+                    <textarea
                       required
                       value={formData.message}
-                      onChange={(e) => setFormData({...formData, message: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all resize-none flex-1 min-h-[150px]"
                       placeholder="Type your message here..."
                     ></textarea>
                   </div>
 
-                  <button 
+                  <button
                     type="submit"
                     className="w-full px-8 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-[#00754A]/20 hover:scale-[1.02] active:scale-[0.98]"
                   >
@@ -4845,17 +4857,17 @@ function ContactPage({ setCurrentPage }) {
               )}
             </div>
           </div>
-          
+
         </div>
 
         {/* Map Section */}
         <div className="mt-8 bg-white rounded-3xl shadow-sm border border-black/5 p-4 h-[400px] overflow-hidden">
-          <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15663.023812852758!2d124.004149!3d11.056976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDAzJzI1LjEiTiAxMjTCsDAwJzE0LjkiRQ!5e0!3m2!1sen!2sph!4v1634567890123!5m2!1sen!2sph" 
-            width="100%" 
-            height="100%" 
-            style={{ border: 0, borderRadius: '1rem' }} 
-            allowFullScreen="" 
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15663.023812852758!2d124.004149!3d11.056976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDAzJzI1LjEiTiAxMjTCsDAwJzE0LjkiRQ!5e0!3m2!1sen!2sph!4v1634567890123!5m2!1sen!2sph"
+            width="100%"
+            height="100%"
+            style={{ border: 0, borderRadius: '1rem' }}
+            allowFullScreen=""
             loading="lazy"
             title="Northomes Pensionne Location"
           ></iframe>
@@ -4869,7 +4881,7 @@ function ContactPage({ setCurrentPage }) {
 function AccommodationsPage({ setCurrentPage }) {
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
   const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
   const [isChecking, setIsChecking] = useState(false);
@@ -4921,27 +4933,27 @@ function AccommodationsPage({ setCurrentPage }) {
       <div className="w-full pt-16 pb-12 md:pt-24 md:pb-16 bg-white border-b border-black/5 text-center px-4">
         <h1 className="text-4xl md:text-5xl font-bold text-[#006241] tracking-tight mb-4">Our Accommodations</h1>
         <p className="text-black/60 max-w-2xl mx-auto font-medium mb-12">Experience comfort and style in the heart of Bogo City. Explore our carefully designed rooms tailored for your perfect stay.</p>
-        
+
         {/* Availability Bar */}
         <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-4 justify-center">
           <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-sm shadow-sm w-full md:w-auto">
             <svg className="w-5 h-5 text-[#CBA258] ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={checkIn}
               onChange={e => setCheckIn(e.target.value)}
               className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
             />
             <span className="text-black/20 font-bold">-</span>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={checkOut}
               onChange={e => setCheckOut(e.target.value)}
               className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
             />
           </div>
-          
-          <button 
+
+          <button
             onClick={handleCheckAvailability}
             disabled={!checkIn || !checkOut || isChecking}
             className="w-full md:w-auto px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] disabled:opacity-50 text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap"
@@ -4973,7 +4985,7 @@ function AboutPage() {
     <div className="w-full min-h-screen px-6 py-12 md:px-12 md:py-20 flex flex-col items-center">
       <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-16 mt-8 md:mt-12">
         <h1 className="text-4xl md:text-5xl font-bold text-[#006241] mb-12 text-center tracking-tight">About Us</h1>
-        
+
         <div className="space-y-8 text-black/70 text-base md:text-lg leading-relaxed font-medium">
           <p className="font-bold text-xl text-black/90 text-center mb-10 text-[#00754A]">
             Welcome to Northomes Pensione — your home in the heart of Bogo City.
@@ -5022,7 +5034,7 @@ function BookingPage({ setCurrentPage }) {
           </div>
           <h2 className="text-4xl font-black text-[#006241] tracking-tight mb-4">Reservation Confirmed!</h2>
           <p className="text-xl text-black/80 font-medium mb-8">{bookingResult.message || 'Your booking has been successfully created.'}</p>
-          
+
           <div className="bg-[#f2f0eb] p-6 rounded-2xl mb-10 text-left space-y-4 max-w-md mx-auto border border-black/5">
             <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-center">Next Steps</h4>
             <p className="text-sm text-black/70 flex items-start gap-3">
@@ -5036,7 +5048,7 @@ function BookingPage({ setCurrentPage }) {
             </p>
           </div>
 
-          <button 
+          <button
             onClick={() => {
               sessionStorage.removeItem('northomes_roomtype');
               sessionStorage.removeItem('northomes_checkin');
@@ -5055,7 +5067,7 @@ function BookingPage({ setCurrentPage }) {
   return (
     <div className="min-h-screen bg-[#f2f0eb] py-16 px-4">
       <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-8 relative">
-        <button 
+        <button
           onClick={() => setCurrentPage('accommodations')}
           className="absolute top-6 right-6 text-black/40 hover:text-black/80 transition-colors bg-[#f2f0eb] rounded-full p-2"
         >
@@ -5078,7 +5090,7 @@ function HomePage({ setCurrentPage }) {
     fetch(`${API_BASE_URL}/api/room-types`)
       .then(r => r.json())
       .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const handleBookingSearch = () => {
@@ -5091,9 +5103,9 @@ function HomePage({ setCurrentPage }) {
     <div className="w-full flex flex-col bg-[#f2f0eb]">
       {/* Hero Image Container */}
       <div className="w-full h-[60vh] md:h-[70vh] relative">
-        <img 
-          src="/assets/images/hero/hero1.jpg" 
-          alt="Northomes Pensionne" 
+        <img
+          src="/assets/images/hero/hero1.jpg"
+          alt="Northomes Pensionne"
           className="w-full h-full object-cover"
         />
         {/* Beautiful Gradient Overlay */}
@@ -5106,20 +5118,20 @@ function HomePage({ setCurrentPage }) {
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-4">
           <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
             <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check In</span>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent" 
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
             />
           </div>
           <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
             <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check Out</span>
-            <input 
-              type="date" 
+            <input
+              type="date"
               value={checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent" 
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
             />
           </div>
           <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 border-black/5 flex flex-col">
@@ -5132,7 +5144,7 @@ function HomePage({ setCurrentPage }) {
             </select>
           </div>
           <div className="w-full md:w-auto mt-2 md:mt-0 pl-2">
-            <button 
+            <button
               onClick={handleBookingSearch}
               className="w-full md:w-auto px-8 py-4 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-md hover:shadow-lg"
             >
@@ -5149,7 +5161,7 @@ function HomePage({ setCurrentPage }) {
         <p className="text-black/60 text-lg leading-relaxed mb-10">
           Welcome to Northomes Pensione — an affordable and comfortable stay in Bogo City, Cebu. We offer clean rooms with Wi-Fi, secure parking, and meals available. Perfect for business travelers, families & balikbayans.
         </p>
-        <button 
+        <button
           onClick={() => setCurrentPage('about')}
           className="border border-[#006241] text-[#006241] hover:bg-[#006241] hover:text-white px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-colors"
         >
@@ -5164,14 +5176,14 @@ function HomePage({ setCurrentPage }) {
             <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Signature Stays</h4>
             <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Featured Accommodations</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {roomTypes.slice(0, 3).map((room, i) => (
               <div key={room.id} className="bg-[#f2f0eb] rounded-3xl overflow-hidden group cursor-pointer border border-black/5 shadow-sm" onClick={() => setCurrentPage('accommodations')}>
                 <div className="h-64 relative overflow-hidden">
-                  <img 
-                    src={i % 2 === 0 ? "/assets/images/rooms/sample_room_1.png" : "/assets/images/rooms/sample_room_2.png"} 
-                    alt={room.name} 
+                  <img
+                    src={i % 2 === 0 ? "/assets/images/rooms/sample_room_1.png" : "/assets/images/rooms/sample_room_2.png"}
+                    alt={room.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
@@ -5191,7 +5203,7 @@ function HomePage({ setCurrentPage }) {
       <div className="py-24 px-4 max-w-5xl mx-auto text-center">
         <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Exceptional Service</h4>
         <h2 className="text-4xl font-bold text-[#006241] tracking-tight mb-16">Signature Amenities</h2>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           {[
             { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>, title: "High-Speed Wi-Fi" },
@@ -5215,7 +5227,7 @@ function HomePage({ setCurrentPage }) {
           <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Discover Northomes</h4>
           <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Our Gallery</h2>
         </div>
-        
+
         <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
           {[
             { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
@@ -5227,9 +5239,9 @@ function HomePage({ setCurrentPage }) {
           ].map((img, i) => (
             <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
               <div className={`w-full ${img.aspect} flex items-center justify-center bg-black/5`}>
-                <img 
-                  src={img.src} 
-                  alt={img.alt} 
+                <img
+                  src={img.src}
+                  alt={img.alt}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   onError={(e) => {
                     e.target.style.display = 'none';
@@ -5252,7 +5264,7 @@ function HomePage({ setCurrentPage }) {
             <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Guest Experiences</h4>
             <h2 className="text-4xl font-bold text-[#006241] tracking-tight">A Stay to Remember</h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
@@ -5363,7 +5375,7 @@ function HomePage({ setCurrentPage }) {
                     <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    bogonorthomes@gmail.com
+                    northomespensione.com
                   </p>
                 </div>
               </div>
@@ -5448,9 +5460,9 @@ function MenuPage() {
     <div className="w-full min-h-screen bg-[#f2f0eb] pb-24">
       <div className="relative h-[400px] w-full bg-[#1E3932] overflow-hidden flex items-center justify-center">
         <div className="absolute inset-0 opacity-30">
-          <img 
-            src="/assets/images/gallery/cafe.jpg" 
-            alt="Northomes Cafe" 
+          <img
+            src="/assets/images/gallery/cafe.jpg"
+            alt="Northomes Cafe"
             className="w-full h-full object-cover"
           />
         </div>
@@ -5478,7 +5490,7 @@ function MenuPage() {
                   {category.subtitle && <p className="text-sm font-medium text-[#CBA258] mt-1">{category.subtitle}</p>}
                 </div>
               </div>
-              
+
               <div className="space-y-8">
                 {category.items.map((item, i) => (
                   <div key={i} className="flex justify-between gap-4 group">
@@ -5499,7 +5511,7 @@ function MenuPage() {
         <div className="mt-12 bg-[#1E3932] rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-lg border border-black/10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#006241] rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#CBA258] rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/4"></div>
-          
+
           <div className="relative z-10">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Want to dine in the comfort of your room?</h3>
             <p className="text-white/80 text-lg max-w-2xl mx-auto mb-8">
@@ -5966,8 +5978,8 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
 
               {notificationStatus !== 'subscribed' && notificationStatus !== 'checking' && (
                 <div className={`rounded-lg p-4 border-2 ${notificationStatus === 'denied'
-                    ? 'bg-red-50 border-red-200'
-                    : 'bg-yellow-50 border-yellow-300'
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-yellow-50 border-yellow-300'
                   }`}>
                   <div className="flex items-start gap-3">
                     <div className="text-2xl flex-shrink-0">
@@ -6135,8 +6147,8 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                 type="submit"
                 disabled={isSubmitting}
                 className={`w-full py-3 rounded-full font-medium transition-all text-sm ${isSubmitting
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-green-600 text-[#000000]/87 hover:bg-green-700'
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-600 text-[#000000]/87 hover:bg-green-700'
                   }`}
               >
                 {isSubmitting ? 'Processing...' : `Place Order - Php ${total.toFixed(2)}`}
@@ -8704,7 +8716,7 @@ function FrontDeskTab() {
       const res = await fetch(`${API_BASE_URL}/api/folio/${id}`);
       const data = await res.json();
       if (data.success) setCheckoutFolioBalance(data.totals.balance);
-    } catch (e) {}
+    } catch (e) { }
   }, []);
 
   const sendFolioEmail = async () => {
@@ -8865,7 +8877,7 @@ function FrontDeskTab() {
       fetch(`${API_BASE_URL}/api/rate-codes`)
         .then(r => r.json())
         .then(d => { if (d.rateCodes) setWkRateCodes(d.rateCodes); })
-        .catch(() => {});
+        .catch(() => { });
     }
   }, [fdView]);
 
@@ -9159,11 +9171,11 @@ function FrontDeskTab() {
           <div className="flex-1 overflow-y-auto px-5 pb-5" style={{ scrollbarWidth: 'thin' }}>
             {divider('GUEST PROFILE')}
             <div className="grid grid-cols-4 gap-x-3 gap-y-2">
-              <div>{lbl('Title')}{sel('title', ['Mr.','Mrs.','Ms.','Dr.','Prof.','Rev.'])}</div>
+              <div>{lbl('Title')}{sel('title', ['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Prof.', 'Rev.'])}</div>
               <div>{lbl('Last Name *')}{inp('last_name', 'dela Cruz')}</div>
               <div>{lbl('First Name *')}{inp('first_name', 'Juan')}</div>
               <div>{lbl('Middle Name')}{inp('middle_name', '')}</div>
-              <div>{lbl('Gender')}{sel('gender', ['Male','Female','Other','Prefer not to say'])}</div>
+              <div>{lbl('Gender')}{sel('gender', ['Male', 'Female', 'Other', 'Prefer not to say'])}</div>
               <div>{lbl('Date of Birth')}{inp('date_of_birth', '', 'date')}</div>
               <div>{lbl('Nationality')}{inp('nationality', 'Filipino')}</div>
               <div>{lbl('Country')}{inp('country', 'Philippines')}</div>
@@ -9179,15 +9191,15 @@ function FrontDeskTab() {
 
             {divider('IDENTIFICATION')}
             <div className="grid grid-cols-4 gap-x-3 gap-y-2">
-              <div className="col-span-2">{lbl('ID Type')}{sel('id_type', ['Passport','Driver\'s License','SSS','PhilHealth','UMID','PhilSys ID','Voter\'s ID','PRC ID','Other'])}</div>
+              <div className="col-span-2">{lbl('ID Type')}{sel('id_type', ['Passport', 'Driver\'s License', 'SSS', 'PhilHealth', 'UMID', 'PhilSys ID', 'Voter\'s ID', 'PRC ID', 'Other'])}</div>
               <div className="col-span-2">{lbl('ID Number')}{inp('id_number', 'ID number')}</div>
             </div>
 
             {divider('STAY & PAYMENT')}
             <div className="grid grid-cols-4 gap-x-3 gap-y-2">
-              <div className="col-span-2">{lbl('Purpose of Visit')}{sel('purpose_of_visit', ['Leisure','Business','Event','Medical','Transit','Other'])}</div>
+              <div className="col-span-2">{lbl('Purpose of Visit')}{sel('purpose_of_visit', ['Leisure', 'Business', 'Event', 'Medical', 'Transit', 'Other'])}</div>
               <div>{lbl('ETA')}{inp('eta', '14:00', 'time')}</div>
-              <div>{lbl('Payment Method')}{sel('payment_method', ['Cash','Credit Card','Debit Card','GCash','Bank Transfer','Other'])}</div>
+              <div>{lbl('Payment Method')}{sel('payment_method', ['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'])}</div>
               <div className="col-span-2">{lbl('Deposit Amount')}<input type="number" min="0" step="0.01" placeholder="0.00" value={gpForm.deposit_amount || ''}
                 onChange={e => setGpForm(f => ({ ...f, deposit_amount: e.target.value }))}
                 className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors" /></div>
@@ -9500,1605 +9512,1617 @@ function FrontDeskTab() {
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <>
-    <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <div className="flex-1 flex flex-col min-h-0 w-full">
-        <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-          {/* Header bar */}
-          <div className="px-6 pt-0.5 pb-0" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-            {/* Title row */}
-            <div className="flex items-center justify-between gap-4 mb-2">
-              <div className="shrink-0">
-                <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Front Desk</h3>
-                <p className="text-black/60 text-xs">Guest management</p>
-              </div>
-              <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full shrink-0">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
-                </span>
-                <span className="text-[#000000]/87 text-xs font-semibold tracking-wide">
-                  {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-                </span>
-              </div>
-            </div>
-            {/* Tab row — full width, scrollable */}
-            <div className="flex items-center gap-0.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-              {[
-                { id: 'arrivals', label: 'Arrivals',  svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v9"/><path d="M6 9l3 3 3-3"/><path d="M4 15h10"/></svg> },
-                { id: 'inhouse',  label: 'In-House',  svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8.5L9 2l7 6.5"/><path d="M5 8v7h3v-4h2v4h3V8"/></svg> },
-                { id: 'search',   label: 'Search',    svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="8" cy="8" r="5"/><path d="M15 15l-3.5-3.5"/></svg> },
-                { id: 'walkin',   label: 'Walk-In',   svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="4" r="1.5"/><path d="M6 9l2-3h2l2 3"/><path d="M7 12l-1 4M11 12l1 4"/><path d="M6 9l1 3h4l1-3"/></svg> },
-                { id: 'rooms',    label: 'Rooms',     svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="6" height="6" rx="1"/><rect x="10" y="2" width="6" height="6" rx="1"/><rect x="2" y="10" width="6" height="6" rx="1"/><rect x="10" y="10" width="6" height="6" rx="1"/></svg> },
-                { id: 'calendar', label: 'Tape Chart', svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="14" height="13" rx="1"/><path d="M6 1v4M12 1v4"/><path d="M2 7h14"/><path d="M5 11h2M9 11h2M13 11h1M5 14h2M9 14h2"/></svg> },
-              ].map(v => {
-                const active = fdView === v.id;
-                return (
-                  <button key={v.id} onClick={() => setFdView(v.id)}
-                    className="flex items-center gap-2 px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all shrink-0"
-                    style={{
-                      borderRadius: '50px',
-                      border: active ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
-                      background: active ? '#00754A' : '#ffffff',
-                      color: active ? '#ffffff' : 'rgba(0,0,0,0.58)',
-                      boxShadow: active ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
-                    }}
-                    onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
-                    onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                  >
-                    {v.svg}
-                    {v.label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="p-6 md:p-8 flex-1 overflow-y-auto">
-
-            {/* ── Arrivals View ── */}
-            {fdView === 'arrivals' && (
-              <div>
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-semibold text-black/60 uppercase tracking-wider">Date</span>
-                    <input
-                      type="date"
-                      value={arrivalDate}
-                      onChange={(e) => setArrivalDate(e.target.value)}
-                      className="px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none"
-                    />
-                    <div className="flex items-center gap-4 ml-2 pl-3 border-l border-black/5">
-                      {[
-                        { label: 'Total', value: arrivalStats.total, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M2 4h10M2 7h10M2 10h6"/></svg> },
-                        { label: 'Checked In', value: arrivalStats.checkedIn, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l3.5 3.5L12 4"/></svg> },
-                        { label: 'Awaiting', value: (arrivalStats.pending || 0) + (arrivalStats.confirmed || 0), color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="7" r="5"/><path d="M7 4v3l2 1.5"/></svg> },
-                        { label: 'No Show', value: arrivalStats.noShow, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M4 4l6 6M10 4l-6 6"/></svg> },
-                      ].map((s) => (
-                        <div key={s.label} className="flex flex-col items-center text-black/60">
-                          {s.svg}
-                          <span className={`text-lg font-bold leading-tight ${s.color}`}>{s.value}</span>
-                          <span className="text-[10px] text-black/60 font-medium">{s.label}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-lg transition-all">
-                    ↻ Refresh
-                  </button>
+      <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="flex-1 flex flex-col min-h-0 w-full">
+          <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            {/* Header bar */}
+            <div className="px-6 pt-0.5 pb-0" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+              {/* Title row */}
+              <div className="flex items-center justify-between gap-4 mb-2">
+                <div className="shrink-0">
+                  <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Front Desk</h3>
+                  <p className="text-black/60 text-xs">Guest management</p>
                 </div>
-
-                {/* Arrivals Grid */}
-                <div className="border border-black/5 overflow-hidden bg-white rounded-xl shadow-sm mt-2" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                  {/* Column headers */}
-                  <div className="grid gap-x-3 px-4 py-3 border-b border-black/5" style={{ gridTemplateColumns: '1fr 6rem 6rem 2.5rem 5.5rem', background: '#f9f9f9' }}>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Guest</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Room Type</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Check-In</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Nts</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Status</span>
-                  </div>
-                  {/* Rows */}
-                  <div style={{ height: '150px', overflowY: 'auto' }}>
-                    {arrivalsLoading ? (
-                      <div className="flex items-center justify-center h-full text-black/60 text-xs">Loading arrivals…</div>
-                    ) : arrivals.length === 0 ? (
-                      <div className="flex items-center justify-center h-full text-black/60 text-xs">No arrivals for this date</div>
-                    ) : (
-                      arrivals.map((r) => <ArrivalRow key={r.id} r={r} />)
-                    )}
-                  </div>
+                <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full shrink-0">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+                  </span>
+                  <span className="text-[#000000]/87 text-xs font-semibold tracking-wide">
+                    {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </span>
                 </div>
-
-                {/* Detail + Notes row — shown when a row is selected */}
-                {selectedArrival && (() => {
-                  const r = selectedArrival;
-                  const sc = statusColors[r.status] || statusColors.pending;
-                  const nights = nightsCount(r);
+              </div>
+              {/* Tab row — full width, scrollable */}
+              <div className="flex items-center gap-0.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+                {[
+                  { id: 'arrivals', label: 'Arrivals', svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3v9" /><path d="M6 9l3 3 3-3" /><path d="M4 15h10" /></svg> },
+                  { id: 'inhouse', label: 'In-House', svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8.5L9 2l7 6.5" /><path d="M5 8v7h3v-4h2v4h3V8" /></svg> },
+                  { id: 'search', label: 'Search', svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="8" cy="8" r="5" /><path d="M15 15l-3.5-3.5" /></svg> },
+                  { id: 'walkin', label: 'Walk-In', svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="4" r="1.5" /><path d="M6 9l2-3h2l2 3" /><path d="M7 12l-1 4M11 12l1 4" /><path d="M6 9l1 3h4l1-3" /></svg> },
+                  { id: 'rooms', label: 'Rooms', svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="6" height="6" rx="1" /><rect x="10" y="2" width="6" height="6" rx="1" /><rect x="2" y="10" width="6" height="6" rx="1" /><rect x="10" y="10" width="6" height="6" rx="1" /></svg> },
+                  { id: 'calendar', label: 'Tape Chart', svg: <svg width="15" height="15" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="14" height="13" rx="1" /><path d="M6 1v4M12 1v4" /><path d="M2 7h14" /><path d="M5 11h2M9 11h2M13 11h1M5 14h2M9 14h2" /></svg> },
+                ].map(v => {
+                  const active = fdView === v.id;
                   return (
-                    <div className="mt-3 flex gap-0" style={{ marginLeft: '10px' }}>
-                      {/* Detail panel — 60% */}
-                      <div className="border border-black/5 py-3 px-4" style={{ width: '60%', background: 'rgba(255,255,255,0.07)' }}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-black/60 mb-2">Reservation Details</p>
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-bold text-[#000000]/87 text-base">{r.full_name}</span>
-                              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
-                              {r.guest_arrived_at && <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-green-500 text-[#000000]/87">ARRIVED</span>}
-                            </div>
-                            <div className="flex items-center gap-3 mt-1 flex-wrap text-xs text-black/60">
-                              <span>{r.room_type_name || r.room_type}</span>
-                              <span>·</span>
-                              <span>{fmtDate(r.check_in_date)} → {fmtDate(r.check_out_date)}</span>
-                              <span>·</span>
-                              <span>{nights} night{nights !== 1 ? 's' : ''}</span>
-                              {r.number_of_guests && <><span>·</span><span>{r.number_of_guests} guest{r.number_of_guests !== 1 ? 's' : ''}</span></>}
-                              {r.rate_code && <><span>·</span><span className="font-mono font-bold text-sky-300 bg-sky-500/15 px-1.5 py-0.5 rounded">{r.rate_code}</span></>}
-                              <span className="font-mono text-black/60">#{r.id}</span>
-                            </div>
-                            {r.special_requests && (
-                              <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-lg px-2.5 py-1.5 italic">
-                                "{r.special_requests}"
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {(r.status === 'pending' || r.status === 'confirmed') && (
-                              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors whitespace-nowrap">
-                                Check In
-                              </button>
-                            )}
-                            {r.status !== 'checked_in' && r.status !== 'checked_out' && (
-                              <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-black/5 rounded-lg px-2 py-1.5 bg-white shadow-sm text-black/60 cursor-pointer">
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="cancelled">Cancel</option>
-                                <option value="no_show">No Show</option>
-                              </select>
-                            )}
-                            <button onClick={() => setSelectedArrival(null)} className="text-black/60 hover:text-black/60 text-lg leading-none px-1">×</button>
-                          </div>
-                        </div>
-                      </div>
-                      {/* Notes panel — 40% */}
-                      <div className="border border-black/5 border-l-0 py-3 px-4 flex flex-col gap-1.5" style={{ width: '40%', background: 'rgba(255,255,255,0.04)' }}>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-black/60 mb-0.5">Guest Notes</p>
-                        <textarea
-                          value={guestNotes[r.id] || ''}
-                          onChange={(e) => setGuestNotes(prev => ({ ...prev, [r.id]: e.target.value }))}
-                          placeholder="Add notes about this guest…"
-                          rows={3}
-                          className="flex-1 bg-transparent text-xs text-black/60 placeholder-white/20 outline-none resize-none leading-relaxed"
-                        />
-                      </div>
-                    </div>
+                    <button key={v.id} onClick={() => setFdView(v.id)}
+                      className="flex items-center gap-2 px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all shrink-0"
+                      style={{
+                        borderRadius: '50px',
+                        border: active ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
+                        background: active ? '#00754A' : '#ffffff',
+                        color: active ? '#ffffff' : 'rgba(0,0,0,0.58)',
+                        boxShadow: active ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
+                      }}
+                      onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                      onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                    >
+                      {v.svg}
+                      {v.label}
+                    </button>
                   );
-                })()}
+                })}
               </div>
-            )}
+            </div>
+            <div className="p-6 md:p-8 flex-1 overflow-y-auto">
 
-            {/* ── In-House View ── */}
-            {fdView === 'inhouse' && (
-              <div>
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
-                  <div>
-                    <span className="text-sm font-semibold text-[#000000]/87">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
-                    <span className="text-xs text-black/60 ml-2">as of now</span>
-                  </div>
-                  <button onClick={fetchInHouse} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">
-                    ↻ Refresh
-                  </button>
-                </div>
-                {inHouseLoading ? (
-                  <div className="text-center py-10 text-black/60">Loading...</div>
-                ) : inHouseGuests.length === 0 ? (
-                  <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
-                    <div className="text-4xl mb-3">🏠</div>
-                    <div className="font-semibold text-black/60 mb-1">No guests in-house</div>
-                    <div className="text-xs text-black/60">All rooms are currently vacant</div>
-                  </div>
-                ) : (
-                  <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
-                    {/* Column header */}
-                    <div className="grid gap-x-3 px-3 py-2 bg-[#f9f9f9] border-b border-black/5" style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3.5rem 3.5rem 5rem' }}>
-                      {['Room', 'Guest', 'Type', 'Check-Out', 'Nts', '', '', ''].map((h, i) => (
-                        <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-black/60">{h}</span>
-                      ))}
+              {/* ── Arrivals View ── */}
+              {fdView === 'arrivals' && (
+                <div>
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-semibold text-black/60 uppercase tracking-wider">Date</span>
+                      <input
+                        type="date"
+                        value={arrivalDate}
+                        onChange={(e) => setArrivalDate(e.target.value)}
+                        className="px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none"
+                      />
+                      <div className="flex items-center gap-4 ml-2 pl-3 border-l border-black/5">
+                        {[
+                          { label: 'Total', value: arrivalStats.total, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M2 4h10M2 7h10M2 10h6" /></svg> },
+                          { label: 'Checked In', value: arrivalStats.checkedIn, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l3.5 3.5L12 4" /></svg> },
+                          { label: 'Awaiting', value: (arrivalStats.pending || 0) + (arrivalStats.confirmed || 0), color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="7" cy="7" r="5" /><path d="M7 4v3l2 1.5" /></svg> },
+                          { label: 'No Show', value: arrivalStats.noShow, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M4 4l6 6M10 4l-6 6" /></svg> },
+                        ].map((s) => (
+                          <div key={s.label} className="flex flex-col items-center text-black/60">
+                            {s.svg}
+                            <span className={`text-lg font-bold leading-tight ${s.color}`}>{s.value}</span>
+                            <span className="text-[10px] text-black/60 font-medium">{s.label}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      {inHouseGuests.map((r) => <InHouseCard key={r.id} r={r} />)}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── Search View ── */}
-            {fdView === 'search' && (
-              <div>
-                <div className="relative mb-5">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/60 text-sm">🔍</span>
-                  <input
-                    type="text"
-                    value={searchQ}
-                    onChange={(e) => setSearchQ(e.target.value)}
-                    placeholder="Name, email, phone, or confirmation # …"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none transition-all"
-                    autoFocus
-                  />
-                  {searchLoading && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-black/60 text-xs animate-pulse">Searching…</span>}
-                </div>
-                {searchQ.trim() === '' ? (
-                  <div className="text-center py-10 text-black/60">
-                    <div className="text-3xl mb-3">🔍</div>
-                    <div className="text-sm font-medium text-black/60 mb-4">Look up any reservation to check in a guest</div>
-                    <div className="flex flex-col gap-2 text-xs text-black/60 items-center">
-                      <span>Type a <strong className="text-black/60">confirmation #</strong> — e.g. <span className="font-mono text-black/60">42</span></span>
-                      <span>Or search by <strong className="text-black/60">name</strong>, <strong className="text-black/60">email</strong>, or <strong className="text-black/60">phone</strong></span>
-                    </div>
-                  </div>
-                ) : searchResults.length === 0 && !searchLoading ? (
-                  <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
-                    <div className="text-3xl mb-2">😕</div>
-                    <div className="font-semibold text-black/60">No results found</div>
-                    <div className="text-xs text-black/60 mt-1">Try a different name, email, or ID</div>
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {searchResults.map((r) => <SearchResultCard key={r.id} r={r} />)}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── Walk-In View ── */}
-            {fdView === 'walkin' && (
-              <div>
-                {wkSuccess && wkResult ? (
-                  <div className="flex flex-col items-center justify-center py-8 text-center">
-                    <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center mb-4">
-                      <span className="text-3xl">✅</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-[#000000]/87 mb-1">Walk-In Complete!</h3>
-                    <p className="text-sm text-black/60 mb-6">{wkResult.full_name} is now checked in.</p>
-                    <div className="bg-green-500/15 border border-green-400/30 rounded-2xl px-12 py-5 mb-4 w-full max-w-xs">
-                      <div className="text-5xl font-mono font-black text-green-300">{wkResult.room_number}</div>
-                      <div className="text-xs text-green-400 font-semibold uppercase tracking-widest mt-2">Room Assigned</div>
-                    </div>
-                    <div className="text-xs text-black/60 mb-5 font-mono">Confirmation #{wkResult.id}</div>
-                    <span className="inline-block bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-6">🔑 Key Ready</span>
-                    <button onClick={resetWalkin} className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white font-semibold py-3 rounded-full transition-all">
-                      + New Walk-In Guest
+                    <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-lg transition-all">
+                      ↻ Refresh
                     </button>
                   </div>
-                ) : (
-                  <div>
-                    {/* ── 2-COLUMN LAYOUT ── */}
-                    <div className="flex gap-4 mt-1">
 
-                      {/* ── LEFT: Guest Profile · Contact · Identification ── */}
-                      <div className="flex-1 min-w-0 flex flex-col gap-2">
-
-                        {/* Guest Profile */}
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Guest Profile</span>
-                          <div className="flex-1 h-px bg-white shadow-sm" />
-                        </div>
-                        <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Title</label>
-                            <select value={wkTitle} onChange={e => setWkTitle(e.target.value)}
-                              style={{ background: '#f8f9fa', color: '#000000' }}
-                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {['Mr.','Mrs.','Ms.','Dr.','Engr.','Atty.','Prof.','Rev.','Hon.'].map(t => <option key={t} value={t} style={{background:'#f8f9fa'}}>{t}</option>)}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Last Name <span className="text-red-400">*</span></label>
-                            <input type="text" value={wkLastName} onChange={e => setWkLastName(e.target.value)} placeholder="dela Cruz"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">First Name <span className="text-red-400">*</span></label>
-                            <input type="text" value={wkFirstName} onChange={e => setWkFirstName(e.target.value)} placeholder="Juan"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Middle Name</label>
-                            <input type="text" value={wkMiddleName} onChange={e => setWkMiddleName(e.target.value)} placeholder="Santos"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Gender</label>
-                            <select value={wkGender} onChange={e => setWkGender(e.target.value)}
-                              style={{ background: '#f8f9fa', color: wkGender ? '#000000' : 'rgba(0,0,0,0.4)' }}
-                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {['','Male','Female','Non-binary','Prefer not to say'].map(g => <option key={g} value={g} style={{background:'#f8f9fa',color:'#000000'}}>{g || '— select —'}</option>)}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Date of Birth</label>
-                            <input type="date" value={wkBirthDate} onChange={e => setWkBirthDate(e.target.value)}
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Nationality</label>
-                            <input type="text" value={wkNationality} onChange={e => setWkNationality(e.target.value)} placeholder="Filipino"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Country</label>
-                            <input type="text" value={wkCountry} onChange={e => setWkCountry(e.target.value)} placeholder="Philippines"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                        </div>
-
-                        {/* Contact */}
-                        <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Contact Information</span>
-                          <div className="flex-1 h-px bg-white shadow-sm" />
-                        </div>
-                        <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
-                          <div className="col-span-2">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Email Address</label>
-                            <input type="email" value={wkEmail} onChange={e => setWkEmail(e.target.value)} placeholder="juan@example.com"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div className="col-span-2">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Mobile / Phone</label>
-                            <input type="tel" value={wkPhone} onChange={e => setWkPhone(e.target.value)} placeholder="09XX XXX XXXX"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div className="col-span-3">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Street / Barangay Address</label>
-                            <input type="text" value={wkAddress} onChange={e => setWkAddress(e.target.value)} placeholder="123 Rizal St., Brgy. San Antonio"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">City / Municipality</label>
-                            <input type="text" value={wkCity} onChange={e => setWkCity(e.target.value)} placeholder="Makati City"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                        </div>
-
-                        {/* Identification */}
-                        <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Identification</span>
-                          <div className="flex-1 h-px bg-white shadow-sm" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Type</label>
-                            <select value={wkIdType} onChange={e => setWkIdType(e.target.value)}
-                              style={{ background: '#f8f9fa', color: wkIdType ? '#000000' : 'rgba(0,0,0,0.4)' }}
-                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {['','Passport',"Driver's License",'SSS ID','PhilHealth ID','Postal ID','Senior Citizen ID','PWD ID','UMID','PhilSys / National ID','Other'].map(t => (
-                                <option key={t} value={t} style={{background:'#f8f9fa',color:'#000000'}}>{t || '— select ID type —'}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Number</label>
-                            <input type="text" value={wkIdNumber} onChange={e => setWkIdNumber(e.target.value)} placeholder="ID / reference number"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                        </div>
-
-                      </div>
-
-                      {/* ── RIGHT: Stay Details · Payment · Remarks · Submit ── */}
-                      <div className="flex-1 min-w-0 flex flex-col gap-2">
-
-                        {/* Stay Details */}
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Stay Details</span>
-                          <div className="flex-1 h-px bg-white shadow-sm" />
-                        </div>
-                        <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
-                          <div className="col-span-2">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Type <span className="text-red-400">*</span></label>
-                            <select value={wkRoomType} onChange={e => { setWkRoomType(e.target.value); setWkRoomNumber(''); }}
-                              style={{ background: '#f8f9fa', color: '#000000' }}
-                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {wkRoomTypes.length === 0 && <option value="" style={{ background: '#f8f9fa' }}>Loading...</option>}
-                              {wkRoomTypes.map(rt => {
-                                const full = rt.available !== undefined && rt.available <= 0;
-                                const label = rt.available !== undefined ? `${rt.name} (${rt.available}/${rt.total_rooms} avail)` : rt.name;
-                                return (
-                                  <option key={rt.id} value={rt.name} disabled={full}
-                                    style={{ background: full ? '#3b1a1a' : '#4B5563', color: full ? '#f87171' : 'white' }}>
-                                    {label}{full ? ' — FULL' : ''}
-                                  </option>
-                                );
-                              })}
-                            </select>
-                            {(() => {
-                              const sel = wkRoomTypes.find(rt => rt.name === wkRoomType);
-                              if (!sel || sel.available === undefined) return null;
-                              const full = sel.available <= 0; const low = sel.available === 1;
-                              return (
-                                <div className={`mt-0.5 flex items-center gap-1 text-[10px] font-semibold ${full ? 'text-red-300' : low ? 'text-yellow-300' : 'text-green-300'}`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${full ? 'bg-red-400' : low ? 'bg-yellow-400' : 'bg-green-400'}`} />
-                                  {full ? `No rooms available` : low ? `Only 1 left` : `${sel.available}/${sel.total_rooms} available`}
-                                </div>
-                              );
-                            })()}
-                          </div>
-                          <div className="col-span-2">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Rate Code</label>
-                            <select value={wkRateCode} onChange={e => setWkRateCode(e.target.value)}
-                              style={{ background: '#f8f9fa', color: '#000000' }}
-                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              <option value="" style={{ background: '#f8f9fa' }}>— No rate code —</option>
-                              {wkRateCodes.map(rc => (
-                                <option key={rc.id} value={rc.code} style={{ background: '#f8f9fa' }}>{rc.code} — {rc.name}</option>
-                              ))}
-                            </select>
-                            {(() => {
-                              if (!wkRateCode) return null;
-                              const rc = wkRateCodes.find(r => r.code === wkRateCode);
-                              const rt = wkRoomTypes.find(r => r.name === wkRoomType);
-                              if (!rc || !rt) return null;
-                              const priceEntry = rc.prices?.find(p => p.room_type_id === rt.id);
-                              const price = priceEntry ? priceEntry.price_per_night : rt.price_per_night;
-                              return <div className="mt-0.5 text-[10px] text-sky-300 font-semibold">₱{Number(price).toLocaleString()} / night</div>;
-                            })()}
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-In <span className="text-red-400">*</span></label>
-                            <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-Out <span className="text-red-400">*</span></label>
-                            <input type="date" value={wkCheckOut} min={wkCheckIn || today} onChange={e => setWkCheckOut(e.target.value)}
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ETA</label>
-                            <input type="time" value={wkEta} onChange={e => setWkEta(e.target.value)}
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">No. of Guests</label>
-                            <input type="number" min="1" max="20" value={wkGuests} onChange={e => setWkGuests(parseInt(e.target.value) || 1)}
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div className="col-span-2">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Number <span className="text-red-400">*</span></label>
-                            {(() => {
-                              const typeRooms = rooms.filter(r => r.room_type === wkRoomType);
-                              const selRoom = typeRooms.find(r => r.room_number === wkRoomNumber);
-                              const isBlocked = selRoom && (selRoom.computed_status === 'occupied' || selRoom.computed_status === 'arriving');
-                              const isWarn = selRoom && (selRoom.computed_status === 'dirty' || selRoom.computed_status === 'out_of_order');
-                              if (typeRooms.length === 0) {
-                                return (
-                                  <input type="text" value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
-                                    placeholder="e.g. 201" autoComplete="off"
-                                    className="w-full px-2 py-1 border border-black/10 bg-[#f8f9fa] text-[#000000]/87 text-[11px] font-mono font-bold placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                                );
-                              }
-                              return (
-                                <div>
-                                  <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
-                                    style={{ background: '#f8f9fa', color: '#000000' }}
-                                    className={`w-full px-2 py-1 border ${isBlocked ? 'border-red-400/50' : 'border-black/5'} text-[11px] font-mono font-bold outline-none focus:border-black/5 rounded-sm`}>
-                                    <option value="" style={{ background: '#4B5563', color: 'rgba(255,255,255,0.35)' }}>— select room —</option>
-                                    {typeRooms.map(r => {
-                                      const cfg = roomStatusConfig[r.computed_status] || roomStatusConfig.available;
-                                      const unavailable = r.computed_status === 'occupied' || r.computed_status === 'arriving';
-                                      return (
-                                        <option key={r.room_number} value={r.room_number} disabled={unavailable}
-                                          style={{ background: unavailable ? '#3b1a1a' : '#4B5563', color: unavailable ? '#f87171' : 'white' }}>
-                                          {`${r.room_number}${r.floor ? ` · F${r.floor}` : ''} — ${cfg.label}${unavailable ? ' ✗' : ''}`}
-                                        </option>
-                                      );
-                                    })}
-                                  </select>
-                                  {selRoom && (
-                                    <div className={`mt-0.5 flex items-center gap-1 text-[10px] font-semibold ${isBlocked ? 'text-red-300' : isWarn ? 'text-yellow-300' : 'text-green-300'}`}>
-                                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isBlocked ? 'bg-red-400' : isWarn ? 'bg-yellow-400' : 'bg-green-400'}`} />
-                                      {isBlocked ? `Unavailable — choose another` : isWarn ? `${selRoom.hk_status} — confirm ready` : `Available`}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })()}
-                          </div>
-                          <div className="col-span-2">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Purpose of Visit</label>
-                            <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
-                              style={{ background: '#f8f9fa', color: wkPurpose ? '#000000' : 'rgba(0,0,0,0.4)' }}
-                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {['','Leisure / Vacation','Business','Official / Government','Medical','Honeymoon / Anniversary','Transit','Others'].map(p => (
-                                <option key={p} value={p} style={{background:'#f8f9fa',color:'#000000'}}>{p || '— select —'}</option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-
-                        {/* Payment */}
-                        <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Payment</span>
-                          <div className="flex-1 h-px bg-white shadow-sm" />
-                        </div>
-                        <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
-                          <div className="col-span-2">
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Payment Method</label>
-                            <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
-                              style={{ background: '#f8f9fa', color: '#000000' }}
-                              className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                              {['Cash','Credit Card','Debit Card','GCash','Maya','Bank Transfer','Check','Other'].map(m => (
-                                <option key={m} value={m} style={{background:'#f8f9fa'}}>{m}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Deposit Amount</label>
-                            <input type="number" min="0" step="0.01" value={wkDepositAmount} onChange={e => setWkDepositAmount(e.target.value)} placeholder="0.00"
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div className="flex items-end pb-1">
-                            <label className="flex items-center gap-1.5 cursor-pointer">
-                              <input type="checkbox" checked={wkPayment} onChange={e => setWkPayment(e.target.checked)}
-                                className="w-3 h-3 accent-[#576CA8] cursor-pointer" />
-                              <span className="text-[10px] text-black/60 uppercase tracking-wide">Collected</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        {/* Remarks */}
-                        <div className="flex items-center gap-2 mt-1 mb-1">
-                          <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Remarks</span>
-                          <div className="flex-1 h-px bg-white shadow-sm" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Special Requests</label>
-                            <input type="text" value={wkSpecialReq} onChange={e => setWkSpecialReq(e.target.value)} placeholder="non-smoking, high floor, extra pillow..."
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Front Desk Notes</label>
-                            <input type="text" value={wkNotes} onChange={e => setWkNotes(e.target.value)} placeholder="Internal notes..."
-                              className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                          </div>
-                        </div>
-
-                        <div className="h-px bg-white shadow-sm mt-auto pt-2" />
-                        {wkError && (
-                          <div className="bg-red-500/15 border border-red-400/30 rounded px-3 py-1.5 text-[11px] text-red-300">{wkError}</div>
-                        )}
-                        <button onClick={submitWalkin} disabled={wkSubmitting}
-                          className="w-full bg-gradient-to-r from-[#006241] to-[#1a4f99] hover:opacity-90 disabled:opacity-50 text-white font-bold py-2 rounded transition-all text-[11px] tracking-[0.12em] uppercase border border-black/5">
-                          {wkSubmitting ? 'Processing...' : 'Complete Walk-In Check-In'}
-                        </button>
-
-                      </div>
+                  {/* Arrivals Grid */}
+                  <div className="border border-black/5 overflow-hidden bg-white rounded-xl shadow-sm mt-2" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                    {/* Column headers */}
+                    <div className="grid gap-x-3 px-4 py-3 border-b border-black/5" style={{ gridTemplateColumns: '1fr 6rem 6rem 2.5rem 5.5rem', background: '#f9f9f9' }}>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Guest</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Room Type</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Check-In</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Nts</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Status</span>
+                    </div>
+                    {/* Rows */}
+                    <div style={{ height: '150px', overflowY: 'auto' }}>
+                      {arrivalsLoading ? (
+                        <div className="flex items-center justify-center h-full text-black/60 text-xs">Loading arrivals…</div>
+                      ) : arrivals.length === 0 ? (
+                        <div className="flex items-center justify-center h-full text-black/60 text-xs">No arrivals for this date</div>
+                      ) : (
+                        arrivals.map((r) => <ArrivalRow key={r.id} r={r} />)
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
 
-            {/* ── Rooms View ── */}
-            {fdView === 'rooms' && (
-              <div>
-                {/* Toolbar */}
-                <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
-                  {(() => {
-                    const counts = rooms.reduce((acc, r) => { acc[r.computed_status] = (acc[r.computed_status] || 0) + 1; return acc; }, {});
-                    const stats = [
-                      { label: 'Total',     key: 'all',           value: rooms.length,            svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="1" width="4.5" height="4.5" rx="0.75"/><rect x="7.5" y="1" width="4.5" height="4.5" rx="0.75"/><rect x="1" y="7.5" width="4.5" height="4.5" rx="0.75"/><rect x="7.5" y="7.5" width="4.5" height="4.5" rx="0.75"/></svg> },
-                      { label: 'Available', key: 'available',     value: counts.available || 0,   svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 6.5l3 3 6-6"/></svg> },
-                      { label: 'Occupied',  key: 'occupied',      value: counts.occupied || 0,    svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="6.5" cy="4" r="2"/><path d="M2 11c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4"/></svg> },
-                      { label: 'Due Out',   key: 'due_out',       value: counts.due_out || 0,     svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 6.5h6M8 4l3 2.5L8 9"/><path d="M4 2H2v9h2"/></svg> },
-                      { label: 'Arriving',  key: 'arriving',      value: counts.arriving || 0,    svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6.5H2M5 4L2 6.5 5 9"/><path d="M9 2h2v9H9"/></svg> },
-                      { label: 'Dirty',     key: 'dirty',         value: counts.dirty || 0,       svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10l2-5 2 2 2-5 2 4"/></svg> },
-                      { label: 'OOO',       key: 'out_of_order',  value: counts.out_of_order || 0,svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3.5 3.5l6 6M9.5 3.5l-6 6"/></svg> },
-                    ];
+                  {/* Detail + Notes row — shown when a row is selected */}
+                  {selectedArrival && (() => {
+                    const r = selectedArrival;
+                    const sc = statusColors[r.status] || statusColors.pending;
+                    const nights = nightsCount(r);
                     return (
+                      <div className="mt-3 flex gap-0" style={{ marginLeft: '10px' }}>
+                        {/* Detail panel — 60% */}
+                        <div className="border border-black/5 py-3 px-4" style={{ width: '60%', background: 'rgba(255,255,255,0.07)' }}>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-black/60 mb-2">Reservation Details</p>
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-[#000000]/87 text-base">{r.full_name}</span>
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
+                                {r.guest_arrived_at && <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-green-500 text-[#000000]/87">ARRIVED</span>}
+                              </div>
+                              <div className="flex items-center gap-3 mt-1 flex-wrap text-xs text-black/60">
+                                <span>{r.room_type_name || r.room_type}</span>
+                                <span>·</span>
+                                <span>{fmtDate(r.check_in_date)} → {fmtDate(r.check_out_date)}</span>
+                                <span>·</span>
+                                <span>{nights} night{nights !== 1 ? 's' : ''}</span>
+                                {r.number_of_guests && <><span>·</span><span>{r.number_of_guests} guest{r.number_of_guests !== 1 ? 's' : ''}</span></>}
+                                {r.rate_code && <><span>·</span><span className="font-mono font-bold text-sky-300 bg-sky-500/15 px-1.5 py-0.5 rounded">{r.rate_code}</span></>}
+                                <span className="font-mono text-black/60">#{r.id}</span>
+                              </div>
+                              {r.special_requests && (
+                                <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-lg px-2.5 py-1.5 italic">
+                                  "{r.special_requests}"
+                                </div>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              {(r.status === 'pending' || r.status === 'confirmed') && (
+                                <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors whitespace-nowrap">
+                                  Check In
+                                </button>
+                              )}
+                              {r.status !== 'checked_in' && r.status !== 'checked_out' && (
+                                <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-black/5 rounded-lg px-2 py-1.5 bg-white shadow-sm text-black/60 cursor-pointer">
+                                  <option value="pending">Pending</option>
+                                  <option value="confirmed">Confirmed</option>
+                                  <option value="cancelled">Cancel</option>
+                                  <option value="no_show">No Show</option>
+                                </select>
+                              )}
+                              <button onClick={() => setSelectedArrival(null)} className="text-black/60 hover:text-black/60 text-lg leading-none px-1">×</button>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Notes panel — 40% */}
+                        <div className="border border-black/5 border-l-0 py-3 px-4 flex flex-col gap-1.5" style={{ width: '40%', background: 'rgba(255,255,255,0.04)' }}>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-black/60 mb-0.5">Guest Notes</p>
+                          <textarea
+                            value={guestNotes[r.id] || ''}
+                            onChange={(e) => setGuestNotes(prev => ({ ...prev, [r.id]: e.target.value }))}
+                            placeholder="Add notes about this guest…"
+                            rows={3}
+                            className="flex-1 bg-transparent text-xs text-black/60 placeholder-white/20 outline-none resize-none leading-relaxed"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* ── In-House View ── */}
+              {fdView === 'inhouse' && (
+                <div>
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
+                    <div>
+                      <span className="text-sm font-semibold text-[#000000]/87">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
+                      <span className="text-xs text-black/60 ml-2">as of now</span>
+                    </div>
+                    <button onClick={fetchInHouse} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">
+                      ↻ Refresh
+                    </button>
+                  </div>
+                  {inHouseLoading ? (
+                    <div className="text-center py-10 text-black/60">Loading...</div>
+                  ) : inHouseGuests.length === 0 ? (
+                    <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
+                      <div className="text-4xl mb-3">🏠</div>
+                      <div className="font-semibold text-black/60 mb-1">No guests in-house</div>
+                      <div className="text-xs text-black/60">All rooms are currently vacant</div>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
+                      {/* Column header */}
+                      <div className="grid gap-x-3 px-3 py-2 bg-[#f9f9f9] border-b border-black/5" style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3.5rem 3.5rem 5rem' }}>
+                        {['Room', 'Guest', 'Type', 'Check-Out', 'Nts', '', '', ''].map((h, i) => (
+                          <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-black/60">{h}</span>
+                        ))}
+                      </div>
+                      <div className="flex flex-col">
+                        {inHouseGuests.map((r) => <InHouseCard key={r.id} r={r} />)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Search View ── */}
+              {fdView === 'search' && (
+                <div>
+                  <div className="relative mb-5">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/60 text-sm">🔍</span>
+                    <input
+                      type="text"
+                      value={searchQ}
+                      onChange={(e) => setSearchQ(e.target.value)}
+                      placeholder="Name, email, phone, or confirmation # …"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none transition-all"
+                      autoFocus
+                    />
+                    {searchLoading && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-black/60 text-xs animate-pulse">Searching…</span>}
+                  </div>
+                  {searchQ.trim() === '' ? (
+                    <div className="text-center py-10 text-black/60">
+                      <div className="text-3xl mb-3">🔍</div>
+                      <div className="text-sm font-medium text-black/60 mb-4">Look up any reservation to check in a guest</div>
+                      <div className="flex flex-col gap-2 text-xs text-black/60 items-center">
+                        <span>Type a <strong className="text-black/60">confirmation #</strong> — e.g. <span className="font-mono text-black/60">42</span></span>
+                        <span>Or search by <strong className="text-black/60">name</strong>, <strong className="text-black/60">email</strong>, or <strong className="text-black/60">phone</strong></span>
+                      </div>
+                    </div>
+                  ) : searchResults.length === 0 && !searchLoading ? (
+                    <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
+                      <div className="text-3xl mb-2">😕</div>
+                      <div className="font-semibold text-black/60">No results found</div>
+                      <div className="text-xs text-black/60 mt-1">Try a different name, email, or ID</div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {searchResults.map((r) => <SearchResultCard key={r.id} r={r} />)}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Walk-In View ── */}
+              {fdView === 'walkin' && (
+                <div>
+                  {wkSuccess && wkResult ? (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center mb-4">
+                        <span className="text-3xl">✅</span>
+                      </div>
+                      <h3 className="text-xl font-bold text-[#000000]/87 mb-1">Walk-In Complete!</h3>
+                      <p className="text-sm text-black/60 mb-6">{wkResult.full_name} is now checked in.</p>
+                      <div className="bg-green-500/15 border border-green-400/30 rounded-2xl px-12 py-5 mb-4 w-full max-w-xs">
+                        <div className="text-5xl font-mono font-black text-green-300">{wkResult.room_number}</div>
+                        <div className="text-xs text-green-400 font-semibold uppercase tracking-widest mt-2">Room Assigned</div>
+                      </div>
+                      <div className="text-xs text-black/60 mb-5 font-mono">Confirmation #{wkResult.id}</div>
+                      <span className="inline-block bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-6">🔑 Key Ready</span>
+                      <button onClick={resetWalkin} className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white font-semibold py-3 rounded-full transition-all">
+                        + New Walk-In Guest
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* ── 2-COLUMN LAYOUT ── */}
+                      <div className="flex gap-4 mt-1">
+
+                        {/* ── LEFT: Guest Profile · Contact · Identification ── */}
+                        <div className="flex-1 min-w-0 flex flex-col gap-2">
+
+                          {/* Guest Profile */}
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Guest Profile</span>
+                            <div className="flex-1 h-px bg-white shadow-sm" />
+                          </div>
+                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Title</label>
+                              <select value={wkTitle} onChange={e => setWkTitle(e.target.value)}
+                                style={{ background: '#f8f9fa', color: '#000000' }}
+                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
+                                {['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Engr.', 'Atty.', 'Prof.', 'Rev.', 'Hon.'].map(t => <option key={t} value={t} style={{ background: '#f8f9fa' }}>{t}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Last Name <span className="text-red-400">*</span></label>
+                              <input type="text" value={wkLastName} onChange={e => setWkLastName(e.target.value)} placeholder="dela Cruz"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">First Name <span className="text-red-400">*</span></label>
+                              <input type="text" value={wkFirstName} onChange={e => setWkFirstName(e.target.value)} placeholder="Juan"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Middle Name</label>
+                              <input type="text" value={wkMiddleName} onChange={e => setWkMiddleName(e.target.value)} placeholder="Santos"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Gender</label>
+                              <select value={wkGender} onChange={e => setWkGender(e.target.value)}
+                                style={{ background: '#f8f9fa', color: wkGender ? '#000000' : 'rgba(0,0,0,0.4)' }}
+                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
+                                {['', 'Male', 'Female', 'Non-binary', 'Prefer not to say'].map(g => <option key={g} value={g} style={{ background: '#f8f9fa', color: '#000000' }}>{g || '— select —'}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Date of Birth</label>
+                              <input type="date" value={wkBirthDate} onChange={e => setWkBirthDate(e.target.value)}
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Nationality</label>
+                              <input type="text" value={wkNationality} onChange={e => setWkNationality(e.target.value)} placeholder="Filipino"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Country</label>
+                              <input type="text" value={wkCountry} onChange={e => setWkCountry(e.target.value)} placeholder="Philippines"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                          </div>
+
+                          {/* Contact */}
+                          <div className="flex items-center gap-2 mt-1 mb-1">
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Contact Information</span>
+                            <div className="flex-1 h-px bg-white shadow-sm" />
+                          </div>
+                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
+                            <div className="col-span-2">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Email Address</label>
+                              <input type="email" value={wkEmail} onChange={e => setWkEmail(e.target.value)} placeholder="juan@example.com"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div className="col-span-2">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Mobile / Phone</label>
+                              <input type="tel" value={wkPhone} onChange={e => setWkPhone(e.target.value)} placeholder="09XX XXX XXXX"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div className="col-span-3">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Street / Barangay Address</label>
+                              <input type="text" value={wkAddress} onChange={e => setWkAddress(e.target.value)} placeholder="123 Rizal St., Brgy. San Antonio"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">City / Municipality</label>
+                              <input type="text" value={wkCity} onChange={e => setWkCity(e.target.value)} placeholder="Makati City"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                          </div>
+
+                          {/* Identification */}
+                          <div className="flex items-center gap-2 mt-1 mb-1">
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Identification</span>
+                            <div className="flex-1 h-px bg-white shadow-sm" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Type</label>
+                              <select value={wkIdType} onChange={e => setWkIdType(e.target.value)}
+                                style={{ background: '#f8f9fa', color: wkIdType ? '#000000' : 'rgba(0,0,0,0.4)' }}
+                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
+                                {['', 'Passport', "Driver's License", 'SSS ID', 'PhilHealth ID', 'Postal ID', 'Senior Citizen ID', 'PWD ID', 'UMID', 'PhilSys / National ID', 'Other'].map(t => (
+                                  <option key={t} value={t} style={{ background: '#f8f9fa', color: '#000000' }}>{t || '— select ID type —'}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Number</label>
+                              <input type="text" value={wkIdNumber} onChange={e => setWkIdNumber(e.target.value)} placeholder="ID / reference number"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                          </div>
+
+                        </div>
+
+                        {/* ── RIGHT: Stay Details · Payment · Remarks · Submit ── */}
+                        <div className="flex-1 min-w-0 flex flex-col gap-2">
+
+                          {/* Stay Details */}
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Stay Details</span>
+                            <div className="flex-1 h-px bg-white shadow-sm" />
+                          </div>
+                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
+                            <div className="col-span-2">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Type <span className="text-red-400">*</span></label>
+                              <select value={wkRoomType} onChange={e => { setWkRoomType(e.target.value); setWkRoomNumber(''); }}
+                                style={{ background: '#f8f9fa', color: '#000000' }}
+                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
+                                {wkRoomTypes.length === 0 && <option value="" style={{ background: '#f8f9fa' }}>Loading...</option>}
+                                {wkRoomTypes.map(rt => {
+                                  const full = rt.available !== undefined && rt.available <= 0;
+                                  const label = rt.available !== undefined ? `${rt.name} (${rt.available}/${rt.total_rooms} avail)` : rt.name;
+                                  return (
+                                    <option key={rt.id} value={rt.name} disabled={full}
+                                      style={{ background: full ? '#3b1a1a' : '#4B5563', color: full ? '#f87171' : 'white' }}>
+                                      {label}{full ? ' — FULL' : ''}
+                                    </option>
+                                  );
+                                })}
+                              </select>
+                              {(() => {
+                                const sel = wkRoomTypes.find(rt => rt.name === wkRoomType);
+                                if (!sel || sel.available === undefined) return null;
+                                const full = sel.available <= 0; const low = sel.available === 1;
+                                return (
+                                  <div className={`mt-0.5 flex items-center gap-1 text-[10px] font-semibold ${full ? 'text-red-300' : low ? 'text-yellow-300' : 'text-green-300'}`}>
+                                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${full ? 'bg-red-400' : low ? 'bg-yellow-400' : 'bg-green-400'}`} />
+                                    {full ? `No rooms available` : low ? `Only 1 left` : `${sel.available}/${sel.total_rooms} available`}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                            <div className="col-span-2">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Rate Code</label>
+                              <select value={wkRateCode} onChange={e => setWkRateCode(e.target.value)}
+                                style={{ background: '#f8f9fa', color: '#000000' }}
+                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
+                                <option value="" style={{ background: '#f8f9fa' }}>— No rate code —</option>
+                                {wkRateCodes.map(rc => (
+                                  <option key={rc.id} value={rc.code} style={{ background: '#f8f9fa' }}>{rc.code} — {rc.name}</option>
+                                ))}
+                              </select>
+                              {(() => {
+                                if (!wkRateCode) return null;
+                                const rc = wkRateCodes.find(r => r.code === wkRateCode);
+                                const rt = wkRoomTypes.find(r => r.name === wkRoomType);
+                                if (!rc || !rt) return null;
+                                const priceEntry = rc.prices?.find(p => p.room_type_id === rt.id);
+                                const price = priceEntry ? priceEntry.price_per_night : rt.price_per_night;
+                                return <div className="mt-0.5 text-[10px] text-sky-300 font-semibold">₱{Number(price).toLocaleString()} / night</div>;
+                              })()}
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-In <span className="text-red-400">*</span></label>
+                              <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-Out <span className="text-red-400">*</span></label>
+                              <input type="date" value={wkCheckOut} min={wkCheckIn || today} onChange={e => setWkCheckOut(e.target.value)}
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ETA</label>
+                              <input type="time" value={wkEta} onChange={e => setWkEta(e.target.value)}
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">No. of Guests</label>
+                              <input type="number" min="1" max="20" value={wkGuests} onChange={e => setWkGuests(parseInt(e.target.value) || 1)}
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div className="col-span-2">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Number <span className="text-red-400">*</span></label>
+                              {(() => {
+                                const typeRooms = rooms.filter(r => r.room_type === wkRoomType);
+                                const selRoom = typeRooms.find(r => r.room_number === wkRoomNumber);
+                                const isBlocked = selRoom && (selRoom.computed_status === 'occupied' || selRoom.computed_status === 'arriving');
+                                const isWarn = selRoom && (selRoom.computed_status === 'dirty' || selRoom.computed_status === 'out_of_order');
+                                if (typeRooms.length === 0) {
+                                  return (
+                                    <input type="text" value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
+                                      placeholder="e.g. 201" autoComplete="off"
+                                      className="w-full px-2 py-1 border border-black/10 bg-[#f8f9fa] text-[#000000]/87 text-[11px] font-mono font-bold placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                                  );
+                                }
+                                return (
+                                  <div>
+                                    <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
+                                      style={{ background: '#f8f9fa', color: '#000000' }}
+                                      className={`w-full px-2 py-1 border ${isBlocked ? 'border-red-400/50' : 'border-black/5'} text-[11px] font-mono font-bold outline-none focus:border-black/5 rounded-sm`}>
+                                      <option value="" style={{ background: '#4B5563', color: 'rgba(255,255,255,0.35)' }}>— select room —</option>
+                                      {typeRooms.map(r => {
+                                        const cfg = roomStatusConfig[r.computed_status] || roomStatusConfig.available;
+                                        const unavailable = r.computed_status === 'occupied' || r.computed_status === 'arriving';
+                                        return (
+                                          <option key={r.room_number} value={r.room_number} disabled={unavailable}
+                                            style={{ background: unavailable ? '#3b1a1a' : '#4B5563', color: unavailable ? '#f87171' : 'white' }}>
+                                            {`${r.room_number}${r.floor ? ` · F${r.floor}` : ''} — ${cfg.label}${unavailable ? ' ✗' : ''}`}
+                                          </option>
+                                        );
+                                      })}
+                                    </select>
+                                    {selRoom && (
+                                      <div className={`mt-0.5 flex items-center gap-1 text-[10px] font-semibold ${isBlocked ? 'text-red-300' : isWarn ? 'text-yellow-300' : 'text-green-300'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isBlocked ? 'bg-red-400' : isWarn ? 'bg-yellow-400' : 'bg-green-400'}`} />
+                                        {isBlocked ? `Unavailable — choose another` : isWarn ? `${selRoom.hk_status} — confirm ready` : `Available`}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                            <div className="col-span-2">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Purpose of Visit</label>
+                              <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
+                                style={{ background: '#f8f9fa', color: wkPurpose ? '#000000' : 'rgba(0,0,0,0.4)' }}
+                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
+                                {['', 'Leisure / Vacation', 'Business', 'Official / Government', 'Medical', 'Honeymoon / Anniversary', 'Transit', 'Others'].map(p => (
+                                  <option key={p} value={p} style={{ background: '#f8f9fa', color: '#000000' }}>{p || '— select —'}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Payment */}
+                          <div className="flex items-center gap-2 mt-1 mb-1">
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Payment</span>
+                            <div className="flex-1 h-px bg-white shadow-sm" />
+                          </div>
+                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
+                            <div className="col-span-2">
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Payment Method</label>
+                              <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
+                                style={{ background: '#f8f9fa', color: '#000000' }}
+                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
+                                {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Maya', 'Bank Transfer', 'Check', 'Other'].map(m => (
+                                  <option key={m} value={m} style={{ background: '#f8f9fa' }}>{m}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Deposit Amount</label>
+                              <input type="number" min="0" step="0.01" value={wkDepositAmount} onChange={e => setWkDepositAmount(e.target.value)} placeholder="0.00"
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div className="flex items-end pb-1">
+                              <label className="flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" checked={wkPayment} onChange={e => setWkPayment(e.target.checked)}
+                                  className="w-3 h-3 accent-[#576CA8] cursor-pointer" />
+                                <span className="text-[10px] text-black/60 uppercase tracking-wide">Collected</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* Remarks */}
+                          <div className="flex items-center gap-2 mt-1 mb-1">
+                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Remarks</span>
+                            <div className="flex-1 h-px bg-white shadow-sm" />
+                          </div>
+                          <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Special Requests</label>
+                              <input type="text" value={wkSpecialReq} onChange={e => setWkSpecialReq(e.target.value)} placeholder="non-smoking, high floor, extra pillow..."
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Front Desk Notes</label>
+                              <input type="text" value={wkNotes} onChange={e => setWkNotes(e.target.value)} placeholder="Internal notes..."
+                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
+                            </div>
+                          </div>
+
+                          <div className="h-px bg-white shadow-sm mt-auto pt-2" />
+                          {wkError && (
+                            <div className="bg-red-500/15 border border-red-400/30 rounded px-3 py-1.5 text-[11px] text-red-300">{wkError}</div>
+                          )}
+                          <button onClick={submitWalkin} disabled={wkSubmitting}
+                            className="w-full bg-gradient-to-r from-[#006241] to-[#1a4f99] hover:opacity-90 disabled:opacity-50 text-white font-bold py-2 rounded transition-all text-[11px] tracking-[0.12em] uppercase border border-black/5">
+                            {wkSubmitting ? 'Processing...' : 'Complete Walk-In Check-In'}
+                          </button>
+
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Rooms View ── */}
+              {fdView === 'rooms' && (
+                <div>
+                  {/* Toolbar */}
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
+                    {(() => {
+                      const counts = rooms.reduce((acc, r) => { acc[r.computed_status] = (acc[r.computed_status] || 0) + 1; return acc; }, {});
+                      const stats = [
+                        { label: 'Total', key: 'all', value: rooms.length, svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="1" width="4.5" height="4.5" rx="0.75" /><rect x="7.5" y="1" width="4.5" height="4.5" rx="0.75" /><rect x="1" y="7.5" width="4.5" height="4.5" rx="0.75" /><rect x="7.5" y="7.5" width="4.5" height="4.5" rx="0.75" /></svg> },
+                        { label: 'Available', key: 'available', value: counts.available || 0, svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 6.5l3 3 6-6" /></svg> },
+                        { label: 'Occupied', key: 'occupied', value: counts.occupied || 0, svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="6.5" cy="4" r="2" /><path d="M2 11c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" /></svg> },
+                        { label: 'Due Out', key: 'due_out', value: counts.due_out || 0, svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 6.5h6M8 4l3 2.5L8 9" /><path d="M4 2H2v9h2" /></svg> },
+                        { label: 'Arriving', key: 'arriving', value: counts.arriving || 0, svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 6.5H2M5 4L2 6.5 5 9" /><path d="M9 2h2v9H9" /></svg> },
+                        { label: 'Dirty', key: 'dirty', value: counts.dirty || 0, svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 10l2-5 2 2 2-5 2 4" /></svg> },
+                        { label: 'OOO', key: 'out_of_order', value: counts.out_of_order || 0, svg: <svg width="13" height="13" viewBox="0 0 13 13" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3.5 3.5l6 6M9.5 3.5l-6 6" /></svg> },
+                      ];
+                      return (
+                        <div className="flex items-center gap-1">
+                          {stats.map(s => {
+                            const active = roomFilter === s.key;
+                            return (
+                              <button key={s.label} onClick={() => setRoomFilter(s.key)}
+                                className={`flex flex-col items-center px-2.5 py-1 rounded-lg transition-all ${active ? 'bg-white shadow-sm text-[#000000]/87' : 'text-black/60 hover:text-black/60 hover:bg-white shadow-sm'}`}>
+                                {s.svg}
+                                <span className="text-base font-bold leading-tight">{s.value}</span>
+                                <span className="text-[10px] font-medium">{s.label}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                    <div className="flex items-center gap-2">
+                      <button onClick={fetchRooms} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">↻ Refresh</button>
+                      <button onClick={() => { setAddRoomOpen(v => !v); if (!newRoomType && wkRoomTypes.length > 0) setNewRoomType(wkRoomTypes[0].name); }}
+                        className="text-xs font-semibold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-3 py-1.5 rounded-lg transition-all">
+                        + Add Room
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Add Room Form */}
+                  {addRoomOpen && (
+                    <div className="mb-5 rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <div className="text-xs font-semibold text-black/60 uppercase tracking-widest mb-3">New Room</div>
+                      <div className="grid grid-cols-3 gap-3 mb-3">
+                        <div>
+                          <label className="block text-xs text-black/60 mb-1">Room Number *</label>
+                          <input type="text" value={newRoomNumber} onChange={e => setNewRoomNumber(e.target.value)}
+                            placeholder="e.g. 201" autoComplete="off"
+                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-sm font-mono font-bold outline-none focus:border-black/5" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-black/60 mb-1">Room Type</label>
+                          <select value={newRoomType} onChange={e => setNewRoomType(e.target.value)}
+                            className="w-full px-3 py-2 rounded-lg border border-black/5 text-[#000000]/87 text-sm outline-none focus:border-black/5"
+                            style={{ background: 'rgba(20,30,60,0.95)' }}>
+                            <option value="" style={{ background: '#1a2744' }}>— select —</option>
+                            {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name} style={{ background: '#1a2744' }}>{rt.name}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs text-black/60 mb-1">Floor</label>
+                          <input type="number" min="1" max="99" value={newRoomFloor} onChange={e => setNewRoomFloor(parseInt(e.target.value) || 1)}
+                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5" />
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={addRoom} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">Save Room</button>
+                        <button onClick={() => setAddRoomOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-xs font-semibold px-4 py-2 rounded-lg bg-white shadow-sm transition-all">Cancel</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Room Grid */}
+                  {roomsLoading ? (
+                    <div className="text-center py-12 text-black/60">Loading rooms...</div>
+                  ) : rooms.length === 0 ? (
+                    <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
+                      <div className="text-4xl mb-3">🏨</div>
+                      <div className="font-semibold text-black/60 mb-1">No rooms tracked yet</div>
+                      <div className="text-xs text-black/60 mb-4">Rooms appear here automatically after check-in, or add them manually.</div>
+                      <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-4 py-2 rounded-lg">+ Add Room</button>
+                    </div>
+                  ) : (
+                    <div>
+                      {(() => {
+                        const filtered = roomFilter === 'all' ? rooms : rooms.filter(r => r.computed_status === roomFilter);
+                        if (filtered.length === 0) return (
+                          <div className="text-center py-10 text-black/60 text-sm">No rooms match this filter.</div>
+                        );
+                        const byFloor = filtered.reduce((acc, r) => {
+                          const f = r.floor || 1;
+                          if (!acc[f]) acc[f] = [];
+                          acc[f].push(r);
+                          return acc;
+                        }, {});
+                        return Object.keys(byFloor).sort((a, b) => a - b).map(floor => (
+                          <div key={floor} className="mb-6">
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="text-xs font-bold text-black/60 uppercase tracking-widest">Floor {floor}</span>
+                              <div className="flex-1 h-px bg-white shadow-sm" />
+                              <span className="text-xs text-black/60">{byFloor[floor].length} room{byFloor[floor].length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
+                              {byFloor[floor].map(r => <RoomCard key={r.room_number} r={r} />)}
+                            </div>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Calendar / Tape Chart View ── */}
+              {fdView === 'calendar' && (() => {
+                const COL_W = 34, LABEL_W = 90, ROW_H = 26;
+                const DAY_ABR = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+                const startMs = new Date(tcFrom + 'T00:00:00').getTime();
+
+                // Convert any date/datetime to local YYYY-MM-DD string
+                const toLocalDate = (dt) => {
+                  const d = new Date(dt);
+                  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                };
+
+                const tcDays = Array.from({ length: 30 }, (_, i) => {
+                  const d = new Date(startMs + i * 86400000);
+                  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+                });
+
+                const tcGrouped = tcRooms.reduce((acc, r) => {
+                  if (!acc[r.room_type]) acc[r.room_type] = [];
+                  acc[r.room_type].push(r);
+                  return acc;
+                }, {});
+
+                const getBar = (resv) => {
+                  const ci = new Date(toLocalDate(resv.check_in_date) + 'T00:00:00').getTime();
+                  // For checked-out reservations, use actual checkout date if earlier than booked
+                  let effectiveOut = resv.check_out_date;
+                  if (resv.status === 'checked_out' && resv.checked_out_at) {
+                    const actualDate = toLocalDate(resv.checked_out_at);
+                    const bookedDate = toLocalDate(resv.check_out_date);
+                    if (actualDate < bookedDate) effectiveOut = resv.checked_out_at;
+                  }
+                  const co = new Date(toLocalDate(effectiveOut) + 'T00:00:00').getTime();
+                  const endMs = startMs + 30 * 86400000;
+                  if (co <= startMs || ci >= endMs) return null;
+                  const l = Math.max(0, Math.round((ci - startMs) / 86400000));
+                  const r = Math.min(30, Math.max(l + 1, Math.round((co - startMs) / 86400000)));
+                  return { left: l * COL_W, width: (r - l) * COL_W - 2, clipped: ci < startMs };
+                };
+
+                const TC = {
+                  pending: { bg: 'rgba(217,119,6,0.88)', text: '#fef9c3' },
+                  confirmed: { bg: 'rgba(37,99,235,0.9)', text: 'white' },
+                  checked_in: { bg: 'rgba(22,163,74,0.9)', text: 'white' },
+                  checked_out: { bg: 'rgba(100,116,139,0.55)', text: 'rgba(255,255,255,0.45)' },
+                  due_out: { bg: 'rgba(234,88,12,0.85)', text: 'white' },
+                };
+
+                const shiftDays = (n) => {
+                  const d = new Date(tcFrom + 'T00:00:00');
+                  d.setDate(d.getDate() + n);
+                  setTcFrom(d.toISOString().slice(0, 10));
+                  setTcSelectedRes(null);
+                };
+
+                // Match reservations to a row (type-view: by room_type; room-view: by room_number)
+                const rowResv = (room) => tcTypeView
+                  ? tcReservations.filter(r => r.room_type === room.room_type)
+                  : tcReservations.filter(r => r.room_number === room.room_number);
+
+                const isOccupied = (room, day) => tcTypeView
+                  ? false  // type-level: always allow click (can't know exact occupancy without room#)
+                  : tcReservations.some(r => r.room_number === room.room_number && toLocalDate(r.check_in_date) <= day && toLocalDate(r.check_out_date) > day);
+
+                const handleCellClick = (room, day) => {
+                  if (isOccupied(room, day)) return;
+                  const co = new Date(day + 'T00:00:00');
+                  co.setDate(co.getDate() + 1);
+                  setWkRoomType(room.room_type);
+                  if (!tcTypeView) setWkRoomNumber(room.room_number);
+                  setWkCheckIn(day);
+                  setWkCheckOut(co.toISOString().slice(0, 10));
+                  setFdView('walkin');
+                };
+
+                // Month separator labels for top header
+                const monthGroups = tcDays.reduce((acc, d) => {
+                  const lbl = new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                  if (!acc.length || acc[acc.length - 1].lbl !== lbl) acc.push({ lbl, count: 1 });
+                  else acc[acc.length - 1].count++;
+                  return acc;
+                }, []);
+
+                const totalW = LABEL_W + 30 * COL_W;
+                const lastDay = tcDays[29];
+
+                return (
+                  <div>
+                    {/* ── Toolbar ── */}
+                    <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                      <div className="flex items-center gap-1.5">
+                        <button onClick={() => shiftDays(-14)} className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">← 2w</button>
+                        <button onClick={() => shiftDays(-7)} className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">← 1w</button>
+                        <span className="text-[11px] text-black/60 font-mono px-2 select-none">
+                          {new Date(tcFrom + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          {' – '}
+                          {new Date(lastDay + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <button onClick={() => shiftDays(7)} className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">1w →</button>
+                        <button onClick={() => shiftDays(14)} className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">2w →</button>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => { setTcFrom(today); setTcSelectedRes(null); }}
+                          className="px-2.5 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] font-semibold transition-colors">Today</button>
+                        <button onClick={() => fetchTapeChart(tcFrom)}
+                          className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">↺</button>
+                      </div>
+                    </div>
+
+                    {/* ── Legend ── */}
+                    <div className="flex items-center gap-3 mb-3 flex-wrap">
+                      {[['confirmed', 'Confirmed'], ['checked_in', 'In-House'], ['pending', 'Pending'], ['due_out', 'Due Out'], ['checked_out', 'Checked Out']].map(([s, lbl]) => (
+                        <div key={s} className="flex items-center gap-1">
+                          <div style={{ width: 9, height: 9, borderRadius: 2, background: TC[s]?.bg }} />
+                          <span className="text-[9px] text-black/60">{lbl}</span>
+                        </div>
+                      ))}
                       <div className="flex items-center gap-1">
-                        {stats.map(s => {
-                          const active = roomFilter === s.key;
+                        <div style={{ width: 9, height: 9, borderRadius: 2, border: '1px dashed rgba(0,0,0,0.2)' }} />
+                        <span className="text-[9px] text-black/60">Available — click to book</span>
+                      </div>
+                    </div>
+
+                    {/* ── Selected reservation strip ── */}
+                    {tcSelectedRes && (() => {
+                      const r = tcSelectedRes;
+                      const effStatus = (r.status === 'checked_in' && r.check_out_date && r.check_out_date.slice(0, 10) === today) ? 'due_out' : r.status;
+                      const clr = TC[effStatus] || TC.confirmed;
+                      const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
+                      return (
+                        <div className="mb-3 px-3 py-2 rounded border flex items-center justify-between gap-3"
+                          style={{ background: clr.bg, borderColor: 'rgba(255,255,255,0.15)' }}>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <span className="text-xs font-bold" style={{ color: clr.text }}>{r.full_name}</span>
+                            <span className="text-[11px] font-mono" style={{ color: clr.text, opacity: 0.8 }}>Rm {r.room_number}</span>
+                            <span className="text-[11px]" style={{ color: clr.text, opacity: 0.75 }}>
+                              {new Date(r.check_in_date.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              {' → '}
+                              {new Date(r.check_out_date.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              {' · '}{nights}n
+                            </span>
+                            {r.rate_code && <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.2)', color: clr.text }}>{r.rate_code}</span>}
+                            <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.18)', color: clr.text }}>{r.status.replace('_', ' ')}</span>
+                          </div>
+                          <button onClick={() => setTcSelectedRes(null)} className="text-[11px] hover:opacity-70 flex-shrink-0" style={{ color: clr.text }}>✕</button>
+                        </div>
+                      );
+                    })()}
+
+                    {/* ── Chart ── */}
+                    {tcLoading ? (
+                      <div className="text-center py-12 text-black/60 text-sm">Loading chart...</div>
+                    ) : tcRooms.length === 0 ? (
+                      <div className="text-center py-12 text-black/60 text-sm">No room types found — add room types in Admin → Settings → Rooms first.</div>
+                    ) : (
+                      <>
+                        {tcTypeView && (
+                          <div className="mb-2 px-3 py-1.5 rounded text-[10px] text-amber-300/80 border border-amber-400/20 bg-amber-500/8">
+                            Showing by room type — no individual rooms assigned yet. Rows show all bookings of that type. Add rooms via Walk-In or the Rooms tab for per-room view.
+                          </div>
+                        )}
+                        <div className="overflow-x-auto rounded-xl border border-black/5 bg-white shadow-sm" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                          <div style={{ minWidth: totalW }}>
+
+                            {/* Month row */}
+                            <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                              {monthGroups.map((mg, i) => (
+                                <div key={i} style={{ width: mg.count * COL_W }}
+                                  className="px-2 py-0.5 text-[9px] font-bold text-black/60 uppercase tracking-widest">
+                                  {mg.lbl}
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Day header row */}
+                            <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '2px solid rgba(0,0,0,0.12)' }}>
+                              {tcDays.map(d => {
+                                const dt = new Date(d + 'T00:00:00');
+                                const isToday = d === today;
+                                const isWknd = dt.getDay() === 0 || dt.getDay() === 6;
+                                return (
+                                  <div key={d} style={{
+                                    width: COL_W, flexShrink: 0, height: 30,
+                                    background: isToday ? 'rgba(37,99,235,0.05)' : 'transparent',
+                                    borderRight: '1px solid rgba(0,0,0,0.03)'
+                                  }}
+                                    className="flex flex-col items-center justify-center">
+                                    <span className={`text-[11px] font-bold leading-none ${isToday ? 'text-blue-600' : isWknd ? 'text-black/40' : 'text-black/60'}`}>
+                                      {dt.getDate()}
+                                    </span>
+                                    <span className={`text-[8px] leading-none mt-0.5 ${isToday ? 'text-blue-600/60' : isWknd ? 'text-black/40' : 'text-black/40'}`}>
+                                      {DAY_ABR[dt.getDay()]}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+
+                            {/* Room rows grouped by type */}
+                            {Object.entries(tcGrouped).map(([type, typeRooms]) => (
+                              <React.Fragment key={type}>
+                                {/* Type header */}
+                                <div className="flex items-center" style={{ height: 18, background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid rgba(0,0,0,0.05)', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
+                                  <div style={{ width: LABEL_W }} className="px-2">
+                                    <span className="text-[9px] font-bold text-black/60 uppercase tracking-[0.18em] truncate block" style={{ maxWidth: LABEL_W - 16 }}>{type}</span>
+                                  </div>
+                                </div>
+                                {/* Unassigned row — reservations with no room_number for this type */}
+                                {(() => {
+                                  const unassigned = tcReservations.filter(r => !r.room_number && r.room_type === type);
+                                  if (!unassigned.length) return null;
+                                  return (
+                                    <div className="flex" style={{ height: ROW_H, borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'rgba(255,180,0,0.03)' }}>
+                                      <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(0,0,0,0.05)' }}
+                                        className="flex items-center px-2">
+                                        <span className="text-[9px] text-amber-400/60 italic">unassigned</span>
+                                      </div>
+                                      <div className="relative flex" style={{ width: 30 * COL_W, flexShrink: 0 }}>
+                                        {tcDays.map(d => {
+                                          const isToday = d === today;
+                                          const isWknd = new Date(d + 'T00:00:00').getDay() === 0 || new Date(d + 'T00:00:00').getDay() === 6;
+                                          return (
+                                            <div key={d} style={{
+                                              width: COL_W, flexShrink: 0, height: ROW_H,
+                                              background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(0,0,0,0.015)' : 'transparent',
+                                              borderRight: '1px solid rgba(0,0,0,0.05)'
+                                            }} />
+                                          );
+                                        })}
+                                        {unassigned.map(r => {
+                                          const bar = getBar(r);
+                                          if (!bar) return null;
+                                          const effStatus = (r.status === 'checked_in' && r.check_out_date && r.check_out_date.slice(0, 10) === today) ? 'due_out' : r.status;
+                                          const clr = TC[effStatus] || TC.confirmed;
+                                          const isSelected = tcSelectedRes?.id === r.id;
+                                          const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
+                                          return (
+                                            <div key={r.id}
+                                              style={{
+                                                position: 'absolute', top: 3, height: ROW_H - 6,
+                                                left: bar.left + 1, width: bar.width,
+                                                background: clr.bg, borderRadius: 3,
+                                                border: '1px dashed rgba(255,255,255,0.3)',
+                                                boxShadow: isSelected ? '0 0 0 1.5px white' : 'none',
+                                                zIndex: 1, cursor: 'pointer', overflow: 'hidden'
+                                              }}
+                                              onClick={e => { e.stopPropagation(); setTcSelectedRes(isSelected ? null : r); }}
+                                              title={`${r.full_name} · ${type} · ${nights}n · ${r.status.replace('_', ' ')} · No room assigned`}>
+                                              {bar.width > 28 && (
+                                                <span style={{
+                                                  color: clr.text, fontSize: 10, fontWeight: 600,
+                                                  paddingLeft: 5, lineHeight: `${ROW_H - 6}px`,
+                                                  whiteSpace: 'nowrap', pointerEvents: 'none',
+                                                  display: 'block', overflow: 'hidden'
+                                                }}>
+                                                  {r.full_name.split(',')[0]}
+                                                </span>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
+                                {/* Individual room rows */}
+                                {typeRooms.map(room => {
+                                  const roomResv = rowResv(room);
+                                  return (
+                                    <div key={room.room_number} className="flex"
+                                      style={{ height: tcTypeView ? 32 : ROW_H, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                                      {/* Label */}
+                                      <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(0,0,0,0.05)' }}
+                                        className="flex items-center px-2 gap-1.5">
+                                        {tcTypeView ? (
+                                          <span className="text-[10px] font-semibold text-black/60">{room.room_number}</span>
+                                        ) : (
+                                          <>
+                                            <span className="text-[11px] font-mono font-bold text-black/60 truncate" style={{ maxWidth: LABEL_W - 26 }}>{room.room_number}</span>
+                                            {room.floor && <span className="text-[9px] text-black/60 flex-shrink-0">F{room.floor}</span>}
+                                          </>
+                                        )}
+                                      </div>
+                                      {/* Date grid + bars */}
+                                      <div className="relative flex" style={{ width: 30 * COL_W, flexShrink: 0 }}>
+                                        {/* Clickable cells */}
+                                        {tcDays.map(d => {
+                                          const isToday = d === today;
+                                          const isWknd = new Date(d + 'T00:00:00').getDay() === 0 || new Date(d + 'T00:00:00').getDay() === 6;
+                                          const occupied = isOccupied(room, d);
+                                          return (
+                                            <div key={d} style={{
+                                              width: COL_W, flexShrink: 0, height: tcTypeView ? 32 : ROW_H,
+                                              background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(0,0,0,0.015)' : 'transparent',
+                                              borderRight: '1px solid rgba(0,0,0,0.05)',
+                                              cursor: occupied ? 'default' : 'cell'
+                                            }}
+                                              onClick={() => handleCellClick(room, d)}
+                                            />
+                                          );
+                                        })}
+                                        {/* Reservation bars */}
+                                        {roomResv.map(r => {
+                                          const bar = getBar(r);
+                                          if (!bar) return null;
+                                          const effStatus = (r.status === 'checked_in' && r.check_out_date && r.check_out_date.slice(0, 10) === today) ? 'due_out' : r.status;
+                                          const clr = TC[effStatus] || TC.confirmed;
+                                          const isSelected = tcSelectedRes?.id === r.id;
+                                          const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
+                                          const rowH = tcTypeView ? 32 : ROW_H;
+                                          return (
+                                            <div key={r.id}
+                                              style={{
+                                                position: 'absolute', top: 3, height: rowH - 6,
+                                                left: bar.left + 1, width: bar.width,
+                                                background: clr.bg,
+                                                borderRadius: bar.clipped ? '0 3px 3px 0' : 3,
+                                                borderLeft: bar.clipped ? '2px dashed rgba(255,255,255,0.35)' : 'none',
+                                                boxShadow: isSelected ? '0 0 0 1.5px white, 0 0 8px rgba(255,255,255,0.3)' : 'none',
+                                                zIndex: 1, cursor: 'pointer', overflow: 'hidden'
+                                              }}
+                                              onClick={e => { e.stopPropagation(); setTcSelectedRes(isSelected ? null : r); }}
+                                              title={`${r.full_name}${r.room_number ? ' · Rm ' + r.room_number : ''} · ${nights}n · ${r.status.replace('_', ' ')}`}>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* ── Room Detail Panel ── */}
+              {selectedRoom && ReactDOM.createPortal(
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRoom(null)}>
+                  <div className="bg-[#1a2340] border border-black/5 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                    onClick={e => e.stopPropagation()}>
+                    {/* Header */}
+                    {(() => {
+                      const cfg = roomStatusConfig[selectedRoom.computed_status] || roomStatusConfig.available;
+                      const isActive = ['occupied', 'due_out', 'arriving'].includes(selectedRoom.computed_status);
+                      return (
+                        <>
+                          <div className={`px-5 py-4 border-b border-black/5 ${cfg.bg}`}>
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <div className={`text-3xl font-black font-mono ${cfg.text}`}>{selectedRoom.room_number}</div>
+                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                  <span className="text-xs text-black/60 bg-white shadow-sm px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
+                                  <span className="text-xs text-black/60">Floor {selectedRoom.floor}</span>
+                                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.pill}`}>{cfg.label}</span>
+                                </div>
+                              </div>
+                              <button onClick={() => setSelectedRoom(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold leading-none mt-1">✕</button>
+                            </div>
+                          </div>
+                          <div className="p-5 space-y-4">
+                            {/* Guest info */}
+                            {isActive && selectedRoom.guest_name && (
+                              <div className="bg-white shadow-sm border border-black/5 rounded-xl p-3.5 space-y-1.5">
+                                <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2">Current Guest</div>
+                                <div className="font-semibold text-[#000000]/87">{selectedRoom.guest_name}</div>
+                                <div className="flex items-center gap-3 text-xs text-black/60">
+                                  <span>CI: {selectedRoom.check_in_date ? new Date(selectedRoom.check_in_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</span>
+                                  <span>→</span>
+                                  <span>CO: {selectedRoom.check_out_date ? new Date(selectedRoom.check_out_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</span>
+                                </div>
+                                {selectedRoom.number_of_guests && <div className="text-xs text-black/60">{selectedRoom.number_of_guests} guest{selectedRoom.number_of_guests !== 1 ? 's' : ''}</div>}
+                              </div>
+                            )}
+
+                            {/* HK Status */}
+                            <div>
+                              <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2.5">Housekeeping Status</div>
+                              <div className="grid grid-cols-2 gap-2">
+                                {[
+                                  { status: 'clean', label: '✓ Clean', active: 'bg-green-500/25 border-green-400/50 text-green-200' },
+                                  { status: 'dirty', label: '🧹 Dirty', active: 'bg-yellow-500/25 border-yellow-400/50 text-yellow-200' },
+                                  { status: 'inspected', label: '🔍 Inspected', active: 'bg-teal-500/25 border-teal-400/50 text-teal-200' },
+                                  { status: 'out_of_order', label: '⚠️ Out of Order', active: 'bg-red-500/25 border-red-400/50 text-red-200' },
+                                ].map(({ status, label, active }) => {
+                                  const isCurrent = selectedRoom.hk_status === status;
+                                  return (
+                                    <button key={status}
+                                      onClick={() => updateHkStatus(selectedRoom.room_number, status)}
+                                      disabled={hkUpdating === selectedRoom.room_number}
+                                      className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/5 bg-white shadow-sm text-black/60 hover:bg-white shadow-sm hover:text-[#000000]/87'}`}>
+                                      {label}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="flex gap-2 pt-1">
+                              {(selectedRoom.computed_status === 'occupied' || selectedRoom.computed_status === 'due_out') && selectedRoom.reservation_id && (
+                                <button
+                                  onClick={() => { setCheckoutConfirmId(selectedRoom.reservation_id); setSelectedRoom(null); }}
+                                  className="flex-1 bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs font-bold py-2.5 rounded-xl transition-all">
+                                  Check Out Guest
+                                </button>
+                              )}
+                              <button
+                                onClick={() => removeRoom(selectedRoom.room_number)}
+                                className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-black/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
+                                Remove Room
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+                , document.body)}
+
+              {/* ── Check-In Wizard Modal ── */}
+              {wizardOpen && wizardReservation && ReactDOM.createPortal(
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+                    <div className="bg-gradient-to-br from-[#00754A] to-[#006241] px-6 py-4 flex items-center justify-between">
+                      <div>
+                        <div className="text-[#000000]/87 font-bold">Check-In Wizard</div>
+                        <div className="text-black/60 text-xs">{wizardReservation.full_name} · #{wizardReservation.id}</div>
+                      </div>
+                      {!wizardSuccess && (
+                        <button onClick={closeWizard} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors">✕</button>
+                      )}
+                    </div>
+                    <div className="p-6">
+                      {wizardSuccess ? (
+                        <WizardSuccessCard />
+                      ) : (
+                        <>
+                          <WizardStepBar />
+                          {wizardStep === 1 && <WizardStep1 />}
+                          {wizardStep === 2 && <WizardStep2 />}
+                          {wizardStep === 3 && <WizardStep3 />}
+                          {wizardStep === 4 && <WizardStep4 />}
+                          {wizardError && (
+                            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium">
+                              {wizardError}
+                            </div>
+                          )}
+                          <div className="flex gap-3 mt-4">
+                            {wizardStep > 1 && (
+                              <button
+                                onClick={() => { setWizardStep(s => s - 1); setWizardError(''); }}
+                                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
+                              >
+                                Back
+                              </button>
+                            )}
+                            {wizardStep < 4 ? (
+                              <button
+                                onClick={() => { setWizardStep(s => s + 1); setWizardError(''); }}
+                                disabled={wizardStep === 1 && !wizardIdVerified}
+                                className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
+                              >
+                                Next
+                              </button>
+                            ) : (
+                              <button
+                                onClick={submitCheckin}
+                                disabled={!wizardPayment || wizardSubmitting}
+                                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-full transition-colors"
+                              >
+                                {wizardSubmitting ? 'Processing...' : 'Complete Check-In'}
+                              </button>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                , document.body)}
+
+              {/* ── Checkout Confirm Modal ── */}
+              {checkoutConfirmId && ReactDOM.createPortal(
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
+                    <div className="text-center mb-5">
+                      <div className="text-4xl mb-3">🔑</div>
+                      <h3 className="text-lg font-bold text-gray-900">Confirm Check-Out</h3>
+                      <p className="text-sm text-gray-500 mt-1">Are you sure you want to check out this guest? This action cannot be undone.</p>
+                    </div>
+                    {/* Folio balance */}
+                    {checkoutFolioBalance === null ? (
+                      <div className="mb-4 text-center text-xs text-gray-400">Checking folio balance...</div>
+                    ) : checkoutFolioBalance <= 0 ? (
+                      <div className="mb-4 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
+                        <span className="text-green-600 text-sm font-semibold">Folio settled</span>
+                      </div>
+                    ) : (
+                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                        <div className="text-center text-sm font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                        <div className="text-center text-xs text-amber-500 mt-0.5">Please settle folio before checkout</div>
+                      </div>
+                    )}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setCheckoutConfirmId(null)}
+                        disabled={checkoutSubmitting}
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => submitCheckout(checkoutConfirmId)}
+                        disabled={checkoutSubmitting}
+                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
+                      >
+                        {checkoutSubmitting ? 'Processing...' : 'Check Out'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                , document.body)}
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* ── Transfer Modal ── */}
+      {transferGuest && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>
+          <div
+            className="rounded-2xl border border-black/5 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: 'rgba(20,25,40,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
+          >
+            <div className="flex items-center justify-between px-6 py-5 border-b border-black/5" style={{ background: '#ffffff' }}>
+              <div>
+                <div className="text-[#000000]/87 font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
+                <div className="text-black/60 text-xs mt-0.5">Assign a new room for this guest</div>
+              </div>
+              <button onClick={() => setTransferGuest(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors leading-none">✕</button>
+            </div>
+            {transferSuccess ? (
+              <div className="px-6 py-12 text-center">
+                <div className="w-14 h-14 rounded-full bg-green-500/25 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl text-green-300 font-bold">✓</span>
+                </div>
+                <div className="text-[#000000]/87 font-bold text-lg mb-1">{transferSuccess}</div>
+                <div className="text-black/60 text-sm">Previous room marked dirty for housekeeping</div>
+                <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-[#000000]/87 font-semibold py-2.5 rounded-xl transition-colors text-sm">Close</button>
+              </div>
+            ) : (
+              <div className="p-6 space-y-5">
+                {/* Current guest info */}
+                <div
+                  className="border border-black/5 rounded-xl px-4 py-3 flex items-center justify-between"
+                  style={{ background: 'rgba(255,255,255,0.12)' }}
+                >
+                  <div>
+                    <div className="text-[10px] text-black/60 font-semibold uppercase tracking-wide mb-0.5">
+                      Current Assignment
+                    </div>
+                    <div className="font-semibold text-[#000000]/87 text-sm">{transferGuest?.full_name}</div>
+                    <div className="text-xs text-black/60 mt-0.5">
+                      {transferGuest?.room_type} · Check-out {fmtDate(transferGuest?.check_out_date)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Room Type Filter */}
+                <div>
+                  <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
+                    Room Type Filter
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => {
+                        setTransferRoomType('');
+                        setTransferRoomNumber('');
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${transferRoomType === ''
+                        ? 'bg-teal-500/50 border-teal-400/60 text-[#000000]/87 shadow-sm'
+                        : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
+                        }`}
+                    >
+                      All Available
+                    </button>
+                    {wkRoomTypes.map((rt) => {
+                      const isSelected = transferRoomType === rt.name;
+                      const isCurrent = rt.name === transferGuest?.room_type;
+                      return (
+                        <button
+                          key={rt.id}
+                          onClick={() => {
+                            setTransferRoomType(rt.name);
+                            setTransferRoomNumber('');
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isSelected
+                            ? 'bg-blue-500/50 border-blue-400/60 text-[#000000]/87 shadow-sm'
+                            : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
+                            }`}
+                        >
+                          {rt.name}
+                          {isCurrent && <span className={isSelected ? ' text-black/60' : ' text-black/60'}> (current)</span>}
+                          {isSelected && !isCurrent && <span className="ml-1">↑</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {transferRoomType && transferRoomType !== transferGuest?.room_type && (
+                    <p className="mt-2 text-xs text-blue-300 font-medium">Filtering: {transferRoomType}</p>
+                  )}
+                </div>
+
+                {/* Room selection */}
+                <div>
+                  <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
+                    Select Room
+                  </label>
+                  {(() => {
+                    const typeRooms = transferRoomType
+                      ? rooms.filter((r) => r.room_type === transferRoomType)
+                      : rooms.filter((r) => r.computed_status === 'available' || r.computed_status === 'inspected');
+
+                    if (typeRooms.length === 0) {
+                      return (
+                        <div>
+                          <input
+                            type="text"
+                            value={transferRoomNumber}
+                            onChange={(e) => setTransferRoomNumber(e.target.value)}
+                            placeholder="Enter room number (e.g. 301)"
+                            autoComplete="off"
+                            className="w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 text-sm font-mono font-bold outline-none focus:border-black/5 focus:ring-2 focus:ring-white/20 transition-all"
+                          />
+                          <div className="text-xs text-black/60 mt-2 italic">
+                            {transferRoomType
+                              ? 'No available rooms of this type. Enter room number manually.'
+                              : 'No available rooms.'}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    const dotColors = {
+                      available: 'bg-green-400',
+                      occupied: 'bg-blue-400',
+                      due_out: 'bg-orange-400',
+                      arriving: 'bg-purple-400',
+                      dirty: 'bg-yellow-400',
+                      inspected: 'bg-teal-400',
+                      out_of_order: 'bg-red-400',
+                    };
+
+                    return (
+                      <div className="max-h-64 overflow-y-auto pr-2 space-y-1.5">
+                        {typeRooms.map((r) => {
+                          const isCurrent = r.room_number === transferGuest?.room_number;
+                          const isAvailable = r.computed_status === 'available' || r.computed_status === 'inspected';
+                          const isSelected = transferRoomNumber === r.room_number;
+                          const cfg = roomStatusConfig[r.computed_status] || roomStatusConfig.available;
+
                           return (
-                            <button key={s.label} onClick={() => setRoomFilter(s.key)}
-                              className={`flex flex-col items-center px-2.5 py-1 rounded-lg transition-all ${active ? 'bg-white shadow-sm text-[#000000]/87' : 'text-black/60 hover:text-black/60 hover:bg-white shadow-sm'}`}>
-                              {s.svg}
-                              <span className="text-base font-bold leading-tight">{s.value}</span>
-                              <span className="text-[10px] font-medium">{s.label}</span>
+                            <button
+                              key={r.room_number}
+                              disabled={!isAvailable || isCurrent}
+                              onClick={() => setTransferRoomNumber(isSelected ? '' : r.room_number)}
+                              title={`Room ${r.room_number} — ${cfg.label}`}
+                              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${isSelected
+                                ? 'bg-blue-500/40 border-blue-400/60'
+                                : isCurrent
+                                  ? 'bg-white shadow-sm border-black/5 opacity-50 cursor-not-allowed'
+                                  : !isAvailable
+                                    ? 'bg-white shadow-sm border-black/5 opacity-40 cursor-not-allowed'
+                                    : 'bg-white shadow-sm border-black/5 hover:bg-white shadow-sm hover:border-black/5'
+                                }`}
+                            >
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColors[r.computed_status] || 'bg-gray-300'}`} />
+                              <div className="flex-1">
+                                <span
+                                  className={`font-mono font-bold text-sm ${isSelected ? 'text-[#000000]/87' : isCurrent || !isAvailable ? 'text-black/60' : 'text-[#000000]/87'
+                                    }`}
+                                >
+                                  Room {r.room_number}
+                                </span>
+                                {r.floor && <span className="text-[10px] text-black/60 ml-2">Floor {r.floor}</span>}
+                              </div>
+                              <span className={`text-[10px] font-semibold ${isSelected ? 'text-[#000000]/87' : 'text-black/60'}`}>
+                                {cfg.label}
+                              </span>
+                              {isCurrent && (
+                                <span className="text-[10px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded">Current</span>
+                              )}
                             </button>
                           );
                         })}
                       </div>
                     );
                   })()}
-                  <div className="flex items-center gap-2">
-                    <button onClick={fetchRooms} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">↻ Refresh</button>
-                    <button onClick={() => { setAddRoomOpen(v => !v); if (!newRoomType && wkRoomTypes.length > 0) setNewRoomType(wkRoomTypes[0].name); }}
-                      className="text-xs font-semibold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-3 py-1.5 rounded-lg transition-all">
-                      + Add Room
-                    </button>
-                  </div>
                 </div>
 
-                {/* Add Room Form */}
-                {addRoomOpen && (
-                  <div className="mb-5 rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                    <div className="text-xs font-semibold text-black/60 uppercase tracking-widest mb-3">New Room</div>
-                    <div className="grid grid-cols-3 gap-3 mb-3">
-                      <div>
-                        <label className="block text-xs text-black/60 mb-1">Room Number *</label>
-                        <input type="text" value={newRoomNumber} onChange={e => setNewRoomNumber(e.target.value)}
-                          placeholder="e.g. 201" autoComplete="off"
-                          className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-sm font-mono font-bold outline-none focus:border-black/5" />
-                      </div>
-                      <div>
-                        <label className="block text-xs text-black/60 mb-1">Room Type</label>
-                        <select value={newRoomType} onChange={e => setNewRoomType(e.target.value)}
-                          className="w-full px-3 py-2 rounded-lg border border-black/5 text-[#000000]/87 text-sm outline-none focus:border-black/5"
-                          style={{ background: 'rgba(20,30,60,0.95)' }}>
-                          <option value="" style={{ background: '#1a2744' }}>— select —</option>
-                          {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name} style={{ background: '#1a2744' }}>{rt.name}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-xs text-black/60 mb-1">Floor</label>
-                        <input type="number" min="1" max="99" value={newRoomFloor} onChange={e => setNewRoomFloor(parseInt(e.target.value) || 1)}
-                          className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5" />
-                      </div>
+                {/* Transfer summary */}
+                {transferRoomNumber && (
+                  <div
+                    className="border border-black/5 rounded-xl px-5 py-3 flex items-center gap-4"
+                    style={{ background: 'rgba(59, 130, 246, 0.1)' }}
+                  >
+                    <div className="text-center min-w-[3rem]">
+                      <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">From</div>
+                      <div className="text-2xl font-black font-mono text-black/60">{transferGuest?.room_number}</div>
                     </div>
-                    <div className="flex gap-2">
-                      <button onClick={addRoom} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">Save Room</button>
-                      <button onClick={() => setAddRoomOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-xs font-semibold px-4 py-2 rounded-lg bg-white shadow-sm transition-all">Cancel</button>
+                    <div className="flex-1 flex items-center gap-2">
+                      <div className="h-px flex-1 bg-white shadow-sm" />
+                      <span className="text-black/60 font-bold text-base">→</span>
+                      <div className="h-px flex-1 bg-white shadow-sm" />
+                    </div>
+                    <div className="text-center min-w-[3rem]">
+                      <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">To</div>
+                      <div className="text-2xl font-black font-mono text-blue-300">{transferRoomNumber}</div>
                     </div>
                   </div>
                 )}
 
-                {/* Room Grid */}
-                {roomsLoading ? (
-                  <div className="text-center py-12 text-black/60">Loading rooms...</div>
-                ) : rooms.length === 0 ? (
-                  <div className="text-center py-12 text-black/60 bg-white shadow-sm rounded-xl border border-black/5">
-                    <div className="text-4xl mb-3">🏨</div>
-                    <div className="font-semibold text-black/60 mb-1">No rooms tracked yet</div>
-                    <div className="text-xs text-black/60 mb-4">Rooms appear here automatically after check-in, or add them manually.</div>
-                    <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-4 py-2 rounded-lg">+ Add Room</button>
-                  </div>
-                ) : (
-                  <div>
-                    {(() => {
-                      const filtered = roomFilter === 'all' ? rooms : rooms.filter(r => r.computed_status === roomFilter);
-                      if (filtered.length === 0) return (
-                        <div className="text-center py-10 text-black/60 text-sm">No rooms match this filter.</div>
-                      );
-                      const byFloor = filtered.reduce((acc, r) => {
-                        const f = r.floor || 1;
-                        if (!acc[f]) acc[f] = [];
-                        acc[f].push(r);
-                        return acc;
-                      }, {});
-                      return Object.keys(byFloor).sort((a, b) => a - b).map(floor => (
-                        <div key={floor} className="mb-6">
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-xs font-bold text-black/60 uppercase tracking-widest">Floor {floor}</span>
-                            <div className="flex-1 h-px bg-white shadow-sm" />
-                            <span className="text-xs text-black/60">{byFloor[floor].length} room{byFloor[floor].length !== 1 ? 's' : ''}</span>
-                          </div>
-                          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
-                            {byFloor[floor].map(r => <RoomCard key={r.room_number} r={r} />)}
-                          </div>
-                        </div>
-                      ));
-                    })()}
+                {/* Error message */}
+                {transferError && (
+                  <div className="bg-red-500/15 border border-red-400/30 rounded-xl px-4 py-3 text-sm text-red-300">
+                    {transferError}
                   </div>
                 )}
+
+                {/* Action buttons */}
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={() => setTransferGuest(null)}
+                    className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 text-sm font-semibold py-2.5 rounded-xl transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={submitTransfer}
+                    disabled={!transferRoomNumber?.trim() || transferSubmitting}
+                    className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold py-2.5 rounded-full transition-all"
+                  >
+                    {transferSubmitting
+                      ? 'Moving…'
+                      : transferRoomType !== transferGuest?.room_type
+                        ? '↑ Upgrade & Transfer'
+                        : 'Transfer Room'}
+                  </button>
+                </div>
               </div>
             )}
 
-            {/* ── Calendar / Tape Chart View ── */}
-            {fdView === 'calendar' && (() => {
-              const COL_W = 34, LABEL_W = 90, ROW_H = 26;
-              const DAY_ABR = ['Su','Mo','Tu','We','Th','Fr','Sa'];
-              const startMs = new Date(tcFrom + 'T00:00:00').getTime();
+          </div>
+        </div>
+      )}
 
-              // Convert any date/datetime to local YYYY-MM-DD string
-              const toLocalDate = (dt) => {
-                const d = new Date(dt);
-                return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-              };
+      {/* ── Guest Profile Modal ── */}
+      <GuestProfileModal />
 
-              const tcDays = Array.from({ length: 30 }, (_, i) => {
-                const d = new Date(startMs + i * 86400000);
-                return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-              });
+      {/* ── Folio Modal ── */}
+      {folioOpen && folioRes && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setFolioOpen(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Guest Folio</h2>
+                <p className="text-sm text-gray-500 mt-0.5">
+                  {folioRes.full_name} &nbsp;&middot;&nbsp; Room {folioRes.room_number || '—'} &nbsp;&middot;&nbsp; {folioRes.room_type}
+                </p>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  {fmtDate(folioRes.check_in_date)} &rarr; {fmtDate(folioRes.check_out_date)} &nbsp;({nightsCount(folioRes)} nights)
+                </p>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <button onClick={printFolio} title="Print folio"
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all">
+                  🖨 Print
+                </button>
+                <button onClick={sendFolioEmail} disabled={folioEmailSending} title="Email folio to guest"
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full transition-all disabled:opacity-50">
+                  {folioEmailSending ? '...' : '✉ Email'}
+                </button>
+                <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none ml-1">&#10005;</button>
+              </div>
+            </div>
+            {folioEmailMsg && (
+              <div className={`px-6 py-2 text-xs font-medium text-center ${folioEmailMsg.startsWith('✓') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
+                {folioEmailMsg}
+              </div>
+            )}
 
-              const tcGrouped = tcRooms.reduce((acc, r) => {
-                if (!acc[r.room_type]) acc[r.room_type] = [];
-                acc[r.room_type].push(r);
-                return acc;
-              }, {});
-
-              const getBar = (resv) => {
-                const ci = new Date(toLocalDate(resv.check_in_date) + 'T00:00:00').getTime();
-                // For checked-out reservations, use actual checkout date if earlier than booked
-                let effectiveOut = resv.check_out_date;
-                if (resv.status === 'checked_out' && resv.checked_out_at) {
-                  const actualDate = toLocalDate(resv.checked_out_at);
-                  const bookedDate = toLocalDate(resv.check_out_date);
-                  if (actualDate < bookedDate) effectiveOut = resv.checked_out_at;
-                }
-                const co = new Date(toLocalDate(effectiveOut) + 'T00:00:00').getTime();
-                const endMs = startMs + 30 * 86400000;
-                if (co <= startMs || ci >= endMs) return null;
-                const l = Math.max(0, Math.round((ci - startMs) / 86400000));
-                const r = Math.min(30, Math.max(l + 1, Math.round((co - startMs) / 86400000)));
-                return { left: l * COL_W, width: (r - l) * COL_W - 2, clipped: ci < startMs };
-              };
-
-              const TC = {
-                pending:    { bg: 'rgba(217,119,6,0.88)',  text: '#fef9c3' },
-                confirmed:  { bg: 'rgba(37,99,235,0.9)',   text: 'white' },
-                checked_in: { bg: 'rgba(22,163,74,0.9)',   text: 'white' },
-                checked_out:{ bg: 'rgba(100,116,139,0.55)',text: 'rgba(255,255,255,0.45)' },
-                due_out:    { bg: 'rgba(234,88,12,0.85)',  text: 'white' },
-              };
-
-              const shiftDays = (n) => {
-                const d = new Date(tcFrom + 'T00:00:00');
-                d.setDate(d.getDate() + n);
-                setTcFrom(d.toISOString().slice(0, 10));
-                setTcSelectedRes(null);
-              };
-
-              // Match reservations to a row (type-view: by room_type; room-view: by room_number)
-              const rowResv = (room) => tcTypeView
-                ? tcReservations.filter(r => r.room_type === room.room_type)
-                : tcReservations.filter(r => r.room_number === room.room_number);
-
-              const isOccupied = (room, day) => tcTypeView
-                ? false  // type-level: always allow click (can't know exact occupancy without room#)
-                : tcReservations.some(r => r.room_number === room.room_number && toLocalDate(r.check_in_date) <= day && toLocalDate(r.check_out_date) > day);
-
-              const handleCellClick = (room, day) => {
-                if (isOccupied(room, day)) return;
-                const co = new Date(day + 'T00:00:00');
-                co.setDate(co.getDate() + 1);
-                setWkRoomType(room.room_type);
-                if (!tcTypeView) setWkRoomNumber(room.room_number);
-                setWkCheckIn(day);
-                setWkCheckOut(co.toISOString().slice(0, 10));
-                setFdView('walkin');
-              };
-
-              // Month separator labels for top header
-              const monthGroups = tcDays.reduce((acc, d) => {
-                const lbl = new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-                if (!acc.length || acc[acc.length - 1].lbl !== lbl) acc.push({ lbl, count: 1 });
-                else acc[acc.length - 1].count++;
-                return acc;
-              }, []);
-
-              const totalW = LABEL_W + 30 * COL_W;
-              const lastDay = tcDays[29];
-
-              return (
-                <div>
-                  {/* ── Toolbar ── */}
-                  <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                    <div className="flex items-center gap-1.5">
-                      <button onClick={() => shiftDays(-14)} className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">← 2w</button>
-                      <button onClick={() => shiftDays(-7)}  className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">← 1w</button>
-                      <span className="text-[11px] text-black/60 font-mono px-2 select-none">
-                        {new Date(tcFrom + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                        {' – '}
-                        {new Date(lastDay + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
-                      <button onClick={() => shiftDays(7)}   className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">1w →</button>
-                      <button onClick={() => shiftDays(14)}  className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">2w →</button>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => { setTcFrom(today); setTcSelectedRes(null); }}
-                        className="px-2.5 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] font-semibold transition-colors">Today</button>
-                      <button onClick={() => fetchTapeChart(tcFrom)}
-                        className="px-2 py-1 rounded border border-black/5 bg-white shadow-sm text-black/60 hover:text-[#000000]/87 text-[11px] transition-colors">↺</button>
-                    </div>
+            {folioLoading ? (
+              <div className="flex-1 flex items-center justify-center text-gray-400 py-12">Loading folio...</div>
+            ) : folioError ? (
+              <div className="flex-1 flex items-center justify-center text-red-500 py-12">{folioError}</div>
+            ) : (
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+                {/* Balance summary */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-blue-50 rounded-xl p-3 text-center">
+                    <div className="text-xs text-blue-500 font-semibold uppercase tracking-wide mb-1">Total Charges</div>
+                    <div className="text-lg font-bold text-blue-700">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
+                  <div className="bg-green-50 rounded-xl p-3 text-center">
+                    <div className="text-xs text-green-500 font-semibold uppercase tracking-wide mb-1">Total Payments</div>
+                    <div className="text-lg font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                  </div>
+                  <div className={`rounded-xl p-3 text-center ${folioTotals.balance > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
+                    <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${folioTotals.balance > 0 ? 'text-red-500' : 'text-gray-400'}`}>Balance Due</div>
+                    <div className={`text-lg font-bold ${folioTotals.balance > 0 ? 'text-red-600' : 'text-gray-500'}`}>&#8369;{Number(folioTotals.balance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                  </div>
+                </div>
 
-                  {/* ── Legend ── */}
-                  <div className="flex items-center gap-3 mb-3 flex-wrap">
-                    {[['confirmed','Confirmed'],['checked_in','In-House'],['pending','Pending'],['due_out','Due Out'],['checked_out','Checked Out']].map(([s, lbl]) => (
-                      <div key={s} className="flex items-center gap-1">
-                        <div style={{ width: 9, height: 9, borderRadius: 2, background: TC[s]?.bg }} />
-                        <span className="text-[9px] text-black/60">{lbl}</span>
+                {/* Charges */}
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Charges</h3>
+                  <div className="border border-gray-100 rounded-xl overflow-hidden">
+                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
+                      <span>Type</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Amount</span><span></span>
+                    </div>
+                    {folioItems.length === 0 ? (
+                      <div className="text-center text-gray-400 text-sm py-4">No charges posted yet</div>
+                    ) : folioItems.map(item => (
+                      <div key={item.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${item.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
+                        <span className={`font-medium text-gray-700 ${item.voided ? 'line-through' : ''}`}>{item.charge_type}</span>
+                        <span className={`text-gray-500 truncate ${item.voided ? 'line-through' : ''}`}>{item.description || '—'}</span>
+                        <span className="text-center text-gray-500">{item.quantity}</span>
+                        <span className="text-right text-gray-500">&#8369;{Number(item.unit_price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                        <span className={`text-right font-semibold ${item.voided ? 'text-gray-400 line-through' : 'text-gray-800'}`}>&#8369;{Number(item.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                        <div className="flex justify-end">
+                          {!item.voided
+                            ? <button onClick={() => voidCharge(item.id)} title="Void" className="text-red-300 hover:text-red-500 transition-colors">&#10005;</button>
+                            : <span className="text-[10px] text-gray-400">void</span>}
+                        </div>
                       </div>
                     ))}
-                    <div className="flex items-center gap-1">
-                      <div style={{ width: 9, height: 9, borderRadius: 2, border: '1px dashed rgba(0,0,0,0.2)' }} />
-                      <span className="text-[9px] text-black/60">Available — click to book</span>
-                    </div>
-                  </div>
-
-                  {/* ── Selected reservation strip ── */}
-                  {tcSelectedRes && (() => {
-                    const r = tcSelectedRes;
-                    const effStatus = (r.status === 'checked_in' && r.check_out_date && r.check_out_date.slice(0,10) === today) ? 'due_out' : r.status;
-                    const clr = TC[effStatus] || TC.confirmed;
-                    const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
-                    return (
-                      <div className="mb-3 px-3 py-2 rounded border flex items-center justify-between gap-3"
-                        style={{ background: clr.bg, borderColor: 'rgba(255,255,255,0.15)' }}>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <span className="text-xs font-bold" style={{ color: clr.text }}>{r.full_name}</span>
-                          <span className="text-[11px] font-mono" style={{ color: clr.text, opacity: 0.8 }}>Rm {r.room_number}</span>
-                          <span className="text-[11px]" style={{ color: clr.text, opacity: 0.75 }}>
-                            {new Date(r.check_in_date.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            {' → '}
-                            {new Date(r.check_out_date.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                            {' · '}{nights}n
-                          </span>
-                          {r.rate_code && <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.2)', color: clr.text }}>{r.rate_code}</span>}
-                          <span className="text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.18)', color: clr.text }}>{r.status.replace('_', ' ')}</span>
-                        </div>
-                        <button onClick={() => setTcSelectedRes(null)} className="text-[11px] hover:opacity-70 flex-shrink-0" style={{ color: clr.text }}>✕</button>
-                      </div>
-                    );
-                  })()}
-
-                  {/* ── Chart ── */}
-                  {tcLoading ? (
-                    <div className="text-center py-12 text-black/60 text-sm">Loading chart...</div>
-                  ) : tcRooms.length === 0 ? (
-                    <div className="text-center py-12 text-black/60 text-sm">No room types found — add room types in Admin → Settings → Rooms first.</div>
-                  ) : (
-                    <>
-                    {tcTypeView && (
-                      <div className="mb-2 px-3 py-1.5 rounded text-[10px] text-amber-300/80 border border-amber-400/20 bg-amber-500/8">
-                        Showing by room type — no individual rooms assigned yet. Rows show all bookings of that type. Add rooms via Walk-In or the Rooms tab for per-room view.
+                    {folioItems.filter(i => !i.voided).length > 0 && (
+                      <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
+                        <span className="text-xs text-gray-400 mr-2">Total Charges</span>
+                        <span className="text-sm font-bold text-gray-800">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
                       </div>
                     )}
-                    <div className="overflow-x-auto rounded-xl border border-black/5 bg-white shadow-sm" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                      <div style={{ minWidth: totalW }}>
+                  </div>
+                  <div className="mt-3 bg-blue-50 rounded-xl p-3 space-y-2">
+                    <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Post Charge</div>
+                    <div className="flex gap-2 flex-wrap">
+                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none">
+                        {['Room Charge', 'Food & Beverage', 'Minibar', 'Laundry', 'Parking', 'Damage', 'Miscellaneous'].map(t => <option key={t}>{t}</option>)}
+                      </select>
+                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
+                        {fcSaving ? '...' : '+ Add'}
+                      </button>
+                    </div>
+                    {fcError && <p className="text-xs text-red-500">{fcError}</p>}
+                  </div>
+                </div>
 
-                        {/* Month row */}
-                        <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
-                          {monthGroups.map((mg, i) => (
-                            <div key={i} style={{ width: mg.count * COL_W }}
-                              className="px-2 py-0.5 text-[9px] font-bold text-black/60 uppercase tracking-widest">
-                              {mg.lbl}
-                            </div>
-                          ))}
+                {/* Payments */}
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Payments</h3>
+                  <div className="border border-gray-100 rounded-xl overflow-hidden">
+                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
+                      <span>Method</span><span>Reference</span><span>Date</span><span className="text-right">Amount</span><span></span>
+                    </div>
+                    {folioPayments.length === 0 ? (
+                      <div className="text-center text-gray-400 text-sm py-4">No payments recorded yet</div>
+                    ) : folioPayments.map(pay => (
+                      <div key={pay.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${pay.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
+                        <span className={`font-medium text-gray-700 ${pay.voided ? 'line-through' : ''}`}>{pay.payment_method}</span>
+                        <span className="text-gray-500 truncate">{pay.reference || '—'}</span>
+                        <span className="text-gray-400 text-xs">{new Date(pay.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                        <span className={`text-right font-semibold ${pay.voided ? 'text-gray-400 line-through' : 'text-green-700'}`}>&#8369;{Number(pay.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                        <div className="flex justify-end">
+                          {!pay.voided
+                            ? <button onClick={() => voidPayment(pay.id)} title="Void" className="text-red-300 hover:text-red-500 transition-colors">&#10005;</button>
+                            : <span className="text-[10px] text-gray-400">void</span>}
                         </div>
-
-                        {/* Day header row */}
-                        <div className="flex" style={{ paddingLeft: LABEL_W, borderBottom: '2px solid rgba(0,0,0,0.12)' }}>
-                          {tcDays.map(d => {
-                            const dt = new Date(d + 'T00:00:00');
-                            const isToday = d === today;
-                            const isWknd = dt.getDay() === 0 || dt.getDay() === 6;
-                            return (
-                              <div key={d} style={{ width: COL_W, flexShrink: 0, height: 30,
-                                background: isToday ? 'rgba(37,99,235,0.05)' : 'transparent',
-                                borderRight: '1px solid rgba(0,0,0,0.03)' }}
-                                className="flex flex-col items-center justify-center">
-                                <span className={`text-[11px] font-bold leading-none ${isToday ? 'text-blue-600' : isWknd ? 'text-black/40' : 'text-black/60'}`}>
-                                  {dt.getDate()}
-                                </span>
-                                <span className={`text-[8px] leading-none mt-0.5 ${isToday ? 'text-blue-600/60' : isWknd ? 'text-black/40' : 'text-black/40'}`}>
-                                  {DAY_ABR[dt.getDay()]}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {/* Room rows grouped by type */}
-                        {Object.entries(tcGrouped).map(([type, typeRooms]) => (
-                          <React.Fragment key={type}>
-                            {/* Type header */}
-                            <div className="flex items-center" style={{ height: 18, background: 'rgba(0,0,0,0.02)', borderBottom: '1px solid rgba(0,0,0,0.05)', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                              <div style={{ width: LABEL_W }} className="px-2">
-                                <span className="text-[9px] font-bold text-black/60 uppercase tracking-[0.18em] truncate block" style={{ maxWidth: LABEL_W - 16 }}>{type}</span>
-                              </div>
-                            </div>
-                            {/* Unassigned row — reservations with no room_number for this type */}
-                            {(() => {
-                              const unassigned = tcReservations.filter(r => !r.room_number && r.room_type === type);
-                              if (!unassigned.length) return null;
-                              return (
-                                <div className="flex" style={{ height: ROW_H, borderBottom: '1px solid rgba(0,0,0,0.05)', background: 'rgba(255,180,0,0.03)' }}>
-                                  <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(0,0,0,0.05)' }}
-                                    className="flex items-center px-2">
-                                    <span className="text-[9px] text-amber-400/60 italic">unassigned</span>
-                                  </div>
-                                  <div className="relative flex" style={{ width: 30 * COL_W, flexShrink: 0 }}>
-                                    {tcDays.map(d => {
-                                      const isToday = d === today;
-                                      const isWknd = new Date(d + 'T00:00:00').getDay() === 0 || new Date(d + 'T00:00:00').getDay() === 6;
-                                      return (
-                                        <div key={d} style={{ width: COL_W, flexShrink: 0, height: ROW_H,
-                                          background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(0,0,0,0.015)' : 'transparent',
-                                          borderRight: '1px solid rgba(0,0,0,0.05)' }} />
-                                      );
-                                    })}
-                                    {unassigned.map(r => {
-                                      const bar = getBar(r);
-                                      if (!bar) return null;
-                                      const effStatus = (r.status === 'checked_in' && r.check_out_date && r.check_out_date.slice(0,10) === today) ? 'due_out' : r.status;
-                                      const clr = TC[effStatus] || TC.confirmed;
-                                      const isSelected = tcSelectedRes?.id === r.id;
-                                      const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
-                                      return (
-                                        <div key={r.id}
-                                          style={{ position: 'absolute', top: 3, height: ROW_H - 6,
-                                            left: bar.left + 1, width: bar.width,
-                                            background: clr.bg, borderRadius: 3,
-                                            border: '1px dashed rgba(255,255,255,0.3)',
-                                            boxShadow: isSelected ? '0 0 0 1.5px white' : 'none',
-                                            zIndex: 1, cursor: 'pointer', overflow: 'hidden' }}
-                                          onClick={e => { e.stopPropagation(); setTcSelectedRes(isSelected ? null : r); }}
-                                          title={`${r.full_name} · ${type} · ${nights}n · ${r.status.replace('_',' ')} · No room assigned`}>
-                                          {bar.width > 28 && (
-                                            <span style={{ color: clr.text, fontSize: 10, fontWeight: 600,
-                                              paddingLeft: 5, lineHeight: `${ROW_H - 6}px`,
-                                              whiteSpace: 'nowrap', pointerEvents: 'none',
-                                              display: 'block', overflow: 'hidden' }}>
-                                              {r.full_name.split(',')[0]}
-                                            </span>
-                                          )}
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              );
-                            })()}
-                            {/* Individual room rows */}
-                            {typeRooms.map(room => {
-                              const roomResv = rowResv(room);
-                              return (
-                                <div key={room.room_number} className="flex"
-                                  style={{ height: tcTypeView ? 32 : ROW_H, borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-                                  {/* Label */}
-                                  <div style={{ width: LABEL_W, flexShrink: 0, borderRight: '1px solid rgba(0,0,0,0.05)' }}
-                                    className="flex items-center px-2 gap-1.5">
-                                    {tcTypeView ? (
-                                      <span className="text-[10px] font-semibold text-black/60">{room.room_number}</span>
-                                    ) : (
-                                      <>
-                                        <span className="text-[11px] font-mono font-bold text-black/60 truncate" style={{ maxWidth: LABEL_W - 26 }}>{room.room_number}</span>
-                                        {room.floor && <span className="text-[9px] text-black/60 flex-shrink-0">F{room.floor}</span>}
-                                      </>
-                                    )}
-                                  </div>
-                                  {/* Date grid + bars */}
-                                  <div className="relative flex" style={{ width: 30 * COL_W, flexShrink: 0 }}>
-                                    {/* Clickable cells */}
-                                    {tcDays.map(d => {
-                                      const isToday = d === today;
-                                      const isWknd = new Date(d + 'T00:00:00').getDay() === 0 || new Date(d + 'T00:00:00').getDay() === 6;
-                                      const occupied = isOccupied(room, d);
-                                      return (
-                                        <div key={d} style={{ width: COL_W, flexShrink: 0, height: tcTypeView ? 32 : ROW_H,
-                                          background: isToday ? 'rgba(87,108,168,0.1)' : isWknd ? 'rgba(0,0,0,0.015)' : 'transparent',
-                                          borderRight: '1px solid rgba(0,0,0,0.05)',
-                                          cursor: occupied ? 'default' : 'cell' }}
-                                          onClick={() => handleCellClick(room, d)}
-                                        />
-                                      );
-                                    })}
-                                    {/* Reservation bars */}
-                                    {roomResv.map(r => {
-                                      const bar = getBar(r);
-                                      if (!bar) return null;
-                                      const effStatus = (r.status === 'checked_in' && r.check_out_date && r.check_out_date.slice(0,10) === today) ? 'due_out' : r.status;
-                                      const clr = TC[effStatus] || TC.confirmed;
-                                      const isSelected = tcSelectedRes?.id === r.id;
-                                      const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
-                                      const rowH = tcTypeView ? 32 : ROW_H;
-                                      return (
-                                        <div key={r.id}
-                                          style={{ position: 'absolute', top: 3, height: rowH - 6,
-                                            left: bar.left + 1, width: bar.width,
-                                            background: clr.bg,
-                                            borderRadius: bar.clipped ? '0 3px 3px 0' : 3,
-                                            borderLeft: bar.clipped ? '2px dashed rgba(255,255,255,0.35)' : 'none',
-                                            boxShadow: isSelected ? '0 0 0 1.5px white, 0 0 8px rgba(255,255,255,0.3)' : 'none',
-                                            zIndex: 1, cursor: 'pointer', overflow: 'hidden' }}
-                                          onClick={e => { e.stopPropagation(); setTcSelectedRes(isSelected ? null : r); }}
-                                          title={`${r.full_name}${r.room_number ? ' · Rm ' + r.room_number : ''} · ${nights}n · ${r.status.replace('_',' ')}`}>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </React.Fragment>
-                        ))}
                       </div>
-                    </div>
-                    </>
-                  )}
-                </div>
-              );
-            })()}
-
-            {/* ── Room Detail Panel ── */}
-            {selectedRoom && ReactDOM.createPortal(
-              <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRoom(null)}>
-                <div className="bg-[#1a2340] border border-black/5 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
-                  onClick={e => e.stopPropagation()}>
-                  {/* Header */}
-                  {(() => {
-                    const cfg = roomStatusConfig[selectedRoom.computed_status] || roomStatusConfig.available;
-                    const isActive = ['occupied', 'due_out', 'arriving'].includes(selectedRoom.computed_status);
-                    return (
-                      <>
-                        <div className={`px-5 py-4 border-b border-black/5 ${cfg.bg}`}>
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <div className={`text-3xl font-black font-mono ${cfg.text}`}>{selectedRoom.room_number}</div>
-                              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                <span className="text-xs text-black/60 bg-white shadow-sm px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
-                                <span className="text-xs text-black/60">Floor {selectedRoom.floor}</span>
-                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.pill}`}>{cfg.label}</span>
-                              </div>
-                            </div>
-                            <button onClick={() => setSelectedRoom(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold leading-none mt-1">✕</button>
-                          </div>
-                        </div>
-                        <div className="p-5 space-y-4">
-                          {/* Guest info */}
-                          {isActive && selectedRoom.guest_name && (
-                            <div className="bg-white shadow-sm border border-black/5 rounded-xl p-3.5 space-y-1.5">
-                              <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2">Current Guest</div>
-                              <div className="font-semibold text-[#000000]/87">{selectedRoom.guest_name}</div>
-                              <div className="flex items-center gap-3 text-xs text-black/60">
-                                <span>CI: {selectedRoom.check_in_date ? new Date(selectedRoom.check_in_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</span>
-                                <span>→</span>
-                                <span>CO: {selectedRoom.check_out_date ? new Date(selectedRoom.check_out_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</span>
-                              </div>
-                              {selectedRoom.number_of_guests && <div className="text-xs text-black/60">{selectedRoom.number_of_guests} guest{selectedRoom.number_of_guests !== 1 ? 's' : ''}</div>}
-                            </div>
-                          )}
-
-                          {/* HK Status */}
-                          <div>
-                            <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2.5">Housekeeping Status</div>
-                            <div className="grid grid-cols-2 gap-2">
-                              {[
-                                { status: 'clean', label: '✓ Clean', active: 'bg-green-500/25 border-green-400/50 text-green-200' },
-                                { status: 'dirty', label: '🧹 Dirty', active: 'bg-yellow-500/25 border-yellow-400/50 text-yellow-200' },
-                                { status: 'inspected', label: '🔍 Inspected', active: 'bg-teal-500/25 border-teal-400/50 text-teal-200' },
-                                { status: 'out_of_order', label: '⚠️ Out of Order', active: 'bg-red-500/25 border-red-400/50 text-red-200' },
-                              ].map(({ status, label, active }) => {
-                                const isCurrent = selectedRoom.hk_status === status;
-                                return (
-                                  <button key={status}
-                                    onClick={() => updateHkStatus(selectedRoom.room_number, status)}
-                                    disabled={hkUpdating === selectedRoom.room_number}
-                                    className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/5 bg-white shadow-sm text-black/60 hover:bg-white shadow-sm hover:text-[#000000]/87'}`}>
-                                    {label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex gap-2 pt-1">
-                            {(selectedRoom.computed_status === 'occupied' || selectedRoom.computed_status === 'due_out') && selectedRoom.reservation_id && (
-                              <button
-                                onClick={() => { setCheckoutConfirmId(selectedRoom.reservation_id); setSelectedRoom(null); }}
-                                className="flex-1 bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs font-bold py-2.5 rounded-xl transition-all">
-                                Check Out Guest
-                              </button>
-                            )}
-                            <button
-                              onClick={() => removeRoom(selectedRoom.room_number)}
-                              className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-black/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
-                              Remove Room
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-            , document.body)}
-
-            {/* ── Check-In Wizard Modal ── */}
-            {wizardOpen && wizardReservation && ReactDOM.createPortal(
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                  <div className="bg-gradient-to-br from-[#00754A] to-[#006241] px-6 py-4 flex items-center justify-between">
-                    <div>
-                      <div className="text-[#000000]/87 font-bold">Check-In Wizard</div>
-                      <div className="text-black/60 text-xs">{wizardReservation.full_name} · #{wizardReservation.id}</div>
-                    </div>
-                    {!wizardSuccess && (
-                      <button onClick={closeWizard} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors">✕</button>
+                    ))}
+                    {folioPayments.filter(p => !p.voided).length > 0 && (
+                      <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
+                        <span className="text-xs text-gray-400 mr-2">Total Paid</span>
+                        <span className="text-sm font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                      </div>
                     )}
                   </div>
-                  <div className="p-6">
-                    {wizardSuccess ? (
-                      <WizardSuccessCard />
-                    ) : (
-                      <>
-                        <WizardStepBar />
-                        {wizardStep === 1 && <WizardStep1 />}
-                        {wizardStep === 2 && <WizardStep2 />}
-                        {wizardStep === 3 && <WizardStep3 />}
-                        {wizardStep === 4 && <WizardStep4 />}
-                        {wizardError && (
-                          <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium">
-                            {wizardError}
-                          </div>
-                        )}
-                        <div className="flex gap-3 mt-4">
-                          {wizardStep > 1 && (
-                            <button
-                              onClick={() => { setWizardStep(s => s - 1); setWizardError(''); }}
-                              className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
-                            >
-                              Back
-                            </button>
-                          )}
-                          {wizardStep < 4 ? (
-                            <button
-                              onClick={() => { setWizardStep(s => s + 1); setWizardError(''); }}
-                              disabled={wizardStep === 1 && !wizardIdVerified}
-                              className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
-                            >
-                              Next
-                            </button>
-                          ) : (
-                            <button
-                              onClick={submitCheckin}
-                              disabled={!wizardPayment || wizardSubmitting}
-                              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-full transition-colors"
-                            >
-                              {wizardSubmitting ? 'Processing...' : 'Complete Check-In'}
-                            </button>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            , document.body)}
-
-            {/* ── Checkout Confirm Modal ── */}
-            {checkoutConfirmId && ReactDOM.createPortal(
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-                  <div className="text-center mb-5">
-                    <div className="text-4xl mb-3">🔑</div>
-                    <h3 className="text-lg font-bold text-gray-900">Confirm Check-Out</h3>
-                    <p className="text-sm text-gray-500 mt-1">Are you sure you want to check out this guest? This action cannot be undone.</p>
-                  </div>
-                  {/* Folio balance */}
-                  {checkoutFolioBalance === null ? (
-                    <div className="mb-4 text-center text-xs text-gray-400">Checking folio balance...</div>
-                  ) : checkoutFolioBalance <= 0 ? (
-                    <div className="mb-4 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
-                      <span className="text-green-600 text-sm font-semibold">Folio settled</span>
+                  <div className="mt-3 bg-green-50 rounded-xl p-3 space-y-2">
+                    <div className="text-xs font-semibold text-green-600 uppercase tracking-wide">Record Payment</div>
+                    <div className="flex gap-2 flex-wrap">
+                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none">
+                        {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'].map(m => <option key={m}>{m}</option>)}
+                      </select>
+                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
+                        {fpSaving ? '...' : '+ Pay'}
+                      </button>
                     </div>
-                  ) : (
-                    <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
-                      <div className="text-center text-sm font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                      <div className="text-center text-xs text-amber-500 mt-0.5">Please settle folio before checkout</div>
-                    </div>
-                  )}
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setCheckoutConfirmId(null)}
-                      disabled={checkoutSubmitting}
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => submitCheckout(checkoutConfirmId)}
-                      disabled={checkoutSubmitting}
-                      className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
-                    >
-                      {checkoutSubmitting ? 'Processing...' : 'Check Out'}
-                    </button>
+                    {fpError && <p className="text-xs text-red-500">{fpError}</p>}
                   </div>
-                </div>
-              </div>
-            , document.body)}
-          </div>
-        </div>
-      </div>
-    </div>
-    {/* ── Transfer Modal ── */}
-    {transferGuest && (
-      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>
-                <div
-                  className="rounded-2xl border border-black/5 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ background: 'rgba(20,25,40,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
-                >
-                  <div className="flex items-center justify-between px-6 py-5 border-b border-black/5" style={{ background: '#ffffff' }}>
-                    <div>
-                      <div className="text-[#000000]/87 font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
-                      <div className="text-black/60 text-xs mt-0.5">Assign a new room for this guest</div>
-                    </div>
-                    <button onClick={() => setTransferGuest(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors leading-none">✕</button>
-                  </div>
-                  {transferSuccess ? (
-                    <div className="px-6 py-12 text-center">
-                      <div className="w-14 h-14 rounded-full bg-green-500/25 flex items-center justify-center mx-auto mb-4">
-                        <span className="text-2xl text-green-300 font-bold">✓</span>
-                      </div>
-                      <div className="text-[#000000]/87 font-bold text-lg mb-1">{transferSuccess}</div>
-                      <div className="text-black/60 text-sm">Previous room marked dirty for housekeeping</div>
-                      <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-[#000000]/87 font-semibold py-2.5 rounded-xl transition-colors text-sm">Close</button>
-                    </div>
-                  ) : (
-                    <div className="p-6 space-y-5">
-                      {/* Current guest info */}
-                      <div
-                        className="border border-black/5 rounded-xl px-4 py-3 flex items-center justify-between"
-                        style={{ background: 'rgba(255,255,255,0.12)' }}
-                      >
-              <div>
-                <div className="text-[10px] text-black/60 font-semibold uppercase tracking-wide mb-0.5">
-                  Current Assignment
-                </div>
-                <div className="font-semibold text-[#000000]/87 text-sm">{transferGuest?.full_name}</div>
-                <div className="text-xs text-black/60 mt-0.5">
-                  {transferGuest?.room_type} · Check-out {fmtDate(transferGuest?.check_out_date)}
-                </div>
-              </div>
-            </div>
-
-            {/* Room Type Filter */}
-            <div>
-              <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
-                Room Type Filter
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => {
-                    setTransferRoomType('');
-                    setTransferRoomNumber('');
-                  }}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${transferRoomType === ''
-                      ? 'bg-teal-500/50 border-teal-400/60 text-[#000000]/87 shadow-sm'
-                      : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
-                    }`}
-                >
-                  All Available
-                </button>
-                {wkRoomTypes.map((rt) => {
-                  const isSelected = transferRoomType === rt.name;
-                  const isCurrent = rt.name === transferGuest?.room_type;
-                  return (
-                    <button
-                      key={rt.id}
-                      onClick={() => {
-                        setTransferRoomType(rt.name);
-                        setTransferRoomNumber('');
-                      }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isSelected
-                          ? 'bg-blue-500/50 border-blue-400/60 text-[#000000]/87 shadow-sm'
-                          : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
-                        }`}
-                    >
-                      {rt.name}
-                      {isCurrent && <span className={isSelected ? ' text-black/60' : ' text-black/60'}> (current)</span>}
-                      {isSelected && !isCurrent && <span className="ml-1">↑</span>}
-                    </button>
-                  );
-                })}
-              </div>
-              {transferRoomType && transferRoomType !== transferGuest?.room_type && (
-                <p className="mt-2 text-xs text-blue-300 font-medium">Filtering: {transferRoomType}</p>
-              )}
-            </div>
-
-            {/* Room selection */}
-            <div>
-              <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
-                Select Room
-              </label>
-              {(() => {
-                const typeRooms = transferRoomType
-                  ? rooms.filter((r) => r.room_type === transferRoomType)
-                  : rooms.filter((r) => r.computed_status === 'available' || r.computed_status === 'inspected');
-
-                if (typeRooms.length === 0) {
-                  return (
-                    <div>
-                      <input
-                        type="text"
-                        value={transferRoomNumber}
-                        onChange={(e) => setTransferRoomNumber(e.target.value)}
-                        placeholder="Enter room number (e.g. 301)"
-                        autoComplete="off"
-                        className="w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 text-sm font-mono font-bold outline-none focus:border-black/5 focus:ring-2 focus:ring-white/20 transition-all"
-                      />
-                      <div className="text-xs text-black/60 mt-2 italic">
-                        {transferRoomType
-                          ? 'No available rooms of this type. Enter room number manually.'
-                          : 'No available rooms.'}
-                      </div>
-                    </div>
-                  );
-                }
-
-                const dotColors = {
-                  available: 'bg-green-400',
-                  occupied: 'bg-blue-400',
-                  due_out: 'bg-orange-400',
-                  arriving: 'bg-purple-400',
-                  dirty: 'bg-yellow-400',
-                  inspected: 'bg-teal-400',
-                  out_of_order: 'bg-red-400',
-                };
-
-                return (
-                  <div className="max-h-64 overflow-y-auto pr-2 space-y-1.5">
-                    {typeRooms.map((r) => {
-                      const isCurrent = r.room_number === transferGuest?.room_number;
-                      const isAvailable = r.computed_status === 'available' || r.computed_status === 'inspected';
-                      const isSelected = transferRoomNumber === r.room_number;
-                      const cfg = roomStatusConfig[r.computed_status] || roomStatusConfig.available;
-
-                      return (
-                        <button
-                          key={r.room_number}
-                          disabled={!isAvailable || isCurrent}
-                          onClick={() => setTransferRoomNumber(isSelected ? '' : r.room_number)}
-                          title={`Room ${r.room_number} — ${cfg.label}`}
-                          className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${isSelected
-                              ? 'bg-blue-500/40 border-blue-400/60'
-                              : isCurrent
-                                ? 'bg-white shadow-sm border-black/5 opacity-50 cursor-not-allowed'
-                                : !isAvailable
-                                  ? 'bg-white shadow-sm border-black/5 opacity-40 cursor-not-allowed'
-                                  : 'bg-white shadow-sm border-black/5 hover:bg-white shadow-sm hover:border-black/5'
-                            }`}
-                        >
-                          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColors[r.computed_status] || 'bg-gray-300'}`} />
-                          <div className="flex-1">
-                            <span
-                              className={`font-mono font-bold text-sm ${isSelected ? 'text-[#000000]/87' : isCurrent || !isAvailable ? 'text-black/60' : 'text-[#000000]/87'
-                                }`}
-                            >
-                              Room {r.room_number}
-                            </span>
-                            {r.floor && <span className="text-[10px] text-black/60 ml-2">Floor {r.floor}</span>}
-                          </div>
-                          <span className={`text-[10px] font-semibold ${isSelected ? 'text-[#000000]/87' : 'text-black/60'}`}>
-                            {cfg.label}
-                          </span>
-                          {isCurrent && (
-                            <span className="text-[10px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded">Current</span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-            </div>
-
-            {/* Transfer summary */}
-            {transferRoomNumber && (
-              <div
-                className="border border-black/5 rounded-xl px-5 py-3 flex items-center gap-4"
-                style={{ background: 'rgba(59, 130, 246, 0.1)' }}
-              >
-                <div className="text-center min-w-[3rem]">
-                  <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">From</div>
-                  <div className="text-2xl font-black font-mono text-black/60">{transferGuest?.room_number}</div>
-                </div>
-                <div className="flex-1 flex items-center gap-2">
-                  <div className="h-px flex-1 bg-white shadow-sm" />
-                  <span className="text-black/60 font-bold text-base">→</span>
-                  <div className="h-px flex-1 bg-white shadow-sm" />
-                </div>
-                <div className="text-center min-w-[3rem]">
-                  <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">To</div>
-                  <div className="text-2xl font-black font-mono text-blue-300">{transferRoomNumber}</div>
                 </div>
               </div>
             )}
-
-            {/* Error message */}
-            {transferError && (
-              <div className="bg-red-500/15 border border-red-400/30 rounded-xl px-4 py-3 text-sm text-red-300">
-                {transferError}
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div className="flex gap-3 pt-2">
-              <button
-                onClick={() => setTransferGuest(null)}
-                className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 text-sm font-semibold py-2.5 rounded-xl transition-all"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={submitTransfer}
-                disabled={!transferRoomNumber?.trim() || transferSubmitting}
-                className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold py-2.5 rounded-full transition-all"
-              >
-                {transferSubmitting
-                  ? 'Moving…'
-                  : transferRoomType !== transferGuest?.room_type
-                    ? '↑ Upgrade & Transfer'
-                    : 'Transfer Room'}
-              </button>
-            </div>
           </div>
-        )}
-
-                </div>
-              </div>
-    )}
-
-    {/* ── Guest Profile Modal ── */}
-    <GuestProfileModal />
-
-    {/* ── Folio Modal ── */}
-    {folioOpen && folioRes && (
-      <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setFolioOpen(false)}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-          {/* Header */}
-          <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">Guest Folio</h2>
-              <p className="text-sm text-gray-500 mt-0.5">
-                {folioRes.full_name} &nbsp;&middot;&nbsp; Room {folioRes.room_number || '—'} &nbsp;&middot;&nbsp; {folioRes.room_type}
-              </p>
-              <p className="text-xs text-gray-400 mt-0.5">
-                {fmtDate(folioRes.check_in_date)} &rarr; {fmtDate(folioRes.check_out_date)} &nbsp;({nightsCount(folioRes)} nights)
-              </p>
-            </div>
-            <div className="flex items-center gap-2 mt-1">
-              <button onClick={printFolio} title="Print folio"
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all">
-                🖨 Print
-              </button>
-              <button onClick={sendFolioEmail} disabled={folioEmailSending} title="Email folio to guest"
-                className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full transition-all disabled:opacity-50">
-                {folioEmailSending ? '...' : '✉ Email'}
-              </button>
-              <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none ml-1">&#10005;</button>
-            </div>
-          </div>
-          {folioEmailMsg && (
-            <div className={`px-6 py-2 text-xs font-medium text-center ${folioEmailMsg.startsWith('✓') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
-              {folioEmailMsg}
-            </div>
-          )}
-
-          {folioLoading ? (
-            <div className="flex-1 flex items-center justify-center text-gray-400 py-12">Loading folio...</div>
-          ) : folioError ? (
-            <div className="flex-1 flex items-center justify-center text-red-500 py-12">{folioError}</div>
-          ) : (
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
-              {/* Balance summary */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="bg-blue-50 rounded-xl p-3 text-center">
-                  <div className="text-xs text-blue-500 font-semibold uppercase tracking-wide mb-1">Total Charges</div>
-                  <div className="text-lg font-bold text-blue-700">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                </div>
-                <div className="bg-green-50 rounded-xl p-3 text-center">
-                  <div className="text-xs text-green-500 font-semibold uppercase tracking-wide mb-1">Total Payments</div>
-                  <div className="text-lg font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                </div>
-                <div className={`rounded-xl p-3 text-center ${folioTotals.balance > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
-                  <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${folioTotals.balance > 0 ? 'text-red-500' : 'text-gray-400'}`}>Balance Due</div>
-                  <div className={`text-lg font-bold ${folioTotals.balance > 0 ? 'text-red-600' : 'text-gray-500'}`}>&#8369;{Number(folioTotals.balance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                </div>
-              </div>
-
-              {/* Charges */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Charges</h3>
-                <div className="border border-gray-100 rounded-xl overflow-hidden">
-                  <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
-                    <span>Type</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Amount</span><span></span>
-                  </div>
-                  {folioItems.length === 0 ? (
-                    <div className="text-center text-gray-400 text-sm py-4">No charges posted yet</div>
-                  ) : folioItems.map(item => (
-                    <div key={item.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${item.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
-                      <span className={`font-medium text-gray-700 ${item.voided ? 'line-through' : ''}`}>{item.charge_type}</span>
-                      <span className={`text-gray-500 truncate ${item.voided ? 'line-through' : ''}`}>{item.description || '—'}</span>
-                      <span className="text-center text-gray-500">{item.quantity}</span>
-                      <span className="text-right text-gray-500">&#8369;{Number(item.unit_price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                      <span className={`text-right font-semibold ${item.voided ? 'text-gray-400 line-through' : 'text-gray-800'}`}>&#8369;{Number(item.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                      <div className="flex justify-end">
-                        {!item.voided
-                          ? <button onClick={() => voidCharge(item.id)} title="Void" className="text-red-300 hover:text-red-500 transition-colors">&#10005;</button>
-                          : <span className="text-[10px] text-gray-400">void</span>}
-                      </div>
-                    </div>
-                  ))}
-                  {folioItems.filter(i => !i.voided).length > 0 && (
-                    <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
-                      <span className="text-xs text-gray-400 mr-2">Total Charges</span>
-                      <span className="text-sm font-bold text-gray-800">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-3 bg-blue-50 rounded-xl p-3 space-y-2">
-                  <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Post Charge</div>
-                  <div className="flex gap-2 flex-wrap">
-                    <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none">
-                      {['Room Charge','Food & Beverage','Minibar','Laundry','Parking','Damage','Miscellaneous'].map(t => <option key={t}>{t}</option>)}
-                    </select>
-                    <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                    <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                    <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                    <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
-                      {fcSaving ? '...' : '+ Add'}
-                    </button>
-                  </div>
-                  {fcError && <p className="text-xs text-red-500">{fcError}</p>}
-                </div>
-              </div>
-
-              {/* Payments */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Payments</h3>
-                <div className="border border-gray-100 rounded-xl overflow-hidden">
-                  <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
-                    <span>Method</span><span>Reference</span><span>Date</span><span className="text-right">Amount</span><span></span>
-                  </div>
-                  {folioPayments.length === 0 ? (
-                    <div className="text-center text-gray-400 text-sm py-4">No payments recorded yet</div>
-                  ) : folioPayments.map(pay => (
-                    <div key={pay.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${pay.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
-                      <span className={`font-medium text-gray-700 ${pay.voided ? 'line-through' : ''}`}>{pay.payment_method}</span>
-                      <span className="text-gray-500 truncate">{pay.reference || '—'}</span>
-                      <span className="text-gray-400 text-xs">{new Date(pay.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                      <span className={`text-right font-semibold ${pay.voided ? 'text-gray-400 line-through' : 'text-green-700'}`}>&#8369;{Number(pay.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                      <div className="flex justify-end">
-                        {!pay.voided
-                          ? <button onClick={() => voidPayment(pay.id)} title="Void" className="text-red-300 hover:text-red-500 transition-colors">&#10005;</button>
-                          : <span className="text-[10px] text-gray-400">void</span>}
-                      </div>
-                    </div>
-                  ))}
-                  {folioPayments.filter(p => !p.voided).length > 0 && (
-                    <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
-                      <span className="text-xs text-gray-400 mr-2">Total Paid</span>
-                      <span className="text-sm font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-3 bg-green-50 rounded-xl p-3 space-y-2">
-                  <div className="text-xs font-semibold text-green-600 uppercase tracking-wide">Record Payment</div>
-                  <div className="flex gap-2 flex-wrap">
-                    <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none">
-                      {['Cash','Credit Card','Debit Card','GCash','Bank Transfer','Other'].map(m => <option key={m}>{m}</option>)}
-                    </select>
-                    <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                    <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                    <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-[#000000]/87 text-sm font-semibold rounded-full transition-colors">
-                      {fpSaving ? '...' : '+ Pay'}
-                    </button>
-                  </div>
-                  {fpError && <p className="text-xs text-red-500">{fpError}</p>}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
-      </div>
-    )}
+      )}
     </>
   );
 }
@@ -11138,7 +11162,7 @@ function GuestsTab() {
       try {
         const res = await fetch(`${API_BASE_URL}/api/guests/history?email=${encodeURIComponent(email)}`);
         if (res.ok) { const data = await res.json(); setHistoryCache(prev => ({ ...prev, [email]: data })); }
-      } catch (e) {}
+      } catch (e) { }
       setHistoryLoading(null);
     }
   };
@@ -11263,13 +11287,13 @@ function GuestsTab() {
 
 // ── Folio Modal (Restored) ───────────────────────────────────────────────────
 
-function FolioModal({ 
-  folioOpen, folioRes, setFolioOpen, fmtDate, nightsCount, printFolio, 
-  sendFolioEmail, folioEmailSending, folioEmailMsg, folioLoading, folioError, 
-  folioTotals, folioItems, voidCharge, fcType, setFcType, fcDesc, setFcDesc, 
-  fcQty, setFcQty, fcPrice, setFcPrice, addCharge, fcSaving, fcError, 
-  folioPayments, voidPayment, fpMethod, setFpMethod, fpAmount, setFpAmount, 
-  fpRef, setFpRef, addPayment, fpSaving, fpError 
+function FolioModal({
+  folioOpen, folioRes, setFolioOpen, fmtDate, nightsCount, printFolio,
+  sendFolioEmail, folioEmailSending, folioEmailMsg, folioLoading, folioError,
+  folioTotals, folioItems, voidCharge, fcType, setFcType, fcDesc, setFcDesc,
+  fcQty, setFcQty, fcPrice, setFcPrice, addCharge, fcSaving, fcError,
+  folioPayments, voidPayment, fpMethod, setFpMethod, fpAmount, setFpAmount,
+  fpRef, setFpRef, addPayment, fpSaving, fpError
 }) {
   if (!folioOpen || !folioRes) return null;
 
@@ -11292,10 +11316,10 @@ function FolioModal({
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 " onClick={() => setFolioOpen(false)}>
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-[2rem] overflow-hidden shadow-2xl border border-black/5" 
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-[2rem] overflow-hidden shadow-2xl border border-black/5"
         style={{ background: '#0f172a', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
         onClick={e => e.stopPropagation()}>
-        
+
         {/* Header - High End Design */}
         <div className="px-8 py-6 border-b border-black/5 bg-gradient-to-r from-white/[0.03] to-transparent">
           <div className="flex items-start justify-between">
@@ -11316,7 +11340,7 @@ function FolioModal({
             </div>
             <div className="flex gap-2">
               <button onClick={printFolio} className="p-2.5 rounded-full bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 hover:bg-white shadow-sm transition-all shadow-sm">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" /></svg>
               </button>
               <button onClick={() => setFolioOpen(false)} className="p-2.5 rounded-xl bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 transition-all">&times;</button>
             </div>
@@ -11342,7 +11366,7 @@ function FolioModal({
         {/* Action Bar - Post Charge/Payment */}
         <div className="px-8 py-4 bg-white/[0.01] border-b border-black/5 flex gap-4 items-center overflow-x-auto no-scrollbar">
           <div className="flex-shrink-0 text-[10px] font-black text-black/60 uppercase tracking-widest mr-2">Post Transaction</div>
-          
+
           {/* Quick Add Charge */}
           <div className="flex gap-2 items-center bg-white shadow-sm p-1 rounded-xl border border-black/5">
             <select value={fcType} onChange={e => setFcType(e.target.value)} className="bg-transparent text-black/60 text-xs px-2 outline-none">
@@ -11383,7 +11407,7 @@ function FolioModal({
             </div>
           ) : ledgerWithBalance.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 text-black/60">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4"><path d="M12 2v20M2 12h20M12 2l4 4-4-4-4 4 4-4z"/></svg>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4"><path d="M12 2v20M2 12h20M12 2l4 4-4-4-4 4 4-4z" /></svg>
               <div className="text-sm font-bold tracking-widest uppercase">Clean Folio — No Transactions</div>
             </div>
           ) : (
@@ -11426,7 +11450,7 @@ function FolioModal({
                       </td>
                       <td className="px-8 py-4 text-right">
                         {!isVoid && (
-                          <button 
+                          <button
                             onClick={() => isCharge ? voidCharge(entry.id) : voidPayment(entry.id)}
                             className="text-[9px] font-black uppercase tracking-widest text-black/60 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
                           >
@@ -11455,5 +11479,5 @@ function FolioModal({
         </div>
       </div>
     </div>
-  , document.body);
+    , document.body);
 }
