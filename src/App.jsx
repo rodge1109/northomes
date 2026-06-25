@@ -5464,33 +5464,35 @@ function HomePage({ setCurrentPage }) {
       {/* Horizontal Booking Bar - Overlapping the Hero */}
       <div className="relative -mt-10 z-20 px-4">
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-4">
-          <label className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col cursor-pointer">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check In</span>
+          <div className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col relative">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1 pointer-events-none">Check In</span>
             <input
               type="date"
               value={checkIn}
+              onClick={(e) => { try { e.target.showPicker() } catch(err){} }}
               onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[1.5rem]"
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[2rem]"
             />
-          </label>
-          <label className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col cursor-pointer">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check Out</span>
+          </div>
+          <div className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col relative">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1 pointer-events-none">Check Out</span>
             <input
               type="date"
               value={checkOut}
+              onClick={(e) => { try { e.target.showPicker() } catch(err){} }}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[1.5rem]"
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[2rem]"
             />
-          </label>
-          <label className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 border-black/5 flex flex-col cursor-pointer">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Guests</span>
-            <select className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[1.5rem]">
+          </div>
+          <div className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 border-black/5 flex flex-col relative">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1 pointer-events-none">Guests</span>
+            <select className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[2rem]">
               <option>1 Guest</option>
               <option>2 Guests</option>
               <option>3 Guests</option>
               <option>4+ Guests</option>
             </select>
-          </label>
+          </div>
           <div className="w-full md:w-auto mt-2 md:mt-0 pl-2">
             <button
               onClick={handleBookingSearch}
