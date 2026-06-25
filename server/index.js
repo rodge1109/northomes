@@ -769,6 +769,26 @@ app.put('/api/hotel-settings', async (req, res) => {
   }
 });
 
+app.post('/api/test-email', async (req, res) => {
+  try {
+    const { to } = req.body;
+    if (!to) return res.status(400).json({ success: false, message: 'Missing "to" email address.' });
+    
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to,
+      subject: 'Test Email - Northomes Pensionne',
+      text: 'This is a test email from the Northomes Pensionne system to verify that the email settings are working correctly.'
+    };
+    
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: 'Test email sent successfully!' });
+  } catch (error) {
+    console.error('Test email failed:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to send test email.' });
+  }
+});
+
 // ─── Front Desk Endpoints ────────────────────────────────────────────────────
 
 // GET /api/front-desk/arrivals?date=YYYY-MM-DD

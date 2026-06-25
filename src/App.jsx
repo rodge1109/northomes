@@ -1927,6 +1927,31 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     }
   }, []);
 
+  const [testingEmail, setTestingEmail] = useState(false);
+  const testEmail = async () => {
+    const to = prompt("Enter an email address to send the test email to:");
+    if (!to) return;
+    setTestingEmail(true);
+    setSettingsSavedMsg('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/test-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setSettingsSavedMsg('Test email sent successfully! Check your inbox.');
+      } else {
+        alert('Failed to send test email: ' + data.message);
+      }
+    } catch (err) {
+      alert('Error sending test email: ' + err.message);
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   const saveHotelSettings = async () => {
     setSavingSettings(true);
     setSettingsSavedMsg('');
@@ -4179,7 +4204,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </div>
                         </div>
                       </div>
-                      <div className="flex justify-end pt-4">
+                      <div className="flex justify-end pt-4 gap-4">
+                        <button
+                          onClick={testEmail}
+                          disabled={testingEmail}
+                          className="px-10 py-4 bg-white border-2 border-[#006241] text-[#006241] rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-sm hover:bg-[#006241]/5 active:scale-95 transition-all disabled:opacity-30"
+                        >
+                          {testingEmail ? 'Sending...' : 'Test Email config'}
+                        </button>
                         <button
                           onClick={saveHotelSettings}
                           disabled={savingSettings}
