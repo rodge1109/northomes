@@ -3476,16 +3476,26 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             { key: 'area', label: 'Wing / Area', type: 'text', placeholder: 'e.g. East Wing' },
                             { key: 'amenities', label: 'Amenities', type: 'text', placeholder: 'comma-separated' },
                           ].map(field => (
-                            <div key={field.key} className="space-y-2">
+                            <div key={field.key} className={`space-y-2 ${field.key === 'amenities' || field.key === 'description' ? 'col-span-1 md:col-span-2 lg:col-span-4' : ''}`}>
                               <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
-                              <input
-                                type={field.type}
-                                value={newRoomForm[field.key]}
-                                onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
-                                placeholder={field.placeholder}
-                                min={field.type === 'number' ? '0' : undefined}
-                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
-                              />
+                              {field.key === 'amenities' || field.key === 'description' ? (
+                                <textarea
+                                  value={newRoomForm[field.key]}
+                                  onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                  placeholder={field.placeholder}
+                                  rows={4}
+                                  className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium resize-y"
+                                />
+                              ) : (
+                                <input
+                                  type={field.type}
+                                  value={newRoomForm[field.key]}
+                                  onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                  placeholder={field.placeholder}
+                                  min={field.type === 'number' ? '0' : undefined}
+                                  className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                                />
+                              )}
                             </div>
                           ))}
                         </div>
@@ -3513,10 +3523,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                       { key: 'area', label: 'Wing' },
                                       { key: 'amenities', label: 'Amenities' },
                                     ].map(f => (
-                                      <div key={f.key}>
+                                      <div key={f.key} className={f.key === 'amenities' || f.key === 'description' ? 'col-span-2 md:col-span-4' : ''}>
                                         <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">{f.label}</label>
-                                        <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
-                                          className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
+                                        {f.key === 'amenities' || f.key === 'description' ? (
+                                          <textarea value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
+                                            className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87 resize-y" rows={4} />
+                                        ) : (
+                                          <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
+                                            className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
+                                        )}
                                       </div>
                                     ))}
                                   </div>
