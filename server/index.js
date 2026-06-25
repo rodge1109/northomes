@@ -208,7 +208,7 @@ const sendHotelConfirmationEmail = async (reservation) => {
   } catch (err) { console.error('Error fetching settings', err); }
 
   const subject = settings.email_booking_subject || 'Booking Confirmation - Northomes Pensionne';
-  const rawBody = settings.email_booking_body || `<h2 style="color: #1E3932;">Booking Confirmed!</h2><p>Dear <strong>{{full_name}}</strong>,</p><p>Your reservation has been successfully confirmed.</p>`;
+  const rawBody = settings.email_booking_body || `<h2 style="color: #00754A;">Booking Confirmed!</h2><p>Dear <strong>{{full_name}}</strong>,</p><p>Your reservation has been successfully confirmed.</p>`;
   
   const body = rawBody
     .replace(/\{\{full_name\}\}/g, reservation.full_name || '')
@@ -224,8 +224,8 @@ const sendHotelConfirmationEmail = async (reservation) => {
     subject: subject,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: #1E3932; padding: 20px; text-align: center;">
-          <h1 style="color: #CBA258; margin: 0;">${settings.hotel_name || 'Northomes Pensionne'}</h1>
+        <div style="background: #00754A; padding: 20px; text-align: center;">
+          <h1 style="color: #FFFFFF; margin: 0;">${settings.hotel_name || 'Northomes Pensionne'}</h1>
         </div>
         <div style="padding: 30px; background: #f5f5f5;">
           ${body}
@@ -744,7 +744,7 @@ const initHotelSettingsTable = async () => {
     sms_sender_name: 'HOTEL',
     email_sender_name: 'Grand Hotel',
     email_booking_subject: 'Booking Confirmation - Northomes Pensionne',
-    email_booking_body: `<h2 style="color: #1E3932;">Booking Confirmed!</h2>
+    email_booking_body: `<h2 style="color: #00754A;">Booking Confirmed!</h2>
 <p>Dear <strong>{{full_name}}</strong>,</p>
 <p>Your reservation has been successfully confirmed. Here are your details:</p>
 <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -755,7 +755,7 @@ const initHotelSettingsTable = async () => {
   <p><strong>Reference ID:</strong> #{{id}}</p>
 </div>`,
     email_reminder_subject: 'Upcoming Check-in Reminder - Northomes Pensionne',
-    email_reminder_body: `<h2 style="color: #1E3932;">We're excited to see you soon!</h2>
+    email_reminder_body: `<h2 style="color: #00754A;">We're excited to see you soon!</h2>
 <p>Dear <strong>{{full_name}}</strong>,</p>
 <p>This is a friendly reminder that your check-in date is coming up tomorrow.</p>
 <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -2541,7 +2541,7 @@ const sendHotelReminderEmail = async (reservation) => {
   } catch (err) { console.error('Error fetching settings', err); }
 
   const subject = settings.email_reminder_subject || 'Upcoming Check-in Reminder - Northomes Pensionne';
-  const rawBody = settings.email_reminder_body || `<h2 style="color: #1E3932;">We're excited to see you soon!</h2><p>Dear <strong>{{full_name}}</strong>,</p><p>This is a friendly reminder that your check-in date is coming up tomorrow.</p>`;
+  const rawBody = settings.email_reminder_body || `<h2 style="color: #00754A;">We're excited to see you soon!</h2><p>Dear <strong>{{full_name}}</strong>,</p><p>This is a friendly reminder that your check-in date is coming up tomorrow.</p>`;
   
   const body = rawBody
     .replace(/\{\{full_name\}\}/g, reservation.full_name || '')
@@ -2557,8 +2557,8 @@ const sendHotelReminderEmail = async (reservation) => {
     subject: subject,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="background: #1E3932; padding: 20px; text-align: center;">
-          <h1 style="color: #CBA258; margin: 0;">${settings.hotel_name || 'Northomes Pensionne'}</h1>
+        <div style="background: #00754A; padding: 20px; text-align: center;">
+          <h1 style="color: #FFFFFF; margin: 0;">${settings.hotel_name || 'Northomes Pensionne'}</h1>
         </div>
         <div style="padding: 30px; background: #f5f5f5;">
           ${body}
