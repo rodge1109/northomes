@@ -4127,7 +4127,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           <h4 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-4">Email Templates</h4>
                           <p className="text-xs text-black/60 mb-6">
                             Customize the emails sent to your guests. You can use HTML to format the text and use the following placeholders: 
-                            <code className="bg-black/5 px-1 py-0.5 rounded ml-1">{{`{{full_name}}, {{room_type}}, {{check_in_date}}, {{check_out_date}}, {{number_of_guests}}, {{id}}`}}</code>.
+                            <code className="bg-black/5 px-1 py-0.5 rounded ml-1">{"{{full_name}}, {{room_type}}, {{check_in_date}}, {{check_out_date}}, {{number_of_guests}}, {{id}}"}</code>.
                           </p>
                         </div>
 
