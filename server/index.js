@@ -3,6 +3,8 @@ const cors = require('cors');
 const pool = require('./db');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -12,12 +14,43 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+// Setup storage for multer
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/')
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
+  }
+})
+const upload = multer({ storage: storage })
+
+// Serve uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// File upload endpoint
+app.post('/api/upload', upload.array('photos', 10), (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: 'No files uploaded.' });
+    }
+    const urls = req.files.map(f => `/uploads/${f.filename}`);
+    res.json({ success: true, urls });
+  } catch (err) {
+    console.error('Upload error:', err);
+    res.status(500).json({ success: false, message: 'Failed to upload files.' });
+  }
+});
+
 // Simple in-memory session store (for demo - use Redis in production)
 const sessions = new Map();
 
 // Email transporter configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.titan.email',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -132,6 +165,57 @@ app.get('/api/health', (req, res) => {
 
 // ─── Hotel Reservations ───────────────────────────────────────────────────────
 
+const sendHotelConfirmationEmail = async (reservation) => {
+  let settings = {};
+  try {
+    const result = await pool.query('SELECT key, value FROM hotel_settings');
+    result.rows.forEach(r => settings[r.key] = r.value);
+  } catch (err) { console.error('Error fetching settings', err); }
+
+  const subject = settings.email_booking_subject || 'Booking Confirmation - Northomes Pensionne';
+  const rawBody = settings.email_booking_body || `<h2 style="color: #1E3932;">Booking Confirmed!</h2><p>Dear <strong>{{full_name}}</strong>,</p><p>Your reservation has been successfully confirmed.</p>`;
+  
+  const body = rawBody
+    .replace(/\{\{full_name\}\}/g, reservation.full_name || '')
+    .replace(/\{\{room_type\}\}/g, reservation.room_type || '')
+    .replace(/\{\{check_in_date\}\}/g, reservation.check_in_date || '')
+    .replace(/\{\{check_out_date\}\}/g, reservation.check_out_date || '')
+    .replace(/\{\{number_of_guests\}\}/g, reservation.number_of_guests || '')
+    .replace(/\{\{id\}\}/g, reservation.id || '');
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: reservation.email,
+    subject: subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: #1E3932; padding: 20px; text-align: center;">
+          <h1 style="color: #CBA258; margin: 0;">${settings.hotel_name || 'Northomes Pensionne'}</h1>
+        </div>
+        <div style="padding: 30px; background: #f5f5f5;">
+          ${body}
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p style="color: #888; font-size: 12px;">
+              ${settings.hotel_name || 'Northomes Pensionne'}<br>
+              Phone: ${settings.hotel_phone || '+63 912 345 6789'}<br>
+              Email: ${settings.hotel_email || 'info@northomespensione.com'}
+            </p>
+          </div>
+        </div>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Hotel confirmation email sent to:', reservation.email);
+    return true;
+  } catch (error) {
+    console.error('Error sending hotel confirmation email:', error);
+    return false;
+  }
+};
+
 // Ensure the reservations table exists
 const initReservationsTable = async () => {
   await pool.query(`
@@ -176,6 +260,7 @@ const initFrontDeskColumns = async () => {
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS eta TEXT DEFAULT ''`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT ''`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS deposit_amount NUMERIC(10,2) DEFAULT 0`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN DEFAULT false`,
   ];
   for (const sql of migrations) await pool.query(sql);
   console.log('Front desk columns ready.');
@@ -305,6 +390,7 @@ const initRoomTypesTable = async () => {
   // Migrate existing tables that may not have these columns yet
   await pool.query(`ALTER TABLE hotel_room_types ADD COLUMN IF NOT EXISTS floor INTEGER NOT NULL DEFAULT 1`);
   await pool.query(`ALTER TABLE hotel_room_types ADD COLUMN IF NOT EXISTS area  TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE hotel_room_types ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'::jsonb`);
   const { rows } = await pool.query('SELECT COUNT(*) FROM hotel_room_types');
   if (parseInt(rows[0].count) === 0) {
     await pool.query(`
@@ -405,6 +491,9 @@ app.post('/api/reservations', async (req, res) => {
     const nights = Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
     const smsMessage = `Hi ${reservation.full_name}, your hotel reservation is confirmed! Room: ${reservation.room_type}, Check-in: ${reservation.check_in_date}, Check-out: ${reservation.check_out_date} (${nights} night${nights !== 1 ? 's' : ''}). Ref#${reservation.id}`;
     sendSMS(reservation.phone_number, smsMessage).catch(err => console.error('SMS error:', err));
+    
+    // Email confirmation (fire-and-forget)
+    sendHotelConfirmationEmail(reservation).catch(err => console.error('Email error:', err));
 
     res.status(201).json({
       success: true,
@@ -520,14 +609,15 @@ app.get('/api/admin/room-types', async (req, res) => {
 
 app.post('/api/admin/room-types', async (req, res) => {
   try {
-    const { name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area } = req.body;
+    const { name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, images } = req.body;
     if (!name || !totalRooms || !pricePerNight) {
       return res.status(400).json({ success: false, message: 'name, totalRooms, and pricePerNight are required.' });
     }
+    const imageArray = Array.isArray(images) ? images : [];
     const result = await pool.query(
-      `INSERT INTO hotel_room_types (name, description, total_rooms, price_per_night, max_guests, amenities, floor, area)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-      [name, description || '', totalRooms, pricePerNight, maxGuests || 2, amenities || '', floor || 1, area || '']
+      `INSERT INTO hotel_room_types (name, description, total_rooms, price_per_night, max_guests, amenities, floor, area, images)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [name, description || '', totalRooms, pricePerNight, maxGuests || 2, amenities || '', floor || 1, area || '', JSON.stringify(imageArray)]
     );
     res.status(201).json({ success: true, roomType: result.rows[0] });
   } catch (error) {
@@ -541,9 +631,26 @@ app.post('/api/admin/room-types', async (req, res) => {
 app.put('/api/admin/room-types/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, active } = req.body;
-    const result = await pool.query(
-      `UPDATE hotel_room_types SET
+    const { name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, active, images } = req.body;
+    
+    let query, params;
+    if (images !== undefined) {
+      const imageArray = Array.isArray(images) ? images : [];
+      query = `UPDATE hotel_room_types SET
+         name            = COALESCE($1, name),
+         description     = COALESCE($2, description),
+         total_rooms     = COALESCE($3, total_rooms),
+         price_per_night = COALESCE($4, price_per_night),
+         max_guests      = COALESCE($5, max_guests),
+         amenities       = COALESCE($6, amenities),
+         floor           = COALESCE($7, floor),
+         area            = COALESCE($8, area),
+         active          = COALESCE($9, active),
+         images          = COALESCE($10, images)
+       WHERE id = $11 RETURNING *`;
+      params = [name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, active, JSON.stringify(imageArray), id];
+    } else {
+      query = `UPDATE hotel_room_types SET
          name            = COALESCE($1, name),
          description     = COALESCE($2, description),
          total_rooms     = COALESCE($3, total_rooms),
@@ -553,9 +660,11 @@ app.put('/api/admin/room-types/:id', async (req, res) => {
          floor           = COALESCE($7, floor),
          area            = COALESCE($8, area),
          active          = COALESCE($9, active)
-       WHERE id = $10 RETURNING *`,
-      [name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, active, id]
-    );
+       WHERE id = $10 RETURNING *`;
+      params = [name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, active, id];
+    }
+
+    const result = await pool.query(query, params);
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Room type not found.' });
     }
@@ -599,6 +708,27 @@ const initHotelSettingsTable = async () => {
     deposit_percentage: '50',
     sms_sender_name: 'HOTEL',
     email_sender_name: 'Grand Hotel',
+    email_booking_subject: 'Booking Confirmation - Northomes Pensionne',
+    email_booking_body: `<h2 style="color: #1E3932;">Booking Confirmed!</h2>
+<p>Dear <strong>{{full_name}}</strong>,</p>
+<p>Your reservation has been successfully confirmed. Here are your details:</p>
+<div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+  <p><strong>Room Type:</strong> {{room_type}}</p>
+  <p><strong>Check-in Date:</strong> {{check_in_date}}</p>
+  <p><strong>Check-out Date:</strong> {{check_out_date}}</p>
+  <p><strong>Guests:</strong> {{number_of_guests}}</p>
+  <p><strong>Reference ID:</strong> #{{id}}</p>
+</div>`,
+    email_reminder_subject: 'Upcoming Check-in Reminder - Northomes Pensionne',
+    email_reminder_body: `<h2 style="color: #1E3932;">We're excited to see you soon!</h2>
+<p>Dear <strong>{{full_name}}</strong>,</p>
+<p>This is a friendly reminder that your check-in date is coming up tomorrow.</p>
+<div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+  <p><strong>Room Type:</strong> {{room_type}}</p>
+  <p><strong>Check-in Date:</strong> {{check_in_date}}</p>
+  <p><strong>Guests:</strong> {{number_of_guests}}</p>
+</div>
+<p style="color: #666;">Please remember to bring a valid ID for check-in.</p>`
   };
   for (const [key, value] of Object.entries(defaults)) {
     await pool.query(
@@ -2347,6 +2477,92 @@ setInterval(checkAndSendReminders, 60 * 60 * 1000);
 
 // Also run once on server start
 setTimeout(checkAndSendReminders, 5000);
+
+const sendHotelReminderEmail = async (reservation) => {
+  let settings = {};
+  try {
+    const result = await pool.query('SELECT key, value FROM hotel_settings');
+    result.rows.forEach(r => settings[r.key] = r.value);
+  } catch (err) { console.error('Error fetching settings', err); }
+
+  const subject = settings.email_reminder_subject || 'Upcoming Check-in Reminder - Northomes Pensionne';
+  const rawBody = settings.email_reminder_body || `<h2 style="color: #1E3932;">We're excited to see you soon!</h2><p>Dear <strong>{{full_name}}</strong>,</p><p>This is a friendly reminder that your check-in date is coming up tomorrow.</p>`;
+  
+  const body = rawBody
+    .replace(/\{\{full_name\}\}/g, reservation.full_name || '')
+    .replace(/\{\{room_type\}\}/g, reservation.room_type || '')
+    .replace(/\{\{check_in_date\}\}/g, reservation.check_in_date || '')
+    .replace(/\{\{check_out_date\}\}/g, reservation.check_out_date || '')
+    .replace(/\{\{number_of_guests\}\}/g, reservation.number_of_guests || '')
+    .replace(/\{\{id\}\}/g, reservation.id || '');
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: reservation.email,
+    subject: subject,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: #1E3932; padding: 20px; text-align: center;">
+          <h1 style="color: #CBA258; margin: 0;">${settings.hotel_name || 'Northomes Pensionne'}</h1>
+        </div>
+        <div style="padding: 30px; background: #f5f5f5;">
+          ${body}
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <p style="color: #888; font-size: 12px;">
+              ${settings.hotel_name || 'Northomes Pensionne'}<br>
+              Phone: ${settings.hotel_phone || '+63 912 345 6789'}<br>
+              Email: ${settings.hotel_email || 'info@northomespensione.com'}
+            </p>
+          </div>
+        </div>
+      </div>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Hotel reminder email sent to:', reservation.email);
+  } catch (err) {
+    console.error('Error sending hotel reminder email:', err);
+  }
+};
+
+// Check and send hotel reminder emails (runs every hour)
+const checkAndSendHotelReminders = async () => {
+  try {
+    // Get tomorrow's date
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+    // Find reservations for tomorrow that haven't been reminded
+    const result = await pool.query(
+      `SELECT * FROM hotel_reservations
+       WHERE check_in_date = $1
+       AND status IN ('pending', 'confirmed')
+       AND (reminder_sent IS NULL OR reminder_sent = false)`,
+      [tomorrowStr]
+    );
+
+    for (const reservation of result.rows) {
+      try {
+        await sendHotelReminderEmail(reservation);
+        // Mark as reminded
+        await pool.query(
+          'UPDATE hotel_reservations SET reminder_sent = true WHERE id = $1',
+          [reservation.id]
+        );
+      } catch (err) {
+        console.error('Failed to process reminder for reservation', reservation.id, err);
+      }
+    }
+  } catch (error) {
+    console.error('Error in checkAndSendHotelReminders job:', error);
+  }
+};
+
+setInterval(checkAndSendHotelReminders, 60 * 60 * 1000);
+setTimeout(checkAndSendHotelReminders, 10000);
 
 // ==================== BLOCKED DATES / HOLIDAYS ====================
 

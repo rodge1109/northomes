@@ -1354,14 +1354,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     currency: 'PHP', min_stay_nights: '1', max_stay_nights: '30',
     advance_booking_days: '365', cancellation_policy: '',
     deposit_required: 'false', deposit_percentage: '50',
-    sms_sender_name: '', email_sender_name: '',
+    sms_sender_name: '', email_sender_name: '', hero_images: '[]'
   });
+  const [heroFiles, setHeroFiles] = useState([]);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSavedMsg, setSettingsSavedMsg] = useState('');
   const [adminRoomTypes, setAdminRoomTypes] = useState([]);
-  const [newRoomForm, setNewRoomForm] = useState({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '' });
+  const [newRoomForm, setNewRoomForm] = useState({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '', images: [] });
+  const [newRoomFiles, setNewRoomFiles] = useState([]);
   const [editRoomId, setEditRoomId] = useState(null);
   const [editRoomForm, setEditRoomForm] = useState({});
+  const [editRoomFiles, setEditRoomFiles] = useState([]);
   // Rate Codes admin state
   const [adminRateCodes, setAdminRateCodes] = useState([]);
   const [adminRoomTypesForRates, setAdminRoomTypesForRates] = useState([]);
@@ -1722,6 +1725,41 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setHotelRptLoading(false);
   };
 
+  const setAuditWindow = (preset) => {
+    const today = new Date();
+    if (preset === 'today') {
+      const todayStr = today.toISOString().split('T')[0];
+      setHotelRptStart(todayStr);
+      setHotelRptEnd(todayStr);
+    } else if (preset === 'week') {
+      const d = new Date();
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diff));
+      setHotelRptStart(monday.toISOString().split('T')[0]);
+      setHotelRptEnd(today.toISOString().split('T')[0]);
+    }
+  };
+
+  const weeklyRevData = useMemo(() => {
+    if (!dailyRevData || dailyRevData.length === 0) return [];
+    const weeksMap = {};
+    dailyRevData.forEach(row => {
+      const d = new Date(row.date);
+      const day = d.getDay();
+      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diff));
+      const weekStr = monday.toISOString().split('T')[0];
+      if (!weeksMap[weekStr]) {
+        weeksMap[weekStr] = { date: weekStr, charged: 0, paid: 0, balance: 0 };
+      }
+      weeksMap[weekStr].charged += row.charged;
+      weeksMap[weekStr].paid += row.paid;
+      weeksMap[weekStr].balance += row.balance;
+    });
+    return Object.values(weeksMap).sort((a,b) => a.date.localeCompare(b.date));
+  }, [dailyRevData]);
+
   const fetchFinancialReport = async () => {
     setHotelRptLoading(true);
     const params = new URLSearchParams();
@@ -1893,10 +1931,28 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setSavingSettings(true);
     setSettingsSavedMsg('');
     try {
+      let updatedSettings = { ...hotelSettings };
+      
+      if (heroFiles && heroFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(heroFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          const currentImages = JSON.parse(updatedSettings.hero_images || '[]');
+          updatedSettings.hero_images = JSON.stringify([...currentImages, ...uploadData.urls]);
+          setHotelSettings(updatedSettings);
+          setHeroFiles([]);
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/hotel-settings`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ settings: hotelSettings })
+        body: JSON.stringify({ settings: updatedSettings })
       });
       const data = await response.json();
       if (data.success) setSettingsSavedMsg('Settings saved successfully!');
@@ -1958,6 +2014,20 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const addRoomType = async () => {
     if (!newRoomForm.name || !newRoomForm.price_per_night) return;
     try {
+      let uploadedImages = [];
+      if (newRoomFiles && newRoomFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(newRoomFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          uploadedImages = uploadData.urls;
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/admin/room-types`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1970,12 +2040,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
           amenities: newRoomForm.amenities,
           floor: parseInt(newRoomForm.floor) || 1,
           area: newRoomForm.area,
+          images: uploadedImages
         })
       });
       const data = await response.json();
       if (data.success) {
         setAdminRoomTypes([...adminRoomTypes, data.roomType]);
-        setNewRoomForm({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '' });
+        setNewRoomForm({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '', images: [] });
+        setNewRoomFiles([]);
       } else {
         alert(data.message);
       }
@@ -1986,6 +2058,20 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   const saveRoomEdit = async (id) => {
     try {
+      let finalImages = editRoomForm.images || [];
+      if (editRoomFiles && editRoomFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(editRoomFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          finalImages = [...finalImages, ...uploadData.urls];
+        }
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/admin/room-types/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -1998,12 +2084,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
           amenities: editRoomForm.amenities,
           floor: parseInt(editRoomForm.floor) || 1,
           area: editRoomForm.area,
+          images: finalImages
         })
       });
       const data = await response.json();
       if (data.success) {
         setAdminRoomTypes(adminRoomTypes.map(rt => rt.id === id ? data.roomType : rt));
         setEditRoomId(null);
+        setEditRoomFiles([]);
       }
     } catch (error) {
       console.error('Error updating room type:', error);
@@ -3096,7 +3184,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         {/* Filter bar */}
                         <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
                           <div className="flex-1 min-w-[200px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
+                            <div className="flex items-center justify-between mb-2">
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest">Audit Window</label>
+                              <div className="flex gap-2">
+                                <button onClick={() => setAuditWindow('today')} className="text-[9px] font-black uppercase tracking-widest text-[#00754A] hover:text-[#006241]">Today</button>
+                                <button onClick={() => setAuditWindow('week')} className="text-[9px] font-black uppercase tracking-widest text-[#00754A] hover:text-[#006241]">This Week</button>
+                              </div>
+                            </div>
                             <div className="grid grid-cols-2 gap-3">
                               <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
                                 className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
@@ -3140,6 +3234,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                     <button onClick={() => setFinView('daily')}
                                       className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'daily' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
                                       Daily
+                                    </button>
+                                    <button onClick={() => setFinView('weekly')}
+                                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'weekly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
+                                      Weekly
                                     </button>
                                     <button onClick={() => { setFinView('monthly'); fetchMonthlyReport(); }}
                                       className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'monthly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
@@ -3189,6 +3287,44 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                           <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.charged, 0))}</td>
                                           <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.paid, 0))}</td>
                                           <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.balance, 0))}</td>
+                                        </tr>
+                                      </tfoot>
+                                    </table>
+                                  </div>
+                                )
+                              )}
+
+                              {/* Weekly table */}
+                              {finView === 'weekly' && (
+                                weeklyRevData.length === 0 ? (
+                                  <div className="py-16 text-center text-black/60 italic text-xs font-medium">No ledger entries for this window.</div>
+                                ) : (
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                      <thead>
+                                        <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
+                                          <th className="px-6 py-4">Week Of (Monday)</th>
+                                          <th className="px-6 py-4 text-right">Revenue Charged</th>
+                                          <th className="px-6 py-4 text-right">Cash Collected</th>
+                                          <th className="px-6 py-4 text-right">Net Balance</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-white/[0.03]">
+                                        {weeklyRevData.map((r, i) => (
+                                          <tr key={i} className="hover:bg-white/[0.02] transition-all group">
+                                            <td className="px-6 py-4 text-black/60 text-xs font-bold">{fmtD(r.date)}</td>
+                                            <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
+                                            <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
+                                            <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                      <tfoot>
+                                        <tr className="bg-white/[0.05] font-black border-t border-black/5">
+                                          <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
+                                          <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(weeklyRevData.reduce((s, r) => s + r.charged, 0))}</td>
+                                          <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(weeklyRevData.reduce((s, r) => s + r.paid, 0))}</td>
+                                          <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(weeklyRevData.reduce((s, r) => s + r.balance, 0))}</td>
                                         </tr>
                                       </tfoot>
                                     </table>
@@ -3436,6 +3572,24 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </div>
                         ))}
                       </div>
+                      <div className="pt-6 border-t border-black/5 space-y-4">
+                        <div>
+                          <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Hero Images</h4>
+                          <p className="text-black/60 text-[10px] mb-3">Upload photos for the homepage carousel. Select multiple files.</p>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => setHeroFiles(Array.from(e.target.files))}
+                            className="w-full max-w-md px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                          />
+                          {heroFiles.length > 0 && (
+                            <div className="text-xs text-[#00754A] font-medium mt-2">
+                              {heroFiles.length} file(s) selected
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <div className="flex justify-end pt-4 border-t border-black/5">
                         <button
                           onClick={saveHotelSettings}
@@ -3499,6 +3653,21 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             </div>
                           ))}
                         </div>
+                        <div className="mt-6 space-y-2">
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Room Photos</label>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => setNewRoomFiles(Array.from(e.target.files))}
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                          />
+                          {newRoomFiles.length > 0 && (
+                            <div className="text-xs text-[#00754A] font-medium ml-1">
+                              {newRoomFiles.length} file(s) selected
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Room type list */}
@@ -3535,7 +3704,22 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                       </div>
                                     ))}
                                   </div>
-                                  <div className="flex gap-3">
+                                  <div className="mt-4 space-y-2">
+                                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Append Photos</label>
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      onChange={(e) => setEditRoomFiles(Array.from(e.target.files))}
+                                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                                    />
+                                    {editRoomFiles.length > 0 && (
+                                      <div className="text-xs text-[#00754A] font-medium ml-1">
+                                        {editRoomFiles.length} file(s) selected
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex gap-3 mt-6">
                                     <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#00754A] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
                                     <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white shadow-sm text-black/60 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#000000]/87">Cancel</button>
                                   </div>
@@ -3558,7 +3742,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                   </div>
                                   <div className="flex gap-2 flex-shrink-0">
                                     <button
-                                      onClick={() => { setEditRoomId(rt.id); setEditRoomForm({ name: rt.name, description: rt.description, price_per_night: rt.price_per_night, total_rooms: rt.total_rooms, max_guests: rt.max_guests, amenities: rt.amenities, floor: rt.floor || 1, area: rt.area || '' }); }}
+                                      onClick={() => { setEditRoomId(rt.id); setEditRoomForm({ name: rt.name, description: rt.description, price_per_night: rt.price_per_night, total_rooms: rt.total_rooms, max_guests: rt.max_guests, amenities: rt.amenities, floor: rt.floor || 1, area: rt.area || '', images: rt.images || [] }); setEditRoomFiles([]); }}
                                       className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-black/60 border border-black/5 rounded-xl hover:bg-[#00754A] hover:text-white hover:border-[#00754A] transition-all"
                                       title="Edit Configuration"
                                     >
@@ -3934,6 +4118,65 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
                           />
                           <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
+                        </div>
+                      </div>
+
+                      {/* Email Templates */}
+                      <div className="mt-8 pt-8 border-t border-black/5 space-y-8">
+                        <div>
+                          <h4 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-4">Email Templates</h4>
+                          <p className="text-xs text-black/60 mb-6">
+                            Customize the emails sent to your guests. You can use HTML to format the text and use the following placeholders: 
+                            <code className="bg-black/5 px-1 py-0.5 rounded ml-1">{{`{{full_name}}, {{room_type}}, {{check_in_date}}, {{check_out_date}}, {{number_of_guests}}, {{id}}`}}</code>.
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                          {/* Booking Confirmation */}
+                          <div className="space-y-4">
+                            <h5 className="text-xs font-black text-[#000000]/87 uppercase tracking-widest">Booking Confirmation</h5>
+                            <div>
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Subject</label>
+                              <input
+                                type="text"
+                                value={hotelSettings.email_booking_subject || ''}
+                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_booking_subject: e.target.value }))}
+                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">HTML Body</label>
+                              <textarea
+                                rows={8}
+                                value={hotelSettings.email_booking_body || ''}
+                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_booking_body: e.target.value }))}
+                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm font-mono focus:border-[#00754A]/50 outline-none transition-all resize-y"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Check-in Reminder */}
+                          <div className="space-y-4">
+                            <h5 className="text-xs font-black text-[#000000]/87 uppercase tracking-widest">Check-in Reminder</h5>
+                            <div>
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Subject</label>
+                              <input
+                                type="text"
+                                value={hotelSettings.email_reminder_subject || ''}
+                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_reminder_subject: e.target.value }))}
+                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">HTML Body</label>
+                              <textarea
+                                rows={8}
+                                value={hotelSettings.email_reminder_body || ''}
+                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_reminder_body: e.target.value }))}
+                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm font-mono focus:border-[#00754A]/50 outline-none transition-all resize-y"
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div className="flex justify-end pt-4">
@@ -4647,17 +4890,19 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
 function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
   const [currentImg, setCurrentImg] = useState(0);
 
-  // Here you can pull room-specific images if available from the backend.
-  // For now, we cycle through some placeholders based on room ID to give variety.
-  const images = room.id % 2 === 0 ? [
-    "/assets/images/rooms/sample_room_2.png",
-    "/assets/images/gallery/bathroom.jpg",
-    "/assets/images/gallery/room_standard.jpg"
-  ] : [
-    "/assets/images/rooms/sample_room_1.png",
-    "/assets/images/gallery/room_standard.jpg",
-    "/assets/images/gallery/bathroom.jpg"
-  ];
+  // Use room-specific images if available from the backend.
+  // Otherwise, fallback to placeholders based on room ID to give variety.
+  const images = room.images && room.images.length > 0 
+    ? room.images.map(img => `${API_BASE_URL}${img}`)
+    : room.id % 2 === 0 ? [
+      "/assets/images/rooms/sample_room_2.png",
+      "/assets/images/gallery/bathroom.jpg",
+      "/assets/images/gallery/room_standard.jpg"
+    ] : [
+      "/assets/images/rooms/sample_room_1.png",
+      "/assets/images/gallery/room_standard.jpg",
+      "/assets/images/gallery/bathroom.jpg"
+    ];
 
   const nextImg = (e) => {
     e.stopPropagation();
@@ -5163,13 +5408,35 @@ function HomePage({ setCurrentPage }) {
   const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
   const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
   const [roomTypes, setRoomTypes] = useState([]);
+  const [heroImages, setHeroImages] = useState(['/assets/images/hero/hero1.jpg']);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/room-types`)
       .then(r => r.json())
       .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
       .catch(() => { });
+      
+    fetch(`${API_BASE_URL}/api/hotel-settings`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.settings.hero_images) {
+          const parsed = JSON.parse(data.settings.hero_images);
+          if (parsed && parsed.length > 0) {
+            setHeroImages(parsed.map(img => `${API_BASE_URL}${img}`));
+          }
+        }
+      })
+      .catch(() => { });
   }, []);
+
+  useEffect(() => {
+    if (heroImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentHeroIndex(prev => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [heroImages]);
 
   const handleBookingSearch = () => {
     if (checkIn) sessionStorage.setItem('northomes_checkin', checkIn);
@@ -5180,12 +5447,15 @@ function HomePage({ setCurrentPage }) {
   return (
     <div className="w-full flex flex-col bg-[#f2f0eb]">
       {/* Hero Image Container */}
-      <div className="w-full h-[60vh] md:h-[70vh] relative">
-        <img
-          src="/assets/images/hero/hero1.jpg"
-          alt="Northomes Pensionne"
-          className="w-full h-full object-cover"
-        />
+      <div className="w-full h-[60vh] md:h-[70vh] relative transition-opacity duration-1000">
+        {heroImages.map((imgSrc, index) => (
+          <img
+            key={index}
+            src={imgSrc}
+            alt={`Northomes Pensionne ${index}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === currentHeroIndex ? 'opacity-100' : 'opacity-0'}`}
+          />
+        ))}
         {/* Beautiful Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#006241]/40 via-[#1E3932]/10 to-[#CBA258]/30 mix-blend-multiply"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#f2f0eb] via-transparent to-transparent opacity-80"></div>
@@ -5194,33 +5464,33 @@ function HomePage({ setCurrentPage }) {
       {/* Horizontal Booking Bar - Overlapping the Hero */}
       <div className="relative -mt-10 z-20 px-4">
         <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-4">
-          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
+          <label className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col cursor-pointer">
             <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check In</span>
             <input
               type="date"
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[1.5rem]"
             />
-          </div>
-          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
+          </label>
+          <label className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col cursor-pointer">
             <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check Out</span>
             <input
               type="date"
               value={checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[1.5rem]"
             />
-          </div>
-          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 border-black/5 flex flex-col">
+          </label>
+          <label className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 border-black/5 flex flex-col cursor-pointer">
             <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Guests</span>
-            <select className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent">
+            <select className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[1.5rem]">
               <option>1 Guest</option>
               <option>2 Guests</option>
               <option>3 Guests</option>
               <option>4+ Guests</option>
             </select>
-          </div>
+          </label>
           <div className="w-full md:w-auto mt-2 md:mt-0 pl-2">
             <button
               onClick={handleBookingSearch}
