@@ -48,9 +48,13 @@ const sessions = new Map();
 
 // Email transporter configuration
 const transporter = nodemailer.createTransport({
-  host: 'smtp.titan.email',
+  host: '54.243.14.1', // Forced IPv4 for smtp.titan.email
   port: 587,
-  secure: false, // TLS requires secure: false for port 587
+  secure: false,
+  tls: {
+    servername: 'smtp.titan.email',
+    rejectUnauthorized: false
+  },
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
