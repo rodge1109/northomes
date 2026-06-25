@@ -5462,44 +5462,45 @@ function HomePage({ setCurrentPage }) {
       </div>
 
       {/* Horizontal Booking Bar - Overlapping the Hero */}
-      <div className="relative -mt-10 z-20 px-4">
-        <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-4">
-          <div className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col relative">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1 pointer-events-none">Check In</span>
+      <div className="relative -mt-10 z-50 px-4">
+        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-3">
+          
+          {/* Date Picker Pill */}
+          <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-md shadow-sm w-full md:flex-1">
+            <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             <input
               type="date"
               value={checkIn}
-              onClick={(e) => { try { e.target.showPicker() } catch(err){} }}
               onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[2rem]"
+              className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
             />
-          </div>
-          <div className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 md:border-r border-black/5 flex flex-col relative">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1 pointer-events-none">Check Out</span>
+            <span className="text-black/20 font-bold mx-1">-</span>
             <input
               type="date"
               value={checkOut}
-              onClick={(e) => { try { e.target.showPicker() } catch(err){} }}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[2rem]"
+              className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
             />
           </div>
-          <div className="flex-1 w-full px-4 md:px-6 py-3 border-b md:border-b-0 border-black/5 flex flex-col relative">
-            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1 pointer-events-none">Guests</span>
-            <select className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer min-h-[2rem]">
+
+          {/* Guests Pill */}
+          <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-md shadow-sm w-full md:w-auto">
+            <select className="w-full px-3 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent">
               <option>1 Guest</option>
               <option>2 Guests</option>
               <option>3 Guests</option>
               <option>4+ Guests</option>
             </select>
           </div>
-          <div className="w-full md:w-auto mt-2 md:mt-0 pl-2">
+
+          <div className="w-full md:w-auto mt-1 md:mt-0">
             <button
               onClick={handleBookingSearch}
-              className="w-full md:w-auto px-8 py-4 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-md hover:shadow-lg"
+              className="w-full md:w-auto px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-md font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Check Availability
             </button>
+          </div>
           </div>
         </div>
       </div>
