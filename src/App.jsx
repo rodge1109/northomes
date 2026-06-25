@@ -3601,6 +3601,37 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         <div>
                           <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Hero Images</h4>
                           <p className="text-black/60 text-[10px] mb-3">Upload photos for the homepage carousel. Select multiple files.</p>
+                          
+                          {/* Existing Images Gallery */}
+                          {(() => {
+                            let parsed = [];
+                            try { parsed = JSON.parse(hotelSettings.hero_images || '[]'); } catch(e){}
+                            if (parsed && parsed.length > 0) {
+                              return (
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                  {parsed.map((imgUrl, idx) => (
+                                    <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
+                                      <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Hero ${idx}`} className="w-full h-full object-cover" />
+                                      <button 
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          const newArr = [...parsed];
+                                          newArr.splice(idx, 1);
+                                          setHotelSettings({...hotelSettings, hero_images: JSON.stringify(newArr)});
+                                        }}
+                                        title="Remove Image"
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
+                                      >
+                                        &times;
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+
                           <input
                             type="file"
                             multiple
@@ -3730,6 +3761,30 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                                     ))}
                                   </div>
                                   <div className="mt-4 space-y-2">
+                                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Existing Photos</label>
+                                    {editRoomForm.images && editRoomForm.images.length > 0 ? (
+                                      <div className="flex flex-wrap gap-2 mb-4 ml-1">
+                                        {editRoomForm.images.map((imgUrl, idx) => (
+                                          <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
+                                            <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Room ${idx}`} className="w-full h-full object-cover" />
+                                            <button 
+                                              onClick={(e) => {
+                                                e.preventDefault();
+                                                const newArr = [...editRoomForm.images];
+                                                newArr.splice(idx, 1);
+                                                setEditRoomForm({...editRoomForm, images: newArr});
+                                              }}
+                                              title="Remove Image"
+                                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
+                                            >
+                                              &times;
+                                            </button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="text-[10px] text-black/40 italic ml-1 mb-4">No photos currently saved for this room type.</div>
+                                    )}
                                     <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Append Photos</label>
                                     <input
                                       type="file"
