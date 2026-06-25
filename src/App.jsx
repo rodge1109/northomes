@@ -9546,8 +9546,7 @@ function FrontDeskTab() {
     const nights = nightsCount(gpRes);
     return ReactDOM.createPortal(
       <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
-        <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl overflow-hidden"
-          className="relative bg-white shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden">
+        <div className="relative bg-white shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-[#00754A] flex items-center justify-between px-6 py-4">
             <div>

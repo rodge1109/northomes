@@ -14,19 +14,26 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Setup storage for multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/')
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname))
-  }
-})
-const upload = multer({ storage: storage })
+// Setup Cloudinary
+const { v2: cloudinary } = require('cloudinary');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-// Serve uploads directory
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET 
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'northomes_uploads',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+  },
+});
+const upload = multer({ storage: storage });
+
+// Serve uploads directory (kept for legacy local images if any)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // File upload endpoint
@@ -35,7 +42,8 @@ app.post('/api/upload', upload.array('photos', 10), (req, res) => {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ success: false, message: 'No files uploaded.' });
     }
-    const urls = req.files.map(f => `/uploads/${f.filename}`);
+    // Cloudinary returns the secure URL in file.path
+    const urls = req.files.map(f => f.path);
     res.json({ success: true, urls });
   } catch (err) {
     console.error('Upload error:', err);
