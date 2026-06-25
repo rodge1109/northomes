@@ -5460,7 +5460,7 @@ function HomePage({ setCurrentPage }) {
         if (data.success && data.settings.hero_images) {
           const parsed = JSON.parse(data.settings.hero_images);
           if (parsed && parsed.length > 0) {
-            setHeroImages(parsed.map(img => `${API_BASE_URL}${img}`));
+            setHeroImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
           }
         }
       })
