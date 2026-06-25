@@ -5260,20 +5260,25 @@ function AccommodationsPage({ setCurrentPage }) {
         {/* Availability Bar */}
         <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-4 justify-center">
           <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-sm shadow-sm w-full md:w-auto">
-            <svg className="w-5 h-5 text-[#CBA258] ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <input
-              type="date"
-              value={checkIn}
-              onChange={e => setCheckIn(e.target.value)}
-              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
-            />
-            <span className="text-black/20 font-bold">-</span>
-            <input
-              type="date"
-              value={checkOut}
-              onChange={e => setCheckOut(e.target.value)}
-              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
-            />
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <input
+                type="date"
+                value={checkIn}
+                onChange={e => setCheckIn(e.target.value)}
+                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full"
+              />
+            </div>
+            <span className="text-black/20 font-bold mx-1">-</span>
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <input
+                type="date"
+                value={checkOut}
+                onChange={e => setCheckOut(e.target.value)}
+                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full"
+              />
+            </div>
           </div>
 
           <button
@@ -5467,20 +5472,25 @@ function HomePage({ setCurrentPage }) {
           
           {/* Date Picker Pill */}
           <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-md shadow-sm w-full md:flex-1">
-            <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            <input
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
-            />
+            <div className="flex items-center flex-1">
+              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <input
+                type="date"
+                value={checkIn}
+                onChange={(e) => setCheckIn(e.target.value)}
+                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+              />
+            </div>
             <span className="text-black/20 font-bold mx-1">-</span>
-            <input
-              type="date"
-              value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
-            />
+            <div className="flex items-center flex-1">
+              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <input
+                type="date"
+                value={checkOut}
+                onChange={(e) => setCheckOut(e.target.value)}
+                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+              />
+            </div>
           </div>
 
           {/* Guests Pill */}
