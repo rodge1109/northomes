@@ -5501,7 +5501,6 @@ function HomePage({ setCurrentPage }) {
               Check Availability
             </button>
           </div>
-          </div>
         </div>
       </div>
 
