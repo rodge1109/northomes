@@ -935,13 +935,12 @@ function AppointmentForm({ onSuccess }) {
               <div className="col-span-3">
                 <label className={labelCls}>Title</label>
                 <select name="title" value={formData.title} onChange={handleChange}
-                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Mr.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Mrs.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Ms.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Dr.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Prof.</option>
+                  <option>Mr.</option>
+                  <option>Mrs.</option>
+                  <option>Ms.</option>
+                  <option>Dr.</option>
+                  <option>Prof.</option>
                 </select>
               </div>
               <div className="col-span-4 sm:col-span-4">
@@ -1013,20 +1012,18 @@ function AppointmentForm({ onSuccess }) {
               <div>
                 <label className={labelCls}>Adults</label>
                 <select name="adults" value={formData.adults} onChange={handleChange} required
-                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[1, 2, 3, 4, 5, 6].map(n => (
-                    <option key={n} value={String(n)} style={{ background: '#1e293b', color: 'white' }}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>
+                    <option key={n} value={String(n)}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className={labelCls}>Children <span className="normal-case font-normal text-gray-400">(under 12)</span></label>
                 <select name="children" value={formData.children} onChange={handleChange}
-                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[0, 1, 2, 3, 4, 5].map(n => (
-                    <option key={n} value={String(n)} style={{ background: '#1e293b', color: 'white' }}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>
+                    <option key={n} value={String(n)}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>
                   ))}
                 </select>
               </div>
@@ -1658,6 +1655,20 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       arrivals_today: appointments.filter(a => a.status === 'confirmed' && a.preferred_date === new Date().toISOString().split('T')[0]).length,
     };
   }, [appointments]);
+
+  
+  const masterStats = useMemo(() => {
+    if (!masterRes) return { arrivals_today: 0, departures_today: 0, in_house: 0, occupancy: 0 };
+    const d = new Date();
+    const today = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+    
+    const arrivals = masterRes.filter(a => ['pending', 'confirmed'].includes(a.status) && a.check_in_date && a.check_in_date.slice(0, 10) === today).length;
+    const departures = masterRes.filter(a => a.status === 'checked_in' && a.check_out_date && a.check_out_date.slice(0, 10) === today).length;
+    const inHouse = masterRes.filter(a => a.status === 'checked_in').length;
+    const occ = Math.round((inHouse / 50) * 100);
+    
+    return { arrivals_today: arrivals, departures_today: departures, in_house: inHouse, occupancy: occ };
+  }, [masterRes]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -4693,7 +4704,7 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
 
         {room.amenities && (
           <div className="mb-8 px-2 sm:px-4">
-            <p className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium">
+            <p className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium whitespace-pre-wrap">
               {room.amenities}
             </p>
           </div>
