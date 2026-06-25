@@ -1354,9 +1354,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     currency: 'PHP', min_stay_nights: '1', max_stay_nights: '30',
     advance_booking_days: '365', cancellation_policy: '',
     deposit_required: 'false', deposit_percentage: '50',
-    sms_sender_name: '', email_sender_name: '', hero_images: '[]'
+    sms_sender_name: '', email_sender_name: '', hero_images: '[]', gallery_images: '[]'
   });
   const [heroFiles, setHeroFiles] = useState([]);
+  const [galleryFiles, setGalleryFiles] = useState([]);
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSavedMsg, setSettingsSavedMsg] = useState('');
   const [adminRoomTypes, setAdminRoomTypes] = useState([]);
@@ -1971,6 +1972,22 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
           updatedSettings.hero_images = JSON.stringify([...currentImages, ...uploadData.urls]);
           setHotelSettings(updatedSettings);
           setHeroFiles([]);
+        }
+      }
+
+      if (galleryFiles && galleryFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(galleryFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          const currentImages = JSON.parse(updatedSettings.gallery_images || '[]');
+          updatedSettings.gallery_images = JSON.stringify([...currentImages, ...uploadData.urls]);
+          setHotelSettings(updatedSettings);
+          setGalleryFiles([]);
         }
       }
 
@@ -3646,6 +3663,57 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                           )}
                         </div>
                       </div>
+
+                      <div className="pt-6 border-t border-black/5 space-y-4">
+                        <div>
+                          <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Gallery Images</h4>
+                          <p className="text-black/60 text-[10px] mb-3">Upload photos for the website gallery section. Select multiple files.</p>
+                          
+                          {/* Existing Gallery Images */}
+                          {(() => {
+                            let parsed = [];
+                            try { parsed = JSON.parse(hotelSettings.gallery_images || '[]'); } catch(e){}
+                            if (parsed && parsed.length > 0) {
+                              return (
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                  {parsed.map((imgUrl, idx) => (
+                                    <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
+                                      <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                                      <button 
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          const newArr = [...parsed];
+                                          newArr.splice(idx, 1);
+                                          setHotelSettings({...hotelSettings, gallery_images: JSON.stringify(newArr)});
+                                        }}
+                                        title="Remove Image"
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
+                                      >
+                                        &times;
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => setGalleryFiles(Array.from(e.target.files))}
+                            className="w-full max-w-md px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                          />
+                          {galleryFiles.length > 0 && (
+                            <div className="text-xs text-[#00754A] font-medium mt-2">
+                              {galleryFiles.length} file(s) selected
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
                       <div className="flex justify-end pt-4 border-t border-black/5">
                         <button
                           onClick={saveHotelSettings}
@@ -5676,31 +5744,54 @@ function HomePage({ setCurrentPage }) {
         </div>
 
         <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          {[
-            { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
-            { src: "/assets/images/gallery/lobby.jpg", alt: "Lobby Reception", aspect: "aspect-[3/4]" },
-            { src: "/assets/images/gallery/cafe.jpg", alt: "Cafe and Dining", aspect: "aspect-square" },
-            { src: "/assets/images/gallery/room_standard.jpg", alt: "Standard Room", aspect: "aspect-[4/5]" },
-            { src: "/assets/images/gallery/bathroom.jpg", alt: "Clean Amenities", aspect: "aspect-[3/2]" },
-            { src: "/assets/images/gallery/parking.jpg", alt: "Secure Parking", aspect: "aspect-[4/3]" },
-          ].map((img, i) => (
-            <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
-              <div className={`w-full ${img.aspect} flex items-center justify-center bg-black/5`}>
-                <img
-                  src={img.src}
-                  alt={img.alt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Save photo as:<br/>\${img.src.split('/').pop()}</span></div>`;
-                  }}
-                />
+          {(() => {
+            let customGallery = [];
+            if (settings && settings.gallery_images) {
+              try { customGallery = JSON.parse(settings.gallery_images); } catch(e){}
+            }
+            if (customGallery && customGallery.length > 0) {
+              return customGallery.map((imgSrc, i) => {
+                const imgUrl = imgSrc.startsWith('http') ? imgSrc : `${API_BASE_URL}${imgSrc}`;
+                return (
+                  <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
+                    <div className="w-full flex items-center justify-center bg-black/5 aspect-auto">
+                      <img
+                        src={imgUrl}
+                        alt={`Gallery ${i}`}
+                        className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  </div>
+                );
+              });
+            }
+
+            return [
+              { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
+              { src: "/assets/images/gallery/lobby.jpg", alt: "Lobby Reception", aspect: "aspect-[3/4]" },
+              { src: "/assets/images/gallery/cafe.jpg", alt: "Cafe and Dining", aspect: "aspect-square" },
+              { src: "/assets/images/gallery/room_standard.jpg", alt: "Standard Room", aspect: "aspect-[4/5]" },
+              { src: "/assets/images/gallery/bathroom.jpg", alt: "Clean Amenities", aspect: "aspect-[3/2]" },
+              { src: "/assets/images/gallery/parking.jpg", alt: "Secure Parking", aspect: "aspect-[4/3]" },
+            ].map((img, i) => (
+              <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
+                <div className={`w-full ${img.aspect} flex items-center justify-center bg-black/5`}>
+                  <img
+                    src={img.src}
+                    alt={img.alt}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Save photo as:<br/>\${img.src.split('/').pop()}</span></div>`;
+                    }}
+                  />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/90 via-[#1E3932]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                  <h3 className="text-white font-bold text-lg tracking-tight">{img.alt}</h3>
+                </div>
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/90 via-[#1E3932]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                <h3 className="text-white font-bold text-lg tracking-tight">{img.alt}</h3>
-              </div>
-            </div>
-          ))}
+            ));
+          })()}
         </div>
       </div>
 
