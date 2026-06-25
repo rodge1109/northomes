@@ -61,6 +61,37 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+const originalSendMail = transporter.sendMail.bind(transporter);
+transporter.sendMail = async (mailOptions) => {
+  const resendApiKey = process.env.RESEND_API_KEY;
+  if (resendApiKey) {
+    // Make sure the 'from' email is strictly from the verified domain
+    const fromAddress = mailOptions.from || `Northomes Pensione <${process.env.EMAIL_USER}>`;
+    
+    // Resend API
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: fromAddress,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to send via Resend API');
+    }
+    return data;
+  }
+  return await originalSendMail(mailOptions);
+};
+
 // Base URL for the frontend (change this in production)
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
