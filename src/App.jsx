@@ -70,6 +70,7 @@ export default function RestaurantApp() {
   const [pendingOrderNumber, setPendingOrderNumber] = useState(null);
   const [showLoginMenu, setShowLoginMenu] = useState(false);
   const [adminTab, setAdminTab] = useState('dashboard');
+  const [isLoggedIn, setIsLoggedIn] = useState(typeof window !== 'undefined' ? !!localStorage.getItem('adminToken') : false);
 
   // Products state
   const [menuData, setMenuData] = useState(fallbackMenuData);
@@ -485,7 +486,7 @@ export default function RestaurantApp() {
       </div>
 
       {/* ── Global Admin Sidebar ── */}
-      {['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
+      {isLoggedIn && ['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
         <aside style={{ position: 'fixed', top: 0, left: 0, width: '120px', height: '100vh', background: '#142b22', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.08)', zIndex: 200 }}>
           {/* Primary nav */}
           <nav style={{ flex: 1, padding: '12px 6px', overflowY: 'auto' }} className="no-scrollbar">
@@ -548,7 +549,7 @@ export default function RestaurantApp() {
         </aside>
       )}
 
-      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: ['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) ? '150px' : 0 }}>
+      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: (isLoggedIn && ['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage)) ? '150px' : 0 }}>
         {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
           <Header
             currentPage={currentPage}
@@ -579,7 +580,7 @@ export default function RestaurantApp() {
         {currentPage === 'checkout' && <CheckoutPage setCurrentPage={setCurrentPage} clearCart={clearCart} />}
         {currentPage === 'confirmation' && <ConfirmationPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} paymentStatus={paymentStatus} />}
         {currentPage === 'payment-failed' && <PaymentFailedPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} />}
-        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} />}
+        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
         {currentPage === 'my-appointment' && <MyAppointment setCurrentPage={setCurrentPage} initialToken={appointmentToken} />}
         {currentPage === 'checkin' && <GuestCheckinPage setCurrentPage={setCurrentPage} />}
         {/* Front Desk handled in AdminDashboard */}
@@ -1099,7 +1100,7 @@ function AppointmentForm({ onSuccess }) {
 }
 
 // Admin Dashboard Component
-function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
+function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, setIsLoggedIn }) {
   // ── Folio & Ledger State (Lifted for global access) ──────────────────────────
   const [folioOpen, setFolioOpen] = useState(false);
   const [folioRes, setFolioRes] = useState(null);
@@ -1284,7 +1285,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   };
 
   // Auth state
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
