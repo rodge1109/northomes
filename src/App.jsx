@@ -944,7 +944,7 @@ function AppointmentForm({ onSuccess }) {
                   <option>Prof.</option>
                 </select>
               </div>
-              <div className="sm:col-span-9 grid grid-cols-2 gap-3">
+              <div className="sm:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>First Name</label>
                   <input
