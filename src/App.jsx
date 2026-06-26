@@ -932,8 +932,8 @@ function AppointmentForm({ onSuccess }) {
             />
 
             {/* Title + First + Last */}
-            <div className="grid grid-cols-12 gap-3 mb-3">
-              <div className="col-span-3">
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3">
+              <div className="sm:col-span-3">
                 <label className={labelCls}>Title</label>
                 <select name="title" value={formData.title} onChange={handleChange}
                   className={inputCls}>
@@ -944,29 +944,31 @@ function AppointmentForm({ onSuccess }) {
                   <option>Prof.</option>
                 </select>
               </div>
-              <div className="col-span-4 sm:col-span-4">
-                <label className={labelCls}>First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder="First"
-                  required
-                  className={inputCls}
-                />
-              </div>
-              <div className="col-span-5">
-                <label className={labelCls}>Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Last"
-                  required
-                  className={inputCls}
-                />
+              <div className="sm:col-span-9 grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>First Name</label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="First"
+                    required
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Last"
+                    required
+                    className={inputCls}
+                  />
+                </div>
               </div>
             </div>
 
