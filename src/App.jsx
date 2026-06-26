@@ -660,8 +660,8 @@ function AppointmentForm({ onSuccess }) {
     email: '',
     phoneNumber: '',
     roomType: sessionStorage.getItem('northomes_roomtype') || '',
-    checkInDate: sessionStorage.getItem('northomes_checkin') || '',
-    checkOutDate: sessionStorage.getItem('northomes_checkout') || '',
+    checkInDate: sessionStorage.getItem('northomes_checkin') || new Date().toISOString().split('T')[0],
+    checkOutDate: sessionStorage.getItem('northomes_checkout') || (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })(),
     adults: '1',
     children: '0',
     specialRequests: ''
@@ -845,6 +845,7 @@ function AppointmentForm({ onSuccess }) {
                   name="checkInDate"
                   value={formData.checkInDate}
                   onChange={handleChange}
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
                   min={today}
                   required
                   className={inputCls}
@@ -857,6 +858,7 @@ function AppointmentForm({ onSuccess }) {
                   name="checkOutDate"
                   value={formData.checkOutDate}
                   onChange={handleChange}
+                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
                   min={formData.checkInDate ? (() => {
                     const d = new Date(formData.checkInDate);
                     d.setDate(d.getDate() + 1);
@@ -5362,8 +5364,14 @@ function AccommodationsPage({ setCurrentPage }) {
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
-  const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
+  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || new Date().toISOString().split('T')[0]);
+  const [checkOut, setCheckOut] = useState(() => {
+    const cached = sessionStorage.getItem('northomes_checkout');
+    if (cached) return cached;
+    const tmrw = new Date();
+    tmrw.setDate(tmrw.getDate() + 1);
+    return tmrw.toISOString().split('T')[0];
+  });
   const [isChecking, setIsChecking] = useState(false);
   const [hasCheckedAvailability, setHasCheckedAvailability] = useState(false);
 
@@ -5423,7 +5431,8 @@ function AccommodationsPage({ setCurrentPage }) {
                 type="date"
                 value={checkIn}
                 onChange={e => setCheckIn(e.target.value)}
-                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full"
+                onClick={e => e.target.showPicker && e.target.showPicker()}
+                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full cursor-pointer"
               />
             </div>
             <span className="text-black/20 font-bold mx-1">-</span>
@@ -5433,7 +5442,8 @@ function AccommodationsPage({ setCurrentPage }) {
                 type="date"
                 value={checkOut}
                 onChange={e => setCheckOut(e.target.value)}
-                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full"
+                onClick={e => e.target.showPicker && e.target.showPicker()}
+                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full cursor-pointer"
               />
             </div>
           </div>
@@ -5646,7 +5656,8 @@ function HomePage({ setCurrentPage }) {
                 type="date"
                 value={checkIn}
                 onChange={(e) => setCheckIn(e.target.value)}
-                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+                onClick={e => e.target.showPicker && e.target.showPicker()}
+                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer"
               />
             </div>
             <span className="text-black/20 font-bold mx-1">-</span>
@@ -5656,7 +5667,8 @@ function HomePage({ setCurrentPage }) {
                 type="date"
                 value={checkOut}
                 onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+                onClick={e => e.target.showPicker && e.target.showPicker()}
+                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer"
               />
             </div>
           </div>
