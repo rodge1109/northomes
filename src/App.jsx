@@ -5569,6 +5569,7 @@ function HomePage({ setCurrentPage }) {
   const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
   const [roomTypes, setRoomTypes] = useState([]);
   const [heroImages, setHeroImages] = useState(['/assets/images/hero/hero1.jpg']);
+  const [galleryImages, setGalleryImages] = useState([]);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
@@ -5580,10 +5581,22 @@ function HomePage({ setCurrentPage }) {
     fetch(`${API_BASE_URL}/api/hotel-settings`)
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.settings.hero_images) {
-          const parsed = JSON.parse(data.settings.hero_images);
-          if (parsed && parsed.length > 0) {
-            setHeroImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
+        if (data.success && data.settings) {
+          if (data.settings.hero_images) {
+            try {
+              const parsed = JSON.parse(data.settings.hero_images);
+              if (parsed && parsed.length > 0) {
+                setHeroImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
+              }
+            } catch(e){}
+          }
+          if (data.settings.gallery_images) {
+            try {
+              const parsed = JSON.parse(data.settings.gallery_images);
+              if (parsed && parsed.length > 0) {
+                setGalleryImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
+              }
+            } catch(e){}
           }
         }
       })
@@ -5745,25 +5758,18 @@ function HomePage({ setCurrentPage }) {
 
         <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
           {(() => {
-            let customGallery = [];
-            if (settings && settings.gallery_images) {
-              try { customGallery = JSON.parse(settings.gallery_images); } catch(e){}
-            }
-            if (customGallery && customGallery.length > 0) {
-              return customGallery.map((imgSrc, i) => {
-                const imgUrl = imgSrc.startsWith('http') ? imgSrc : `${API_BASE_URL}${imgSrc}`;
-                return (
-                  <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
-                    <div className="w-full flex items-center justify-center bg-black/5 aspect-auto">
-                      <img
-                        src={imgUrl}
-                        alt={`Gallery ${i}`}
-                        className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
+            if (galleryImages && galleryImages.length > 0) {
+              return galleryImages.map((imgUrl, i) => (
+                <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
+                  <div className="w-full flex items-center justify-center bg-black/5 aspect-auto">
+                    <img
+                      src={imgUrl}
+                      alt={`Gallery ${i}`}
+                      className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                );
-              });
+                </div>
+              ));
             }
 
             return [
