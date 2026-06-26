@@ -1383,7 +1383,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
 
   // Housekeeping state
   const [hkRooms, setHkRooms] = useState([]);
-  
+
   const fetchHkRooms = async () => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/rooms`);
@@ -1405,7 +1405,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   const cycleHkStatus = async (roomNumber, currentStatus) => {
     // Current statuses: clean, dirty, inspected
     const nextStatus = currentStatus === 'clean' ? 'dirty' : currentStatus === 'dirty' ? 'inspected' : 'clean';
-    
+
     // Optimistic UI update
     setHkRooms(prev => prev.map(r => r.room_number === roomNumber ? { ...r, hk_status: nextStatus } : r));
 
@@ -1538,7 +1538,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     }
   }, [isLoggedIn, fetchAppointments, fetchMasterRes]);
 
-  
+
   const updateMasterResStatus = async (id, newStatus) => {
     setUpdatingId(id);
     try {
@@ -1677,7 +1677,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
 
   const filteredMasterRes = masterRes.filter(apt => {
     if (apt.status === 'checked_in') return false; // User requested to hide checked_in from Bookings grid
-    
+
     // Search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -1691,7 +1691,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     let aptStatus = apt.status;
     if (aptStatus === 'checked_out') aptStatus = 'completed'; // map backend status to UI filter
     if (filter !== 'all' && aptStatus !== filter) return false;
-    
+
     // Date range filter
     if (startDate && apt.check_in_date && apt.check_in_date.slice(0, 10) < startDate) return false;
     if (endDate && apt.check_in_date && apt.check_in_date.slice(0, 10) > endDate) return false;
@@ -1710,17 +1710,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     };
   }, [appointments]);
 
-  
+
   const masterStats = useMemo(() => {
     if (!masterRes) return { arrivals_today: 0, departures_today: 0, in_house: 0, occupancy: 0 };
     const d = new Date();
     const today = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-    
+
     const arrivals = masterRes.filter(a => ['pending', 'confirmed'].includes(a.status) && a.check_in_date && a.check_in_date.slice(0, 10) === today).length;
     const departures = masterRes.filter(a => a.status === 'checked_in' && a.check_out_date && a.check_out_date.slice(0, 10) === today).length;
     const inHouse = masterRes.filter(a => a.status === 'checked_in').length;
     const occ = Math.round((inHouse / 50) * 100);
-    
+
     return { arrivals_today: arrivals, departures_today: departures, in_house: inHouse, occupancy: occ };
   }, [masterRes]);
 
@@ -1808,7 +1808,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
       weeksMap[weekStr].paid += row.paid;
       weeksMap[weekStr].balance += row.balance;
     });
-    return Object.values(weeksMap).sort((a,b) => a.date.localeCompare(b.date));
+    return Object.values(weeksMap).sort((a, b) => a.date.localeCompare(b.date));
   }, [dailyRevData]);
 
   const fetchFinancialReport = async () => {
@@ -2008,7 +2008,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     setSettingsSavedMsg('');
     try {
       let updatedSettings = { ...hotelSettings };
-      
+
       if (heroFiles && heroFiles.length > 0) {
         const formData = new FormData();
         Array.from(heroFiles).forEach(file => formData.append('photos', file));
@@ -2820,8 +2820,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                       const textColor = status === 'Clean' ? 'text-emerald-600' : status === 'Dirty' ? 'text-[#c82014]' : 'text-[#006241]';
                       const bg = status === 'Clean' ? 'bg-emerald-50 border-emerald-200' : status === 'Dirty' ? 'bg-red-50 border-red-200' : 'bg-[#d4e9e2] border-[#d4e9e2]';
                       return (
-                        <div 
-                          key={room.room_number} 
+                        <div
+                          key={room.room_number}
                           onClick={() => cycleHkStatus(room.room_number, room.hk_status || 'clean')}
                           className={`border rounded-xl p-4 hover:scale-[1.02] transition-all cursor-pointer ${bg}`}
                           title="Click to change status: Clean -> Dirty -> Inspected"
@@ -3677,23 +3677,23 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         <div>
                           <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Hero Images</h4>
                           <p className="text-black/60 text-[10px] mb-3">Upload photos for the homepage carousel. Select multiple files.</p>
-                          
+
                           {/* Existing Images Gallery */}
                           {(() => {
                             let parsed = [];
-                            try { parsed = JSON.parse(hotelSettings.hero_images || '[]'); } catch(e){}
+                            try { parsed = JSON.parse(hotelSettings.hero_images || '[]'); } catch (e) { }
                             if (parsed && parsed.length > 0) {
                               return (
                                 <div className="flex flex-wrap gap-2 mb-4">
                                   {parsed.map((imgUrl, idx) => (
                                     <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
                                       <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Hero ${idx}`} className="w-full h-full object-cover" />
-                                      <button 
+                                      <button
                                         onClick={(e) => {
                                           e.preventDefault();
                                           const newArr = [...parsed];
                                           newArr.splice(idx, 1);
-                                          setHotelSettings({...hotelSettings, hero_images: JSON.stringify(newArr)});
+                                          setHotelSettings({ ...hotelSettings, hero_images: JSON.stringify(newArr) });
                                         }}
                                         title="Remove Image"
                                         className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
@@ -3727,23 +3727,23 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         <div>
                           <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Gallery Images</h4>
                           <p className="text-black/60 text-[10px] mb-3">Upload photos for the website gallery section. Select multiple files.</p>
-                          
+
                           {/* Existing Gallery Images */}
                           {(() => {
                             let parsed = [];
-                            try { parsed = JSON.parse(hotelSettings.gallery_images || '[]'); } catch(e){}
+                            try { parsed = JSON.parse(hotelSettings.gallery_images || '[]'); } catch (e) { }
                             if (parsed && parsed.length > 0) {
                               return (
                                 <div className="flex flex-wrap gap-2 mb-4">
                                   {parsed.map((imgUrl, idx) => (
                                     <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
                                       <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                                      <button 
+                                      <button
                                         onClick={(e) => {
                                           e.preventDefault();
                                           const newArr = [...parsed];
                                           newArr.splice(idx, 1);
-                                          setHotelSettings({...hotelSettings, gallery_images: JSON.stringify(newArr)});
+                                          setHotelSettings({ ...hotelSettings, gallery_images: JSON.stringify(newArr) });
                                         }}
                                         title="Remove Image"
                                         className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
@@ -3894,12 +3894,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                                         {editRoomForm.images.map((imgUrl, idx) => (
                                           <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
                                             <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Room ${idx}`} className="w-full h-full object-cover" />
-                                            <button 
+                                            <button
                                               onClick={(e) => {
                                                 e.preventDefault();
                                                 const newArr = [...editRoomForm.images];
                                                 newArr.splice(idx, 1);
-                                                setEditRoomForm({...editRoomForm, images: newArr});
+                                                setEditRoomForm({ ...editRoomForm, images: newArr });
                                               }}
                                               title="Remove Image"
                                               className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
@@ -4333,7 +4333,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         <div>
                           <h4 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-4">Email Templates</h4>
                           <p className="text-xs text-black/60 mb-6">
-                            Customize the emails sent to your guests. You can use HTML to format the text and use the following placeholders: 
+                            Customize the emails sent to your guests. You can use HTML to format the text and use the following placeholders:
                             <code className="bg-black/5 px-1 py-0.5 rounded ml-1">{"{{full_name}}, {{room_type}}, {{check_in_date}}, {{check_out_date}}, {{number_of_guests}}, {{id}}"}</code>.
                           </p>
                         </div>
@@ -5106,7 +5106,7 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
 
   // Use room-specific images if available from the backend.
   // Otherwise, fallback to placeholders based on room ID to give variety.
-  const images = room.images && room.images.length > 0 
+  const images = room.images && room.images.length > 0
     ? room.images.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`)
     : room.id % 2 === 0 ? [
       "/assets/images/rooms/sample_room_2.png",
@@ -5644,7 +5644,7 @@ function HomePage({ setCurrentPage }) {
       .then(r => r.json())
       .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
       .catch(() => { });
-      
+
     fetch(`${API_BASE_URL}/api/hotel-settings`)
       .then(r => r.json())
       .then(data => {
@@ -5655,7 +5655,7 @@ function HomePage({ setCurrentPage }) {
               if (parsed && parsed.length > 0) {
                 setHeroImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
               }
-            } catch(e){}
+            } catch (e) { }
           }
           if (data.settings.gallery_images) {
             try {
@@ -5663,7 +5663,7 @@ function HomePage({ setCurrentPage }) {
               if (parsed && parsed.length > 0) {
                 setGalleryImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
               }
-            } catch(e){}
+            } catch (e) { }
           }
         }
       })
@@ -5702,7 +5702,7 @@ function HomePage({ setCurrentPage }) {
       {/* Horizontal Booking Bar - Overlapping the Hero */}
       <div className="relative -mt-10 z-50 px-4">
         <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-3">
-          
+
           {/* Date Picker Pill */}
           <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-md shadow-sm w-full md:flex-1">
             <div className="flex items-center flex-1">
@@ -5968,7 +5968,7 @@ function HomePage({ setCurrentPage }) {
                 <div className="text-white/70 text-sm space-y-3 font-medium">
                   <p>Pelaez Street, Barangay Sto. Niño</p>
                   <p>Bogo City, Cebu, Philippines</p>
-                  <a href="https://bogonorthomes.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">bogonorthomes.com</a>
+                  <a href="https://northomespensione.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">northomespensione.com</a>
                 </div>
               </div>
 

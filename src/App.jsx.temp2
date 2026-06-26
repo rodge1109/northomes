@@ -5357,7 +5357,7 @@ function HomePage({ setCurrentPage }) {
                 <div className="text-white/70 text-sm space-y-3 font-medium">
                   <p>Pelaez Street, Barangay Sto. Niño</p>
                   <p>Bogo City, Cebu, Philippines</p>
-                  <a href="https://bogonorthomes.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">bogonorthomes.com</a>
+                  <a href="https://northomespensione.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">northomespensione.com</a>
                 </div>
               </div>
 
