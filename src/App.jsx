@@ -603,7 +603,24 @@ export default function RestaurantApp() {
           />
         )}
 
-
+        {/* Floating Messenger Button */}
+        {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller', 'queue-display'].includes(currentPage) && (
+          <a
+            href="https://m.me/northomespensione"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-6 z-50 bg-[#0084FF] hover:bg-[#0070D6] text-white p-4 rounded-full shadow-2xl transition-all hover:-translate-y-1 hover:scale-110 flex items-center justify-center group"
+            title="Chat with us on Messenger"
+            style={{ boxShadow: '0 10px 25px -5px rgba(0, 132, 255, 0.4)' }}
+          >
+            <svg viewBox="0 0 36 36" className="w-8 h-8" fill="currentColor">
+              <path d="M18 2C9.163 2 2 8.795 2 17.177c0 4.772 2.375 8.98 6.064 11.834v5.352c0 .762.839 1.218 1.488.81l5.412-3.393c.96.262 1.97.4 3.036.4 8.837 0 16-6.795 16-15.18C34 8.796 26.837 2 18 2zm1.096 20.443-3.327-3.553-6.49 3.553 7.158-7.614 3.395 3.553 6.425-3.553-7.161 7.614z" />
+            </svg>
+            <span className="absolute right-full mr-4 bg-white text-black/80 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Chat with us
+            </span>
+          </a>
+        )}
       </div>
     </CartContext.Provider>
   );
