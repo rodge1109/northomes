@@ -5050,7 +5050,7 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
   // Use room-specific images if available from the backend.
   // Otherwise, fallback to placeholders based on room ID to give variety.
   const images = room.images && room.images.length > 0 
-    ? room.images.map(img => `${API_BASE_URL}${img}`)
+    ? room.images.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`)
     : room.id % 2 === 0 ? [
       "/assets/images/rooms/sample_room_2.png",
       "/assets/images/gallery/bathroom.jpg",
