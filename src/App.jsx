@@ -5631,9 +5631,7 @@ function HomePage({ setCurrentPage }) {
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === currentHeroIndex ? 'opacity-100' : 'opacity-0'}`}
           />
         ))}
-        {/* Beautiful Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#006241]/40 via-[#1E3932]/10 to-[#CBA258]/30 mix-blend-multiply"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#f2f0eb] via-transparent to-transparent opacity-80"></div>
+        {/* Removed Gradient Overlays to keep the hero image plain */}
       </div>
 
       {/* Horizontal Booking Bar - Overlapping the Hero */}
