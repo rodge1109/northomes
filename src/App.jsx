@@ -1324,7 +1324,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   const [reportStartDate, setReportStartDate] = useState('');
   const [reportEndDate, setReportEndDate] = useState('');
   // Hotel reports sub-tab
-  const [reportsSubTab, setReportsSubTab] = useState('appointments');
+  const [reportsSubTab, setReportsSubTab] = useState('management');
   const [hotelRptStart, setHotelRptStart] = useState('');
   const [hotelRptEnd, setHotelRptEnd] = useState('');
   const [hotelRptLoading, setHotelRptLoading] = useState(false);
@@ -3071,7 +3071,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                     {/* Sub-tab navigation */}
                     <div className="flex gap-2 flex-wrap">
                       {[
-                        { id: 'appointments', label: 'Appointments' },
                         { id: 'management', label: 'Stay Reports' },
                         { id: 'financial', label: 'Financials' },
                       ].map(sub => (
@@ -3089,81 +3088,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         >{sub.label}</button>
                       ))}
                     </div>
-
-                    {/* ── Appointments sub-tab (existing) ── */}
-                    {reportsSubTab === 'appointments' && (
-                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* Appointments filter bar */}
-                        <div className="bg-white rounded-xl p-6" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                          <div className="flex flex-wrap gap-6 items-end">
-                            <div className="flex-1 min-w-[200px]">
-                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
-                              <div className="grid grid-cols-2 gap-3">
-                                <input type="date" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)}
-                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                                <input type="date" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)}
-                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                              </div>
-                            </div>
-                            <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
-                          </div>
-                        </div>
-                        {reportStats && (
-                          <>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              {[
-                                { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#00754A' },
-                                { label: 'Completed', value: reportStats.totals?.completed || 0, color: '#10B981' },
-                                { label: 'Cancelled', value: reportStats.totals?.cancelled || 0, color: '#F43F5E' },
-                                { label: 'Conversion', value: `${reportStats.totals?.total > 0 ? Math.round((reportStats.totals.completed / reportStats.totals.total) * 100) : 0}%`, color: '#F59E0B' },
-                              ].map((c, i) => (
-                                <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
-                                  <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                                  <p className="text-3xl font-black text-[#000000]/87">{c.value}</p>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                                  <span>Service Distribution</span>
-                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
-                                </h3>
-                                <div className="space-y-5">
-                                  {reportStats.byService?.map((item, idx) => (
-                                    <div key={idx} className="group">
-                                      <div className="flex items-center justify-between text-xs mb-2">
-                                        <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors">{item.service_type}</span>
-                                        <span className="text-[#000000]/87 font-black font-mono">{item.count} <span className="text-black/60 font-medium ml-1">bookings</span></span>
-                                      </div>
-                                      <div className="w-full h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.3)]" style={{ width: `${(item.count / reportStats.totals.total) * 100}%` }} />
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                                  <span>Peak Occupancy Times</span>
-                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
-                                </h3>
-                                <div className="grid grid-cols-2 gap-3">
-                                  {reportStats.hourly?.map((item, idx) => (
-                                    <div key={idx} className="bg-white shadow-sm border border-black/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
-                                      <p className="text-[#00754A] font-black text-sm font-mono tracking-tighter">{item.time}</p>
-                                      <p className="text-black/60 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
 
                     {/* ── Management sub-tab ── */}
                     {reportsSubTab === 'management' && (
