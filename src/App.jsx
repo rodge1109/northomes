@@ -10767,6 +10767,13 @@ function FrontDeskTab() {
                   return acc;
                 }, {});
 
+                // Ensure room types from unassigned reservations are included even if they have no rooms
+                tcReservations.forEach(r => {
+                  if (r.room_type && !tcGrouped[r.room_type]) {
+                    tcGrouped[r.room_type] = [];
+                  }
+                });
+
                 const getBar = (resv) => {
                   const ci = new Date(toLocalDate(resv.check_in_date) + 'T00:00:00').getTime();
                   // For checked-out reservations, use actual checkout date if earlier than booked
@@ -11087,7 +11094,7 @@ function FrontDeskTab() {
               {/* ── Room Detail Panel ── */}
               {selectedRoom && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRoom(null)}>
-                  <div className="bg-[#1a2340] border border-black/5 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                  <div className="bg-white border border-black/5 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
                     onClick={e => e.stopPropagation()}>
                     {/* Header */}
                     {(() => {
@@ -11095,17 +11102,17 @@ function FrontDeskTab() {
                       const isActive = ['occupied', 'due_out', 'arriving'].includes(selectedRoom.computed_status);
                       return (
                         <>
-                          <div className={`px-5 py-4 border-b border-black/5 ${cfg.bg}`}>
+                          <div className="bg-gradient-to-br from-[#00754A] to-[#006241] px-5 py-4">
                             <div className="flex items-start justify-between">
                               <div>
-                                <div className={`text-3xl font-black font-mono ${cfg.text}`}>{selectedRoom.room_number}</div>
+                                <div className="text-3xl font-black font-mono text-white">{selectedRoom.room_number}</div>
                                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                  <span className="text-xs text-black/60 bg-white shadow-sm px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
-                                  <span className="text-xs text-black/60">Floor {selectedRoom.floor}</span>
-                                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.pill}`}>{cfg.label}</span>
+                                  <span className="text-xs text-[#006241] font-bold bg-white shadow-sm px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
+                                  <span className="text-xs text-white/80">Floor {selectedRoom.floor}</span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30">{cfg.label}</span>
                                 </div>
                               </div>
-                              <button onClick={() => setSelectedRoom(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold leading-none mt-1">✕</button>
+                              <button onClick={() => setSelectedRoom(null)} className="text-white/60 hover:text-white text-lg font-bold leading-none mt-1 transition-colors">✕</button>
                             </div>
                           </div>
                           <div className="p-5 space-y-4">
@@ -11128,17 +11135,17 @@ function FrontDeskTab() {
                               <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2.5">Housekeeping Status</div>
                               <div className="grid grid-cols-2 gap-2">
                                 {[
-                                  { status: 'clean', label: '✓ Clean', active: 'bg-green-500/25 border-green-400/50 text-green-200' },
-                                  { status: 'dirty', label: '🧹 Dirty', active: 'bg-yellow-500/25 border-yellow-400/50 text-yellow-200' },
-                                  { status: 'inspected', label: '🔍 Inspected', active: 'bg-teal-500/25 border-teal-400/50 text-teal-200' },
-                                  { status: 'out_of_order', label: '⚠️ Out of Order', active: 'bg-red-500/25 border-red-400/50 text-red-200' },
+                                  { status: 'clean', label: '✓ Clean', active: 'bg-[#00754A] border-[#006241] text-white shadow-md shadow-[#00754A]/20' },
+                                  { status: 'dirty', label: '🧹 Dirty', active: 'bg-yellow-500 border-yellow-600 text-white shadow-md shadow-yellow-500/20' },
+                                  { status: 'inspected', label: '🔍 Inspected', active: 'bg-blue-500 border-blue-600 text-white shadow-md shadow-blue-500/20' },
+                                  { status: 'out_of_order', label: '⚠️ Out of Order', active: 'bg-red-500 border-red-600 text-white shadow-md shadow-red-500/20' },
                                 ].map(({ status, label, active }) => {
                                   const isCurrent = selectedRoom.hk_status === status;
                                   return (
                                     <button key={status}
                                       onClick={() => updateHkStatus(selectedRoom.room_number, status)}
                                       disabled={hkUpdating === selectedRoom.room_number}
-                                      className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/5 bg-white shadow-sm text-black/60 hover:bg-white shadow-sm hover:text-[#000000]/87'}`}>
+                                      className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/10 bg-[#f8f9fa] shadow-sm text-black/60 hover:border-black/20 hover:text-[#000000]/87'}`}>
                                       {label}
                                     </button>
                                   );
@@ -11147,17 +11154,17 @@ function FrontDeskTab() {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex gap-2 pt-1">
+                            <div className="flex gap-2 pt-4 mt-4 border-t border-black/5">
                               {(selectedRoom.computed_status === 'occupied' || selectedRoom.computed_status === 'due_out') && selectedRoom.reservation_id && (
                                 <button
                                   onClick={() => { setCheckoutConfirmId(selectedRoom.reservation_id); setSelectedRoom(null); }}
-                                  className="flex-1 bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs font-bold py-2.5 rounded-xl transition-all">
+                                  className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-md shadow-red-500/20 transition-all">
                                   Check Out Guest
                                 </button>
                               )}
                               <button
                                 onClick={() => removeRoom(selectedRoom.room_number)}
-                                className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-black/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
+                                className="flex-1 bg-[#f8f9fa] hover:bg-[#e9ecef] border border-black/10 text-black/60 hover:text-red-600 text-xs font-semibold py-2.5 rounded-xl transition-all">
                                 Remove Room
                               </button>
                             </div>
