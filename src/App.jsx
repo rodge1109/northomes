@@ -1381,6 +1381,52 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   const [rcSaving, setRcSaving] = useState(false);
   const [rcMsg, setRcMsg] = useState('');
 
+  // Housekeeping state
+  const [hkRooms, setHkRooms] = useState([]);
+  
+  const fetchHkRooms = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/rooms`);
+      const data = await response.json();
+      if (data.success) {
+        setHkRooms(data.rooms || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch housekeeping rooms', err);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'housekeeping') {
+      fetchHkRooms();
+    }
+  }, [activeTab]);
+
+  const cycleHkStatus = async (roomNumber, currentStatus) => {
+    // Current statuses: clean, dirty, inspected
+    const nextStatus = currentStatus === 'clean' ? 'dirty' : currentStatus === 'dirty' ? 'inspected' : 'clean';
+    
+    // Optimistic UI update
+    setHkRooms(prev => prev.map(r => r.room_number === roomNumber ? { ...r, hk_status: nextStatus } : r));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/rooms/${roomNumber}/hk-status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hk_status: nextStatus })
+      });
+      const data = await response.json();
+      if (!data.success) {
+        // Revert on failure
+        setHkRooms(prev => prev.map(r => r.room_number === roomNumber ? { ...r, hk_status: currentStatus } : r));
+      }
+    } catch (err) {
+      console.error('Failed to update hk_status', err);
+      // Revert on failure
+      setHkRooms(prev => prev.map(r => r.room_number === roomNumber ? { ...r, hk_status: currentStatus } : r));
+    }
+  };
+
   // Check for existing session
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -2743,11 +2789,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                     <div className="flex gap-4 items-center">
                       <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">4 Clean</span>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'clean').length} Clean</span>
                       </div>
                       <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">2 Dirty</span>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'dirty').length} Dirty</span>
+                      </div>
+                      <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full" style={{ background: '#006241' }}></div>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'inspected').length} Inspected</span>
                       </div>
                       <button
                         className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
@@ -2764,18 +2814,23 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                 </div>
                 <div className="p-6 md:p-8 flex-1 overflow-y-auto">
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {Array.from({ length: 24 }).map((_, i) => {
-                      const status = i % 5 === 0 ? 'Dirty' : i % 3 === 0 ? 'Inspected' : 'Clean';
+                    {hkRooms.map((room) => {
+                      const status = room.hk_status === 'inspected' ? 'Inspected' : room.hk_status === 'dirty' ? 'Dirty' : 'Clean';
                       const dotColor = status === 'Clean' ? '#10B981' : status === 'Dirty' ? '#c82014' : '#006241';
                       const textColor = status === 'Clean' ? 'text-emerald-600' : status === 'Dirty' ? 'text-[#c82014]' : 'text-[#006241]';
                       const bg = status === 'Clean' ? 'bg-emerald-50 border-emerald-200' : status === 'Dirty' ? 'bg-red-50 border-red-200' : 'bg-[#d4e9e2] border-[#d4e9e2]';
                       return (
-                        <div key={i} className={`border rounded-xl p-4 hover:scale-[1.02] transition-all cursor-pointer ${bg}`}>
+                        <div 
+                          key={room.room_number} 
+                          onClick={() => cycleHkStatus(room.room_number, room.hk_status || 'clean')}
+                          className={`border rounded-xl p-4 hover:scale-[1.02] transition-all cursor-pointer ${bg}`}
+                          title="Click to change status: Clean -> Dirty -> Inspected"
+                        >
                           <div className="flex justify-between items-center mb-3">
                             <span className="font-black text-black/50 text-[9px] uppercase tracking-widest">Room</span>
                             <div className="w-2 h-2 rounded-full" style={{ background: dotColor }}></div>
                           </div>
-                          <p className="text-2xl font-black text-[#1E3932]">{101 + i}</p>
+                          <p className="text-2xl font-black text-[#1E3932]">{room.room_number}</p>
                           <p className={`text-[9px] font-black uppercase tracking-widest mt-1.5 ${textColor}`}>{status}</p>
                         </div>
                       );
