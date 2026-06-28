@@ -4748,7 +4748,7 @@ function ContactPage({ setCurrentPage }) {
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Contact Number</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
                     Front Desk / Reservations:<br />
-                    <a href="tel:+639276230491" className="text-[#00754A] font-bold hover:underline">+63 927 623 0491</a>
+                    <a href="tel:+639276230491" className="text-[#00754A] font-bold hover:underline"> +63 917 132 3715</a>
                   </p>
                 </div>
               </div>
