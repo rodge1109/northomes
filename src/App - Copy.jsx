@@ -4160,7 +4160,7 @@ function HomePage({ setCurrentPage }) {
               <div>
                 <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Address</h4>
                 <div className="text-gray-200 text-sm space-y-1">
-                  <p>San Vicente</p>
+                  <p>Pelaez St.</p>
                   <p>Bogo City, Cebu</p>
                   <p>Philippines 6010</p>
                 </div>

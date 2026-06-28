@@ -4733,7 +4733,7 @@ function ContactPage({ setCurrentPage }) {
                 <div>
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Our Location</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
-                    San Vicente<br />
+                    Pelaez St.<br />
                     Bogo City, Cebu<br />
                     Philippines 6010
                   </p>
