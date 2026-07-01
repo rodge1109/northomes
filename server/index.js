@@ -1587,15 +1587,62 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
   }
 });
 
+// GET /api/corporate-accounts
+app.get('/api/corporate-accounts', async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM hotel_corporate_accounts WHERE status = 'active' ORDER BY company_name");
+    res.json({ success: true, accounts: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Failed to fetch corporate accounts.' });
+  }
+});
+
 // POST /api/reservations/:id/checkout
 app.post('/api/reservations/:id/checkout', async (req, res) => {
   try {
     const { id } = req.params;
+    const { chargeToCorporate, corporateAccountId } = req.body || {};
+    
     const existing = await pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [id]);
     if (existing.rows.length === 0)
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
     if (existing.rows[0].status !== 'checked_in')
       return res.status(409).json({ success: false, message: 'Guest is not currently checked in.' });
+
+    if (chargeToCorporate && corporateAccountId) {
+      // Calculate outstanding balance
+      const [itemsResult, paymentsResult] = await Promise.all([
+        pool.query('SELECT amount FROM hotel_folio_items WHERE reservation_id = $1 AND voided = false', [id]),
+        pool.query('SELECT amount FROM hotel_folio_payments WHERE reservation_id = $1 AND voided = false', [id])
+      ]);
+      const charges = itemsResult.rows.reduce((sum, i) => sum + parseFloat(i.amount), 0);
+      const payments = paymentsResult.rows.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      const balance = charges - payments;
+
+      if (balance > 0) {
+        // Post a folio payment to settle balance
+        await pool.query(
+          `INSERT INTO hotel_folio_payments (reservation_id, description, amount, method, ref_number)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [id, 'Corporate Transfer', balance, 'Corporate', `CORP-${corporateAccountId}`]
+        );
+        
+        // Update corporate account balance
+        await pool.query(
+          `UPDATE hotel_corporate_accounts SET balance = balance + $1 WHERE id = $2`,
+          [balance, corporateAccountId]
+        );
+        
+        // Insert corporate ledger entry
+        await pool.query(
+          `INSERT INTO hotel_corporate_ledgers (account_id, date, reference, description, debit, credit, balance)
+           VALUES ($1, CURRENT_DATE, $2, $3, $4, 0, (SELECT balance FROM hotel_corporate_accounts WHERE id = $1))`,
+          [corporateAccountId, `RES-${id}`, `Guest Checkout Transfer: ${existing.rows[0].full_name}`, balance]
+        );
+      }
+    }
+
     const result = await pool.query(
       `UPDATE hotel_reservations SET status = 'checked_out', checked_out_at = NOW()
        WHERE id = $1 RETURNING *`,
@@ -2090,26 +2137,48 @@ app.post('/api/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    // Check against environment variables (simple approach)
+    // Check against environment variables (super admin)
     const adminUser = process.env.ADMIN_USER || 'admin';
     const adminPass = process.env.ADMIN_PASS || 'admin123';
 
     if (username === adminUser && password === adminPass) {
-      // Generate simple session token
       const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      sessions.set(token, { username, loginTime: new Date() });
+      sessions.set(token, { username, permissions: ['all'], loginTime: new Date() });
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Login successful',
-        token
-      });
-    } else {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid username or password'
+        token,
+        permissions: ['all']
       });
     }
+
+    // Check against hotel_staff table
+    const result = await pool.query('SELECT * FROM hotel_staff WHERE username = $1', [username]);
+    if (result.rows.length > 0) {
+      const staff = result.rows[0];
+      const match = await bcrypt.compare(password, staff.password_hash);
+      
+      if (match) {
+        const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+        let permissions = [];
+        try { permissions = typeof staff.permissions === 'string' ? JSON.parse(staff.permissions) : staff.permissions; } catch (e) {}
+        
+        sessions.set(token, { username, permissions, staff_id: staff.id, loginTime: new Date() });
+
+        return res.json({
+          success: true,
+          message: 'Login successful',
+          token,
+          permissions
+        });
+      }
+    }
+
+    res.status(401).json({
+      success: false,
+      message: 'Invalid username or password'
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
@@ -2124,7 +2193,8 @@ app.get('/api/admin/verify', (req, res) => {
   const token = req.headers.authorization?.replace('Bearer ', '');
 
   if (token && sessions.has(token)) {
-    res.json({ success: true, valid: true });
+    const sessionData = sessions.get(token);
+    res.json({ success: true, valid: true, permissions: sessionData.permissions || [] });
   } else {
     res.status(401).json({ success: false, valid: false });
   }
@@ -2139,6 +2209,66 @@ app.post('/api/admin/logout', (req, res) => {
   }
 
   res.json({ success: true, message: 'Logged out successfully' });
+});
+
+// ==================== STAFF MANAGEMENT ====================
+
+app.get('/api/staff', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, username, full_name, permissions, created_at FROM hotel_staff ORDER BY created_at DESC');
+    res.json({ success: true, staff: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch staff' });
+  }
+});
+
+app.post('/api/staff', async (req, res) => {
+  try {
+    const { username, password, full_name, permissions } = req.body;
+    
+    // Check if username exists
+    const existing = await pool.query('SELECT id FROM hotel_staff WHERE username = $1', [username]);
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ success: false, message: 'Username already exists' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    
+    const permsJson = JSON.stringify(permissions || []);
+    const result = await pool.query(
+      'INSERT INTO hotel_staff (username, password_hash, full_name, permissions) VALUES ($1, $2, $3, $4) RETURNING id, username, full_name, permissions',
+      [username, hash, full_name, permsJson]
+    );
+    
+    res.json({ success: true, message: 'Staff member added', staff: result.rows[0] });
+  } catch (error) {
+    console.error('Error adding staff:', error);
+    res.status(500).json({ success: false, message: 'Failed to add staff member' });
+  }
+});
+
+app.put('/api/staff/:id/permissions', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { permissions } = req.body;
+    const permsJson = JSON.stringify(permissions || []);
+    
+    await pool.query('UPDATE hotel_staff SET permissions = $1 WHERE id = $2', [permsJson, id]);
+    res.json({ success: true, message: 'Permissions updated' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update permissions' });
+  }
+});
+
+app.delete('/api/staff/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM hotel_staff WHERE id = $1', [id]);
+    res.json({ success: true, message: 'Staff member deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete staff member' });
+  }
 });
 
 // ==================== PATIENT SELF-SERVICE ====================

@@ -70,7 +70,13 @@ export default function RestaurantApp() {
   const [pendingOrderNumber, setPendingOrderNumber] = useState(null);
   const [showLoginMenu, setShowLoginMenu] = useState(false);
   const [adminTab, setAdminTab] = useState('dashboard');
-  const [isLoggedIn, setIsLoggedIn] = useState(typeof window !== 'undefined' ? !!localStorage.getItem('adminToken') : false);
+  const [authPulse, setAuthPulse] = useState(0);
+
+  useEffect(() => {
+    const handler = () => setAuthPulse(p => p + 1);
+    window.addEventListener('authChanged', handler);
+    return () => window.removeEventListener('authChanged', handler);
+  }, []);
 
   // Products state
   const [menuData, setMenuData] = useState(fallbackMenuData);
@@ -246,6 +252,8 @@ export default function RestaurantApp() {
     getTotalItems,
     getTotalPrice
   };
+
+  const showAdminSidebar = ['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && !!localStorage.getItem('adminToken');
 
   return (
     <CartContext.Provider value={contextValue}>
@@ -486,7 +494,7 @@ export default function RestaurantApp() {
       </div>
 
       {/* ── Global Admin Sidebar ── */}
-      {isLoggedIn && ['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
+      {showAdminSidebar && (
         <aside style={{ position: 'fixed', top: 0, left: 0, width: '120px', height: '100vh', background: '#142b22', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.08)', zIndex: 200 }}>
           {/* Primary nav */}
           <nav style={{ flex: 1, padding: '12px 6px', overflowY: 'auto' }} className="no-scrollbar">
@@ -523,7 +531,11 @@ export default function RestaurantApp() {
                 id: 'settings', label: 'Settings', tabId: 'settings', act: () => { setAdminTab('settings'); setCurrentPage('admin'); },
                 icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               },
-            ].map(item => {
+            ].filter(item => {
+              let perms = [];
+              try { perms = JSON.parse(localStorage.getItem('adminPerms') || '[]'); } catch(e){}
+              return perms.includes('all') || perms.includes(item.id);
+            }).map(item => {
               const isActive = (currentPage === 'admin' && adminTab === item.tabId) || (item.id === 'frontdesk' && currentPage === 'frontdesk');
               return (
                 <button key={item.id} onClick={item.act} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease', background: isActive ? '#00754A' : 'transparent', color: isActive ? '#ffffff' : 'rgba(255,255,255,0.40)', marginBottom: '3px' }}
@@ -549,7 +561,7 @@ export default function RestaurantApp() {
         </aside>
       )}
 
-      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: (isLoggedIn && ['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage)) ? '150px' : 0 }}>
+      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: showAdminSidebar ? '150px' : 0 }}>
         {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
           <Header
             currentPage={currentPage}
@@ -580,7 +592,7 @@ export default function RestaurantApp() {
         {currentPage === 'checkout' && <CheckoutPage setCurrentPage={setCurrentPage} clearCart={clearCart} />}
         {currentPage === 'confirmation' && <ConfirmationPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} paymentStatus={paymentStatus} />}
         {currentPage === 'payment-failed' && <PaymentFailedPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} />}
-        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />}
+        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} />}
         {currentPage === 'my-appointment' && <MyAppointment setCurrentPage={setCurrentPage} initialToken={appointmentToken} />}
         {currentPage === 'checkin' && <GuestCheckinPage setCurrentPage={setCurrentPage} />}
         {/* Front Desk handled in AdminDashboard */}
@@ -603,24 +615,7 @@ export default function RestaurantApp() {
           />
         )}
 
-        {/* Floating Messenger Button */}
-        {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller', 'queue-display'].includes(currentPage) && (
-          <a
-            href="https://m.me/northomespensione"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="fixed bottom-6 right-6 z-50 bg-[#0084FF] hover:bg-[#0070D6] text-white p-4 rounded-full shadow-2xl transition-all hover:-translate-y-1 hover:scale-110 flex items-center justify-center group"
-            title="Chat with us on Messenger"
-            style={{ boxShadow: '0 10px 25px -5px rgba(0, 132, 255, 0.4)' }}
-          >
-            <svg viewBox="0 0 36 36" className="w-8 h-8" fill="currentColor">
-              <path d="M18 2C9.163 2 2 8.795 2 17.177c0 4.772 2.375 8.98 6.064 11.834v5.352c0 .762.839 1.218 1.488.81l5.412-3.393c.96.262 1.97.4 3.036.4 8.837 0 16-6.795 16-15.18C34 8.796 26.837 2 18 2zm1.096 20.443-3.327-3.553-6.49 3.553 7.158-7.614 3.395 3.553 6.425-3.553-7.161 7.614z" />
-            </svg>
-            <span className="absolute right-full mr-4 bg-white text-black/80 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-              Chat with us
-            </span>
-          </a>
-        )}
+
       </div>
     </CartContext.Provider>
   );
@@ -677,8 +672,8 @@ function AppointmentForm({ onSuccess }) {
     email: '',
     phoneNumber: '',
     roomType: sessionStorage.getItem('northomes_roomtype') || '',
-    checkInDate: sessionStorage.getItem('northomes_checkin') || new Date().toISOString().split('T')[0],
-    checkOutDate: sessionStorage.getItem('northomes_checkout') || (() => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })(),
+    checkInDate: sessionStorage.getItem('northomes_checkin') || '',
+    checkOutDate: sessionStorage.getItem('northomes_checkout') || '',
     adults: '1',
     children: '0',
     specialRequests: ''
@@ -794,7 +789,7 @@ function AppointmentForm({ onSuccess }) {
         {icon}
       </div>
       <span className="text-xs font-bold text-black/60 uppercase tracking-widest">{title}</span>
-      <div className="flex-1 h-px bg-black/5" />
+      <div className="flex-1 h-px bg-white shadow-sm" />
     </div>
   );
 
@@ -862,7 +857,6 @@ function AppointmentForm({ onSuccess }) {
                   name="checkInDate"
                   value={formData.checkInDate}
                   onChange={handleChange}
-                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
                   min={today}
                   required
                   className={inputCls}
@@ -875,7 +869,6 @@ function AppointmentForm({ onSuccess }) {
                   name="checkOutDate"
                   value={formData.checkOutDate}
                   onChange={handleChange}
-                  onClick={(e) => e.target.showPicker && e.target.showPicker()}
                   min={formData.checkInDate ? (() => {
                     const d = new Date(formData.checkInDate);
                     d.setDate(d.getDate() + 1);
@@ -951,43 +944,42 @@ function AppointmentForm({ onSuccess }) {
             />
 
             {/* Title + First + Last */}
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 mb-3">
-              <div className="sm:col-span-3">
+            <div className="grid grid-cols-12 gap-3 mb-3">
+              <div className="col-span-3">
                 <label className={labelCls}>Title</label>
                 <select name="title" value={formData.title} onChange={handleChange}
+                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
-                  <option>Mr.</option>
-                  <option>Mrs.</option>
-                  <option>Ms.</option>
-                  <option>Dr.</option>
-                  <option>Prof.</option>
+                  <option style={{ background: '#1e293b', color: 'white' }}>Mr.</option>
+                  <option style={{ background: '#1e293b', color: 'white' }}>Mrs.</option>
+                  <option style={{ background: '#1e293b', color: 'white' }}>Ms.</option>
+                  <option style={{ background: '#1e293b', color: 'white' }}>Dr.</option>
+                  <option style={{ background: '#1e293b', color: 'white' }}>Prof.</option>
                 </select>
               </div>
-              <div className="sm:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>First Name</label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    placeholder="First"
-                    required
-                    className={inputCls}
-                  />
-                </div>
-                <div>
-                  <label className={labelCls}>Last Name</label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    placeholder="Last"
-                    required
-                    className={inputCls}
-                  />
-                </div>
+              <div className="col-span-4 sm:col-span-4">
+                <label className={labelCls}>First Name</label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="First"
+                  required
+                  className={inputCls}
+                />
+              </div>
+              <div className="col-span-5">
+                <label className={labelCls}>Last Name</label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Last"
+                  required
+                  className={inputCls}
+                />
               </div>
             </div>
 
@@ -1034,18 +1026,20 @@ function AppointmentForm({ onSuccess }) {
               <div>
                 <label className={labelCls}>Adults</label>
                 <select name="adults" value={formData.adults} onChange={handleChange} required
+                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[1, 2, 3, 4, 5, 6].map(n => (
-                    <option key={n} value={String(n)}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>
+                    <option key={n} value={String(n)} style={{ background: '#1e293b', color: 'white' }}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className={labelCls}>Children <span className="normal-case font-normal text-gray-400">(under 12)</span></label>
                 <select name="children" value={formData.children} onChange={handleChange}
+                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[0, 1, 2, 3, 4, 5].map(n => (
-                    <option key={n} value={String(n)}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>
+                    <option key={n} value={String(n)} style={{ background: '#1e293b', color: 'white' }}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>
                   ))}
                 </select>
               </div>
@@ -1121,7 +1115,7 @@ function AppointmentForm({ onSuccess }) {
 }
 
 // Admin Dashboard Component
-function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, setIsLoggedIn }) {
+function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // ── Folio & Ledger State (Lifted for global access) ──────────────────────────
   const [folioOpen, setFolioOpen] = useState(false);
   const [folioRes, setFolioRes] = useState(null);
@@ -1148,6 +1142,26 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
 
   const [folioEmailSending, setFolioEmailSending] = useState(false);
   const [folioEmailMsg, setFolioEmailMsg] = useState('');
+
+  // Housekeeping State
+  const [hkRooms, setHkRooms] = useState([]);
+  React.useEffect(() => {
+    if (activeTab === 'housekeeping') {
+      fetch(`${API_BASE_URL}/api/rooms`).then(r => r.json()).then(d => setHkRooms(d.rooms || []));
+    }
+  }, [activeTab]);
+
+  const updateHkStatus = async (roomNumber, status) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/rooms/${encodeURIComponent(roomNumber)}/hk-status`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      const res = await fetch(`${API_BASE_URL}/api/rooms`);
+      const data = await res.json();
+      setHkRooms(data.rooms || []);
+    } catch (e) { console.error(e); }
+  };
 
   // ── Folio Logic ──
   const fetchFolio = useCallback(async (reservationId) => {
@@ -1306,15 +1320,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   };
 
   // Auth state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userPermissions, setUserPermissions] = useState([]);
   const [loginError, setLoginError] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Dashboard state
-  const [appointments, setAppointments] = useState([]);
-  const [masterRes, setMasterRes] = useState([]);
-  const [masterResLoading, setMasterResLoading] = useState(false);
+  const [reservations, setReservations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [updatingId, setUpdatingId] = useState(null);
@@ -1334,14 +1348,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   // Calendar state
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth() + 1);
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
-  const [calendarData, setCalendarData] = useState({ appointments: [], blockedDates: [] });
+  const [calendarData, setCalendarData] = useState({ reservations: [], blockedDates: [] });
 
   // Reports state
   const [reportStats, setReportStats] = useState(null);
   const [reportStartDate, setReportStartDate] = useState('');
   const [reportEndDate, setReportEndDate] = useState('');
   // Hotel reports sub-tab
-  const [reportsSubTab, setReportsSubTab] = useState('management');
+  const [reportsSubTab, setReportsSubTab] = useState('reservations');
   const [hotelRptStart, setHotelRptStart] = useState('');
   const [hotelRptEnd, setHotelRptEnd] = useState('');
   const [hotelRptLoading, setHotelRptLoading] = useState(false);
@@ -1382,7 +1396,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsSavedMsg, setSettingsSavedMsg] = useState('');
   const [adminRoomTypes, setAdminRoomTypes] = useState([]);
-  const [newRoomForm, setNewRoomForm] = useState({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '', images: [] });
+  const [newRoomForm, setNewRoomForm] = useState({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '' });
   const [newRoomFiles, setNewRoomFiles] = useState([]);
   const [editRoomId, setEditRoomId] = useState(null);
   const [editRoomForm, setEditRoomForm] = useState({});
@@ -1398,51 +1412,21 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   const [rcSaving, setRcSaving] = useState(false);
   const [rcMsg, setRcMsg] = useState('');
 
-  // Housekeeping state
-  const [hkRooms, setHkRooms] = useState([]);
+  // Staff admin state
+  const [adminStaffList, setAdminStaffList] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
+  const [staffNewForm, setStaffNewForm] = useState({ username: '', password: '', full_name: '', permissions: [] });
+  const [staffMsg, setStaffMsg] = useState('');
 
-  const fetchHkRooms = async () => {
+  const fetchStaff = useCallback(async () => {
+    setStaffLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/rooms`);
-      const data = await response.json();
-      if (data.success) {
-        setHkRooms(data.rooms || []);
-      }
-    } catch (err) {
-      console.error('Failed to fetch housekeeping rooms', err);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'housekeeping') {
-      fetchHkRooms();
-    }
-  }, [activeTab]);
-
-  const cycleHkStatus = async (roomNumber, currentStatus) => {
-    // Current statuses: clean, dirty, inspected
-    const nextStatus = currentStatus === 'clean' ? 'dirty' : currentStatus === 'dirty' ? 'inspected' : 'clean';
-
-    // Optimistic UI update
-    setHkRooms(prev => prev.map(r => r.room_number === roomNumber ? { ...r, hk_status: nextStatus } : r));
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/rooms/${roomNumber}/hk-status`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hk_status: nextStatus })
-      });
-      const data = await response.json();
-      if (!data.success) {
-        // Revert on failure
-        setHkRooms(prev => prev.map(r => r.room_number === roomNumber ? { ...r, hk_status: currentStatus } : r));
-      }
-    } catch (err) {
-      console.error('Failed to update hk_status', err);
-      // Revert on failure
-      setHkRooms(prev => prev.map(r => r.room_number === roomNumber ? { ...r, hk_status: currentStatus } : r));
-    }
-  };
+      const res = await fetch(`${API_BASE_URL}/api/staff`);
+      const data = await res.json();
+      if (data.success) setAdminStaffList(data.staff);
+    } catch (e) { console.error('Failed to fetch staff'); }
+    setStaffLoading(false);
+  }, []);
 
   // Check for existing session
   useEffect(() => {
@@ -1460,7 +1444,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
       const data = await response.json();
       if (data.valid) {
         setIsLoggedIn(true);
-        fetchAppointments();
+        setUserPermissions(data.permissions || []);
+        localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
+        window.dispatchEvent(new Event('authChanged'));
+        fetchReservations();
       } else {
         localStorage.removeItem('adminToken');
       }
@@ -1485,7 +1472,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
       if (data.success) {
         localStorage.setItem('adminToken', data.token);
         setIsLoggedIn(true);
-        fetchAppointments();
+        setUserPermissions(data.permissions || []);
+        localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
+        window.dispatchEvent(new Event('authChanged'));
+        fetchReservations();
       } else {
         setLoginError(data.message || 'Invalid credentials');
       }
@@ -1507,22 +1497,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
       console.error('Logout error:', error);
     }
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminPerms');
+    window.dispatchEvent(new Event('authChanged'));
     setIsLoggedIn(false);
+    setUserPermissions([]);
     setUsername('');
     setPassword('');
   };
 
-  const fetchMasterRes = useCallback(async () => {
-    try {
-      setMasterResLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/reservations`);
-      const data = await res.json();
-      setMasterRes(data.reservations || []);
-    } catch (e) { console.error(e); }
-    setMasterResLoading(false);
-  }, []);
-
-  const fetchAppointments = useCallback(async () => {
+  const fetchReservations = useCallback(async () => {
     try {
       setIsLoading(true);
       const params = new URLSearchParams();
@@ -1532,62 +1515,39 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
       if (filter !== 'all') params.append('status', filter);
 
       const url = params.toString()
-        ? `${API_BASE_URL}/api/appointments/search?${params}`
-        : `${API_BASE_URL}/api/appointments`;
+        ? `${API_BASE_URL}/api/reservations/search?${params}`
+        : `${API_BASE_URL}/api/reservations`;
 
       const response = await fetch(url);
       const data = await response.json();
       if (data.success) {
-        setAppointments(data.appointments);
+        setReservations(data.reservations);
       }
     } catch (error) {
-      console.error('Error fetching appointments:', error);
+      console.error('Error fetching reservations:', error);
     } finally {
       setIsLoading(false);
     }
   }, [searchQuery, startDate, endDate, filter]);
 
-  // Fetch all appointments once on login
+  // Fetch all reservations once on login
   useEffect(() => {
     if (isLoggedIn) {
-      fetchAppointments();
-      fetchMasterRes();
+      fetchReservations();
     }
-  }, [isLoggedIn, fetchAppointments, fetchMasterRes]);
-
-
-  const updateMasterResStatus = async (id, newStatus) => {
-    setUpdatingId(id);
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-      });
-      const data = await response.json();
-      if (data.success) {
-        setMasterRes(prev => prev.map(apt =>
-          apt.id === id ? { ...apt, status: newStatus } : apt
-        ));
-      }
-    } catch (error) {
-      console.error('Error updating status:', error);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
+  }, [isLoggedIn]);
 
   const updateStatus = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/appointments/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
       });
       const data = await response.json();
       if (data.success) {
-        setAppointments(prev => prev.map(apt =>
+        setReservations(prev => prev.map(apt =>
           apt.id === id ? { ...apt, status: newStatus } : apt
         ));
       }
@@ -1601,10 +1561,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   // Reschedule functions
   const openRescheduleModal = async (apt) => {
     setRescheduleModal(apt);
-    setNewDate(apt.preferred_date);
-    setNewTime(apt.preferred_time);
+    setNewDate(res.preferred_date);
+    setNewTime(res.preferred_time);
     // Fetch available slots for current date
-    await fetchAvailableSlots(apt.preferred_date);
+    await fetchAvailableSlots(res.preferred_date);
   };
 
   const fetchAvailableSlots = async (date) => {
@@ -1638,7 +1598,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
 
     setIsRescheduling(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/appointments/${rescheduleModal.id}/reschedule`, {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${rescheduleModal.id}/reschedule`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ preferredDate: newDate, preferredTime: newTime })
@@ -1646,8 +1606,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
       const data = await response.json();
 
       if (data.success) {
-        setAppointments(prev => prev.map(apt =>
-          apt.id === rescheduleModal.id
+        setReservations(prev => prev.map(apt =>
+          res.id === rescheduleModal.id
             ? { ...apt, preferred_date: newDate, preferred_time: newTime }
             : apt
         ));
@@ -1674,7 +1634,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   };
 
   // Client-side filtering
-  const filteredAppointments = appointments.filter(apt => {
+  const filteredReservations = reservations.filter(apt => {
     // Search filter
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -1692,54 +1652,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     return true;
   });
 
-  const filteredMasterRes = masterRes.filter(apt => {
-    if (apt.status === 'checked_in') return false; // User requested to hide checked_in from Bookings grid
-
-    // Search filter
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchesSearch =
-        (apt.full_name && apt.full_name.toLowerCase().includes(q)) ||
-        (apt.phone_number && apt.phone_number.includes(q)) ||
-        (apt.email && apt.email.toLowerCase().includes(q));
-      if (!matchesSearch) return false;
-    }
-    // Status filter
-    let aptStatus = apt.status;
-    if (aptStatus === 'checked_out') aptStatus = 'completed'; // map backend status to UI filter
-    if (filter !== 'all' && aptStatus !== filter) return false;
-
-    // Date range filter
-    if (startDate && apt.check_in_date && apt.check_in_date.slice(0, 10) < startDate) return false;
-    if (endDate && apt.check_in_date && apt.check_in_date.slice(0, 10) > endDate) return false;
-    return true;
-  });
-
   const stats = useMemo(() => {
-    if (!appointments) return { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0, arrivals_today: 0 };
+    if (!reservations) return { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0, arrivals_today: 0 };
     return {
-      total: appointments.length,
-      pending: appointments.filter(a => a.status === 'pending').length,
-      confirmed: appointments.filter(a => a.status === 'confirmed').length,
-      completed: appointments.filter(a => a.status === 'completed').length,
-      cancelled: appointments.filter(a => a.status === 'cancelled').length,
-      arrivals_today: appointments.filter(a => a.status === 'confirmed' && a.preferred_date === new Date().toISOString().split('T')[0]).length,
+      total: reservations.length,
+      pending: reservations.filter(a => a.status === 'pending').length,
+      confirmed: reservations.filter(a => a.status === 'confirmed').length,
+      completed: reservations.filter(a => a.status === 'completed').length,
+      cancelled: reservations.filter(a => a.status === 'cancelled').length,
+      arrivals_today: reservations.filter(a => a.status === 'confirmed' && a.preferred_date === new Date().toISOString().split('T')[0]).length,
     };
-  }, [appointments]);
-
-
-  const masterStats = useMemo(() => {
-    if (!masterRes) return { arrivals_today: 0, departures_today: 0, in_house: 0, occupancy: 0 };
-    const d = new Date();
-    const today = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
-
-    const arrivals = masterRes.filter(a => ['pending', 'confirmed'].includes(a.status) && a.check_in_date && a.check_in_date.slice(0, 10) === today).length;
-    const departures = masterRes.filter(a => a.status === 'checked_in' && a.check_out_date && a.check_out_date.slice(0, 10) === today).length;
-    const inHouse = masterRes.filter(a => a.status === 'checked_in').length;
-    const occ = Math.round((inHouse / 50) * 100);
-
-    return { arrivals_today: arrivals, departures_today: departures, in_house: inHouse, occupancy: occ };
-  }, [masterRes]);
+  }, [reservations]);
 
   const clearFilters = () => {
     setSearchQuery('');
@@ -1792,41 +1715,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     } catch (e) { console.error(e); }
     setHotelRptLoading(false);
   };
-
-  const setAuditWindow = (preset) => {
-    const today = new Date();
-    if (preset === 'today') {
-      const todayStr = today.toISOString().split('T')[0];
-      setHotelRptStart(todayStr);
-      setHotelRptEnd(todayStr);
-    } else if (preset === 'week') {
-      const d = new Date();
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d.setDate(diff));
-      setHotelRptStart(monday.toISOString().split('T')[0]);
-      setHotelRptEnd(today.toISOString().split('T')[0]);
-    }
-  };
-
-  const weeklyRevData = useMemo(() => {
-    if (!dailyRevData || dailyRevData.length === 0) return [];
-    const weeksMap = {};
-    dailyRevData.forEach(row => {
-      const d = new Date(row.date);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      const monday = new Date(d.setDate(diff));
-      const weekStr = monday.toISOString().split('T')[0];
-      if (!weeksMap[weekStr]) {
-        weeksMap[weekStr] = { date: weekStr, charged: 0, paid: 0, balance: 0 };
-      }
-      weeksMap[weekStr].charged += row.charged;
-      weeksMap[weekStr].paid += row.paid;
-      weeksMap[weekStr].balance += row.balance;
-    });
-    return Object.values(weeksMap).sort((a, b) => a.date.localeCompare(b.date));
-  }, [dailyRevData]);
 
   const fetchFinancialReport = async () => {
     setHotelRptLoading(true);
@@ -1995,31 +1883,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     }
   }, []);
 
-  const [testingEmail, setTestingEmail] = useState(false);
-  const testEmail = async () => {
-    const to = prompt("Enter an email address to send the test email to:");
-    if (!to) return;
-    setTestingEmail(true);
-    setSettingsSavedMsg('');
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/test-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ to })
-      });
-      const data = await response.json();
-      if (data.success) {
-        setSettingsSavedMsg('Test email sent successfully! Check your inbox.');
-      } else {
-        alert('Failed to send test email: ' + data.message);
-      }
-    } catch (err) {
-      alert('Error sending test email: ' + err.message);
-    } finally {
-      setTestingEmail(false);
-    }
-  };
-
   const saveHotelSettings = async () => {
     setSavingSettings(true);
     setSettingsSavedMsg('');
@@ -2167,7 +2030,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
 
   const saveRoomEdit = async (id) => {
     try {
-      let finalImages = editRoomForm.images || [];
+      let currentImages = editRoomForm.images || [];
       if (editRoomFiles && editRoomFiles.length > 0) {
         const formData = new FormData();
         Array.from(editRoomFiles).forEach(file => formData.append('photos', file));
@@ -2177,7 +2040,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
         });
         const uploadData = await uploadRes.json();
         if (uploadData.success) {
-          finalImages = [...finalImages, ...uploadData.urls];
+          currentImages = [...currentImages, ...uploadData.urls];
         }
       }
 
@@ -2193,7 +2056,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
           amenities: editRoomForm.amenities,
           floor: parseInt(editRoomForm.floor) || 1,
           area: editRoomForm.area,
-          images: finalImages
+          images: currentImages
         })
       });
       const data = await response.json();
@@ -2239,7 +2102,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
     if (filter !== 'all') params.append('status', filter);
-    window.open(`${API_BASE_URL}/api/export/appointments?${params}`, '_blank');
+    window.open(`${API_BASE_URL}/api/export/reservations?${params}`, '_blank');
   };
 
   // Send SMS
@@ -2248,7 +2111,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
       const response = await fetch(`${API_BASE_URL}/api/send-sms`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appointmentId: apt.id })
+        body: JSON.stringify({ appointmentId: res.id })
       });
       const data = await response.json();
       alert(data.message);
@@ -2268,7 +2131,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
   // Load data when tab changes
   useEffect(() => {
     if (isLoggedIn) {
-      if (activeTab === 'dashboard') fetchAppointments();
+      if (activeTab === 'dashboard') fetchReservations();
       if (activeTab === 'calendar') fetchCalendarData();
       if (activeTab === 'reports') fetchReports();
       if (activeTab === 'rooms') fetchAdminRoomTypes();
@@ -2279,6 +2142,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
         fetchHotelSettings();
         fetchAdminRoomTypes();
         fetchAdminRateCodes();
+        fetchStaff();
       }
     }
   }, [activeTab, isLoggedIn, calendarMonth, calendarYear]);
@@ -2404,9 +2268,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                       {[
                         { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg> },
-                        { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15" /></svg> },
-                        { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg> },
-                        { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg> },
+                        { label: 'Departures Today', value: reservations.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15" /></svg> },
+                        { label: 'In-House', value: reservations.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg> },
+                        { label: 'Occupancy', value: `${Math.round((reservations.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg> },
                       ].map((stat, i) => (
                         <div key={i} className="rounded-xl p-5 bg-white group hover:scale-[1.01] transition-all cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
                           <div className="flex justify-between items-start mb-3">
@@ -2426,19 +2290,19 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                           Recent Activity
                         </h3>
                         <div className="space-y-3">
-                          {appointments.slice(0, 5).map((apt, i) => (
+                          {reservations.slice(0, 5).map((res, i) => (
                             <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-[#f2f0eb] hover:bg-[#edebe9] transition-all group" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
                               <div className="flex items-center gap-3.5">
                                 <div className="w-9 h-9 rounded-xl bg-[#1E3932] flex items-center justify-center text-white font-black text-sm">
-                                  {apt.full_name.charAt(0)}
+                                  {res.full_name.charAt(0)}
                                 </div>
                                 <div>
-                                  <p className="font-bold text-[#000000]/87 text-sm">{apt.full_name}</p>
-                                  <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
+                                  <p className="font-bold text-[#000000]/87 text-sm">{res.full_name}</p>
+                                  <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{res.service_type} • {res.preferred_date}</p>
                                 </div>
                               </div>
-                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
-                                {apt.status}
+                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(res.status)}`}>
+                                {res.status}
                               </span>
                             </div>
                           ))}
@@ -2631,73 +2495,77 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                       ))}
                     </div>
 
-                    {/* Appointments List */}
-                    {masterResLoading ? (
+                    {/* Reservations List */}
+                    {isLoading ? (
                       <div className="text-center py-24">
                         <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#00754A] mb-4"></div>
                         <p className="text-black/60 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
                       </div>
-                    ) : filteredMasterRes.length === 0 ? (
+                    ) : filteredReservations.length === 0 ? (
                       <div className="text-center py-24 rounded-2xl border border-black/5 bg-white shadow-sm ">
                         <p className="text-black/60 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
                       </div>
                     ) : (
                       <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                         {/* Table Header */}
-                        <div className="hidden md:grid md:grid-cols-[60px_repeat(4,1fr)_220px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
+                        <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
                           <span>#</span>
                           <span>Guest Name</span>
-                          <span>Room</span>
-                          <span>Dates</span>
+                          <span>Service</span>
+                          <span>Check-in</span>
+                          <span>Time</span>
                           <span>Status</span>
                           <span className="text-right">Actions</span>
                         </div>
-                        {filteredMasterRes.map((apt, index) => (
-                          <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(4,1fr)_220px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
-                            <span className="text-black/60 font-mono text-xs">{apt.id}</span>
+                        {filteredReservations.map((res, index) => (
+                          <div key={res.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
+                            <span className="text-black/60 font-mono text-xs">{res.id}</span>
                             <div className="min-w-0">
-                              <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{apt.full_name}</p>
-                              <p className="text-black/60 text-[10px] truncate md:hidden">{apt.phone_number}</p>
+                              <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{res.full_name}</p>
+                              <p className="text-black/60 text-[10px] truncate md:hidden">{res.phone_number}</p>
                             </div>
-                            <div className="min-w-0">
-                              <p className="text-black/60 text-xs font-bold truncate">Room {apt.room_number || 'TBA'}</p>
-                              <p className="text-black/60 text-[10px] truncate">{apt.room_type}</p>
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-black/60 text-[10px] font-medium truncate uppercase tracking-widest">In: {new Date(apt.check_in_date).toLocaleDateString()}</p>
-                              <p className="text-black/60 text-[10px] font-medium truncate uppercase tracking-widest">Out: {new Date(apt.check_out_date).toLocaleDateString()}</p>
-                            </div>
-                            <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(apt.status)}`}>
-                              {apt.status}
+                            <span className="text-black/60 text-xs font-medium truncate">{res.service_type}</span>
+                            <span className="text-black/60 text-xs font-medium">{res.preferred_date}</span>
+                            <span className="text-black/60 text-xs font-medium">{res.preferred_time}</span>
+                            <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(res.status)}`}>
+                              {res.status}
                             </span>
-                            <div className="flex flex-nowrap gap-1.5 justify-end">
-                              {apt.status === 'pending' && (
+                            <div className="flex flex-wrap gap-1 justify-end">
+                              {(res.status === 'pending' || res.status === 'confirmed') && (
+                                <button onClick={() => openRescheduleModal(apt)} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition-all border border-purple-200">
+                                  Reschedule
+                                </button>
+                              )}
+                              {res.status === 'pending' && (
                                 <>
-                                  <button onClick={() => updateMasterResStatus(apt.id, 'confirmed')} disabled={updatingId === apt.id} className="px-2 py-1 bg-green-50 text-green-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-green-100 transition-all border border-green-200 disabled:opacity-50 shadow-sm">
+                                  <button onClick={() => updateStatus(res.id, 'confirmed')} disabled={updatingId === res.id} className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs hover:bg-green-100 transition-all border border-green-200 disabled:opacity-50">
                                     Confirm
                                   </button>
-                                  <button onClick={() => updateMasterResStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50 shadow-sm">
+                                  <button onClick={() => updateStatus(res.id, 'cancelled')} disabled={updatingId === res.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
                                     Cancel
                                   </button>
                                 </>
                               )}
-                              {apt.status === 'confirmed' && (
-                                <button onClick={() => updateMasterResStatus(apt.id, 'cancelled')} disabled={updatingId === apt.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50 shadow-sm">
-                                  Cancel
-                                </button>
+                              {res.status === 'confirmed' && (
+                                <>
+                                  <button onClick={() => updateStatus(res.id, 'completed')} disabled={updatingId === res.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
+                                    Complete
+                                  </button>
+                                  <button onClick={() => updateStatus(res.id, 'cancelled')} disabled={updatingId === res.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
+                                    Cancel
+                                  </button>
+                                </>
                               )}
-                              {apt.status === 'checked_in' && (
-                                <button onClick={() => updateMasterResStatus(apt.id, 'checked_out')} disabled={updatingId === apt.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50 shadow-sm">
-                                  Complete
-                                </button>
-                              )}
-                              {(apt.status === 'cancelled' || apt.status === 'checked_out' || apt.status === 'completed') && (
-                                <button onClick={() => updateMasterResStatus(apt.id, 'pending')} disabled={updatingId === apt.id} className="px-2 py-1 bg-amber-50 text-amber-600 rounded text-[10px] font-bold uppercase tracking-wider hover:bg-amber-100 transition-all border border-amber-200 disabled:opacity-50 shadow-sm">
+                              {(res.status === 'cancelled' || res.status === 'completed') && (
+                                <button onClick={() => updateStatus(res.id, 'pending')} disabled={updatingId === res.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
                                   Reopen
                                 </button>
                               )}
-                              <button onClick={() => { setActiveTab('frontdesk'); }} className="px-3 py-1.5 bg-[#00754A] text-white rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-[#006241] transition-all shadow-sm ml-1">
-                                Manage
+                              <button onClick={() => sendSMSReminder(apt)} className="px-2 py-1 bg-cyan-50 text-cyan-600 rounded text-xs hover:bg-cyan-100 transition-all border border-cyan-200" title="Send SMS Reminder">
+                                📱
+                              </button>
+                              <button onClick={() => printSlip(apt)} className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs hover:bg-gray-100 transition-all border border-gray-200" title="Print Appointment Slip">
+                                🖨️
                               </button>
                             </div>
                           </div>
@@ -2812,10 +2680,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         <div className="w-2 h-2 rounded-full bg-red-500"></div>
                         <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'dirty').length} Dirty</span>
                       </div>
-                      <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full" style={{ background: '#006241' }}></div>
-                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'inspected').length} Inspected</span>
-                      </div>
                       <button
                         className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
                         style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
@@ -2831,24 +2695,33 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                 </div>
                 <div className="p-6 md:p-8 flex-1 overflow-y-auto">
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    {hkRooms.map((room) => {
-                      const status = room.hk_status === 'inspected' ? 'Inspected' : room.hk_status === 'dirty' ? 'Dirty' : 'Clean';
-                      const dotColor = status === 'Clean' ? '#10B981' : status === 'Dirty' ? '#c82014' : '#006241';
-                      const textColor = status === 'Clean' ? 'text-emerald-600' : status === 'Dirty' ? 'text-[#c82014]' : 'text-[#006241]';
-                      const bg = status === 'Clean' ? 'bg-emerald-50 border-emerald-200' : status === 'Dirty' ? 'bg-red-50 border-red-200' : 'bg-[#d4e9e2] border-[#d4e9e2]';
+                    {hkRooms.map((r) => {
+                      const status = r.hk_status || 'clean';
+                      const isClean = status === 'clean';
+                      const isDirty = status === 'dirty';
+                      const isInspected = status === 'inspected';
+                      
+                      const displayStatus = isClean ? 'Clean' : isDirty ? 'Dirty' : isInspected ? 'Inspected' : 'O.O.O.';
+                      
+                      const dotColor = isClean ? '#10B981' : isDirty ? '#c82014' : isInspected ? '#006241' : '#f59e0b';
+                      const textColor = isClean ? 'text-emerald-600' : isDirty ? 'text-[#c82014]' : isInspected ? 'text-[#006241]' : 'text-amber-600';
+                      const bg = isClean ? 'bg-emerald-50 border-emerald-200' : isDirty ? 'bg-red-50 border-red-200' : isInspected ? 'bg-[#d4e9e2] border-[#d4e9e2]' : 'bg-amber-50 border-amber-200';
+                      
+                      const toggleStatus = () => {
+                         if (status === 'clean') updateHkStatus(r.room_number, 'dirty');
+                         else if (status === 'dirty') updateHkStatus(r.room_number, 'inspected');
+                         else if (status === 'inspected') updateHkStatus(r.room_number, 'clean');
+                         else updateHkStatus(r.room_number, 'clean');
+                      };
+
                       return (
-                        <div
-                          key={room.room_number}
-                          onClick={() => cycleHkStatus(room.room_number, room.hk_status || 'clean')}
-                          className={`border rounded-xl p-4 hover:scale-[1.02] transition-all cursor-pointer ${bg}`}
-                          title="Click to change status: Clean -> Dirty -> Inspected"
-                        >
+                        <div key={r.room_number} onClick={toggleStatus} className={`border rounded-xl p-4 hover:scale-[1.02] transition-all cursor-pointer ${bg}`}>
                           <div className="flex justify-between items-center mb-3">
                             <span className="font-black text-black/50 text-[9px] uppercase tracking-widest">Room</span>
                             <div className="w-2 h-2 rounded-full" style={{ background: dotColor }}></div>
                           </div>
-                          <p className="text-2xl font-black text-[#1E3932]">{room.room_number}</p>
-                          <p className={`text-[9px] font-black uppercase tracking-widest mt-1.5 ${textColor}`}>{status}</p>
+                          <p className="text-2xl font-black text-[#1E3932]">{r.room_number}</p>
+                          <p className={`text-[9px] font-black uppercase tracking-widest mt-1.5 ${textColor}`}>{displayStatus}</p>
                         </div>
                       );
                     })}
@@ -2925,22 +2798,22 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/[0.03]">
-                          {appointments.length === 0 ? (
+                          {reservations.length === 0 ? (
                             <tr><td colSpan="6" className="px-6 py-12 text-center text-black/60 italic text-xs">No stay records found for billing.</td></tr>
-                          ) : appointments.map((apt, i) => (
+                          ) : reservations.map((res, i) => (
                             <tr key={i} onClick={() => openFolio(apt)} className="hover:bg-white/[0.03] transition-all group cursor-pointer text-xs">
                               <td className="px-6 py-4">
-                                <span className="font-mono font-bold text-[#00754A]">#{apt.id}</span>
-                                <span className="text-[9px] text-black/60 ml-2">{new Date(apt.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                <span className="font-mono font-bold text-[#00754A]">#{res.id}</span>
+                                <span className="text-[9px] text-black/60 ml-2">{new Date(res.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                               </td>
-                              <td className="px-6 py-4 font-bold text-black/60">{apt.full_name}</td>
+                              <td className="px-6 py-4 font-bold text-black/60">{res.full_name}</td>
                               <td className="px-6 py-4">
-                                <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{apt.room_number || 'TBA'}</span>
+                                <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{res.room_number || 'TBA'}</span>
                               </td>
-                              <td className="px-6 py-4 text-black/60">{apt.service_type || apt.room_type}</td>
+                              <td className="px-6 py-4 text-black/60">{res.service_type || res.room_type}</td>
                               <td className="px-6 py-4">
-                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
-                                  {apt.status}
+                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(res.status)}`}>
+                                  {res.status}
                                 </div>
                               </td>
                               <td className="px-6 py-4 text-right">
@@ -2956,7 +2829,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                     </div>
 
                     <div className="px-6 py-3 bg-white/[0.02] border-t border-black/5 flex items-center justify-between text-[9px] font-bold text-black/60 uppercase">
-                      <span>{appointments.length} Stay Records Found</span>
+                      <span>{reservations.length} Stay Records Found</span>
                     </div>
                   </div>
                 </div>
@@ -3024,7 +2897,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
 
                 for (let day = 1; day <= daysInMonth; day++) {
                   const dateStr = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                  const dayAppointments = calendarData.appointments?.filter(a => a.preferred_date === dateStr) || [];
+                  const dayReservations = calendarData.reservations?.filter(a => a.preferred_date === dateStr) || [];
                   const isBlocked = calendarData.blockedDates?.some(b => b.blocked_date === dateStr);
                   const isToday = dateStr === new Date().toISOString().split('T')[0];
 
@@ -3042,20 +2915,20 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                       {isBlocked && (
                         <div className="text-[9px] font-black uppercase tracking-widest text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded-lg text-center">Blocked</div>
                       )}
-                      {dayAppointments.slice(0, 3).map((apt, idx) => (
+                      {dayReservations.slice(0, 3).map((res, idx) => (
                         <div
                           key={idx}
-                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
-                            apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
-                              apt.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
+                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${res.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
+                            res.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
+                              res.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
                                 'bg-white shadow-sm text-black/60'
                             }`}
                         >
-                          {apt.full_name.split(' ')[0]}
+                          {res.full_name.split(' ')[0]}
                         </div>
                       ))}
-                      {dayAppointments.length > 3 && (
-                        <div className="text-[9px] font-black text-black/60 px-2 mt-1">+{dayAppointments.length - 3} MORE</div>
+                      {dayReservations.length > 3 && (
+                        <div className="text-[9px] font-black text-black/60 px-2 mt-1">+{dayReservations.length - 3} MORE</div>
                       )}
                     </div>
                   );
@@ -3088,6 +2961,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                     {/* Sub-tab navigation */}
                     <div className="flex gap-2 flex-wrap">
                       {[
+                        { id: 'reservations', label: 'Reservations' },
                         { id: 'management', label: 'Stay Reports' },
                         { id: 'financial', label: 'Financials' },
                       ].map(sub => (
@@ -3105,6 +2979,81 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         >{sub.label}</button>
                       ))}
                     </div>
+
+                    {/* ── Reservations sub-tab (existing) ── */}
+                    {reportsSubTab === 'reservations' && (
+                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        {/* Reservations filter bar */}
+                        <div className="bg-white rounded-xl p-6" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
+                          <div className="flex flex-wrap gap-6 items-end">
+                            <div className="flex-1 min-w-[200px]">
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
+                              <div className="grid grid-cols-2 gap-3">
+                                <input type="date" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)}
+                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
+                                <input type="date" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)}
+                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
+                              </div>
+                            </div>
+                            <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
+                          </div>
+                        </div>
+                        {reportStats && (
+                          <>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              {[
+                                { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#00754A' },
+                                { label: 'Completed', value: reportStats.totals?.completed || 0, color: '#10B981' },
+                                { label: 'Cancelled', value: reportStats.totals?.cancelled || 0, color: '#F43F5E' },
+                                { label: 'Conversion', value: `${reportStats.totals?.total > 0 ? Math.round((reportStats.totals.completed / reportStats.totals.total) * 100) : 0}%`, color: '#F59E0B' },
+                              ].map((c, i) => (
+                                <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
+                                  <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
+                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
+                                  <p className="text-3xl font-black text-[#000000]/87">{c.value}</p>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
+                                  <span>Service Distribution</span>
+                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
+                                </h3>
+                                <div className="space-y-5">
+                                  {reportStats.byService?.map((item, idx) => (
+                                    <div key={idx} className="group">
+                                      <div className="flex items-center justify-between text-xs mb-2">
+                                        <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors">{item.service_type}</span>
+                                        <span className="text-[#000000]/87 font-black font-mono">{item.count} <span className="text-black/60 font-medium ml-1">bookings</span></span>
+                                      </div>
+                                      <div className="w-full h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
+                                        <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.3)]" style={{ width: `${(item.count / reportStats.totals.total) * 100}%` }} />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
+                                  <span>Peak Occupancy Times</span>
+                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
+                                </h3>
+                                <div className="grid grid-cols-2 gap-3">
+                                  {reportStats.hourly?.map((item, idx) => (
+                                    <div key={idx} className="bg-white shadow-sm border border-black/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
+                                      <p className="text-[#00754A] font-black text-sm font-mono tracking-tighter">{item.time}</p>
+                                      <p className="text-black/60 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
 
                     {/* ── Management sub-tab ── */}
                     {reportsSubTab === 'management' && (
@@ -3226,13 +3175,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                         {/* Filter bar */}
                         <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
                           <div className="flex-1 min-w-[200px]">
-                            <div className="flex items-center justify-between mb-2">
-                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest">Audit Window</label>
-                              <div className="flex gap-2">
-                                <button onClick={() => setAuditWindow('today')} className="text-[9px] font-black uppercase tracking-widest text-[#00754A] hover:text-[#006241]">Today</button>
-                                <button onClick={() => setAuditWindow('week')} className="text-[9px] font-black uppercase tracking-widest text-[#00754A] hover:text-[#006241]">This Week</button>
-                              </div>
-                            </div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
                             <div className="grid grid-cols-2 gap-3">
                               <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
                                 className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
@@ -3276,10 +3219,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                                     <button onClick={() => setFinView('daily')}
                                       className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'daily' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
                                       Daily
-                                    </button>
-                                    <button onClick={() => setFinView('weekly')}
-                                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'weekly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
-                                      Weekly
                                     </button>
                                     <button onClick={() => { setFinView('monthly'); fetchMonthlyReport(); }}
                                       className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'monthly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
@@ -3329,44 +3268,6 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                                           <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.charged, 0))}</td>
                                           <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.paid, 0))}</td>
                                           <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.balance, 0))}</td>
-                                        </tr>
-                                      </tfoot>
-                                    </table>
-                                  </div>
-                                )
-                              )}
-
-                              {/* Weekly table */}
-                              {finView === 'weekly' && (
-                                weeklyRevData.length === 0 ? (
-                                  <div className="py-16 text-center text-black/60 italic text-xs font-medium">No ledger entries for this window.</div>
-                                ) : (
-                                  <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                      <thead>
-                                        <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                                          <th className="px-6 py-4">Week Of (Monday)</th>
-                                          <th className="px-6 py-4 text-right">Revenue Charged</th>
-                                          <th className="px-6 py-4 text-right">Cash Collected</th>
-                                          <th className="px-6 py-4 text-right">Net Balance</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-white/[0.03]">
-                                        {weeklyRevData.map((r, i) => (
-                                          <tr key={i} className="hover:bg-white/[0.02] transition-all group">
-                                            <td className="px-6 py-4 text-black/60 text-xs font-bold">{fmtD(r.date)}</td>
-                                            <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
-                                            <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
-                                            <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                      <tfoot>
-                                        <tr className="bg-white/[0.05] font-black border-t border-black/5">
-                                          <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
-                                          <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(weeklyRevData.reduce((s, r) => s + r.charged, 0))}</td>
-                                          <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(weeklyRevData.reduce((s, r) => s + r.paid, 0))}</td>
-                                          <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(weeklyRevData.reduce((s, r) => s + r.balance, 0))}</td>
                                         </tr>
                                       </tfoot>
                                     </table>
@@ -3562,7 +3463,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                       { id: 'reservations', label: 'Reservations' },
                       { id: 'availability', label: 'Availability' },
                       { id: 'notifications', label: 'Notifications' },
-                      { id: 'clinic', label: 'Clinic' },
+                      { id: 'staff', label: 'Staff & Permissions' },
                     ].map(tab => (
                       <button
                         key={tab.id}
@@ -3614,6 +3515,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                           </div>
                         ))}
                       </div>
+
                       <div className="pt-6 border-t border-black/5 space-y-4">
                         <div>
                           <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Hero Images</h4>
@@ -3754,26 +3656,16 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                             { key: 'area', label: 'Wing / Area', type: 'text', placeholder: 'e.g. East Wing' },
                             { key: 'amenities', label: 'Amenities', type: 'text', placeholder: 'comma-separated' },
                           ].map(field => (
-                            <div key={field.key} className={`space-y-2 ${field.key === 'amenities' || field.key === 'description' ? 'col-span-1 md:col-span-2 lg:col-span-4' : ''}`}>
+                            <div key={field.key} className="space-y-2">
                               <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
-                              {field.key === 'amenities' || field.key === 'description' ? (
-                                <textarea
-                                  value={newRoomForm[field.key]}
-                                  onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
-                                  placeholder={field.placeholder}
-                                  rows={4}
-                                  className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium resize-y"
-                                />
-                              ) : (
-                                <input
-                                  type={field.type}
-                                  value={newRoomForm[field.key]}
-                                  onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
-                                  placeholder={field.placeholder}
-                                  min={field.type === 'number' ? '0' : undefined}
-                                  className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
-                                />
-                              )}
+                              <input
+                                type={field.type}
+                                value={newRoomForm[field.key]}
+                                onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                placeholder={field.placeholder}
+                                min={field.type === 'number' ? '0' : undefined}
+                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                              />
                             </div>
                           ))}
                         </div>
@@ -3816,44 +3708,31 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                                       { key: 'area', label: 'Wing' },
                                       { key: 'amenities', label: 'Amenities' },
                                     ].map(f => (
-                                      <div key={f.key} className={f.key === 'amenities' || f.key === 'description' ? 'col-span-2 md:col-span-4' : ''}>
+                                      <div key={f.key}>
                                         <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">{f.label}</label>
-                                        {f.key === 'amenities' || f.key === 'description' ? (
-                                          <textarea value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
-                                            className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87 resize-y" rows={4} />
-                                        ) : (
-                                          <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
-                                            className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
-                                        )}
+                                        <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
+                                          className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
                                       </div>
                                     ))}
                                   </div>
-                                  <div className="mt-4 space-y-2">
-                                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Existing Photos</label>
-                                    {editRoomForm.images && editRoomForm.images.length > 0 ? (
-                                      <div className="flex flex-wrap gap-2 mb-4 ml-1">
-                                        {editRoomForm.images.map((imgUrl, idx) => (
-                                          <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
-                                            <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Room ${idx}`} className="w-full h-full object-cover" />
-                                            <button
-                                              onClick={(e) => {
-                                                e.preventDefault();
-                                                const newArr = [...editRoomForm.images];
-                                                newArr.splice(idx, 1);
-                                                setEditRoomForm({ ...editRoomForm, images: newArr });
-                                              }}
-                                              title="Remove Image"
-                                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
-                                            >
-                                              &times;
-                                            </button>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      <div className="text-[10px] text-black/40 italic ml-1 mb-4">No photos currently saved for this room type.</div>
-                                    )}
-                                    <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Append Photos</label>
+                                  <div className="mt-4">
+                                    <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">Room Photos</label>
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                      {(editRoomForm.images || []).map((img, idx) => (
+                                        <div key={idx} className="relative w-16 h-12 rounded overflow-hidden shadow group border border-black/10">
+                                          <img src={img.startsWith('http') ? img : `${API_BASE_URL}${img}`} alt={`Room ${idx}`} className="w-full h-full object-cover" />
+                                          <button
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              const updated = [...editRoomForm.images];
+                                              updated.splice(idx, 1);
+                                              setEditRoomForm({ ...editRoomForm, images: updated });
+                                            }}
+                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-bl px-1 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"
+                                          >&times;</button>
+                                        </div>
+                                      ))}
+                                    </div>
                                     <input
                                       type="file"
                                       multiple
@@ -3862,7 +3741,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                                       className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                                     />
                                     {editRoomFiles.length > 0 && (
-                                      <div className="text-xs text-[#00754A] font-medium ml-1">
+                                      <div className="text-xs text-[#00754A] font-medium ml-1 mt-1">
                                         {editRoomFiles.length} file(s) selected
                                       </div>
                                     )}
@@ -4268,73 +4147,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                           <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
                         </div>
                       </div>
-
-                      {/* Email Templates */}
-                      <div className="mt-8 pt-8 border-t border-black/5 space-y-8">
-                        <div>
-                          <h4 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-4">Email Templates</h4>
-                          <p className="text-xs text-black/60 mb-6">
-                            Customize the emails sent to your guests. You can use HTML to format the text and use the following placeholders:
-                            <code className="bg-black/5 px-1 py-0.5 rounded ml-1">{"{{full_name}}, {{room_type}}, {{check_in_date}}, {{check_out_date}}, {{number_of_guests}}, {{id}}"}</code>.
-                          </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                          {/* Booking Confirmation */}
-                          <div className="space-y-4">
-                            <h5 className="text-xs font-black text-[#000000]/87 uppercase tracking-widest">Booking Confirmation</h5>
-                            <div>
-                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Subject</label>
-                              <input
-                                type="text"
-                                value={hotelSettings.email_booking_subject || ''}
-                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_booking_subject: e.target.value }))}
-                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">HTML Body</label>
-                              <textarea
-                                rows={8}
-                                value={hotelSettings.email_booking_body || ''}
-                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_booking_body: e.target.value }))}
-                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm font-mono focus:border-[#00754A]/50 outline-none transition-all resize-y"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Check-in Reminder */}
-                          <div className="space-y-4">
-                            <h5 className="text-xs font-black text-[#000000]/87 uppercase tracking-widest">Check-in Reminder</h5>
-                            <div>
-                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Subject</label>
-                              <input
-                                type="text"
-                                value={hotelSettings.email_reminder_subject || ''}
-                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_reminder_subject: e.target.value }))}
-                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">HTML Body</label>
-                              <textarea
-                                rows={8}
-                                value={hotelSettings.email_reminder_body || ''}
-                                onChange={(e) => setHotelSettings(prev => ({ ...prev, email_reminder_body: e.target.value }))}
-                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm font-mono focus:border-[#00754A]/50 outline-none transition-all resize-y"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex justify-end pt-4 gap-4">
-                        <button
-                          onClick={testEmail}
-                          disabled={testingEmail}
-                          className="px-10 py-4 bg-white border-2 border-[#006241] text-[#006241] rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-sm hover:bg-[#006241]/5 active:scale-95 transition-all disabled:opacity-30"
-                        >
-                          {testingEmail ? 'Sending...' : 'Test Email config'}
-                        </button>
+                      <div className="flex justify-end pt-4">
                         <button
                           onClick={saveHotelSettings}
                           disabled={savingSettings}
@@ -4346,112 +4159,82 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, isLoggedIn, s
                     </div>
                   )}
 
-                  {/* ── Clinic ── */}
-                  {settingsSubTab === 'clinic' && (
+                  {/* ── Staff & Permissions ── */}
+                  {settingsSubTab === 'staff' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      {/* Doctors */}
                       <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                        <div className="mb-8">
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Practitioner Registry</h3>
-                          <p className="text-black/60 text-xs mt-1">Manage specialists available for appointment scheduling</p>
+                        <div className="mb-8 border-b border-black/5 pb-6">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Staff Accounts</h3>
+                          <p className="text-black/60 text-xs mt-1">Register new staff and assign modular permissions.</p>
                         </div>
-                        <div className="flex flex-wrap gap-4 items-end mb-8">
-                          <div className="flex-1 min-w-[200px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Full Name</label>
-                            <input
-                              type="text"
-                              value={newDoctorName}
-                              onChange={(e) => setNewDoctorName(e.target.value)}
-                              placeholder="e.g. Dr. Jane Smith"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                            />
+                        {staffMsg && <div className="mb-4 text-sm text-[#00754A] font-bold p-3 bg-[#00754A]/10 rounded-xl">{staffMsg}</div>}
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-8">
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Username</label>
+                            <input type="text" value={staffNewForm.username} onChange={e => setStaffNewForm({...staffNewForm, username: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
-                          <div className="flex-[2] min-w-[250px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Medical Specialization</label>
-                            <input
-                              type="text"
-                              value={newDoctorSpec}
-                              onChange={(e) => setNewDoctorSpec(e.target.value)}
-                              placeholder="e.g. General Physician"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                            />
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Password</label>
+                            <input type="password" value={staffNewForm.password} onChange={e => setStaffNewForm({...staffNewForm, password: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
-                          <button
-                            onClick={addDoctor}
-                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
-                          >
-                            Add Practitioner
-                          </button>
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
+                            <input type="text" value={staffNewForm.full_name} onChange={e => setStaffNewForm({...staffNewForm, full_name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                          </div>
+                          <button 
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`${API_BASE_URL}/api/staff`, {
+                                  method: 'POST', headers: {'Content-Type': 'application/json'},
+                                  body: JSON.stringify(staffNewForm)
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  setStaffMsg('Staff added successfully.');
+                                  setStaffNewForm({username:'', password:'', full_name:'', permissions:[]});
+                                  fetchStaff();
+                                } else setStaffMsg(data.message);
+                                setTimeout(() => setStaffMsg(''), 3000);
+                              } catch(e){}
+                            }}
+                            className="w-full px-4 py-3 bg-[#000000] text-white text-xs font-bold rounded-xl hover:bg-[#00754A] transition-colors"
+                          >Add Staff</button>
                         </div>
-                        <div className="space-y-3">
-                          <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Active Staff</h4>
-                          {doctors.map(doc => (
-                            <div key={doc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
-                              <div className="flex items-center gap-6">
-                                <span className="text-[#000000]/87 font-bold text-sm">{doc.name}</span>
-                                <span className="text-black/60 text-xs font-medium tracking-wide">— {doc.specialization}</span>
+                        
+                        <div className="space-y-4">
+                          {staffLoading ? <p className="text-xs text-black/40">Loading staff...</p> : adminStaffList.map(s => (
+                            <div key={s.id} className="p-4 border border-black/5 rounded-xl bg-white/[0.01]">
+                              <div className="flex justify-between items-center mb-4">
+                                <div>
+                                  <div className="font-bold text-sm text-[#000000]/87">{s.full_name} <span className="text-black/40 text-xs ml-2">@{s.username}</span></div>
+                                </div>
+                                <button onClick={async () => {
+                                  if(window.confirm('Delete staff?')) {
+                                    await fetch(`${API_BASE_URL}/api/staff/${s.id}`, {method: 'DELETE'});
+                                    fetchStaff();
+                                  }
+                                }} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={16} /></button>
                               </div>
-                              <button onClick={() => deleteDoctor(doc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Revoke</button>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {['dashboard', 'reservations', 'frontdesk', 'rooms', 'housekeeping', 'billing', 'reports', 'settings'].map(perm => (
+                                  <label key={perm} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-lg">
+                                    <input type="checkbox" checked={(s.permissions || []).includes(perm) || (s.permissions || []).includes('all')} 
+                                      onChange={async (e) => {
+                                        const newPerms = e.target.checked ? [...(s.permissions||[]), perm] : (s.permissions||[]).filter(p => p !== perm && p !== 'all');
+                                        await fetch(`${API_BASE_URL}/api/staff/${s.id}/permissions`, {
+                                          method: 'PUT', headers: {'Content-Type': 'application/json'},
+                                          body: JSON.stringify({permissions: newPerms})
+                                        });
+                                        fetchStaff();
+                                      }}
+                                    />
+                                    <span className="text-xs font-medium uppercase">{perm}</span>
+                                  </label>
+                                ))}
+                              </div>
                             </div>
                           ))}
-                          {doctors.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No practitioners registered.</div>}
-                        </div>
-                      </div>
-
-                      {/* Services */}
-                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                        <div className="mb-8">
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Service Catalog</h3>
-                          <p className="text-black/60 text-xs mt-1">Define clinic procedures, estimated durations, and standard pricing</p>
-                        </div>
-                        <div className="flex flex-wrap gap-4 items-end mb-8">
-                          <div className="flex-[3] min-w-[250px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Service Descriptor</label>
-                            <input
-                              type="text"
-                              value={newServiceName}
-                              onChange={(e) => setNewServiceName(e.target.value)}
-                              placeholder="e.g. Diagnostic Consultation"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-[120px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Duration (Min)</label>
-                            <input
-                              type="number"
-                              value={newServiceDuration}
-                              onChange={(e) => setNewServiceDuration(parseInt(e.target.value))}
-                              placeholder="30"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-[120px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Base Price (₱)</label>
-                            <input
-                              type="number"
-                              value={newServicePrice}
-                              onChange={(e) => setNewServicePrice(parseFloat(e.target.value))}
-                              placeholder="0.00"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
-                            />
-                          </div>
-                          <button onClick={addService} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all">
-                            Add Service
-                          </button>
-                        </div>
-                        <div className="space-y-3">
-                          <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Offered Procedures</h4>
-                          {services.map(svc => (
-                            <div key={svc.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
-                              <div className="flex items-center gap-6">
-                                <span className="text-[#000000]/87 font-bold text-sm">{svc.name}</span>
-                                <span className="text-black/60 text-xs font-medium tracking-wide">— {svc.duration} Min</span>
-                                {svc.price > 0 && <span className="text-[#00754A] font-mono text-sm font-black">₱{svc.price.toLocaleString()}</span>}
-                              </div>
-                              <button onClick={() => deleteService(svc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Remove</button>
-                            </div>
-                          ))}
-                          {services.length === 0 && <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">No services defined in the catalog.</div>}
                         </div>
                       </div>
                     </div>
@@ -5045,19 +4828,17 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
 function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
   const [currentImg, setCurrentImg] = useState(0);
 
-  // Use room-specific images if available from the backend.
-  // Otherwise, fallback to placeholders based on room ID to give variety.
-  const images = room.images && room.images.length > 0
-    ? room.images.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`)
-    : room.id % 2 === 0 ? [
-      "/assets/images/rooms/sample_room_2.png",
-      "/assets/images/gallery/bathroom.jpg",
-      "/assets/images/gallery/room_standard.jpg"
-    ] : [
-      "/assets/images/rooms/sample_room_1.png",
-      "/assets/images/gallery/room_standard.jpg",
-      "/assets/images/gallery/bathroom.jpg"
-    ];
+  // Here you can pull room-specific images if available from the backend.
+  // For now, we cycle through some placeholders based on room ID to give variety.
+  const images = room.id % 2 === 0 ? [
+    "/assets/images/rooms/sample_room_2.png",
+    "/assets/images/gallery/bathroom.jpg",
+    "/assets/images/gallery/room_standard.jpg"
+  ] : [
+    "/assets/images/rooms/sample_room_1.png",
+    "/assets/images/gallery/room_standard.jpg",
+    "/assets/images/gallery/bathroom.jpg"
+  ];
 
   const nextImg = (e) => {
     e.stopPropagation();
@@ -5118,10 +4899,12 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
         <p className="text-black/60 font-medium leading-relaxed mb-8">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
 
         {room.amenities && (
-          <div className="mb-8 px-2 sm:px-4">
-            <p className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium whitespace-pre-wrap">
-              {room.amenities}
-            </p>
+          <div className="mb-8 px-2 sm:px-4 flex flex-col gap-3">
+            {room.amenities.split(/(?=FEATURES:)/i).map((part, idx) => (
+              <p key={idx} className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium">
+                {part.trim()}
+              </p>
+            ))}
           </div>
         )}
 
@@ -5360,14 +5143,8 @@ function AccommodationsPage({ setCurrentPage }) {
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || new Date().toISOString().split('T')[0]);
-  const [checkOut, setCheckOut] = useState(() => {
-    const cached = sessionStorage.getItem('northomes_checkout');
-    if (cached) return cached;
-    const tmrw = new Date();
-    tmrw.setDate(tmrw.getDate() + 1);
-    return tmrw.toISOString().split('T')[0];
-  });
+  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
+  const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
   const [isChecking, setIsChecking] = useState(false);
   const [hasCheckedAvailability, setHasCheckedAvailability] = useState(false);
 
@@ -5421,27 +5198,20 @@ function AccommodationsPage({ setCurrentPage }) {
         {/* Availability Bar */}
         <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-4 justify-center">
           <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-sm shadow-sm w-full md:w-auto">
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-              <input
-                type="date"
-                value={checkIn}
-                onChange={e => setCheckIn(e.target.value)}
-                onClick={e => e.target.showPicker && e.target.showPicker()}
-                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full cursor-pointer"
-              />
-            </div>
-            <span className="text-black/20 font-bold mx-1">-</span>
-            <div className="flex items-center">
-              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-              <input
-                type="date"
-                value={checkOut}
-                onChange={e => setCheckOut(e.target.value)}
-                onClick={e => e.target.showPicker && e.target.showPicker()}
-                className="px-2 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent w-full cursor-pointer"
-              />
-            </div>
+            <svg className="w-5 h-5 text-[#CBA258] ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={e => setCheckIn(e.target.value)}
+              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
+            />
+            <span className="text-black/20 font-bold">-</span>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={e => setCheckOut(e.target.value)}
+              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
+            />
           </div>
 
           <button
@@ -5576,48 +5346,13 @@ function HomePage({ setCurrentPage }) {
   const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
   const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
   const [roomTypes, setRoomTypes] = useState([]);
-  const [heroImages, setHeroImages] = useState(['/assets/images/hero/hero1.jpg']);
-  const [galleryImages, setGalleryImages] = useState([]);
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/room-types`)
       .then(r => r.json())
       .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
       .catch(() => { });
-
-    fetch(`${API_BASE_URL}/api/hotel-settings`)
-      .then(r => r.json())
-      .then(data => {
-        if (data.success && data.settings) {
-          if (data.settings.hero_images) {
-            try {
-              const parsed = JSON.parse(data.settings.hero_images);
-              if (parsed && parsed.length > 0) {
-                setHeroImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
-              }
-            } catch (e) { }
-          }
-          if (data.settings.gallery_images) {
-            try {
-              const parsed = JSON.parse(data.settings.gallery_images);
-              if (parsed && parsed.length > 0) {
-                setGalleryImages(parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`));
-              }
-            } catch (e) { }
-          }
-        }
-      })
-      .catch(() => { });
   }, []);
-
-  useEffect(() => {
-    if (heroImages.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentHeroIndex(prev => (prev + 1) % heroImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [heroImages]);
 
   const handleBookingSearch = () => {
     if (checkIn) sessionStorage.setItem('northomes_checkin', checkIn);
@@ -5628,61 +5363,51 @@ function HomePage({ setCurrentPage }) {
   return (
     <div className="w-full flex flex-col bg-[#f2f0eb]">
       {/* Hero Image Container */}
-      <div className="w-full h-[60vh] md:h-[70vh] relative transition-opacity duration-1000">
-        {heroImages.map((imgSrc, index) => (
-          <img
-            key={index}
-            src={imgSrc}
-            alt={`Northomes Pensionne ${index}`}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${index === currentHeroIndex ? 'opacity-100' : 'opacity-0'}`}
-          />
-        ))}
-        {/* Removed Gradient Overlays to keep the hero image plain */}
+      <div className="w-full h-[60vh] md:h-[70vh] relative">
+        <img
+          src="/assets/images/hero/hero1.jpg"
+          alt="Northomes Pensionne"
+          className="w-full h-full object-cover"
+        />
+        {/* Beautiful Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#006241]/40 via-[#1E3932]/10 to-[#CBA258]/30 mix-blend-multiply"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#f2f0eb] via-transparent to-transparent opacity-80"></div>
       </div>
 
       {/* Horizontal Booking Bar - Overlapping the Hero */}
-      <div className="relative -mt-10 z-50 px-4">
-        <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-3">
-
-          {/* Date Picker Pill */}
-          <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-md shadow-sm w-full md:flex-1">
-            <div className="flex items-center flex-1">
-              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-              <input
-                type="date"
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-                onClick={e => e.target.showPicker && e.target.showPicker()}
-                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer"
-              />
-            </div>
-            <span className="text-black/20 font-bold mx-1">-</span>
-            <div className="flex items-center flex-1">
-              <svg className="w-5 h-5 text-[#CBA258] ml-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-              <input
-                type="date"
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
-                onClick={e => e.target.showPicker && e.target.showPicker()}
-                className="w-full px-2 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent cursor-pointer"
-              />
-            </div>
+      <div className="relative -mt-10 z-20 px-4">
+        <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-4 flex flex-col md:flex-row items-center gap-4">
+          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check In</span>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+            />
           </div>
-
-          {/* Guests Pill */}
-          <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-md shadow-sm w-full md:w-auto">
-            <select className="w-full px-3 py-2 text-sm font-bold text-[#006241] focus:outline-none bg-transparent">
+          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 md:border-r border-black/5 flex flex-col">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Check Out</span>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent"
+            />
+          </div>
+          <div className="flex-1 w-full px-4 md:px-6 py-2 border-b md:border-b-0 border-black/5 flex flex-col">
+            <span className="text-[10px] font-black text-black/40 uppercase tracking-widest block mb-1">Guests</span>
+            <select className="w-full text-sm font-bold text-[#006241] focus:outline-none bg-transparent">
               <option>1 Guest</option>
               <option>2 Guests</option>
               <option>3 Guests</option>
               <option>4+ Guests</option>
             </select>
           </div>
-
-          <div className="w-full md:w-auto mt-1 md:mt-0">
+          <div className="w-full md:w-auto mt-2 md:mt-0 pl-2">
             <button
               onClick={handleBookingSearch}
-              className="w-full md:w-auto px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-md font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-md hover:shadow-lg"
+              className="w-full md:w-auto px-8 py-4 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap shadow-md hover:shadow-lg"
             >
               Check Availability
             </button>
@@ -5765,47 +5490,31 @@ function HomePage({ setCurrentPage }) {
         </div>
 
         <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
-          {(() => {
-            if (galleryImages && galleryImages.length > 0) {
-              return galleryImages.map((imgUrl, i) => (
-                <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
-                  <div className="w-full flex items-center justify-center bg-black/5 aspect-auto">
-                    <img
-                      src={imgUrl}
-                      alt={`Gallery ${i}`}
-                      className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                </div>
-              ));
-            }
-
-            return [
-              { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
-              { src: "/assets/images/gallery/lobby.jpg", alt: "Lobby Reception", aspect: "aspect-[3/4]" },
-              { src: "/assets/images/gallery/cafe.jpg", alt: "Cafe and Dining", aspect: "aspect-square" },
-              { src: "/assets/images/gallery/room_standard.jpg", alt: "Standard Room", aspect: "aspect-[4/5]" },
-              { src: "/assets/images/gallery/bathroom.jpg", alt: "Clean Amenities", aspect: "aspect-[3/2]" },
-              { src: "/assets/images/gallery/parking.jpg", alt: "Secure Parking", aspect: "aspect-[4/3]" },
-            ].map((img, i) => (
-              <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
-                <div className={`w-full ${img.aspect} flex items-center justify-center bg-black/5`}>
-                  <img
-                    src={img.src}
-                    alt={img.alt}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Save photo as:<br/>\${img.src.split('/').pop()}</span></div>`;
-                    }}
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/90 via-[#1E3932]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                  <h3 className="text-white font-bold text-lg tracking-tight">{img.alt}</h3>
-                </div>
+          {[
+            { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
+            { src: "/assets/images/gallery/lobby.jpg", alt: "Lobby Reception", aspect: "aspect-[3/4]" },
+            { src: "/assets/images/gallery/cafe.jpg", alt: "Cafe and Dining", aspect: "aspect-square" },
+            { src: "/assets/images/gallery/room_standard.jpg", alt: "Standard Room", aspect: "aspect-[4/5]" },
+            { src: "/assets/images/gallery/bathroom.jpg", alt: "Clean Amenities", aspect: "aspect-[3/2]" },
+            { src: "/assets/images/gallery/parking.jpg", alt: "Secure Parking", aspect: "aspect-[4/3]" },
+          ].map((img, i) => (
+            <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
+              <div className={`w-full ${img.aspect} flex items-center justify-center bg-black/5`}>
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Save photo as:<br/>\${img.src.split('/').pop()}</span></div>`;
+                  }}
+                />
               </div>
-            ));
-          })()}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/90 via-[#1E3932]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                <h3 className="text-white font-bold text-lg tracking-tight">{img.alt}</h3>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -5909,7 +5618,7 @@ function HomePage({ setCurrentPage }) {
                 <div className="text-white/70 text-sm space-y-3 font-medium">
                   <p>Pelaez Street, Barangay Sto. Niño</p>
                   <p>Bogo City, Cebu, Philippines</p>
-                  <a href="https://northomespensione.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">northomespensione.com</a>
+                  <a href="https://northomespension.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">northomespensione.com</a>
                 </div>
               </div>
 
@@ -9015,6 +8724,11 @@ function FrontDeskTab() {
   const [fpError, setFpError] = React.useState('');
   // Checkout folio balance
   const [checkoutFolioBalance, setCheckoutFolioBalance] = React.useState(null);
+  
+  // Corporate Accounts state for Check-out
+  const [corporateAccounts, setCorporateAccounts] = React.useState([]);
+  const [chargeToCorporate, setChargeToCorporate] = React.useState(false);
+  const [selectedCorpId, setSelectedCorpId] = React.useState('');
   // Folio email
   const [folioEmailSending, setFolioEmailSending] = React.useState(false);
   const [folioEmailMsg, setFolioEmailMsg] = React.useState('');
@@ -9177,7 +8891,12 @@ function FrontDeskTab() {
   const submitCheckout = async (id) => {
     setCheckoutSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, { method: 'POST' });
+      const payload = { chargeToCorporate, corporateAccountId: selectedCorpId };
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
       if (res.ok) {
         setCheckoutConfirmId(null);
         fetchInHouse();
@@ -9264,10 +8983,16 @@ function FrontDeskTab() {
 
   const fetchCheckoutBalance = React.useCallback(async (id) => {
     setCheckoutFolioBalance(null);
+    setChargeToCorporate(false);
+    setSelectedCorpId('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${id}`);
       const data = await res.json();
       if (data.success) setCheckoutFolioBalance(data.totals.balance);
+
+      const corpRes = await fetch(`${API_BASE_URL}/api/corporate-accounts`);
+      const corpData = await corpRes.json();
+      if (corpData.success) setCorporateAccounts(corpData.accounts);
     } catch (e) { }
   }, []);
 
@@ -9615,13 +9340,13 @@ function FrontDeskTab() {
 
   // ── Sub-components ──────────────────────────────────────────────────────────
   const roomStatusConfig = {
-    available: { label: 'Available', bg: 'bg-green-500/20', border: 'border-green-400/30', text: 'text-green-300', dot: 'bg-green-400', pill: 'bg-green-500/25 text-green-200' },
-    occupied: { label: 'Occupied', bg: 'bg-blue-500/20', border: 'border-blue-400/30', text: 'text-blue-300', dot: 'bg-blue-400', pill: 'bg-blue-500/25 text-blue-200' },
-    due_out: { label: 'Due Out', bg: 'bg-orange-500/20', border: 'border-orange-400/30', text: 'text-orange-300', dot: 'bg-orange-400', pill: 'bg-orange-500/25 text-orange-200' },
-    arriving: { label: 'Arriving', bg: 'bg-purple-500/20', border: 'border-purple-400/30', text: 'text-purple-300', dot: 'bg-purple-400', pill: 'bg-purple-500/25 text-purple-200' },
-    dirty: { label: 'Dirty', bg: 'bg-yellow-500/20', border: 'border-yellow-400/30', text: 'text-yellow-300', dot: 'bg-yellow-400', pill: 'bg-yellow-500/25 text-yellow-200' },
-    inspected: { label: 'Inspected', bg: 'bg-teal-500/20', border: 'border-teal-400/30', text: 'text-teal-300', dot: 'bg-teal-400', pill: 'bg-teal-500/25 text-teal-200' },
-    out_of_order: { label: 'Out of Order', bg: 'bg-red-500/20', border: 'border-red-400/30', text: 'text-red-300', dot: 'bg-red-400', pill: 'bg-red-500/25 text-red-200' },
+    available: { label: 'Available', bg: 'bg-green-500/20', border: 'border-green-500/30', text: 'text-green-700', dot: 'bg-green-600', pill: 'bg-green-500/20 text-green-700' },
+    occupied: { label: 'Occupied', bg: 'bg-blue-500/20', border: 'border-blue-500/30', text: 'text-blue-700', dot: 'bg-blue-600', pill: 'bg-blue-500/20 text-blue-700' },
+    due_out: { label: 'Due Out', bg: 'bg-orange-500/20', border: 'border-orange-500/30', text: 'text-orange-700', dot: 'bg-orange-600', pill: 'bg-orange-500/20 text-orange-700' },
+    arriving: { label: 'Arriving', bg: 'bg-purple-500/20', border: 'border-purple-500/30', text: 'text-purple-700', dot: 'bg-purple-600', pill: 'bg-purple-500/20 text-purple-700' },
+    dirty: { label: 'Dirty', bg: 'bg-amber-500/20', border: 'border-amber-500/30', text: 'text-amber-700', dot: 'bg-amber-600', pill: 'bg-amber-500/20 text-amber-700' },
+    inspected: { label: 'Inspected', bg: 'bg-teal-500/20', border: 'border-teal-500/30', text: 'text-teal-700', dot: 'bg-teal-600', pill: 'bg-teal-500/20 text-teal-700' },
+    out_of_order: { label: 'Out of Order', bg: 'bg-red-500/20', border: 'border-red-500/30', text: 'text-red-700', dot: 'bg-red-600', pill: 'bg-red-500/20 text-red-700' },
   };
 
   const RoomCard = ({ r }) => {
@@ -9687,12 +9412,12 @@ function FrontDeskTab() {
     const inp = (field, placeholder, type = 'text', extra = {}) => (
       <input type={type} placeholder={placeholder} value={gpForm[field] || ''}
         onChange={e => setGpForm(f => ({ ...f, [field]: e.target.value }))}
-        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-[#00754A]/30 transition-colors"
+        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors"
         {...extra} />
     );
     const sel = (field, opts) => (
       <select value={gpForm[field] || ''} onChange={e => setGpForm(f => ({ ...f, [field]: e.target.value }))}
-        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-[#00754A]/30 transition-colors">
+        className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors">
         <option value="">—</option>
         {opts.map(o => <option key={o} value={o}>{o}</option>)}
       </select>
@@ -9700,22 +9425,22 @@ function FrontDeskTab() {
     const divider = (title) => (
       <div className="flex items-center gap-2 mt-3 mb-2">
         <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">{title}</span>
-        <div className="flex-1 h-px bg-black/5" />
+        <div className="flex-1 h-px bg-black/10" />
       </div>
     );
     const nights = nightsCount(gpRes);
     return ReactDOM.createPortal(
-      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
-        <div className="relative bg-white shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col rounded-2xl overflow-hidden">
+      <div className="fixed inset-0 z-[70] bg-black/60 flex items-center justify-center p-4">
+        <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl overflow-hidden bg-white shadow-2xl border border-black/10">
           {/* Header */}
-          <div className="bg-[#00754A] flex items-center justify-between px-6 py-4">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/5">
             <div>
-              <div className="text-white font-bold text-lg">Guest Profile</div>
-              <div className="text-emerald-100 text-sm mt-0.5">
+              <div className="text-[#000000]/87 font-semibold text-sm">Guest Profile</div>
+              <div className="text-black/60 text-[11px] mt-0.5">
                 Room {gpRes.room_number || '—'} &middot; {gpRes.room_type_name || gpRes.room_type} &middot; {fmtDate(gpRes.check_in_date)} – {fmtDate(gpRes.check_out_date)} ({nights} nights)
               </div>
             </div>
-            <button onClick={() => setGpOpen(false)} className="text-emerald-200 hover:text-white text-2xl font-bold leading-none transition-colors ml-2 mb-1">&times;</button>
+            <button onClick={() => setGpOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-lg leading-none transition-colors">&times;</button>
           </div>
 
           {/* Scrollable body */}
@@ -9753,7 +9478,7 @@ function FrontDeskTab() {
               <div>{lbl('Payment Method')}{sel('payment_method', ['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'])}</div>
               <div className="col-span-2">{lbl('Deposit Amount')}<input type="number" min="0" step="0.01" placeholder="0.00" value={gpForm.deposit_amount || ''}
                 onChange={e => setGpForm(f => ({ ...f, deposit_amount: e.target.value }))}
-                className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-[#00754A]/30 transition-colors" /></div>
+                className="w-full px-2 py-1 bg-white shadow-sm border border-black/5 text-[#000000]/87 text-[11px] rounded-sm outline-none focus:border-black/5 transition-colors" /></div>
             </div>
 
             {divider('REMARKS')}
@@ -9779,8 +9504,8 @@ function FrontDeskTab() {
                 Close
               </button>
               <button onClick={saveGuestProfile} disabled={gpSaving}
-                className="px-4 py-2 text-xs font-bold bg-[#00754A] hover:bg-[#006241] text-white rounded-lg uppercase tracking-widest transition-colors disabled:opacity-50">
-                {gpSaving ? 'Saving…' : 'Save Profile'}
+                className="px-4 py-1.5 text-xs font-semibold bg-[#00754A] hover:bg-[#006241] text-white rounded transition-colors disabled:opacity-50">
+                {gpSaving ? 'Saving...' : 'Save Profile'}
               </button>
             </div>
           </div>
@@ -10344,7 +10069,7 @@ function FrontDeskTab() {
                           {/* Guest Profile */}
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Guest Profile</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div>
@@ -10398,7 +10123,7 @@ function FrontDeskTab() {
                           {/* Contact */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Contact Information</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div className="col-span-2">
@@ -10426,7 +10151,7 @@ function FrontDeskTab() {
                           {/* Identification */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Identification</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                             <div>
@@ -10454,7 +10179,7 @@ function FrontDeskTab() {
                           {/* Stay Details */}
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Stay Details</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div className="col-span-2">
@@ -10582,7 +10307,7 @@ function FrontDeskTab() {
                           {/* Payment */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Payment</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
                             <div className="col-span-2">
@@ -10612,7 +10337,7 @@ function FrontDeskTab() {
                           {/* Remarks */}
                           <div className="flex items-center gap-2 mt-1 mb-1">
                             <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Remarks</span>
-                            <div className="flex-1 h-px bg-black/5" />
+                            <div className="flex-1 h-px bg-white shadow-sm" />
                           </div>
                           <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                             <div>
@@ -10698,10 +10423,9 @@ function FrontDeskTab() {
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Room Type</label>
                           <select value={newRoomType} onChange={e => setNewRoomType(e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-black/5 text-[#000000]/87 text-sm outline-none focus:border-black/5"
-                            style={{ background: 'rgba(20,30,60,0.95)' }}>
-                            <option value="" style={{ background: '#1a2744' }}>— select —</option>
-                            {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name} style={{ background: '#1a2744' }}>{rt.name}</option>)}
+                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5">
+                            <option value="">— select —</option>
+                            {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name}>{rt.name}</option>)}
                           </select>
                         </div>
                         <div>
@@ -10744,7 +10468,7 @@ function FrontDeskTab() {
                           <div key={floor} className="mb-6">
                             <div className="flex items-center gap-2 mb-3">
                               <span className="text-xs font-bold text-black/60 uppercase tracking-widest">Floor {floor}</span>
-                              <div className="flex-1 h-px bg-black/5" />
+                              <div className="flex-1 h-px bg-white shadow-sm" />
                               <span className="text-xs text-black/60">{byFloor[floor].length} room{byFloor[floor].length !== 1 ? 's' : ''}</span>
                             </div>
                             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5">
@@ -10780,13 +10504,6 @@ function FrontDeskTab() {
                   acc[r.room_type].push(r);
                   return acc;
                 }, {});
-
-                // Ensure room types from unassigned reservations are included even if they have no rooms
-                tcReservations.forEach(r => {
-                  if (r.room_type && !tcGrouped[r.room_type]) {
-                    tcGrouped[r.room_type] = [];
-                  }
-                });
 
                 const getBar = (resv) => {
                   const ci = new Date(toLocalDate(resv.check_in_date) + 'T00:00:00').getTime();
@@ -11108,7 +10825,7 @@ function FrontDeskTab() {
               {/* ── Room Detail Panel ── */}
               {selectedRoom && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRoom(null)}>
-                  <div className="bg-white border border-black/5 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                  <div className="bg-[#1a2340] border border-black/5 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
                     onClick={e => e.stopPropagation()}>
                     {/* Header */}
                     {(() => {
@@ -11116,17 +10833,17 @@ function FrontDeskTab() {
                       const isActive = ['occupied', 'due_out', 'arriving'].includes(selectedRoom.computed_status);
                       return (
                         <>
-                          <div className="bg-gradient-to-br from-[#00754A] to-[#006241] px-5 py-4">
+                          <div className={`px-5 py-4 border-b border-black/5 ${cfg.bg}`}>
                             <div className="flex items-start justify-between">
                               <div>
-                                <div className="text-3xl font-black font-mono text-white">{selectedRoom.room_number}</div>
+                                <div className={`text-3xl font-black font-mono ${cfg.text}`}>{selectedRoom.room_number}</div>
                                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                  <span className="text-xs text-[#006241] font-bold bg-white shadow-sm px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
-                                  <span className="text-xs text-white/80">Floor {selectedRoom.floor}</span>
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30">{cfg.label}</span>
+                                  <span className="text-xs text-black/60 bg-white shadow-sm px-2 py-0.5 rounded">{selectedRoom.room_type || 'Room'}</span>
+                                  <span className="text-xs text-black/60">Floor {selectedRoom.floor}</span>
+                                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.pill}`}>{cfg.label}</span>
                                 </div>
                               </div>
-                              <button onClick={() => setSelectedRoom(null)} className="text-white/60 hover:text-white text-lg font-bold leading-none mt-1 transition-colors">✕</button>
+                              <button onClick={() => setSelectedRoom(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold leading-none mt-1">✕</button>
                             </div>
                           </div>
                           <div className="p-5 space-y-4">
@@ -11149,17 +10866,17 @@ function FrontDeskTab() {
                               <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2.5">Housekeeping Status</div>
                               <div className="grid grid-cols-2 gap-2">
                                 {[
-                                  { status: 'clean', label: '✓ Clean', active: 'bg-[#00754A] border-[#006241] text-white shadow-md shadow-[#00754A]/20' },
-                                  { status: 'dirty', label: '🧹 Dirty', active: 'bg-yellow-500 border-yellow-600 text-white shadow-md shadow-yellow-500/20' },
-                                  { status: 'inspected', label: '🔍 Inspected', active: 'bg-blue-500 border-blue-600 text-white shadow-md shadow-blue-500/20' },
-                                  { status: 'out_of_order', label: '⚠️ Out of Order', active: 'bg-red-500 border-red-600 text-white shadow-md shadow-red-500/20' },
+                                  { status: 'clean', label: '✓ Clean', active: 'bg-green-500/25 border-green-400/50 text-green-200' },
+                                  { status: 'dirty', label: '🧹 Dirty', active: 'bg-yellow-500/25 border-yellow-400/50 text-yellow-200' },
+                                  { status: 'inspected', label: '🔍 Inspected', active: 'bg-teal-500/25 border-teal-400/50 text-teal-200' },
+                                  { status: 'out_of_order', label: '⚠️ Out of Order', active: 'bg-red-500/25 border-red-400/50 text-red-200' },
                                 ].map(({ status, label, active }) => {
                                   const isCurrent = selectedRoom.hk_status === status;
                                   return (
                                     <button key={status}
                                       onClick={() => updateHkStatus(selectedRoom.room_number, status)}
                                       disabled={hkUpdating === selectedRoom.room_number}
-                                      className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/10 bg-[#f8f9fa] shadow-sm text-black/60 hover:border-black/20 hover:text-[#000000]/87'}`}>
+                                      className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/5 bg-white shadow-sm text-black/60 hover:bg-white shadow-sm hover:text-[#000000]/87'}`}>
                                       {label}
                                     </button>
                                   );
@@ -11168,17 +10885,17 @@ function FrontDeskTab() {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex gap-2 pt-4 mt-4 border-t border-black/5">
+                            <div className="flex gap-2 pt-1">
                               {(selectedRoom.computed_status === 'occupied' || selectedRoom.computed_status === 'due_out') && selectedRoom.reservation_id && (
                                 <button
                                   onClick={() => { setCheckoutConfirmId(selectedRoom.reservation_id); setSelectedRoom(null); }}
-                                  className="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs font-bold py-2.5 rounded-xl shadow-md shadow-red-500/20 transition-all">
+                                  className="flex-1 bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs font-bold py-2.5 rounded-xl transition-all">
                                   Check Out Guest
                                 </button>
                               )}
                               <button
                                 onClick={() => removeRoom(selectedRoom.room_number)}
-                                className="flex-1 bg-[#f8f9fa] hover:bg-[#e9ecef] border border-black/10 text-black/60 hover:text-red-600 text-xs font-semibold py-2.5 rounded-xl transition-all">
+                                className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-black/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
                                 Remove Room
                               </button>
                             </div>
@@ -11269,9 +10986,36 @@ function FrontDeskTab() {
                         <span className="text-green-600 text-sm font-semibold">Folio settled</span>
                       </div>
                     ) : (
-                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                         <div className="text-center text-sm font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                        <div className="text-center text-xs text-amber-500 mt-0.5">Please settle folio before checkout</div>
+                        <div className="text-center text-xs text-amber-600 mt-0.5">Please settle folio before checkout</div>
+                        
+                        {corporateAccounts.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-amber-200/60">
+                            <label className="flex items-center gap-2 cursor-pointer mb-2">
+                              <input 
+                                type="checkbox" 
+                                className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4"
+                                checked={chargeToCorporate}
+                                onChange={(e) => setChargeToCorporate(e.target.checked)}
+                              />
+                              <span className="text-sm font-medium text-amber-800">Charge to Corporate Account</span>
+                            </label>
+                            
+                            {chargeToCorporate && (
+                              <select
+                                className="w-full text-sm border-amber-300 rounded-lg bg-white/80 focus:ring-amber-500 focus:border-amber-500"
+                                value={selectedCorpId}
+                                onChange={(e) => setSelectedCorpId(e.target.value)}
+                              >
+                                <option value="">Select corporate account...</option>
+                                {corporateAccounts.map(c => (
+                                  <option key={c.id} value={c.id}>{c.company_name} ({c.account_number})</option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="flex gap-3">
@@ -11284,8 +11028,8 @@ function FrontDeskTab() {
                       </button>
                       <button
                         onClick={() => submitCheckout(checkoutConfirmId)}
-                        disabled={checkoutSubmitting}
-                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
+                        disabled={checkoutSubmitting || (checkoutFolioBalance > 0 && !(chargeToCorporate && selectedCorpId))}
+                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
                       >
                         {checkoutSubmitting ? 'Processing...' : 'Check Out'}
                       </button>
@@ -11301,15 +11045,15 @@ function FrontDeskTab() {
       {transferGuest && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>
           <div
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-2xl border border-black/10 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="bg-[#00754A] flex items-center justify-between px-6 py-5">
+            <div className="flex items-center justify-between px-6 py-5 border-b border-black/5 bg-gray-50">
               <div>
-                <div className="text-white font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
-                <div className="text-emerald-100 text-xs mt-0.5">Assign a new room for this guest</div>
+                <div className="text-[#000000]/87 font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
+                <div className="text-black/60 text-xs mt-0.5">Assign a new room for this guest</div>
               </div>
-              <button onClick={() => setTransferGuest(null)} className="text-emerald-200 hover:text-white text-xl font-bold transition-colors leading-none ml-2 mb-1">✕</button>
+              <button onClick={() => setTransferGuest(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors leading-none">✕</button>
             </div>
             {transferSuccess ? (
               <div className="px-6 py-12 text-center">
@@ -11323,7 +11067,9 @@ function FrontDeskTab() {
             ) : (
               <div className="p-6 space-y-5">
                 {/* Current guest info */}
-                <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 flex items-center justify-between">
+                <div
+                  className="border border-black/5 bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between"
+                >
                   <div>
                     <div className="text-[10px] text-black/60 font-semibold uppercase tracking-wide mb-0.5">
                       Current Assignment
@@ -11347,8 +11093,8 @@ function FrontDeskTab() {
                         setTransferRoomNumber('');
                       }}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${transferRoomType === ''
-                        ? 'bg-[#00754A]/20 border-[#00754A]/30 text-[#00754A] shadow-sm'
-                        : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
+                        ? 'bg-[#00754A] border-[#00754A] text-white shadow-sm'
+                        : 'bg-white shadow-sm border-black/10 text-black/60 hover:border-black/20 hover:text-[#000000]/87'
                         }`}
                     >
                       All Available
@@ -11364,12 +11110,12 @@ function FrontDeskTab() {
                             setTransferRoomNumber('');
                           }}
                           className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isSelected
-                            ? 'bg-[#00754A]/20 border-[#00754A]/30 text-[#00754A] shadow-sm'
-                            : 'bg-white shadow-sm border-black/5 text-black/60 hover:bg-white shadow-sm hover:border-black/5 hover:text-[#000000]/87'
+                            ? 'bg-[#00754A] border-[#00754A] text-white shadow-sm'
+                            : 'bg-white shadow-sm border-black/10 text-black/60 hover:border-black/20 hover:text-[#000000]/87'
                             }`}
                         >
                           {rt.name}
-                          {isCurrent && <span className={isSelected ? ' text-black/60' : ' text-black/60'}> (current)</span>}
+                          {isCurrent && <span className={isSelected ? ' text-white/80' : ' text-black/60'}> (current)</span>}
                           {isSelected && !isCurrent && <span className="ml-1">↑</span>}
                         </button>
                       );
@@ -11435,12 +11181,12 @@ function FrontDeskTab() {
                               onClick={() => setTransferRoomNumber(isSelected ? '' : r.room_number)}
                               title={`Room ${r.room_number} — ${cfg.label}`}
                               className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${isSelected
-                                ? 'bg-[#00754A]/20 border-[#00754A]/30 text-[#00754A]'
+                                ? 'bg-green-50 border-[#00754A]/30'
                                 : isCurrent
-                                  ? 'bg-white shadow-sm border-black/5 opacity-50 cursor-not-allowed'
+                                  ? 'bg-gray-50 border-black/5 opacity-50 cursor-not-allowed'
                                   : !isAvailable
-                                    ? 'bg-white shadow-sm border-black/5 opacity-40 cursor-not-allowed'
-                                    : 'bg-white shadow-sm border-black/5 hover:bg-white shadow-sm hover:border-black/5'
+                                    ? 'bg-gray-50 border-black/5 opacity-40 cursor-not-allowed'
+                                    : 'bg-white shadow-sm border-black/10 hover:border-black/20'
                                 }`}
                             >
                               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColors[r.computed_status] || 'bg-gray-300'}`} />
@@ -11469,7 +11215,9 @@ function FrontDeskTab() {
 
                 {/* Transfer summary */}
                 {transferRoomNumber && (
-                  <div className="bg-[#00754A]/5 border border-[#00754A]/20 rounded-xl px-5 py-3 flex items-center gap-4">
+                  <div
+                    className="border border-[#00754A]/20 rounded-xl px-5 py-3 flex items-center gap-4 bg-green-50"
+                  >
                     <div className="text-center min-w-[3rem]">
                       <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">From</div>
                       <div className="text-2xl font-black font-mono text-black/60">{transferGuest?.room_number}</div>
@@ -11481,7 +11229,7 @@ function FrontDeskTab() {
                     </div>
                     <div className="text-center min-w-[3rem]">
                       <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">To</div>
-                      <div className="text-2xl font-black font-mono text-[#00754A]">{transferRoomNumber}</div>
+                      <div className="text-2xl font-black font-mono text-blue-300">{transferRoomNumber}</div>
                     </div>
                   </div>
                 )}
@@ -11528,26 +11276,26 @@ function FrontDeskTab() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setFolioOpen(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="bg-[#00754A] flex items-start justify-between px-6 py-4">
+            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
               <div>
-                <h2 className="text-lg font-bold text-white">Guest Folio</h2>
-                <p className="text-sm text-emerald-100 mt-0.5">
+                <h2 className="text-lg font-bold text-gray-900">Guest Folio</h2>
+                <p className="text-sm text-gray-500 mt-0.5">
                   {folioRes.full_name} &nbsp;&middot;&nbsp; Room {folioRes.room_number || '—'} &nbsp;&middot;&nbsp; {folioRes.room_type}
                 </p>
-                <p className="text-xs text-emerald-100/70 mt-0.5">
+                <p className="text-xs text-gray-400 mt-0.5">
                   {fmtDate(folioRes.check_in_date)} &rarr; {fmtDate(folioRes.check_out_date)} &nbsp;({nightsCount(folioRes)} nights)
                 </p>
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <button onClick={printFolio} title="Print folio"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-full transition-all">
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all">
                   🖨 Print
                 </button>
                 <button onClick={sendFolioEmail} disabled={folioEmailSending} title="Email folio to guest"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-white/10 hover:bg-white/20 text-white rounded-full transition-all disabled:opacity-50">
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[#00754A]/10 hover:bg-[#00754A]/20 text-[#00754A] rounded-full transition-all disabled:opacity-50">
                   {folioEmailSending ? '...' : '✉ Email'}
                 </button>
-                <button onClick={() => setFolioOpen(false)} className="text-emerald-200 hover:text-white text-xl font-bold leading-none ml-1">&#10005;</button>
+                <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none ml-1">&#10005;</button>
               </div>
             </div>
             {folioEmailMsg && (
@@ -11565,12 +11313,12 @@ function FrontDeskTab() {
                 {/* Balance summary */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-[#00754A]/5 rounded-xl p-3 text-center">
-                    <div className="text-xs text-[#00754A]/80 font-semibold uppercase tracking-wide mb-1">Total Charges</div>
-                    <div className="text-lg font-bold text-[#00754A]">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                    <div className="text-xs text-[#00754A] font-semibold uppercase tracking-wide mb-1">Total Charges</div>
+                    <div className="text-lg font-bold text-[#000000]/87">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
-                  <div className="bg-emerald-500/10 rounded-xl p-3 text-center">
-                    <div className="text-xs text-emerald-600 font-semibold uppercase tracking-wide mb-1">Total Payments</div>
-                    <div className="text-lg font-bold text-emerald-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                  <div className="bg-[#00754A]/10 rounded-xl p-3 text-center">
+                    <div className="text-xs text-[#00754A] font-semibold uppercase tracking-wide mb-1">Total Payments</div>
+                    <div className="text-lg font-bold text-[#000000]/87">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
                   <div className={`rounded-xl p-3 text-center ${folioTotals.balance > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
                     <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${folioTotals.balance > 0 ? 'text-red-500' : 'text-gray-400'}`}>Balance Due</div>
@@ -11611,12 +11359,12 @@ function FrontDeskTab() {
                   <div className="mt-3 bg-[#00754A]/5 rounded-xl p-3 space-y-2">
                     <div className="text-xs font-semibold text-[#00754A] uppercase tracking-wide">Post Charge</div>
                     <div className="flex gap-2 flex-wrap">
-                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-[#00754A]/20 rounded-lg bg-white text-gray-700 focus:outline-none">
+                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none">
                         {['Room Charge', 'Food & Beverage', 'Minibar', 'Laundry', 'Parking', 'Damage', 'Miscellaneous'].map(t => <option key={t}>{t}</option>)}
                       </select>
-                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-[#00754A]/20 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
                       <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-[#00754A] hover:bg-[#006241] disabled:opacity-50 text-white text-sm font-semibold rounded-full transition-colors">
                         {fcSaving ? '...' : '+ Add'}
                       </button>
@@ -11654,15 +11402,15 @@ function FrontDeskTab() {
                       </div>
                     )}
                   </div>
-                  <div className="mt-3 bg-emerald-500/10 rounded-xl p-3 space-y-2">
-                    <div className="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Record Payment</div>
+                  <div className="mt-3 bg-[#00754A]/5 rounded-xl p-3 space-y-2">
+                    <div className="text-xs font-semibold text-[#00754A] uppercase tracking-wide">Record Payment</div>
                     <div className="flex gap-2 flex-wrap">
-                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-emerald-500/30 rounded-lg bg-white text-gray-700 focus:outline-none">
+                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none">
                         {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'].map(m => <option key={m}>{m}</option>)}
                       </select>
-                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-emerald-500/30 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-emerald-500/30 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold rounded-full transition-colors">
+                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
+                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-[#00754A] hover:bg-[#006241] disabled:opacity-50 text-white text-sm font-semibold rounded-full transition-colors">
                         {fpSaving ? '...' : '+ Pay'}
                       </button>
                     </div>

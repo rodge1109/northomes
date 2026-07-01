@@ -522,7 +522,7 @@ export default function RestaurantApp() {
                 id: 'settings', label: 'Settings', tabId: 'settings', act: () => { setAdminTab('settings'); setCurrentPage('admin'); },
                 icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               },
-            ].map(item => {
+            ].filter(item => userPermissions?.includes('all') || userPermissions?.includes(item.id)).map(item => {
               const isActive = (currentPage === 'admin' && adminTab === item.tabId) || (item.id === 'frontdesk' && currentPage === 'frontdesk');
               return (
                 <button key={item.id} onClick={item.act} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', padding: '10px 6px', borderRadius: '12px', border: 'none', cursor: 'pointer', transition: 'all 0.2s ease', background: isActive ? '#00754A' : 'transparent', color: isActive ? '#ffffff' : 'rgba(255,255,255,0.40)', marginBottom: '3px' }}
@@ -1288,6 +1288,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userPermissions, setUserPermissions] = useState([]);
   const [loginError, setLoginError] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -1374,6 +1375,22 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const [rcSaving, setRcSaving] = useState(false);
   const [rcMsg, setRcMsg] = useState('');
 
+  // Staff admin state
+  const [adminStaffList, setAdminStaffList] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
+  const [staffNewForm, setStaffNewForm] = useState({ username: '', password: '', full_name: '', permissions: [] });
+  const [staffMsg, setStaffMsg] = useState('');
+
+  const fetchStaff = useCallback(async () => {
+    setStaffLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/staff`);
+      const data = await res.json();
+      if (data.success) setAdminStaffList(data.staff);
+    } catch (e) { console.error('Failed to fetch staff'); }
+    setStaffLoading(false);
+  }, []);
+
   // Check for existing session
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
@@ -1390,6 +1407,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const data = await response.json();
       if (data.valid) {
         setIsLoggedIn(true);
+        setUserPermissions(data.permissions || []);
         fetchReservations();
       } else {
         localStorage.removeItem('adminToken');
@@ -1415,6 +1433,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       if (data.success) {
         localStorage.setItem('adminToken', data.token);
         setIsLoggedIn(true);
+        setUserPermissions(data.permissions || []);
         fetchReservations();
       } else {
         setLoginError(data.message || 'Invalid credentials');
@@ -1438,6 +1457,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     }
     localStorage.removeItem('adminToken');
     setIsLoggedIn(false);
+    setUserPermissions([]);
     setUsername('');
     setPassword('');
   };
@@ -2013,6 +2033,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         fetchHotelSettings();
         fetchAdminRoomTypes();
         fetchAdminRateCodes();
+        fetchStaff();
       }
     }
   }, [activeTab, isLoggedIn, calendarMonth, calendarYear]);
@@ -3319,6 +3340,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       { id: 'reservations', label: 'Reservations' },
                       { id: 'availability', label: 'Availability' },
                       { id: 'notifications', label: 'Notifications' },
+                      { id: 'staff', label: 'Staff & Permissions' },
                       { id: 'clinic', label: 'Clinic' },
                     ].map(tab => (
                       <button
@@ -3864,6 +3886,87 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         >
                           {savingSettings ? 'Synchronizing...' : 'Save Communication Settings'}
                         </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Staff & Permissions ── */}
+                  {settingsSubTab === 'staff' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                        <div className="mb-8 border-b border-black/5 pb-6">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Staff Accounts</h3>
+                          <p className="text-black/60 text-xs mt-1">Register new staff and assign modular permissions.</p>
+                        </div>
+                        {staffMsg && <div className="mb-4 text-sm text-[#00754A] font-bold p-3 bg-[#00754A]/10 rounded-xl">{staffMsg}</div>}
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-8">
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Username</label>
+                            <input type="text" value={staffNewForm.username} onChange={e => setStaffNewForm({...staffNewForm, username: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Password</label>
+                            <input type="password" value={staffNewForm.password} onChange={e => setStaffNewForm({...staffNewForm, password: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
+                            <input type="text" value={staffNewForm.full_name} onChange={e => setStaffNewForm({...staffNewForm, full_name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                          </div>
+                          <button 
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`${API_BASE_URL}/api/staff`, {
+                                  method: 'POST', headers: {'Content-Type': 'application/json'},
+                                  body: JSON.stringify(staffNewForm)
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  setStaffMsg('Staff added successfully.');
+                                  setStaffNewForm({username:'', password:'', full_name:'', permissions:[]});
+                                  fetchStaff();
+                                } else setStaffMsg(data.message);
+                                setTimeout(() => setStaffMsg(''), 3000);
+                              } catch(e){}
+                            }}
+                            className="w-full px-4 py-3 bg-[#000000] text-white text-xs font-bold rounded-xl hover:bg-[#00754A] transition-colors"
+                          >Add Staff</button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {staffLoading ? <p className="text-xs text-black/40">Loading staff...</p> : adminStaffList.map(s => (
+                            <div key={s.id} className="p-4 border border-black/5 rounded-xl bg-white/[0.01]">
+                              <div className="flex justify-between items-center mb-4">
+                                <div>
+                                  <div className="font-bold text-sm text-[#000000]/87">{s.full_name} <span className="text-black/40 text-xs ml-2">@{s.username}</span></div>
+                                </div>
+                                <button onClick={async () => {
+                                  if(window.confirm('Delete staff?')) {
+                                    await fetch(`${API_BASE_URL}/api/staff/${s.id}`, {method: 'DELETE'});
+                                    fetchStaff();
+                                  }
+                                }} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={16} /></button>
+                              </div>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {['dashboard', 'reservations', 'frontdesk', 'rooms', 'housekeeping', 'billing', 'reports', 'settings'].map(perm => (
+                                  <label key={perm} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-lg">
+                                    <input type="checkbox" checked={(s.permissions || []).includes(perm) || (s.permissions || []).includes('all')} 
+                                      onChange={async (e) => {
+                                        const newPerms = e.target.checked ? [...(s.permissions||[]), perm] : (s.permissions||[]).filter(p => p !== perm && p !== 'all');
+                                        await fetch(`${API_BASE_URL}/api/staff/${s.id}/permissions`, {
+                                          method: 'PUT', headers: {'Content-Type': 'application/json'},
+                                          body: JSON.stringify({permissions: newPerms})
+                                        });
+                                        fetchStaff();
+                                      }}
+                                    />
+                                    <span className="text-xs font-medium uppercase">{perm}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -8463,6 +8566,11 @@ function FrontDeskTab() {
   const [fpError, setFpError] = React.useState('');
   // Checkout folio balance
   const [checkoutFolioBalance, setCheckoutFolioBalance] = React.useState(null);
+  
+  // Corporate Accounts state for Check-out
+  const [corporateAccounts, setCorporateAccounts] = React.useState([]);
+  const [chargeToCorporate, setChargeToCorporate] = React.useState(false);
+  const [selectedCorpId, setSelectedCorpId] = React.useState('');
   // Folio email
   const [folioEmailSending, setFolioEmailSending] = React.useState(false);
   const [folioEmailMsg, setFolioEmailMsg] = React.useState('');
@@ -8625,7 +8733,12 @@ function FrontDeskTab() {
   const submitCheckout = async (id) => {
     setCheckoutSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, { method: 'POST' });
+      const payload = { chargeToCorporate, corporateAccountId: selectedCorpId };
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
       if (res.ok) {
         setCheckoutConfirmId(null);
         fetchInHouse();
@@ -8712,10 +8825,16 @@ function FrontDeskTab() {
 
   const fetchCheckoutBalance = React.useCallback(async (id) => {
     setCheckoutFolioBalance(null);
+    setChargeToCorporate(false);
+    setSelectedCorpId('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${id}`);
       const data = await res.json();
       if (data.success) setCheckoutFolioBalance(data.totals.balance);
+
+      const corpRes = await fetch(`${API_BASE_URL}/api/corporate-accounts`);
+      const corpData = await corpRes.json();
+      if (corpData.success) setCorporateAccounts(corpData.accounts);
     } catch (e) { }
   }, []);
 
@@ -10711,9 +10830,36 @@ function FrontDeskTab() {
                         <span className="text-green-600 text-sm font-semibold">Folio settled</span>
                       </div>
                     ) : (
-                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                         <div className="text-center text-sm font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                        <div className="text-center text-xs text-amber-500 mt-0.5">Please settle folio before checkout</div>
+                        <div className="text-center text-xs text-amber-600 mt-0.5">Please settle folio before checkout</div>
+                        
+                        {corporateAccounts.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-amber-200/60">
+                            <label className="flex items-center gap-2 cursor-pointer mb-2">
+                              <input 
+                                type="checkbox" 
+                                className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4"
+                                checked={chargeToCorporate}
+                                onChange={(e) => setChargeToCorporate(e.target.checked)}
+                              />
+                              <span className="text-sm font-medium text-amber-800">Charge to Corporate Account</span>
+                            </label>
+                            
+                            {chargeToCorporate && (
+                              <select
+                                className="w-full text-sm border-amber-300 rounded-lg bg-white/80 focus:ring-amber-500 focus:border-amber-500"
+                                value={selectedCorpId}
+                                onChange={(e) => setSelectedCorpId(e.target.value)}
+                              >
+                                <option value="">Select corporate account...</option>
+                                {corporateAccounts.map(c => (
+                                  <option key={c.id} value={c.id}>{c.company_name} ({c.account_number})</option>
+                                ))}
+                              </select>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                     <div className="flex gap-3">
@@ -10726,8 +10872,8 @@ function FrontDeskTab() {
                       </button>
                       <button
                         onClick={() => submitCheckout(checkoutConfirmId)}
-                        disabled={checkoutSubmitting}
-                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
+                        disabled={checkoutSubmitting || (checkoutFolioBalance > 0 && !(chargeToCorporate && selectedCorpId))}
+                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
                       >
                         {checkoutSubmitting ? 'Processing...' : 'Check Out'}
                       </button>
