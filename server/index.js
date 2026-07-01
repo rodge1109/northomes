@@ -279,6 +279,21 @@ const initReservationsTable = async () => {
 };
 initReservationsTable().catch(err => console.error('Failed to init reservations table:', err));
 
+// Initialize Staff Table
+const initStaffTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hotel_staff (
+      id SERIAL PRIMARY KEY,
+      username TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      full_name TEXT NOT NULL,
+      permissions JSONB DEFAULT '[]',
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+};
+initStaffTable().catch(err => console.error('Failed to init staff table:', err));
+
 // ─── Front Desk columns (safe, additive migrations) ───────────────────────────
 const initFrontDeskColumns = async () => {
   const migrations = [
