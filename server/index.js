@@ -475,7 +475,8 @@ app.post('/api/reservations', async (req, res) => {
       checkInDate,
       checkOutDate,
       numberOfGuests,
-      specialRequests
+      specialRequests,
+      promoCode
     } = req.body;
 
     // Validate required fields
@@ -537,10 +538,10 @@ app.post('/api/reservations', async (req, res) => {
     // Insert the reservation
     const result = await pool.query(
       `INSERT INTO hotel_reservations
-         (full_name, phone_number, email, room_type, check_in_date, check_out_date, number_of_guests, special_requests)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         (full_name, phone_number, email, room_type, check_in_date, check_out_date, number_of_guests, special_requests, rate_code)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
-      [fullName, phoneNumber, email, roomType, checkInDate, checkOutDate, numberOfGuests || 1, specialRequests || '']
+      [fullName, phoneNumber, email, roomType, checkInDate, checkOutDate, numberOfGuests || 1, specialRequests || '', promoCode || '']
     );
 
     const reservation = result.rows[0];
@@ -651,6 +652,112 @@ app.get('/api/room-types/availability', async (req, res) => {
   } catch (error) {
     console.error('Error fetching availability:', error);
     res.status(500).json({ success: false, message: 'Failed to fetch availability.' });
+  }
+});
+
+// Get Public Promos
+app.get('/api/promos', async (req, res) => {
+  try {
+    const codes = await pool.query(
+      `SELECT rc.code, rc.name, rc.description, 
+              json_agg(json_build_object('room_type_id', rcp.room_type_id, 'room_type_name', rt.name, 'price_per_night', rcp.price_per_night, 'original_price', rt.price_per_night)) FILTER (WHERE rcp.id IS NOT NULL) as prices
+       FROM hotel_rate_codes rc
+       LEFT JOIN hotel_rate_code_prices rcp ON rc.id = rcp.rate_code_id
+       LEFT JOIN hotel_room_types rt ON rcp.room_type_id = rt.id
+       WHERE rc.is_active = true AND (rc.name ILIKE '%promo%' OR rc.code ILIKE '%promo%')
+       GROUP BY rc.id ORDER BY rc.code`
+    );
+    res.json({ success: true, promos: codes.rows });
+  } catch (err) {
+    console.error('Error fetching promos:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch promos.' });
+  }
+});
+
+  // Contact Form Endpoints
+app.post('/api/contact', async (req, res) => {
+  try {
+    const { name, email, subject, message } = req.body;
+    if (!name || !email || !message) {
+      return res.status(400).json({ success: false, message: 'Name, email, and message are required.' });
+    }
+    
+    await pool.query(
+      `INSERT INTO hotel_contact_messages (name, email, subject, message) VALUES ($1, $2, $3, $4)`,
+      [name, email, subject || 'General Inquiry', message]
+    );
+    
+    res.json({ success: true, message: 'Message sent successfully.' });
+  } catch (err) {
+    console.error('Error saving contact message:', err);
+    res.status(500).json({ success: false, message: 'Failed to send message.' });
+  }
+});
+
+app.get('/api/contact', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token || !sessions.has(token)) {
+      return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+    const result = await pool.query(
+      `SELECT * FROM hotel_contact_messages ORDER BY created_at DESC`
+    );
+    res.json({ success: true, messages: result.rows });
+  } catch (err) {
+    console.error('Error fetching contact messages:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch messages.' });
+  }
+});
+
+app.put('/api/contact/:id/read', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token || !sessions.has(token)) {
+      return res.status(401).json({ success: false, message: 'Unauthorized.' });
+    }
+    const { id } = req.params;
+    await pool.query(
+      `UPDATE hotel_contact_messages SET is_read = true WHERE id = $1`,
+      [id]
+    );
+    res.json({ success: true, message: 'Message marked as read.' });
+  } catch (err) {
+    console.error('Error marking message as read:', err);
+    res.status(500).json({ success: false, message: 'Failed to update message.' });
+  }
+});
+
+// Validate Promo Code
+app.post('/api/promos/validate', async (req, res) => {
+  try {
+    const { code, roomType } = req.body;
+    if (!code || !roomType) return res.status(400).json({ success: false, message: 'Code and room type required.' });
+
+    const rcCheck = await pool.query(`SELECT id FROM hotel_rate_codes WHERE code = $1 AND is_active = true`, [code.toUpperCase().trim()]);
+    if (rcCheck.rows.length === 0) return res.json({ success: false, message: 'Invalid or inactive promo code.' });
+
+    const priceCheck = await pool.query(
+      `SELECT rcp.price_per_night, rt.price_per_night as original_price
+       FROM hotel_rate_code_prices rcp
+       JOIN hotel_room_types rt ON rt.id = rcp.room_type_id
+       WHERE rcp.rate_code_id = $1 AND rt.name = $2`,
+      [rcCheck.rows[0].id, roomType]
+    );
+
+    if (priceCheck.rows.length === 0) {
+       return res.json({ success: false, message: 'This promo code does not apply to this room type.' });
+    }
+
+    res.json({ 
+       success: true, 
+       message: 'Promo code applied successfully!', 
+       discountedPrice: parseFloat(priceCheck.rows[0].price_per_night),
+       originalPrice: parseFloat(priceCheck.rows[0].original_price)
+    });
+  } catch (err) {
+    console.error('Error validating promo code:', err);
+    res.status(500).json({ success: false, message: 'Failed to validate promo code.' });
   }
 });
 
@@ -1809,6 +1916,17 @@ const initRateCodesTables = async () => {
       room_type_id    INTEGER NOT NULL REFERENCES hotel_room_types(id) ON DELETE CASCADE,
       price_per_night NUMERIC(10,2) NOT NULL,
       UNIQUE(rate_code_id, room_type_id)
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hotel_contact_messages (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      message TEXT NOT NULL,
+      is_read BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
   `);
   await pool.query(`ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS rate_code TEXT DEFAULT ''`);

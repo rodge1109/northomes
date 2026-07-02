@@ -61,6 +61,7 @@ const LOGO_COLORS = ["#006241", "#00754A", "#1E3932"];
 export default function RestaurantApp() {
   const [cartItems, setCartItems] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
+  const [accommodationFilter, setAccommodationFilter] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCart, setShowCart] = useState(false);
@@ -71,6 +72,23 @@ export default function RestaurantApp() {
   const [showLoginMenu, setShowLoginMenu] = useState(false);
   const [adminTab, setAdminTab] = useState('dashboard');
   const [authPulse, setAuthPulse] = useState(0);
+
+  const [showPromoPopup, setShowPromoPopup] = useState(false);
+  const [latestPromo, setLatestPromo] = useState(null);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('promo_popup_shown')) return;
+    fetch(`${API_BASE_URL}/api/promos`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.promos && data.promos.length > 0) {
+          setLatestPromo(data.promos[0]);
+          setShowPromoPopup(true);
+          sessionStorage.setItem('promo_popup_shown', 'true');
+        }
+      })
+      .catch(err => console.error('Error fetching promo for popup:', err));
+  }, []);
 
   useEffect(() => {
     const handler = () => setAuthPulse(p => p + 1);
@@ -528,12 +546,16 @@ export default function RestaurantApp() {
                 icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
               },
               {
+                id: 'inbox', label: 'Inbox', tabId: 'inbox', act: () => { setAdminTab('inbox'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+              },
+              {
                 id: 'settings', label: 'Settings', tabId: 'settings', act: () => { setAdminTab('settings'); setCurrentPage('admin'); },
                 icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               },
             ].filter(item => {
               let perms = [];
-              try { perms = JSON.parse(localStorage.getItem('adminPerms') || '[]'); } catch(e){}
+              try { perms = JSON.parse(localStorage.getItem('adminPerms') || '[]'); } catch (e) { }
               return perms.includes('all') || perms.includes(item.id);
             }).map(item => {
               const isActive = (currentPage === 'admin' && adminTab === item.tabId) || (item.id === 'frontdesk' && currentPage === 'frontdesk');
@@ -568,6 +590,7 @@ export default function RestaurantApp() {
             setCurrentPage={setCurrentPage}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
+            setAccommodationFilter={setAccommodationFilter}
           />
         )}
         {currentPage === 'home' && (
@@ -576,7 +599,8 @@ export default function RestaurantApp() {
           />
         )}
         {currentPage === 'about' && <AboutPage />}
-        {currentPage === 'accommodations' && <AccommodationsPage setCurrentPage={setCurrentPage} />}
+        {currentPage === 'accommodations' && <AccommodationsPage setCurrentPage={setCurrentPage} accommodationFilter={accommodationFilter} setAccommodationFilter={setAccommodationFilter} />}
+        {currentPage === 'promo' && <PromoPage setCurrentPage={setCurrentPage} />}
         {currentPage === 'booking' && <BookingPage setCurrentPage={setCurrentPage} />}
         {currentPage === 'menu' && (
           <MenuPage
@@ -616,6 +640,136 @@ export default function RestaurantApp() {
         )}
 
 
+        {/* Floating Messenger Button */}
+        {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller', 'queue-display'].includes(currentPage) && (
+          <a
+            href="https://m.me/northomespensione"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-6 z-50 bg-[#0084FF] hover:bg-[#0070D6] text-white p-4 rounded-full shadow-2xl transition-all hover:-translate-y-1 hover:scale-110 flex items-center justify-center group"
+            title="Chat with us on Messenger"
+            style={{ boxShadow: '0 10px 25px -5px rgba(0, 132, 255, 0.4)' }}
+          >
+            <svg viewBox="0 0 36 36" className="w-8 h-8" fill="currentColor">
+              <path d="M18 2C9.163 2 2 8.795 2 17.177c0 4.772 2.375 8.98 6.064 11.834v5.352c0 .762.839 1.218 1.488.81l5.412-3.393c.96.262 1.97.4 3.036.4 8.837 0 16-6.795 16-15.18C34 8.796 26.837 2 18 2zm1.096 20.443-3.327-3.553-6.49 3.553 7.158-7.614 3.395 3.553 6.425-3.553-7.161 7.614z" />
+            </svg>
+            <span className="absolute right-full mr-4 bg-white text-black/80 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Chat with us
+            </span>
+          </a>
+        )}
+
+      {showPromoPopup && latestPromo && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPromoPopup(false)}></div>
+          
+          <div className="relative w-full max-w-3xl z-10 animate-in fade-in zoom-in duration-300 flex flex-row h-auto min-h-[250px] drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowPromoPopup(false)}
+              className="absolute -top-4 -right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg text-black/60 hover:text-black transition-colors z-30 border border-gray-100"
+            >
+              &#10005;
+            </button>
+
+            {/* Left Stub */}
+            <div 
+              className="w-[28%] h-auto relative flex items-center justify-center border-r-[3px] border-dashed border-white/40"
+              style={{
+                background: `
+                  radial-gradient(circle at 100% 0px, transparent 16px, #00754A 17px) top left / 100% 50% no-repeat,
+                  radial-gradient(circle at 100% 100%, transparent 16px, #00754A 17px) bottom left / 100% 50% no-repeat
+                `
+              }}
+            >
+              <div className="flex items-center justify-center h-full w-full relative overflow-hidden">
+                <span className="text-white text-[12px] font-bold tracking-[0.4em] uppercase transform -rotate-90 absolute left-6 whitespace-nowrap">Discount Coupon</span>
+                
+                <div className="absolute right-6 w-10 h-[65%] opacity-90" 
+                      style={{ backgroundImage: 'repeating-linear-gradient(to bottom, white, white 2px, transparent 2px, transparent 6px, white 6px, white 8px, transparent 8px, transparent 12px, white 12px, white 16px)' }}>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Main Content */}
+            <div 
+              className="w-[72%] h-auto relative p-3 md:p-4"
+              style={{
+                background: `
+                  radial-gradient(circle at 0px 0px, transparent 16px, #00754A 17px) top left / 100% 50% no-repeat,
+                  radial-gradient(circle at 0px 100%, transparent 16px, #00754A 17px) bottom left / 100% 50% no-repeat
+                `
+              }}
+            >
+              {/* Inner White Box */}
+              <div className="bg-white w-full h-full rounded-xl p-6 md:p-8 flex flex-col justify-between relative">
+
+                <div className="flex justify-between items-start mt-2">
+                  <div className="flex flex-col">
+                      <span className="text-sm font-bold text-gray-800 tracking-[0.2em] uppercase">Special Offer</span>
+                      
+                      {latestPromo.prices && latestPromo.prices.length > 0 ? (
+                        <>
+                          <span className="text-6xl md:text-7xl font-black text-gray-800 mt-2 leading-none tracking-tighter">
+                            ₱{Math.min(...latestPromo.prices.map(p => parseFloat(p.price_per_night)))}
+                          </span>
+                          <span className="text-xl font-bold text-gray-600 mt-2 tracking-wide uppercase">{latestPromo.name}</span>
+                        </>
+                      ) : (
+                        <span className="text-5xl md:text-6xl font-black text-gray-800 mt-2 leading-none uppercase">{latestPromo.name}</span>
+                      )}
+                  </div>
+
+                  <div className="flex flex-col items-center mt-2 mr-2">
+                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Promo Code :</span>
+                      <div className="border-[3px] border-gray-800 px-6 py-2 rounded-sm cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={() => {
+                              setShowPromoPopup(false);
+                              sessionStorage.setItem('northomes_promo', latestPromo.code);
+                              window.scrollTo(0, 0);
+                              setCurrentPage('booking');
+                          }}
+                      >
+                        <span className="text-2xl font-bold tracking-widest text-gray-800">{latestPromo.code}</span>
+                      </div>
+                      <span className="text-[9px] text-gray-400 mt-2 font-bold uppercase tracking-wider cursor-pointer hover:text-gray-600">Click to Apply</span>
+                  </div>
+                </div>
+
+                <div className="border-t-[3px] border-gray-800 mt-6 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="text-xs text-gray-500 font-medium w-full md:w-[65%]">
+                    <p className="mb-3">{latestPromo.description}</p>
+                    {/* Promo rates list inline */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-2">
+                      {latestPromo.prices && latestPromo.prices.map(price => (
+                        <span key={price.room_type_id} className="text-[11px] font-bold text-gray-700 flex items-center gap-1">
+                          {price.room_type_name}: 
+                          {price.original_price && (
+                            <span className="text-gray-400 line-through">₱{price.original_price}</span>
+                          )}
+                          <span className="text-[#00754A]">₱{price.price_per_night}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                        setShowPromoPopup(false);
+                        sessionStorage.setItem('northomes_promo', latestPromo.code);
+                        window.scrollTo(0, 0);
+                        setCurrentPage('booking');
+                    }}
+                    className="w-full md:w-auto bg-gray-800 text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors rounded-sm whitespace-nowrap"
+                  >
+                    Book Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </CartContext.Provider>
   );
@@ -680,6 +834,10 @@ function AppointmentForm({ onSuccess }) {
   };
 
   const [formData, setFormData] = useState(emptyForm);
+  const [promoCodeInput, setPromoCodeInput] = useState(sessionStorage.getItem('northomes_promo') || '');
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [promoMessage, setPromoMessage] = useState({ type: '', text: '' });
+  const [isVerifyingPromo, setIsVerifyingPromo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const [roomTypes, setRoomTypes] = useState([]);
@@ -696,7 +854,44 @@ function AppointmentForm({ onSuccess }) {
 
   const selectedRoomInfo = availability[formData.roomType] || roomTypes.find(rt => rt.name === formData.roomType);
   const pricePerNight = selectedRoomInfo ? parseFloat(selectedRoomInfo.price_per_night) : 0;
-  const totalPrice = pricePerNight * nights;
+  const effectivePricePerNight = appliedPromo ? parseFloat(appliedPromo.discountedPrice) : pricePerNight;
+  const totalPrice = effectivePricePerNight * nights;
+
+  useEffect(() => {
+    // Clear promo if room type changes
+    if (appliedPromo) {
+      setAppliedPromo(null);
+      setPromoMessage({ type: '', text: '' });
+    }
+  }, [formData.roomType]);
+
+  const validatePromoCode = async () => {
+    if (!promoCodeInput.trim() || !formData.roomType) return;
+    setIsVerifyingPromo(true);
+    setPromoMessage({ type: '', text: '' });
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/promos/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCodeInput, roomType: formData.roomType })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAppliedPromo({
+          code: promoCodeInput.trim().toUpperCase(),
+          discountedPrice: data.discountedPrice
+        });
+        setPromoMessage({ type: 'success', text: 'Promo code applied!' });
+      } else {
+        setAppliedPromo(null);
+        setPromoMessage({ type: 'error', text: data.message });
+      }
+    } catch (err) {
+      setPromoMessage({ type: 'error', text: 'Failed to validate promo code.' });
+    } finally {
+      setIsVerifyingPromo(false);
+    }
+  };
 
   // Fetch all room types on mount
   useEffect(() => {
@@ -750,7 +945,8 @@ function AppointmentForm({ onSuccess }) {
       checkInDate: formData.checkInDate,
       checkOutDate: formData.checkOutDate,
       numberOfGuests: parseInt(formData.adults) + parseInt(formData.children),
-      specialRequests: formData.specialRequests
+      specialRequests: formData.specialRequests,
+      promoCode: appliedPromo ? appliedPromo.code : ''
     };
 
     try {
@@ -948,13 +1144,12 @@ function AppointmentForm({ onSuccess }) {
               <div className="col-span-3">
                 <label className={labelCls}>Title</label>
                 <select name="title" value={formData.title} onChange={handleChange}
-                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Mr.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Mrs.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Ms.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Dr.</option>
-                  <option style={{ background: '#1e293b', color: 'white' }}>Prof.</option>
+                  <option>Mr.</option>
+                  <option>Mrs.</option>
+                  <option>Ms.</option>
+                  <option>Dr.</option>
+                  <option>Prof.</option>
                 </select>
               </div>
               <div className="col-span-4 sm:col-span-4">
@@ -1026,20 +1221,18 @@ function AppointmentForm({ onSuccess }) {
               <div>
                 <label className={labelCls}>Adults</label>
                 <select name="adults" value={formData.adults} onChange={handleChange} required
-                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[1, 2, 3, 4, 5, 6].map(n => (
-                    <option key={n} value={String(n)} style={{ background: '#1e293b', color: 'white' }}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>
+                    <option key={n} value={String(n)}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className={labelCls}>Children <span className="normal-case font-normal text-gray-400">(under 12)</span></label>
                 <select name="children" value={formData.children} onChange={handleChange}
-                  style={{ background: '#1e293b', color: 'white' }}
                   className={inputCls}>
                   {[0, 1, 2, 3, 4, 5].map(n => (
-                    <option key={n} value={String(n)} style={{ background: '#1e293b', color: 'white' }}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>
+                    <option key={n} value={String(n)}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>
                   ))}
                 </select>
               </div>
@@ -1066,6 +1259,78 @@ function AppointmentForm({ onSuccess }) {
             />
             <p className="text-xs text-black/60 mt-1.5">We will do our best to accommodate your requests.</p>
           </div>
+
+          {/* ── SECTION 5: Promo Code ── */}
+          <div>
+            <SectionDivider
+              title="Promo Code"
+              icon={
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              }
+            />
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={promoCodeInput}
+                  onChange={(e) => setPromoCodeInput(e.target.value)}
+                  placeholder="Enter Promo Code"
+                  disabled={appliedPromo !== null || isVerifyingPromo}
+                  className={`${inputCls} uppercase`}
+                />
+                {promoMessage.text && (
+                  <p className={`text-xs mt-1.5 ${promoMessage.type === 'success' ? 'text-green-600 font-semibold' : 'text-red-500'}`}>
+                    {promoMessage.text}
+                  </p>
+                )}
+              </div>
+              {appliedPromo ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                     setAppliedPromo(null);
+                     setPromoCodeInput('');
+                     setPromoMessage({ type: '', text: '' });
+                     sessionStorage.removeItem('northomes_promo');
+                  }}
+                  className="px-6 py-2.5 bg-red-50 text-red-600 rounded-lg font-bold text-sm hover:bg-red-100 transition-colors border border-red-200 h-[42px]"
+                >
+                  Remove
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={validatePromoCode}
+                  disabled={isVerifyingPromo || !promoCodeInput.trim() || !formData.roomType}
+                  className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed h-[42px] flex items-center gap-2"
+                >
+                  {isVerifyingPromo ? 'Checking...' : 'Apply'}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Summary Details */}
+          {totalPrice > 0 && (
+            <div className="bg-[#f8f9fa] rounded-xl p-5 border border-black/5 flex justify-between items-end mb-4">
+              <div>
+                <h4 className="text-black/40 text-[10px] font-black uppercase tracking-widest mb-1">Total Due at Property</h4>
+                <div className="flex items-baseline gap-2">
+                   <span className="text-3xl font-black text-[#006241]">₱{totalPrice.toLocaleString('en-PH')}</span>
+                   {appliedPromo && (
+                     <span className="text-sm font-bold text-black/30 line-through decoration-2">₱{(pricePerNight * nights).toLocaleString('en-PH')}</span>
+                   )}
+                </div>
+              </div>
+              {appliedPromo && (
+                <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-green-200">
+                   Promo Applied
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Submit */}
           <button
@@ -1339,11 +1604,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const [endDate, setEndDate] = useState('');
 
   // Reschedule state
-  const [rescheduleModal, setRescheduleModal] = useState(null);
+  const [editModal, setEditModal] = useState(null);
   const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('');
+  const [newRoomNumber, setNewRoomNumber] = useState('');
   const [availableSlots, setAvailableSlots] = useState([]);
-  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   // Calendar state
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth() + 1);
@@ -1389,7 +1655,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     currency: 'PHP', min_stay_nights: '1', max_stay_nights: '30',
     advance_booking_days: '365', cancellation_policy: '',
     deposit_required: 'false', deposit_percentage: '50',
-    sms_sender_name: '', email_sender_name: '', hero_images: '[]', gallery_images: '[]'
+    sms_sender_name: '', email_sender_name: '', hero_images: '[]', gallery_images: '[]', about_us_content: ''
   });
   const [heroFiles, setHeroFiles] = useState([]);
   const [galleryFiles, setGalleryFiles] = useState([]);
@@ -1540,7 +1806,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const updateStatus = async (id, newStatus) => {
     setUpdatingId(id);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus })
@@ -1558,13 +1824,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     }
   };
 
-  // Reschedule functions
-  const openRescheduleModal = async (apt) => {
-    setRescheduleModal(apt);
-    setNewDate(res.preferred_date);
-    setNewTime(res.preferred_time);
-    // Fetch available slots for current date
-    await fetchAvailableSlots(res.preferred_date);
+  // Edit Booking function
+  const openEditModal = async (apt) => {
+    setEditModal(apt);
+    const initialDate = apt.check_in_date ? apt.check_in_date.slice(0, 10) : apt.preferred_date;
+    setNewDate(initialDate);
+    setNewTime(apt.preferred_time || '');
+    setNewRoomNumber(apt.room_number || '');
+    // Fetch available slots for current date (kept for backwards compatibility if needed)
+    await fetchAvailableSlots(initialDate);
   };
 
   const fetchAvailableSlots = async (date) => {
@@ -1593,33 +1861,33 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     await fetchAvailableSlots(date);
   };
 
-  const handleReschedule = async () => {
-    if (!newDate || !newTime) return;
+  const handleEditBooking = async () => {
+    if (!newDate) return;
 
-    setIsRescheduling(true);
+    setIsEditing(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/reservations/${rescheduleModal.id}/reschedule`, {
-        method: 'PUT',
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${editModal.id}/edit`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ preferredDate: newDate, preferredTime: newTime })
+        body: JSON.stringify({ check_in_date: newDate, check_in_time: newTime, room_number: newRoomNumber })
       });
       const data = await response.json();
 
       if (data.success) {
         setReservations(prev => prev.map(apt =>
-          res.id === rescheduleModal.id
-            ? { ...apt, preferred_date: newDate, preferred_time: newTime }
+          apt.id === editModal.id
+            ? { ...apt, check_in_date: newDate, preferred_date: newDate, preferred_time: newTime, room_number: newRoomNumber }
             : apt
         ));
-        setRescheduleModal(null);
+        setEditModal(null);
       } else {
-        alert(data.message || 'Failed to reschedule');
+        alert(data.message || 'Failed to edit booking');
       }
     } catch (error) {
-      console.error('Reschedule error:', error);
-      alert('Failed to reschedule appointment');
+      console.error('Edit error:', error);
+      alert('Failed to edit booking');
     } finally {
-      setIsRescheduling(false);
+      setIsEditing(false);
     }
   };
 
@@ -2508,7 +2776,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     ) : (
                       <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                         {/* Table Header */}
-                        <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
+                        <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_250px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
                           <span>#</span>
                           <span>Guest Name</span>
                           <span>Service</span>
@@ -2518,7 +2786,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           <span className="text-right">Actions</span>
                         </div>
                         {filteredReservations.map((res, index) => (
-                          <div key={res.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
+                          <div key={res.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_250px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
                             <span className="text-black/60 font-mono text-xs">{res.id}</span>
                             <div className="min-w-0">
                               <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{res.full_name}</p>
@@ -2530,10 +2798,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(res.status)}`}>
                               {res.status}
                             </span>
-                            <div className="flex flex-wrap gap-1 justify-end">
+                            <div className="flex flex-nowrap gap-1 justify-end">
                               {(res.status === 'pending' || res.status === 'confirmed') && (
-                                <button onClick={() => openRescheduleModal(apt)} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition-all border border-purple-200">
-                                  Reschedule
+                                <button onClick={() => openEditModal(res)} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition-all border border-purple-200">
+                                  Edit Booking
                                 </button>
                               )}
                               {res.status === 'pending' && (
@@ -2700,18 +2968,18 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       const isClean = status === 'clean';
                       const isDirty = status === 'dirty';
                       const isInspected = status === 'inspected';
-                      
+
                       const displayStatus = isClean ? 'Clean' : isDirty ? 'Dirty' : isInspected ? 'Inspected' : 'O.O.O.';
-                      
+
                       const dotColor = isClean ? '#10B981' : isDirty ? '#c82014' : isInspected ? '#006241' : '#f59e0b';
                       const textColor = isClean ? 'text-emerald-600' : isDirty ? 'text-[#c82014]' : isInspected ? 'text-[#006241]' : 'text-amber-600';
                       const bg = isClean ? 'bg-emerald-50 border-emerald-200' : isDirty ? 'bg-red-50 border-red-200' : isInspected ? 'bg-[#d4e9e2] border-[#d4e9e2]' : 'bg-amber-50 border-amber-200';
-                      
+
                       const toggleStatus = () => {
-                         if (status === 'clean') updateHkStatus(r.room_number, 'dirty');
-                         else if (status === 'dirty') updateHkStatus(r.room_number, 'inspected');
-                         else if (status === 'inspected') updateHkStatus(r.room_number, 'clean');
-                         else updateHkStatus(r.room_number, 'clean');
+                        if (status === 'clean') updateHkStatus(r.room_number, 'dirty');
+                        else if (status === 'dirty') updateHkStatus(r.room_number, 'inspected');
+                        else if (status === 'inspected') updateHkStatus(r.room_number, 'clean');
+                        else updateHkStatus(r.room_number, 'clean');
                       };
 
                       return (
@@ -3439,6 +3707,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
           );
         })()}
 
+        {/* ==================== INBOX TAB ==================== */}
+        {activeTab === 'inbox' && <AdminInboxTab />}
+
         {/* ==================== SETTINGS TAB ==================== */}
         {activeTab === 'settings' && (
           <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
@@ -3463,6 +3734,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       { id: 'reservations', label: 'Reservations' },
                       { id: 'availability', label: 'Availability' },
                       { id: 'notifications', label: 'Notifications' },
+                      { id: 'about-us', label: 'About Us' },
                       { id: 'staff', label: 'Staff & Permissions' },
                     ].map(tab => (
                       <button
@@ -4168,40 +4440,40 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           <p className="text-black/60 text-xs mt-1">Register new staff and assign modular permissions.</p>
                         </div>
                         {staffMsg && <div className="mb-4 text-sm text-[#00754A] font-bold p-3 bg-[#00754A]/10 rounded-xl">{staffMsg}</div>}
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-8">
                           <div className="space-y-2">
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Username</label>
-                            <input type="text" value={staffNewForm.username} onChange={e => setStaffNewForm({...staffNewForm, username: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                            <input type="text" value={staffNewForm.username} onChange={e => setStaffNewForm({ ...staffNewForm, username: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
                           <div className="space-y-2">
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Password</label>
-                            <input type="password" value={staffNewForm.password} onChange={e => setStaffNewForm({...staffNewForm, password: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                            <input type="password" value={staffNewForm.password} onChange={e => setStaffNewForm({ ...staffNewForm, password: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
                           <div className="space-y-2">
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
-                            <input type="text" value={staffNewForm.full_name} onChange={e => setStaffNewForm({...staffNewForm, full_name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                            <input type="text" value={staffNewForm.full_name} onChange={e => setStaffNewForm({ ...staffNewForm, full_name: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
-                          <button 
+                          <button
                             onClick={async () => {
                               try {
                                 const res = await fetch(`${API_BASE_URL}/api/staff`, {
-                                  method: 'POST', headers: {'Content-Type': 'application/json'},
+                                  method: 'POST', headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify(staffNewForm)
                                 });
                                 const data = await res.json();
                                 if (data.success) {
                                   setStaffMsg('Staff added successfully.');
-                                  setStaffNewForm({username:'', password:'', full_name:'', permissions:[]});
+                                  setStaffNewForm({ username: '', password: '', full_name: '', permissions: [] });
                                   fetchStaff();
                                 } else setStaffMsg(data.message);
                                 setTimeout(() => setStaffMsg(''), 3000);
-                              } catch(e){}
+                              } catch (e) { }
                             }}
                             className="w-full px-4 py-3 bg-[#000000] text-white text-xs font-bold rounded-xl hover:bg-[#00754A] transition-colors"
                           >Add Staff</button>
                         </div>
-                        
+
                         <div className="space-y-4">
                           {staffLoading ? <p className="text-xs text-black/40">Loading staff...</p> : adminStaffList.map(s => (
                             <div key={s.id} className="p-4 border border-black/5 rounded-xl bg-white/[0.01]">
@@ -4210,8 +4482,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                   <div className="font-bold text-sm text-[#000000]/87">{s.full_name} <span className="text-black/40 text-xs ml-2">@{s.username}</span></div>
                                 </div>
                                 <button onClick={async () => {
-                                  if(window.confirm('Delete staff?')) {
-                                    await fetch(`${API_BASE_URL}/api/staff/${s.id}`, {method: 'DELETE'});
+                                  if (window.confirm('Delete staff?')) {
+                                    await fetch(`${API_BASE_URL}/api/staff/${s.id}`, { method: 'DELETE' });
                                     fetchStaff();
                                   }
                                 }} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={16} /></button>
@@ -4219,12 +4491,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                 {['dashboard', 'reservations', 'frontdesk', 'rooms', 'housekeeping', 'billing', 'reports', 'settings'].map(perm => (
                                   <label key={perm} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-lg">
-                                    <input type="checkbox" checked={(s.permissions || []).includes(perm) || (s.permissions || []).includes('all')} 
+                                    <input type="checkbox" checked={(s.permissions || []).includes(perm) || (s.permissions || []).includes('all')}
                                       onChange={async (e) => {
-                                        const newPerms = e.target.checked ? [...(s.permissions||[]), perm] : (s.permissions||[]).filter(p => p !== perm && p !== 'all');
+                                        const newPerms = e.target.checked ? [...(s.permissions || []), perm] : (s.permissions || []).filter(p => p !== perm && p !== 'all');
                                         await fetch(`${API_BASE_URL}/api/staff/${s.id}/permissions`, {
-                                          method: 'PUT', headers: {'Content-Type': 'application/json'},
-                                          body: JSON.stringify({permissions: newPerms})
+                                          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ permissions: newPerms })
                                         });
                                         fetchStaff();
                                       }}
@@ -4239,6 +4511,70 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </div>
                     </div>
                   )}
+
+                  {/* ── About Us Configuration ── */}
+                  {settingsSubTab === 'about-us' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
+                        <div className="mb-6 border-b border-black/5 pb-6">
+                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">About Us Content</h3>
+                          <p className="text-black/60 text-xs mt-1">Configure the formatted content for your public About Us page.</p>
+                        </div>
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1 mb-2">Formatted Page Content</label>
+                            <div className="bg-white rounded-xl shadow-sm border border-black/10 overflow-hidden text-black flex flex-col">
+                              <div className="flex flex-wrap gap-2 p-2 border-b border-black/10 bg-black/5">
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h1>Heading 1</h1>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H1</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h2>Heading 2</h2>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H2</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<b>Bold Text</b>' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Bold</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<i>Italic Text</i>' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Italic</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<p>Paragraph</p>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Paragraph</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<br/>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Line Break</button>
+                                <div className="w-[1px] h-6 bg-black/10 self-center mx-1"></div>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: left;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Left</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: center;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Center</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: right;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Right</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: justify;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Justify</button>
+                              </div>
+                              <textarea
+                                value={hotelSettings.about_us_content || ''}
+                                onChange={(e) => setHotelSettings(prev => ({ ...prev, about_us_content: e.target.value }))}
+                                className="w-full min-h-[300px] p-4 text-sm focus:outline-none resize-y"
+                                placeholder="Enter HTML content here..."
+                              />
+                            </div>
+                            <p className="text-xs text-black/40 mt-2 ml-1">You can use basic HTML tags for formatting. This content will be shown on the public-facing About Us page.</p>
+                          </div>
+
+                          <div className="pt-4 flex items-center gap-4">
+                            <button
+                              onClick={() => {
+                                setSavingSettings(true);
+                                fetch(`${API_BASE_URL}/api/hotel-settings`, {
+                                  method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ settings: hotelSettings })
+                                }).then(res => res.json()).then(data => {
+                                  setSavingSettings(false);
+                                  if (data.success) {
+                                    setSettingsSavedMsg('About Us content saved successfully');
+                                    setTimeout(() => setSettingsSavedMsg(''), 3000);
+                                  }
+                                });
+                              }}
+                              disabled={savingSettings}
+                              className="px-6 py-3 bg-[#00754A] hover:bg-[#006241] text-white text-sm font-bold rounded-xl shadow-md transition-all flex items-center gap-2"
+                            >
+                              {savingSettings ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Check className="w-4 h-4" />}
+                              Save Changes
+                            </button>
+                            {settingsSavedMsg && <span className="text-sm font-semibold text-[#00754A] animate-in fade-in">{settingsSavedMsg}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                 </div>
               </div>
             </div>
@@ -4246,58 +4582,61 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
       </div>
 
-      {/* Reschedule Modal */}
-      {rescheduleModal && (
+      {/* Edit Booking Modal */}
+      {editModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md border border-blue-200">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Reschedule Appointment</h3>
+          <div className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md border border-[#00754A]/20">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">Edit Booking</h3>
             <p className="text-gray-500 text-sm mb-4">
-              Patient: <span className="text-gray-800">{rescheduleModal.full_name}</span>
+              Guest: <span className="text-gray-800 font-bold">{editModal.full_name}</span>
             </p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-gray-500 text-sm mb-2">New Date</label>
+                <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Assign Room #</label>
                 <input
-                  type="date"
-                  value={newDate}
-                  onChange={(e) => handleDateChange(e.target.value)}
-                  min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 focus:outline-none focus:border-blue-500"
+                  type="text"
+                  value={newRoomNumber}
+                  onChange={(e) => setNewRoomNumber(e.target.value)}
+                  placeholder="e.g. 101"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:border-[#00754A]"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-500 text-sm mb-2">New Time</label>
-                <select
+                <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Check-in Date</label>
+                <input
+                  type="date"
+                  value={newDate}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:border-[#00754A]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Check-in Time</label>
+                <input
+                  type="time"
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Select time slot</option>
-                  {availableSlots.map(slot => (
-                    <option key={slot} value={slot}>{slot}</option>
-                  ))}
-                </select>
-                {availableSlots.length === 0 && newDate && (
-                  <p className="text-red-400 text-sm mt-1">No slots available for this date</p>
-                )}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:border-[#00754A]"
+                />
               </div>
             </div>
 
             <div className="flex gap-3 mt-6">
               <button
-                onClick={() => setRescheduleModal(null)}
-                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all"
+                onClick={() => setEditModal(null)}
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-bold"
               >
                 Cancel
               </button>
               <button
-                onClick={handleReschedule}
-                disabled={!newDate || !newTime || isRescheduling}
-                className="flex-1 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-semibold rounded-full hover:bg-[#465a8f] transition-all disabled:opacity-50"
+                onClick={handleEditBooking}
+                disabled={!newDate || isEditing}
+                className="flex-1 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-bold rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
               >
-                {isRescheduling ? 'Saving...' : 'Save Changes'}
+                {isEditing ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>
@@ -4668,8 +5007,145 @@ function MyAppointment({ setCurrentPage, initialToken }) {
   );
 }
 
+// Admin Inbox Tab Component
+function AdminInboxTab() {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+
+  const fetchMessages = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${API_BASE_URL}/api/contact`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setMessages(data.messages || []);
+    } catch (e) {}
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchMessages(); }, []);
+
+  const handleSelect = async (msg) => {
+    setSelected(msg);
+    if (!msg.is_read) {
+      try {
+        const token = localStorage.getItem('adminToken');
+        await fetch(`${API_BASE_URL}/api/contact/${msg.id}/read`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: true } : m));
+        setSelected(prev => ({ ...prev, is_read: true }));
+      } catch (e) {}
+    }
+  };
+
+  const unreadCount = messages.filter(m => !m.is_read).length;
+
+  return (
+    <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', zIndex: 10 }}>
+      <div className="flex-1 flex min-h-0" style={{ background: '#f8f9fa' }}>
+        {/* Message List */}
+        <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-black/10 bg-white overflow-hidden">
+          <div className="px-6 py-5 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-black text-gray-900 tracking-tight">Inbox</h2>
+              <p className="text-xs text-gray-400 mt-0.5">{messages.length} messages{unreadCount > 0 ? `, ${unreadCount} unread` : ''}</p>
+            </div>
+            <button onClick={fetchMessages} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="w-6 h-6 border-2 border-[#00754A] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-center px-6">
+                <svg className="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                <p className="text-sm text-gray-400 font-medium">No messages yet</p>
+                <p className="text-xs text-gray-300 mt-1">Guest messages will appear here</p>
+              </div>
+            ) : (
+              messages.map(msg => (
+                <button
+                  key={msg.id}
+                  onClick={() => handleSelect(msg)}
+                  className={`w-full text-left px-5 py-4 border-b border-black/5 hover:bg-gray-50 transition-colors ${selected?.id === msg.id ? 'bg-[#00754A]/5 border-l-4 border-l-[#00754A]' : ''} ${!msg.is_read ? 'bg-[#00754A]/3' : ''}`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {!msg.is_read && <span className="w-2 h-2 rounded-full bg-[#00754A] flex-shrink-0 mt-1"></span>}
+                      <span className={`text-sm truncate ${!msg.is_read ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>{msg.name}</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
+                      {new Date(msg.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  <p className={`text-xs mt-1 truncate ${!msg.is_read ? 'font-semibold text-gray-700' : 'text-gray-500'}`}>{msg.subject}</p>
+                  <p className="text-xs text-gray-400 mt-0.5 truncate">{msg.message}</p>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Message View */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {selected ? (
+            <div className="flex-1 overflow-y-auto p-8">
+              <div className="max-w-2xl mx-auto">
+                <button onClick={() => setSelected(null)} className="mb-6 text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 font-medium transition-colors">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                  Back to inbox
+                </button>
+                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                  <div className="bg-[#1E3932] p-6 text-white">
+                    <h3 className="text-xl font-bold mb-1">{selected.subject}</h3>
+                    <p className="text-white/60 text-xs">{new Date(selected.created_at).toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' })}</p>
+                  </div>
+                  <div className="p-6 border-b border-black/5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-[#00754A]/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[#00754A] font-black text-lg">{selected.name[0].toUpperCase()}</span>
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-900">{selected.name}</p>
+                        <a href={`mailto:${selected.email}`} className="text-sm text-[#00754A] hover:underline">{selected.email}</a>
+                      </div>
+                      <a
+                        href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
+                        className="ml-auto flex items-center gap-2 px-4 py-2 bg-[#00754A] text-white text-xs font-bold rounded-lg hover:bg-[#006241] transition-colors"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                        Reply via Email
+                      </a>
+                    </div>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selected.message}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+              <svg className="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+              <p className="text-gray-400 font-medium">Select a message to read</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Header Component
-function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
+function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setAccommodationFilter }) {
   const [roomTypes, setRoomTypes] = useState([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -4683,9 +5159,9 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
   const inputCls = "w-full pl-10 pr-4 py-2 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-sm";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
+    <>
       {/* Top Pre-header Bar */}
-      <div className="h-[50px] w-full bg-[#1E3932] flex items-center justify-between px-3 md:px-8 overflow-hidden">
+      <div className="sticky top-0 z-[60] h-[50px] w-full bg-[#1E3932] flex items-center justify-between px-3 md:px-8 overflow-hidden">
         <div className="flex items-center gap-2 sm:gap-6 w-full">
           <a href="mailto:info@northomespensione.com" className="text-white/90 text-[12px] sm:text-[15px] font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-1 sm:gap-2 whitespace-nowrap">
             <svg className="w-3.5 h-3.5 flex-shrink-0 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
@@ -4708,8 +5184,9 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
         </button>
       </div>
 
-      <div className="relative">
-        <div className="w-full px-8 py-4 relative z-10">
+      <header className="relative z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
+        <div className="relative">
+          <div className="w-full px-8 py-4 relative z-10">
           <div className="flex flex-col items-center justify-center gap-3">
             <div className="flex flex-col items-center justify-center cursor-pointer group text-center" onClick={() => setCurrentPage('home')}>
               <img
@@ -4742,6 +5219,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
                           }
                         }, 100);
                       } else {
+                        if (item.id === 'accommodations') setAccommodationFilter(null);
                         setCurrentPage(item.id);
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }
@@ -4760,7 +5238,10 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
                         {roomTypes.map(rt => (
                           <button
                             key={rt.id}
-                            onClick={() => setCurrentPage('accommodations')}
+                            onClick={() => {
+                              setAccommodationFilter(rt.name);
+                              setCurrentPage('accommodations');
+                            }}
                             className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-black/60 hover:text-[#00754A] hover:bg-[#f2f0eb] transition-colors uppercase tracking-widest"
                           >
                             {rt.name}
@@ -4820,7 +5301,8 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
           </nav>
         )}
       </div>
-    </header>
+      </header>
+    </>
   );
 }
 
@@ -4936,7 +5418,7 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
         </div>
         <div className="flex flex-col items-center text-center gap-2">
           <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Intercom / TV</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Flatscreen TV</span>
         </div>
       </div>
     </div>
@@ -4948,15 +5430,32 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
 function ContactPage({ setCurrentPage }) {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSent, setIsSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulate API call
-    setTimeout(() => {
-      setIsSent(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setIsSent(false), 5000);
-    }, 800);
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsSent(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        setTimeout(() => setIsSent(false), 6000);
+      } else {
+        setError(data.message || 'Failed to send. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -5108,11 +5607,15 @@ function ContactPage({ setCurrentPage }) {
                     ></textarea>
                   </div>
 
+                  {error && (
+                    <p className="text-red-500 text-sm font-medium text-center">{error}</p>
+                  )}
                   <button
                     type="submit"
-                    className="w-full px-8 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-[#00754A]/20 hover:scale-[1.02] active:scale-[0.98]"
+                    disabled={isSubmitting}
+                    className="w-full px-8 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-[#00754A]/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
                   >
-                    Send Message
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               )}
@@ -5139,7 +5642,7 @@ function ContactPage({ setCurrentPage }) {
 }
 
 // Accommodations Page
-function AccommodationsPage({ setCurrentPage }) {
+function AccommodationsPage({ setCurrentPage, accommodationFilter, setAccommodationFilter }) {
   const [roomTypes, setRoomTypes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -5224,58 +5727,213 @@ function AccommodationsPage({ setCurrentPage }) {
         </div>
       </div>
 
-      {/* Room List */}
-      <div className="max-w-7xl mx-auto px-4 mt-16 grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {roomTypes.map((room) => (
-          <RoomCard key={room.id} room={room} hasCheckedAvailability={hasCheckedAvailability} setCurrentPage={setCurrentPage} />
-        ))}
+      {/* Category Filter Badge */}
+      {accommodationFilter && (
+        <div className="max-w-7xl mx-auto px-4 mt-8 flex justify-center">
+          <div className="bg-white border border-black/5 rounded-full px-5 py-2.5 inline-flex items-center gap-3 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-widest text-black/60">Filtered by: <span className="text-[#00754A]">{accommodationFilter}</span></span>
+            <button onClick={() => setAccommodationFilter(null)} className="text-black/30 hover:text-red-500 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        </div>
+      )}
 
-        {roomTypes.length === 0 && !loading && (
+      {/* Room List */}
+      {(() => {
+        const filteredRooms = roomTypes.filter(room => !accommodationFilter || room.name === accommodationFilter);
+        return (
+          <div className={`max-w-7xl mx-auto px-4 mt-10 ${filteredRooms.length === 1 ? 'flex justify-center' : 'grid grid-cols-1 lg:grid-cols-2 gap-12'}`}>
+            {filteredRooms.map((room) => (
+              <div key={room.id} className={filteredRooms.length === 1 ? 'w-full max-w-2xl' : ''}>
+                <RoomCard room={room} hasCheckedAvailability={hasCheckedAvailability} setCurrentPage={setCurrentPage} />
+              </div>
+            ))}
+
+            {filteredRooms.length === 0 && !loading && (
+              <div className="text-center py-20 w-full col-span-full">
+                <h3 className="text-2xl font-bold text-black/40">No rooms available in this category.</h3>
+                {accommodationFilter && (
+                  <button onClick={() => setAccommodationFilter(null)} className="mt-4 px-6 py-2 bg-[#00754A] text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-[#006241] transition-colors">
+                    View All Rooms
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
+// Promo Page
+function PromoPage({ setCurrentPage }) {
+  const [promos, setPromos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/promos`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setPromos(data.promos || []);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-[#f2f0eb] pb-24">
+      {/* Header */}
+      <div className="relative pt-32 pb-20 px-4 flex items-center justify-center min-h-[40vh]">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/assets/images/gallery/lobby.jpg"
+            alt="Promotions Background"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[#1E3932]/80 mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#f2f0eb] via-transparent to-transparent"></div>
+        </div>
+        <div className="relative z-10 text-center max-w-4xl mx-auto mt-12">
+          <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6 drop-shadow-lg">
+            Exclusive <span className="text-[#CBA258]">Offers</span>
+          </h1>
+          <p className="text-white/90 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed drop-shadow">
+            Discover our latest promotions and seasonal rates. Book directly with us using these codes for the best value.
+          </p>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 -mt-10 relative z-20">
+        {loading ? (
           <div className="text-center py-20">
-            <h3 className="text-2xl font-bold text-black/40">No rooms available at the moment.</h3>
+            <div className="inline-block w-10 h-10 border-4 border-[#00754A] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : promos.length === 0 ? (
+          <div className="bg-white rounded-3xl p-16 text-center shadow-xl border border-black/5">
+            <h3 className="text-2xl font-bold text-black/40 mb-4">No active promotions right now.</h3>
+            <p className="text-black/50">Check back later for exciting new offers!</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {promos.map(promo => (
+              <div key={promo.code} className="bg-white rounded-3xl overflow-hidden shadow-xl border border-black/5 flex flex-col md:flex-row group hover:shadow-2xl transition-all duration-300">
+                <div className="bg-[#1E3932] p-8 md:w-1/3 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+                  <h3 className="text-[#CBA258] font-black tracking-widest uppercase text-sm mb-2 relative z-10">Use Code</h3>
+                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-6 py-3 relative z-10">
+                    <span className="text-3xl font-black text-white tracking-widest">{promo.code}</span>
+                  </div>
+                </div>
+                <div className="p-8 md:w-2/3 flex flex-col justify-center">
+                  <h2 className="text-3xl font-black text-[#006241] mb-3">{promo.name}</h2>
+                  <p className="text-black/60 mb-6 leading-relaxed">{promo.description || 'Enjoy special discounted rates with this promotional code.'}</p>
+                  
+                  {promo.prices && promo.prices.length > 0 && (
+                    <div className="mb-8">
+                      <h4 className="text-xs font-bold text-black/40 uppercase tracking-widest mb-3">Applicable Rooms</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {promo.prices.map((p, i) => (
+                           <div key={i} className="bg-[#f8f9fa] border border-black/5 rounded-lg px-3 py-1.5 flex items-center gap-2">
+                             <span className="text-xs font-bold text-black/70">{p.room_type_name}</span>
+                             {p.original_price && (
+                               <span className="text-xs text-black/40 line-through">₱{parseFloat(p.original_price).toLocaleString()}</span>
+                             )}
+                             <span className="text-[#CBA258] font-black text-sm">₱{parseFloat(p.price_per_night).toLocaleString()}</span>
+                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <button 
+                    onClick={() => {
+                       sessionStorage.setItem('northomes_promo', promo.code);
+                       setCurrentPage('booking');
+                       window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className="self-start px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all"
+                  >
+                    Book with this Promo
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
     </div>
   );
 }
-
 // About Page
 function AboutPage() {
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/hotel-settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings && data.settings.about_us_content) {
+          setContent(data.settings.about_us_content);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load about us content', err);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <div className="w-full min-h-screen px-6 py-12 md:px-12 md:py-20 flex flex-col items-center">
       <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-16 mt-8 md:mt-12">
         <h1 className="text-4xl md:text-5xl font-bold text-[#006241] mb-12 text-center tracking-tight">About Us</h1>
 
         <div className="space-y-8 text-black/70 text-base md:text-lg leading-relaxed font-medium">
-          <p className="font-bold text-xl text-black/90 text-center mb-10 text-[#00754A]">
-            Welcome to Northomes Pensione — your home in the heart of Bogo City.
-          </p>
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="w-8 h-8 border-4 border-[#00754A]/30 border-t-[#00754A] rounded-full animate-spin"></div>
+            </div>
+          ) : content ? (
+            <div className="quill-content" dangerouslySetInnerHTML={{ __html: content }} />
+          ) : (
+            <>
+              <p className="font-bold text-xl text-black/90 text-center mb-10 text-[#00754A]">
+                Welcome to Northomes Pensione — your home in the heart of Bogo City.
+              </p>
 
-          <p>
-            Northomes Pensione first opened its doors on January 8, 2010, born from the vision of our parents to provide a decent, affordable, and accessible place to stay for travelers, families, and business guests visiting the City of Bogo. What started as a simple dream became a welcoming space built on genuine hospitality, comfort, and service from the heart.
-          </p>
+              <p>
+                Northomes Pensione first opened its doors on January 8, 2010, born from the vision of our parents to provide a decent, affordable, and accessible place to stay for travelers, families, and business guests visiting the City of Bogo. What started as a simple dream became a welcoming space built on genuine hospitality, comfort, and service from the heart.
+              </p>
 
-          <p>
-            Over the years, our journey has not always been easy. Like many local businesses, we have faced challenges that tested our strength and resilience. In 2013, Northomes Pensione was heavily affected by Typhoon Yolanda (Haiyan), forcing us to temporarily close for several months for repairs and rebuilding. Years later, the COVID-19 pandemic again required us to pause operations for the safety of our guests and community. More recently, the 6.9 magnitude earthquake caused significant damage to parts of our property, leading to another period of restoration and rebuilding.
-          </p>
+              <p>
+                Over the years, our journey has not always been easy. Like many local businesses, we have faced challenges that tested our strength and resilience. In 2013, Northomes Pensione was heavily affected by Typhoon Yolanda (Haiyan), forcing us to temporarily close for several months for repairs and rebuilding. Years later, the COVID-19 pandemic again required us to pause operations for the safety of our guests and community. More recently, the 6.9 magnitude earthquake caused significant damage to parts of our property, leading to another period of restoration and rebuilding.
+              </p>
 
-          <p>
-            Despite these challenges, one thing has remained constant — our commitment to serving our guests, supporting our staff, and caring for our community. We believe that genuine hospitality begins with the people behind the service. Our team has been part of our journey through every challenge and milestone, and we continue to value and support them as part of the Northomes family. Every rebuilding phase became an opportunity for us to improve, renew, and continue the vision that started it all.
-          </p>
+              <p>
+                Despite these challenges, one thing has remained constant — our commitment to serving our guests, supporting our staff, and caring for our community. We believe that genuine hospitality begins with the people behind the service. Our team has been part of our journey through every challenge and milestone, and we continue to value and support them as part of the Northomes family. Every rebuilding phase became an opportunity for us to improve, renew, and continue the vision that started it all.
+              </p>
 
-          <p>
-            Today, Northomes Pensione continues to welcome guests with clean and comfortable rooms, friendly service, and a warm atmosphere that feels close to home. Through the years, we remain grateful for the trust and support of our guests, many of whom have become part of the Northomes family.
-          </p>
+              <p>
+                Today, Northomes Pensione continues to welcome guests with clean and comfortable rooms, friendly service, and a warm atmosphere that feels close to home. Through the years, we remain grateful for the trust and support of our guests, many of whom have become part of the Northomes family.
+              </p>
 
-          <div className="mt-12 pt-8 border-t border-black/5 text-center">
-            <p className="font-bold text-black/90 text-xl text-[#006241]">
-              Thank you for being part of our story.
-            </p>
-            <p className="font-bold text-black/90 text-xl text-[#006241] mt-2">
-              We look forward to welcoming you to Northomes Pensione.
-            </p>
-          </div>
+              <div className="mt-12 pt-8 border-t border-black/5 text-center">
+                <p className="font-bold text-black/90 text-xl text-[#006241]">
+                  Thank you for being part of our story.
+                </p>
+                <p className="font-bold text-black/90 text-xl text-[#006241] mt-2">
+                  We look forward to welcoming you to Northomes Pensione.
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -5603,7 +6261,7 @@ function HomePage({ setCurrentPage }) {
                 </p>
                 {/* Social Links */}
                 <div className="flex space-x-4">
-                  <a href="#" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
+                  <a href="https://www.facebook.com/northomespensione" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
                   </a>
                   <a href="#" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
@@ -5618,7 +6276,7 @@ function HomePage({ setCurrentPage }) {
                 <div className="text-white/70 text-sm space-y-3 font-medium">
                   <p>Pelaez Street, Barangay Sto. Niño</p>
                   <p>Bogo City, Cebu, Philippines</p>
-                  <a href="https://northomespension.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">northomespensione.com</a>
+                  <a href="https://www.northomespensione.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">www.northomespensione.com</a>
                 </div>
               </div>
 
@@ -5636,7 +6294,7 @@ function HomePage({ setCurrentPage }) {
                     <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
-                    northomespensione.com
+                    info@northomespensione.com
                   </p>
                 </div>
               </div>
@@ -8724,7 +9382,7 @@ function FrontDeskTab() {
   const [fpError, setFpError] = React.useState('');
   // Checkout folio balance
   const [checkoutFolioBalance, setCheckoutFolioBalance] = React.useState(null);
-  
+
   // Corporate Accounts state for Check-out
   const [corporateAccounts, setCorporateAccounts] = React.useState([]);
   const [chargeToCorporate, setChargeToCorporate] = React.useState(false);
@@ -8892,7 +9550,7 @@ function FrontDeskTab() {
     setCheckoutSubmitting(true);
     try {
       const payload = { chargeToCorporate, corporateAccountId: selectedCorpId };
-      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, { 
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -10989,19 +11647,19 @@ function FrontDeskTab() {
                       <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                         <div className="text-center text-sm font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                         <div className="text-center text-xs text-amber-600 mt-0.5">Please settle folio before checkout</div>
-                        
+
                         {corporateAccounts.length > 0 && (
                           <div className="mt-3 pt-3 border-t border-amber-200/60">
                             <label className="flex items-center gap-2 cursor-pointer mb-2">
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 className="rounded text-amber-600 focus:ring-amber-500 w-4 h-4"
                                 checked={chargeToCorporate}
                                 onChange={(e) => setChargeToCorporate(e.target.checked)}
                               />
                               <span className="text-sm font-medium text-amber-800">Charge to Corporate Account</span>
                             </label>
-                            
+
                             {chargeToCorporate && (
                               <select
                                 className="w-full text-sm border-amber-300 rounded-lg bg-white/80 focus:ring-amber-500 focus:border-amber-500"
