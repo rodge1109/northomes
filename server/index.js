@@ -1695,6 +1695,45 @@ app.patch('/api/reservations/:id/status', async (req, res) => {
   }
 });
 
+// PATCH /api/reservations/:id/edit
+app.patch('/api/reservations/:id/edit', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { room_number, check_in_date, check_in_time } = req.body;
+    
+    // Check if room is available
+    if (room_number) {
+      const conflict = await pool.query(
+        `SELECT id, full_name, check_in_date, check_out_date FROM hotel_reservations
+         WHERE room_number = $1 AND id != $2 AND status IN ('checked_in')`,
+        [room_number, id]
+      );
+      if (conflict.rows.length > 0) {
+        return res.status(409).json({ success: false, message: `Room ${room_number} is currently occupied by ${conflict.rows[0].full_name}.` });
+      }
+    }
+
+    const result = await pool.query(
+      `UPDATE hotel_reservations SET 
+         room_number = COALESCE($1, room_number),
+         check_in_date = COALESCE($2, check_in_date),
+         preferred_date = COALESCE($2, preferred_date),
+         preferred_time = COALESCE($3, preferred_time)
+       WHERE id = $4 RETURNING *`,
+      [room_number, check_in_date, check_in_time, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Reservation not found.' });
+    }
+
+    res.json({ success: true, reservation: result.rows[0], message: 'Reservation updated successfully.' });
+  } catch (err) {
+    console.error('Error editing reservation:', err);
+    res.status(500).json({ success: false, message: 'Edit failed.' });
+  }
+});
+
 // POST /api/checkin/lookup — guest self check-in: find reservation
 app.post('/api/checkin/lookup', async (req, res) => {
   try {
