@@ -1459,14 +1459,18 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     fetchFolio(r.id);
   }, [fetchFolio]);
 
-  const addCharge = async () => {
-    if (!fcPrice || isNaN(parseFloat(fcPrice))) { setFcError('Enter a valid price'); return; }
+  const addCharge = async (overrideType, overrideDesc, overrideQty, overridePrice) => {
+    const type = overrideType || fcType;
+    const desc = overrideDesc || fcDesc;
+    const qty = overrideQty || fcQty;
+    const price = overridePrice || fcPrice;
+    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return; }
     setFcSaving(true); setFcError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ charge_type: fcType, description: fcDesc, quantity: fcQty, unit_price: fcPrice }),
+        body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price }),
       });
       const data = await res.json();
       if (data.success) { fetchFolio(folioRes.id); setFcDesc(''); setFcQty(1); setFcPrice(''); }
@@ -1475,14 +1479,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setFcSaving(false);
   };
 
-  const addPayment = async () => {
-    if (!fpAmount || isNaN(parseFloat(fpAmount))) { setFpError('Enter a valid amount'); return; }
+  const addPayment = async (overrideMethod, overrideAmount, overrideRef) => {
+    const method = overrideMethod || fpMethod;
+    const amount = overrideAmount || fpAmount;
+    const ref = overrideRef || fpRef;
+    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return; }
     setFpSaving(true); setFpError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payment_method: fpMethod, amount: fpAmount, reference: fpRef }),
+        body: JSON.stringify({ payment_method: method, amount: amount, reference: ref }),
       });
       const data = await res.json();
       if (data.success) { fetchFolio(folioRes.id); setFpAmount(''); setFpRef(''); }
@@ -5187,7 +5194,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
       <header className="relative z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
         <div className="relative">
           <div className="w-full px-8 py-4 relative z-10">
-          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="flex flex-col items-center justify-center gap-3">
             <div className="flex flex-col items-center justify-center cursor-pointer group text-center" onClick={() => setCurrentPage('home')}>
               <img
                 src="/assets/images/hero/logo.jpg"
@@ -5300,7 +5307,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
             ))}
           </nav>
         )}
-      </div>
+        </div>
       </header>
     </>
   );
@@ -9595,14 +9602,18 @@ function FrontDeskTab() {
     fetchFolio(r.id);
   };
 
-  const addCharge = async () => {
-    if (!fcPrice || isNaN(parseFloat(fcPrice))) { setFcError('Enter a valid price'); return; }
+  const addCharge = async (overrideType, overrideDesc, overrideQty, overridePrice) => {
+    const type = overrideType || fcType;
+    const desc = overrideDesc || fcDesc;
+    const qty = overrideQty || fcQty;
+    const price = overridePrice || fcPrice;
+    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return; }
     setFcSaving(true); setFcError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ charge_type: fcType, description: fcDesc, quantity: fcQty, unit_price: fcPrice }),
+        body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price }),
       });
       const data = await res.json();
       if (data.success) { fetchFolio(folioRes.id); setFcDesc(''); setFcQty(1); setFcPrice(''); }
@@ -9611,14 +9622,17 @@ function FrontDeskTab() {
     setFcSaving(false);
   };
 
-  const addPayment = async () => {
-    if (!fpAmount || isNaN(parseFloat(fpAmount))) { setFpError('Enter a valid amount'); return; }
+  const addPayment = async (overrideMethod, overrideAmount, overrideRef) => {
+    const method = overrideMethod || fpMethod;
+    const amount = overrideAmount || fpAmount;
+    const ref = overrideRef || fpRef;
+    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return; }
     setFpSaving(true); setFpError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payment_method: fpMethod, amount: fpAmount, reference: fpRef }),
+        body: JSON.stringify({ payment_method: method, amount: amount, reference: ref }),
       });
       const data = await res.json();
       if (data.success) { fetchFolio(folioRes.id); setFpAmount(''); setFpRef(''); }
@@ -10176,44 +10190,196 @@ function FrontDeskTab() {
   const InHouseCard = ({ r }) => {
     const nights = nightsCount(r);
     const isDueOut = r.check_out_date && r.check_out_date.slice(0, 10) === today;
+
+    const menuItems = [
+      {
+        label: 'View Profile',
+        icon: (
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="8" cy="5" r="3" />
+            <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" />
+          </svg>
+        ),
+        action: () => { openGuestProfile(r); setDropOpen(false); },
+        color: 'text-[#000000]/80',
+      },
+      {
+        label: 'Guest Folio',
+        icon: (
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="1" width="10" height="14" rx="1.5" />
+            <path d="M6 5h4M6 8h4M6 11h2" />
+          </svg>
+        ),
+        action: () => { openFolio(r); setDropOpen(false); },
+        color: 'text-[#000000]/80',
+      },
+      {
+        label: 'Add Payment',
+        icon: (
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="4" width="14" height="10" rx="1.5" />
+            <path d="M1 8h14" />
+            <path d="M5 12h2M10 12h1" />
+          </svg>
+        ),
+        action: () => { openFolio(r); setDropOpen(false); },
+        color: 'text-[#000000]/80',
+      },
+      {
+        label: 'Send Email',
+        icon: (
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="3" width="14" height="10" rx="1.5" />
+            <path d="M1 4l7 5 7-5" />
+          </svg>
+        ),
+        action: async () => {
+          setDropOpen(false);
+          // Open folio first to set folioRes, then trigger email
+          setFolioRes(r);
+          setFolioItems([]); setFolioPayments([]); setFolioTotals({ charges: 0, payments: 0, balance: 0 });
+          setFolioEmailSending(true); setFolioEmailMsg('');
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/folio/${r.id}/email`, { method: 'POST' });
+            const data = await res.json();
+            alert(data.success ? `✓ ${data.message}` : `✗ ${data.message || 'Failed to send email.'}`);
+          } catch { alert('✗ Failed to send email.'); }
+          setFolioEmailSending(false);
+        },
+        color: 'text-[#000000]/80',
+      },
+      { divider: true },
+      {
+        label: 'Transfer Room',
+        icon: (
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M2 8h12M10 4l4 4-4 4" />
+          </svg>
+        ),
+        action: () => { openTransfer(r); setDropOpen(false); },
+        color: 'text-[#000000]/80',
+      },
+      {
+        label: 'Check Out',
+        icon: (
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 3h4v10h-4" />
+            <path d="M7 11l4-3-4-3" />
+            <path d="M2 8h9" />
+          </svg>
+        ),
+        action: () => { setCheckoutConfirmId(r.id); fetchCheckoutBalance(r.id); setDropOpen(false); },
+        color: 'text-[#000000]/80',
+      },
+    ];
+
+    // ActionsDropdown is a proper named component so React hooks are valid
+    const ActionsDropdown = () => {
+      const [open, setOpen] = React.useState(false);
+      const [pos, setPos] = React.useState({ top: 0, right: 0 });
+      const btnRef = React.useRef(null);
+
+      React.useEffect(() => {
+        if (open && btnRef.current) {
+          const rect = btnRef.current.getBoundingClientRect();
+          setPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+        }
+      }, [open]);
+
+      React.useEffect(() => {
+        if (!open) return;
+        const handler = (e) => {
+          if (btnRef.current && !btnRef.current.contains(e.target)) setOpen(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+      }, [open]);
+
+      return (
+        <div className="flex justify-end">
+          <button
+            ref={btnRef}
+            onClick={() => setOpen(o => !o)}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
+              open
+                ? 'bg-[#00754A] text-white shadow-md'
+                : 'bg-black/5 hover:bg-black/10 text-black/60 hover:text-[#000000]/87'
+            }`}
+          >
+            Actions
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <path d={open ? 'M2 7l3-4 3 4' : 'M2 3l3 4 3-4'} />
+            </svg>
+          </button>
+
+          {open && ReactDOM.createPortal(
+            <div
+              style={{
+                position: 'fixed',
+                top: pos.top,
+                right: pos.right,
+                zIndex: 9999,
+                minWidth: '168px',
+                background: '#fff',
+                borderRadius: '12px',
+                border: '1px solid rgba(0,0,0,0.10)',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08)',
+                overflow: 'hidden',
+              }}
+            >
+              {menuItems.map((item, idx) =>
+                item.divider ? (
+                  <div key={idx} style={{ margin: '4px 0', borderTop: '1px solid rgba(0,0,0,0.07)' }} />
+                ) : (
+                  <button
+                    key={idx}
+                    onMouseDown={(e) => { e.preventDefault(); item.action(); setOpen(false); }}
+                    className={`hover:bg-black/[0.04] ${item.color}`}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 500, background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    <span style={{ flexShrink: 0, opacity: 0.8 }}>{item.icon}</span>
+                    {item.label}
+                  </button>
+                )
+              )}
+            </div>,
+            document.body
+          )}
+        </div>
+      );
+    };
+
     return (
-      <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all group"
-        style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3rem 3.5rem 3.5rem 5rem', borderBottom: `1px solid ${isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(0,0,0,0.05)'}`, background: isDueOut ? 'rgba(251,191,36,0.05)' : '#ffffff', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+      <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all"
+        style={{ gridTemplateColumns: '3rem 1fr 6rem 5.5rem 5.5rem 6rem 2.5rem 6rem', borderBottom: `1px solid ${isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(0,0,0,0.05)'}`, background: isDueOut ? 'rgba(251,191,36,0.04)' : '#ffffff' }}>
         {/* Room */}
-        <span className={`font-mono font-bold text-sm ${isDueOut ? 'text-amber-600' : 'text-[#000000]/87'}`}>
+        <span className="font-mono font-bold text-sm text-[#000000]/87">
           {r.room_number || '—'}
         </span>
         {/* Name */}
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className={`font-semibold text-sm truncate ${isDueOut ? 'text-amber-700' : 'text-[#000000]/87'}`}>{r.full_name}</span>
-          {isDueOut && <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider text-amber-600">Due Out</span>}
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="font-semibold text-sm truncate text-[#000000]/87">{r.full_name}</span>
         </div>
         {/* Room type */}
         <span className="text-xs text-black/60 truncate">{r.room_type_name || r.room_type}</span>
-        {/* Check-out date */}
-        <span className={`text-xs font-medium ${isDueOut ? 'text-amber-300' : 'text-black/60'}`}>{fmtDate(r.check_out_date)}</span>
+        {/* Check-in date */}
+        <span className="text-xs text-black/60 font-mono">{fmtDate(r.check_in_date)}</span>
+        {/* Checkout date */}
+        <span className="text-xs text-black/60 font-mono">{fmtDate(r.check_out_date)}</span>
+        {/* Status pill */}
+        <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full w-fit ${
+          isDueOut
+            ? 'bg-amber-100 text-amber-700'
+            : 'bg-green-100 text-green-700'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isDueOut ? 'bg-amber-500' : 'bg-green-500'}`} />
+          {isDueOut ? 'Due Out' : 'Checked In'}
+        </span>
         {/* Nights */}
         <span className="text-xs text-black/60 text-center">{nights}n</span>
-        {/* Edit Profile */}
-        <button onClick={() => openGuestProfile(r)}
-          className="text-xs text-black/60 hover:text-violet-300 transition-all text-right">
-          Edit
-        </button>
-        {/* Folio */}
-        <button onClick={() => openFolio(r)}
-          className="text-xs text-black/60 hover:text-emerald-300 transition-all text-right">
-          Folio
-        </button>
-        {/* Transfer */}
-        <button onClick={() => openTransfer(r)}
-          className="text-xs text-black/60 hover:text-sky-300 transition-all text-right">
-          Transfer
-        </button>
-        {/* Check Out */}
-        <button onClick={() => { setCheckoutConfirmId(r.id); fetchCheckoutBalance(r.id); }}
-          className={`text-xs font-semibold px-2 py-1 rounded transition-all text-right ${isDueOut ? 'text-amber-300 hover:text-amber-100' : 'text-black/60 hover:text-black/60'}`}>
-          Check Out
-        </button>
+        {/* Actions dropdown — portal escapes overflow:hidden */}
+        <ActionsDropdown />
       </div>
     );
   };
@@ -10645,8 +10811,8 @@ function FrontDeskTab() {
                   ) : (
                     <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                       {/* Column header */}
-                      <div className="grid gap-x-3 px-3 py-2 bg-[#f9f9f9] border-b border-black/5" style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3.5rem 3.5rem 5rem' }}>
-                        {['Room', 'Guest', 'Type', 'Check-Out', 'Nts', '', '', ''].map((h, i) => (
+                      <div className="grid gap-x-3 px-3 py-2 bg-[#f9f9f9] border-b border-black/5" style={{ gridTemplateColumns: '3rem 1fr 6rem 5.5rem 5.5rem 6rem 2.5rem 6rem' }}>
+                        {['Room', 'Guest', 'Type', 'Check-In', 'Checkout', 'Status', 'Nts', ''].map((h, i) => (
                           <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-black/60">{h}</span>
                         ))}
                       </div>
@@ -11930,156 +12096,14 @@ function FrontDeskTab() {
       <GuestProfileModal />
 
       {/* ── Folio Modal ── */}
-      {folioOpen && folioRes && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setFolioOpen(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
-            {/* Header */}
-            <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">Guest Folio</h2>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {folioRes.full_name} &nbsp;&middot;&nbsp; Room {folioRes.room_number || '—'} &nbsp;&middot;&nbsp; {folioRes.room_type}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  {fmtDate(folioRes.check_in_date)} &rarr; {fmtDate(folioRes.check_out_date)} &nbsp;({nightsCount(folioRes)} nights)
-                </p>
-              </div>
-              <div className="flex items-center gap-2 mt-1">
-                <button onClick={printFolio} title="Print folio"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-all">
-                  🖨 Print
-                </button>
-                <button onClick={sendFolioEmail} disabled={folioEmailSending} title="Email folio to guest"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[#00754A]/10 hover:bg-[#00754A]/20 text-[#00754A] rounded-full transition-all disabled:opacity-50">
-                  {folioEmailSending ? '...' : '✉ Email'}
-                </button>
-                <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none ml-1">&#10005;</button>
-              </div>
-            </div>
-            {folioEmailMsg && (
-              <div className={`px-6 py-2 text-xs font-medium text-center ${folioEmailMsg.startsWith('✓') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
-                {folioEmailMsg}
-              </div>
-            )}
-
-            {folioLoading ? (
-              <div className="flex-1 flex items-center justify-center text-gray-400 py-12">Loading folio...</div>
-            ) : folioError ? (
-              <div className="flex-1 flex items-center justify-center text-red-500 py-12">{folioError}</div>
-            ) : (
-              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
-                {/* Balance summary */}
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-[#00754A]/5 rounded-xl p-3 text-center">
-                    <div className="text-xs text-[#00754A] font-semibold uppercase tracking-wide mb-1">Total Charges</div>
-                    <div className="text-lg font-bold text-[#000000]/87">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                  </div>
-                  <div className="bg-[#00754A]/10 rounded-xl p-3 text-center">
-                    <div className="text-xs text-[#00754A] font-semibold uppercase tracking-wide mb-1">Total Payments</div>
-                    <div className="text-lg font-bold text-[#000000]/87">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                  </div>
-                  <div className={`rounded-xl p-3 text-center ${folioTotals.balance > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
-                    <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${folioTotals.balance > 0 ? 'text-red-500' : 'text-gray-400'}`}>Balance Due</div>
-                    <div className={`text-lg font-bold ${folioTotals.balance > 0 ? 'text-red-600' : 'text-gray-500'}`}>&#8369;{Number(folioTotals.balance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
-                  </div>
-                </div>
-
-                {/* Charges */}
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Charges</h3>
-                  <div className="border border-gray-100 rounded-xl overflow-hidden">
-                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
-                      <span>Type</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Amount</span><span></span>
-                    </div>
-                    {folioItems.length === 0 ? (
-                      <div className="text-center text-gray-400 text-sm py-4">No charges posted yet</div>
-                    ) : folioItems.map(item => (
-                      <div key={item.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${item.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
-                        <span className={`font-medium text-gray-700 ${item.voided ? 'line-through' : ''}`}>{item.charge_type}</span>
-                        <span className={`text-gray-500 truncate ${item.voided ? 'line-through' : ''}`}>{item.description || '—'}</span>
-                        <span className="text-center text-gray-500">{item.quantity}</span>
-                        <span className="text-right text-gray-500">&#8369;{Number(item.unit_price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                        <span className={`text-right font-semibold ${item.voided ? 'text-gray-400 line-through' : 'text-gray-800'}`}>&#8369;{Number(item.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                        <div className="flex justify-end">
-                          {!item.voided
-                            ? <button onClick={() => voidCharge(item.id)} title="Void" className="text-red-300 hover:text-red-500 transition-colors">&#10005;</button>
-                            : <span className="text-[10px] text-gray-400">void</span>}
-                        </div>
-                      </div>
-                    ))}
-                    {folioItems.filter(i => !i.voided).length > 0 && (
-                      <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
-                        <span className="text-xs text-gray-400 mr-2">Total Charges</span>
-                        <span className="text-sm font-bold text-gray-800">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-3 bg-[#00754A]/5 rounded-xl p-3 space-y-2">
-                    <div className="text-xs font-semibold text-[#00754A] uppercase tracking-wide">Post Charge</div>
-                    <div className="flex gap-2 flex-wrap">
-                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none">
-                        {['Room Charge', 'Food & Beverage', 'Minibar', 'Laundry', 'Parking', 'Damage', 'Miscellaneous'].map(t => <option key={t}>{t}</option>)}
-                      </select>
-                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-[#00754A] hover:bg-[#006241] disabled:opacity-50 text-white text-sm font-semibold rounded-full transition-colors">
-                        {fcSaving ? '...' : '+ Add'}
-                      </button>
-                    </div>
-                    {fcError && <p className="text-xs text-red-500">{fcError}</p>}
-                  </div>
-                </div>
-
-                {/* Payments */}
-                <div>
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Payments</h3>
-                  <div className="border border-gray-100 rounded-xl overflow-hidden">
-                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
-                      <span>Method</span><span>Reference</span><span>Date</span><span className="text-right">Amount</span><span></span>
-                    </div>
-                    {folioPayments.length === 0 ? (
-                      <div className="text-center text-gray-400 text-sm py-4">No payments recorded yet</div>
-                    ) : folioPayments.map(pay => (
-                      <div key={pay.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${pay.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
-                        <span className={`font-medium text-gray-700 ${pay.voided ? 'line-through' : ''}`}>{pay.payment_method}</span>
-                        <span className="text-gray-500 truncate">{pay.reference || '—'}</span>
-                        <span className="text-gray-400 text-xs">{new Date(pay.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                        <span className={`text-right font-semibold ${pay.voided ? 'text-gray-400 line-through' : 'text-green-700'}`}>&#8369;{Number(pay.amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                        <div className="flex justify-end">
-                          {!pay.voided
-                            ? <button onClick={() => voidPayment(pay.id)} title="Void" className="text-red-300 hover:text-red-500 transition-colors">&#10005;</button>
-                            : <span className="text-[10px] text-gray-400">void</span>}
-                        </div>
-                      </div>
-                    ))}
-                    {folioPayments.filter(p => !p.voided).length > 0 && (
-                      <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
-                        <span className="text-xs text-gray-400 mr-2">Total Paid</span>
-                        <span className="text-sm font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mt-3 bg-[#00754A]/5 rounded-xl p-3 space-y-2">
-                    <div className="text-xs font-semibold text-[#00754A] uppercase tracking-wide">Record Payment</div>
-                    <div className="flex gap-2 flex-wrap">
-                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none">
-                        {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'].map(m => <option key={m}>{m}</option>)}
-                      </select>
-                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-black/10 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-[#00754A] hover:bg-[#006241] disabled:opacity-50 text-white text-sm font-semibold rounded-full transition-colors">
-                        {fpSaving ? '...' : '+ Pay'}
-                      </button>
-                    </div>
-                    {fpError && <p className="text-xs text-red-500">{fpError}</p>}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <FolioModal
+        folioOpen={folioOpen} folioRes={folioRes} setFolioOpen={setFolioOpen} fmtDate={fmtDate} nightsCount={nightsCount} printFolio={printFolio}
+        sendFolioEmail={sendFolioEmail} folioEmailSending={folioEmailSending} folioEmailMsg={folioEmailMsg} folioLoading={folioLoading} folioError={folioError}
+        folioTotals={folioTotals} folioItems={folioItems} voidCharge={voidCharge} fcType={fcType} setFcType={setFcType} fcDesc={fcDesc} setFcDesc={setFcDesc}
+        fcQty={fcQty} setFcQty={setFcQty} fcPrice={fcPrice} setFcPrice={setFcPrice} addCharge={addCharge} fcSaving={fcSaving} fcError={fcError}
+        folioPayments={folioPayments} voidPayment={voidPayment} fpMethod={fpMethod} setFpMethod={setFpMethod} fpAmount={fpAmount} setFpAmount={setFpAmount}
+        fpRef={fpRef} setFpRef={setFpRef} addPayment={addPayment} fpSaving={fpSaving} fpError={fpError}
+      />
     </>
   );
 }
@@ -12242,7 +12266,7 @@ function GuestsTab() {
   );
 }
 
-// ── Folio Modal (Restored) ───────────────────────────────────────────────────
+// ── Folio Modal — Full Screen Redesign ───────────────────────────────────────
 
 function FolioModal({
   folioOpen, folioRes, setFolioOpen, fmtDate, nightsCount, printFolio,
@@ -12252,189 +12276,423 @@ function FolioModal({
   folioPayments, voidPayment, fpMethod, setFpMethod, fpAmount, setFpAmount,
   fpRef, setFpRef, addPayment, fpSaving, fpError
 }) {
+  const [addChargeOpen, setAddChargeOpen] = React.useState(false);
+  const [chargeType, setChargeType] = React.useState('Room Charge');
+  const [chargeDate, setChargeDate] = React.useState(new Date().toISOString().slice(0,10));
+  const [chargeTime, setChargeTime] = React.useState(new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}));
+  const [chargeDesc, setChargeDesc] = React.useState('');
+  const [chargeQty, setChargeQty] = React.useState(1);
+  const [chargeRate, setChargeRate] = React.useState('');
+  const [chargeRef, setChargeRef] = React.useState('');
+  const [chargeDept, setChargeDept] = React.useState('Front Office');
+  const [chargeNotes, setChargeNotes] = React.useState('');
+  const [addPayOpen, setAddPayOpen] = React.useState(false);
+
   if (!folioOpen || !folioRes) return null;
 
-  // ── Combine into Chronological Ledger ──
-  const ledger = [
-    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: new Date(i.created_at || Date.now()).getTime() })),
-    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: new Date(p.posted_at || Date.now()).getTime() }))
-  ].sort((a, b) => a.timestamp - b.timestamp);
+  const nights = nightsCount(folioRes);
+  const fmtA = (n) => `₱${parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const isDueOut = folioRes.check_out_date && folioRes.check_out_date.slice(0,10) === new Date().toISOString().slice(0,10);
 
-  let runningBal = 0;
-  const ledgerWithBalance = ledger.map(entry => {
-    if (!entry.voided) {
-      if (entry.type === 'charge') runningBal += parseFloat(entry.amount);
-      else runningBal -= parseFloat(entry.amount);
-    }
-    return { ...entry, currentBalance: runningBal };
+  const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+
+  const ledger = [
+    ...folioItems.map(i=>({...i,type:'charge',timestamp:new Date(i.created_at||Date.now()).getTime()})),
+    ...folioPayments.map(p=>({...p,type:'payment',timestamp:new Date(p.posted_at||Date.now()).getTime()}))
+  ].sort((a,b)=>a.timestamp-b.timestamp);
+  let runBal=0;
+  const ledgerWithBalance = ledger.map(e=>{
+    if(!e.voided){ if(e.type==='charge') runBal+=parseFloat(e.amount); else runBal-=parseFloat(e.amount); }
+    return{...e,currentBalance:runBal};
   });
 
-  const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const chargeTypes = [
+    { id:'Room Charge', label:'Room Charge', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg> },
+    { id:'Food & Beverage', label:'Food & Bev', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg> },
+    { id:'Mini Bar', label:'Mini Bar', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 22V12L3 6h18l-5 6v10"/><path d="M8 22h8"/></svg> },
+    { id:'Laundry', label:'Laundry', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="20" height="18" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M6 7h.01"/></svg> },
+    { id:'Transportation', label:'Transport', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
+    { id:'Telephone', label:'Telephone', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .82h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg> },
+    { id:'Miscellaneous', label:'Miscellaneous', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg> },
+    { id:'Tax / VAT', label:'Tax / VAT', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> },
+    { id:'Other', label:'Other', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg> },
+  ];
+
+  const handleAddCharge = () => {
+    addCharge(chargeType, chargeDesc || chargeType, chargeQty, chargeRate);
+    setAddChargeOpen(false);
+    setChargeDesc(''); setChargeRate(''); setChargeQty(1); setChargeRef(''); setChargeNotes('');
+  };
+
+  const handleAddPayment = () => {
+    addPayment(fpMethod, fpAmount, fpRef);
+    setAddPayOpen(false);
+  };
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4 " onClick={() => setFolioOpen(false)}>
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col rounded-[2rem] overflow-hidden shadow-2xl border border-black/5"
-        style={{ background: '#0f172a', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
-        onClick={e => e.stopPropagation()}>
+    <div className="fixed top-0 right-0 bottom-0 z-[100] flex" style={{left: '120px', background:'#ffffff'}}>
 
-        {/* Header - High End Design */}
-        <div className="px-8 py-6 border-b border-black/5 bg-gradient-to-r from-white/[0.03] to-transparent">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <h2 className="text-2xl font-black text-[#000000]/87 tracking-tighter uppercase">Guest Ledger</h2>
-                <div className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${folioTotals.balance > 0 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
-                  {folioTotals.balance > 0 ? 'Balance Due' : 'Settled'}
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+
+        {/* Top Bar */}
+        <div className="flex items-center justify-between px-6 py-3" style={{borderBottom:'1px solid rgba(0,0,0,0.09)',background:'#fff'}}>
+          <button onClick={()=>setFolioOpen(false)}
+            className="flex items-center gap-2 text-sm font-medium text-black hover:text-black transition-colors">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <path d="M10 12L6 8l4-4"/>
+            </svg>
+            Back to Guests
+          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={printFolio}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-lg text-black hover:bg-black/5 transition-colors">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6V2h8v4M4 12H3a1.5 1.5 0 01-1.5-1.5v-3A1.5 1.5 0 013 6h10a1.5 1.5 0 011.5 1.5v3A1.5 1.5 0 0113 12h-1M4 10h8v4H4z"/></svg>
+              Print
+            </button>
+            <button onClick={sendFolioEmail} disabled={folioEmailSending}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-lg text-black hover:bg-black/5 transition-colors disabled:opacity-40">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M1 4l7 5 7-5"/></svg>
+              {folioEmailSending ? 'Sending…' : 'Email Folio'}
+            </button>
+          </div>
+        </div>
+
+        {/* Guest Header */}
+        <div className="px-8 pt-5 pb-0" style={{background:'#fff',borderBottom:'1px solid rgba(0,0,0,0.07)'}}>
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
+              style={{background:'linear-gradient(135deg,#1E3932,#00754A)'}}>
+              {initials}
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xl font-bold text-black tracking-tight">{folioRes.full_name}</span>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${isDueOut?'bg-amber-100 text-amber-700':'bg-green-100 text-green-700'}`}>
+                {isDueOut ? 'Due Out' : 'In-House'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-6 mb-5">
+            {[
+              {label:`Room ${folioRes.room_number||'—'}`, sub: folioRes.room_type_name||folioRes.room_type},
+              {label:'Check-In', sub: fmtDate(folioRes.check_in_date)},
+              {label:'Check-Out', sub: fmtDate(folioRes.check_out_date)},
+              {label:'Adults', sub: String(folioRes.number_of_guests||1)},
+              {label:'Nights', sub: String(nights)},
+              {label:'Reservation #', sub: `NHP-${String(folioRes.id).padStart(10,'0')}`},
+            ].map((item,i,arr)=>(
+              <React.Fragment key={item.label}>
+                <div>
+                  <div className="text-[10px] font-semibold text-black uppercase tracking-wide">{item.label}</div>
+                  <div className="text-xs text-black mt-0.5 font-medium">{item.sub}</div>
+                </div>
+                {i < arr.length-1 && <div className="w-px h-7 bg-black/10 flex-shrink-0"/>}
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* Tab nav */}
+          <div className="flex items-end gap-1">
+            {['Profile','Stay Details','Folio','Payments','Documents','Notes'].map(tab=>(
+              <button key={tab}
+                className={`px-4 py-2 text-sm border-b-2 transition-colors ${tab==='Folio'?'border-[#00754A] text-[#00754A] font-semibold':'border-transparent text-black hover:text-black'}`}>
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 flex overflow-hidden" style={{background:'#f7f8fa'}}>
+
+          {/* Left: Summary + Quick Actions */}
+          <div className="w-56 flex-shrink-0 p-4 space-y-3 overflow-y-auto" style={{borderRight:'1px solid rgba(0,0,0,0.08)'}}>
+
+            <div className="bg-white rounded-xl border border-black/8 p-4">
+              <div className="text-[10px] font-bold text-black uppercase tracking-widest mb-3">Folio Summary</div>
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-black">Total Charges</span>
+                  <span className="text-sm font-semibold text-black">{fmtA(folioTotals.charges)}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-black">Total Payments</span>
+                  <span className="text-sm font-semibold text-black">{fmtA(folioTotals.payments)}</span>
+                </div>
+                <div className="pt-2 border-t border-black/8 flex justify-between items-center">
+                  <span className="text-sm font-bold text-black">Balance</span>
+                  <span className={`text-base font-black ${'text-[#00754A]'}`}>{fmtA(folioTotals.balance)}</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-sm font-bold text-[#00754A]">{folioRes.full_name}</span>
-                <span className="w-1 h-1 rounded-full bg-white shadow-sm"></span>
-                <span className="text-xs font-mono text-black/60">Folio #{folioRes.id}</span>
-                <span className="w-1 h-1 rounded-full bg-white shadow-sm"></span>
-                <span className="text-xs text-black/60">{folioRes.room_type} — Room {folioRes.room_number || 'TBD'}</span>
+            </div>
+
+            <div className="bg-white rounded-xl border border-black/8 p-4">
+              <div className="text-[10px] font-bold text-black uppercase tracking-widest mb-2.5">Quick Actions</div>
+              <div className="space-y-0.5">
+                {[
+                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>, label:'Add Charge', fn:()=>setAddChargeOpen(true)},
+                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="3" width="10" height="7" rx="1"/><path d="M1 6h10"/></svg>, label:'Add Payment', fn:()=>setAddPayOpen(o=>!o)},
+                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="2" width="10" height="8" rx="1"/><path d="M1 4l5 3.5L11 4"/></svg>, label:'Email Folio', fn:sendFolioEmail},
+                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 4V2h6v2M3 8H2a1 1 0 01-1-1V5a1 1 0 011-1h8a1 1 0 011 1v2a1 1 0 01-1 1H9M3 7h6v3H3z"/></svg>, label:'Print Folio', fn:printFolio},
+                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 1v7M3 5l3 3 3-3M1 10h10"/></svg>, label:'Download Folio (PDF)', fn:printFolio},
+                ].map(a=>(
+                  <button key={a.label} onClick={a.fn}
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-black hover:bg-black/[0.04] transition-colors text-left">
+                    <span className="text-[#00754A]">{a.icon}</span>
+                    {a.label}
+                  </button>
+                ))}
               </div>
             </div>
-            <div className="flex gap-2">
-              <button onClick={printFolio} className="p-2.5 rounded-full bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 hover:bg-white shadow-sm transition-all shadow-sm">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z" /></svg>
-              </button>
-              <button onClick={() => setFolioOpen(false)} className="p-2.5 rounded-xl bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 transition-all">&times;</button>
-            </div>
+
+            {addPayOpen && (
+              <div className="bg-white rounded-xl border border-black/8 p-4">
+                <div className="text-[10px] font-bold text-black uppercase tracking-widest mb-2.5">Record Payment</div>
+                <div className="space-y-2">
+                  <select value={fpMethod} onChange={e=>setFpMethod(e.target.value)}
+                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none bg-white text-black">
+                    {['Cash','Credit Card','Debit Card','GCash','Maya','Bank Transfer','Check'].map(m=><option key={m}>{m}</option>)}
+                  </select>
+                  <input type="number" placeholder="Amount (₱)" value={fpAmount} onChange={e=>setFpAmount(e.target.value)}
+                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none font-mono bg-white"/>
+                  <button onClick={handleAddPayment} disabled={fpSaving}
+                    className="w-full bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold py-2 rounded-lg transition-colors disabled:opacity-50">
+                    {fpSaving?'Saving…':'Post Payment'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-4">
-              <div className="text-[9px] font-bold text-black/60 uppercase tracking-[0.2em] mb-1">Total Charges</div>
-              <div className="text-lg font-black text-[#000000]/87 font-mono">{fmtA(folioTotals.charges)}</div>
+          {/* Right: Transactions table */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3" style={{background:'#fff',borderBottom:'1px solid rgba(0,0,0,0.08)'}}>
+              <span className="text-sm font-bold text-black">Folio Transactions</span>
+              <div className="flex gap-2">
+                <button onClick={()=>setAddChargeOpen(true)}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-lg transition-colors">
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                  Add Charge
+                </button>
+              </div>
             </div>
-            <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-4">
-              <div className="text-[9px] font-bold text-black/60 uppercase tracking-[0.2em] mb-1">Total Payments</div>
-              <div className="text-lg font-black text-emerald-400 font-mono">{fmtA(folioTotals.payments)}</div>
-            </div>
-            <div className={`rounded-2xl p-4 border transition-all ${folioTotals.balance > 0 ? 'bg-amber-500/5 border-amber-500/20' : 'bg-emerald-500/5 border-emerald-500/20'}`}>
-              <div className="text-[9px] font-bold text-black/60 uppercase tracking-[0.2em] mb-1">Outstanding Balance</div>
-              <div className={`text-lg font-black font-mono ${folioTotals.balance > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>{fmtA(folioTotals.balance)}</div>
-            </div>
-          </div>
-        </div>
 
-        {/* Action Bar - Post Charge/Payment */}
-        <div className="px-8 py-4 bg-white/[0.01] border-b border-black/5 flex gap-4 items-center overflow-x-auto no-scrollbar">
-          <div className="flex-shrink-0 text-[10px] font-black text-black/60 uppercase tracking-widest mr-2">Post Transaction</div>
-
-          {/* Quick Add Charge */}
-          <div className="flex gap-2 items-center bg-white shadow-sm p-1 rounded-xl border border-black/5">
-            <select value={fcType} onChange={e => setFcType(e.target.value)} className="bg-transparent text-black/60 text-xs px-2 outline-none">
-              <option value="Room Charge">Room</option>
-              <option value="Food & Bev">F&B</option>
-              <option value="Laundry">Laundry</option>
-              <option value="Others">Others</option>
-            </select>
-            <input type="text" placeholder="Description" value={fcDesc} onChange={e => setFcDesc(e.target.value)} className="bg-transparent text-[#000000]/87 placeholder-white/20 text-xs px-2 w-24 outline-none border-l border-black/5" />
-            <input type="number" placeholder="Amt" value={fcPrice} onChange={e => setFcPrice(e.target.value)} className="bg-transparent text-[#000000]/87 placeholder-white/20 text-xs px-2 w-16 outline-none border-l border-black/5 font-mono" />
-            <button onClick={addCharge} disabled={fcSaving} className="bg-[#00754A] hover:bg-[#4491E4] text-white px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
-              {fcSaving ? '...' : '+ Charge'}
-            </button>
-          </div>
-
-          <div className="w-px h-6 bg-white shadow-sm mx-1"></div>
-
-          {/* Quick Record Payment */}
-          <div className="flex gap-2 items-center bg-emerald-500/10 p-1 rounded-xl border border-emerald-500/20">
-            <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="bg-transparent text-emerald-400 text-xs px-2 outline-none">
-              <option value="Cash">Cash</option>
-              <option value="Card">Card</option>
-              <option value="Bank">Bank</option>
-            </select>
-            <input type="number" placeholder="Amount" value={fpAmount} onChange={e => setFpAmount(e.target.value)} className="bg-transparent text-emerald-100 placeholder-emerald-500/40 text-xs px-2 w-20 outline-none border-l border-emerald-500/20 font-mono" />
-            <button onClick={addPayment} disabled={fpSaving} className="bg-emerald-500 hover:bg-emerald-600 text-[#000000]/87 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all">
-              {fpSaving ? '...' : '+ Payment'}
-            </button>
-          </div>
-        </div>
-
-        {/* Ledger View */}
-        <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
-          {folioLoading ? (
-            <div className="flex flex-col items-center justify-center py-20 opacity-40">
-              <div className="w-8 h-8 border-2 border-black/5 border-t-white rounded-full animate-spin mb-4" />
-              <div className="text-[10px] font-black uppercase tracking-widest">Auditing Folio...</div>
-            </div>
-          ) : ledgerWithBalance.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-black/60">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4"><path d="M12 2v20M2 12h20M12 2l4 4-4-4-4 4 4-4z" /></svg>
-              <div className="text-sm font-bold tracking-widest uppercase">Clean Folio — No Transactions</div>
-            </div>
-          ) : (
-            <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 z-10 bg-[#0f172a] shadow-sm">
-                <tr className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                  <th className="px-8 py-4">Date</th>
-                  <th className="px-4 py-4">Description</th>
-                  <th className="px-4 py-4 text-right">Debit</th>
-                  <th className="px-4 py-4 text-right">Credit</th>
-                  <th className="px-4 py-4 text-right">Balance</th>
-                  <th className="px-8 py-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/[0.03]">
-                {ledgerWithBalance.map((entry, idx) => {
-                  const isCharge = entry.type === 'charge';
-                  const isVoid = entry.voided;
-                  return (
-                    <tr key={`${entry.type}-${entry.id}`} className={`group hover:bg-white/[0.02] transition-colors ${isVoid ? 'opacity-30 grayscale' : ''}`}>
-                      <td className="px-8 py-4">
-                        <div className="text-[11px] font-bold text-black/60">{fmtDate(entry.timestamp)}</div>
-                        <div className="text-[9px] text-black/60 font-mono mt-0.5">{new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                      </td>
-                      <td className="px-4 py-4">
-                        <div className="flex items-center gap-2">
-                          <div className={`w-1 h-1 rounded-full ${isCharge ? 'bg-blue-400' : 'bg-emerald-400'}`} />
-                          <span className="text-xs font-bold text-black/60">{entry.description || entry.charge_type || entry.payment_method}</span>
-                        </div>
-                        {isVoid && <div className="text-[9px] text-rose-500 font-black uppercase tracking-widest mt-1">Voided</div>}
-                      </td>
-                      <td className="px-4 py-4 text-right font-mono text-xs text-rose-400/80">
-                        {isCharge ? fmtA(entry.amount) : '—'}
-                      </td>
-                      <td className="px-4 py-4 text-right font-mono text-xs text-emerald-400">
-                        {!isCharge ? fmtA(entry.amount) : '—'}
-                      </td>
-                      <td className="px-4 py-4 text-right font-mono text-xs font-bold text-black/60">
-                        {fmtA(entry.currentBalance)}
-                      </td>
-                      <td className="px-8 py-4 text-right">
-                        {!isVoid && (
-                          <button
-                            onClick={() => isCharge ? voidCharge(entry.id) : voidPayment(entry.id)}
-                            className="text-[9px] font-black uppercase tracking-widest text-black/60 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100"
-                          >
-                            Void
-                          </button>
-                        )}
-                      </td>
+            <div className="flex-1 overflow-y-auto" style={{scrollbarWidth:'thin'}}>
+              {folioLoading ? (
+                <div className="flex flex-col items-center justify-center py-24 text-black">
+                  <div className="w-7 h-7 border-2 border-black/10 border-t-[#00754A] rounded-full animate-spin mb-3"/>
+                  <span className="text-xs">Loading folio…</span>
+                </div>
+              ) : ledgerWithBalance.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-24 text-black">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-3 opacity-40"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h3"/></svg>
+                  <div className="text-sm font-semibold">No Transactions</div>
+                  <div className="text-xs mt-1 opacity-70">Add a charge to get started</div>
+                </div>
+              ) : (
+                <table className="w-full text-left border-collapse">
+                  <thead className="sticky top-0 z-10" style={{background:'#f9f9f9',borderBottom:'1px solid rgba(0,0,0,0.08)'}}>
+                    <tr className="text-[10px] font-bold text-black uppercase tracking-widest">
+                      <th className="px-5 py-3 font-bold">Date</th>
+                      <th className="px-3 py-3 font-bold">Time</th>
+                      <th className="px-3 py-3 font-bold">Description</th>
+                      <th className="px-3 py-3 text-center font-bold">Qty</th>
+                      <th className="px-3 py-3 text-right font-bold">Debit (₱)</th>
+                      <th className="px-3 py-3 text-right font-bold">Credit (₱)</th>
+                      <th className="px-3 py-3 text-right font-bold">Balance (₱)</th>
+                      <th className="px-5 py-3"/>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
+                  </thead>
+                  <tbody>
+                    {ledgerWithBalance.map((entry)=>{
+                      const isCharge = entry.type==='charge';
+                      const isVoid = entry.voided;
+                      const ts = new Date(entry.timestamp);
+                      const isLastActive = !isVoid && Math.abs(entry.currentBalance - folioTotals.balance) < 0.001;
+                      return (
+                        <tr key={`${entry.type}-${entry.id}`}
+                          className={`group transition-colors ${isVoid?'opacity-40':''} ${isLastActive&&folioTotals.balance>0?'bg-amber-50/60 hover:bg-amber-50':'hover:bg-black/[0.015]'}`}
+                          style={{borderBottom:'1px solid rgba(0,0,0,0.05)'}}>
+                          <td className="px-5 py-3 text-xs text-black font-medium whitespace-nowrap">
+                            {ts.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                          </td>
+                          <td className="px-3 py-3 text-xs text-black font-mono whitespace-nowrap">
+                            {ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+                          </td>
+                          <td className="px-3 py-3">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isCharge?'bg-blue-400':'bg-emerald-500'}`}/>
+                              <span className="text-xs text-black">{entry.description||entry.charge_type||entry.payment_method}</span>
+                            </div>
+                            {isVoid&&<div className="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-0.5 ml-3.5">Voided</div>}
+                          </td>
+                          <td className="px-3 py-3 text-center text-xs text-black">{entry.quantity||'—'}</td>
+                          <td className="px-3 py-3 text-right text-xs font-mono text-black">
+                            {isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}
+                          </td>
+                          <td className="px-3 py-3 text-right text-xs font-mono text-black">
+                            {!isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}
+                          </td>
+                          <td className={`px-3 py-3 text-right text-xs font-mono font-bold ${entry.currentBalance>0?'text-black':'text-[#00754A]'} ${isLastActive&&folioTotals.balance>0?'text-amber-700':''}`}>
+                            {parseFloat(entry.currentBalance||0).toLocaleString('en-PH',{minimumFractionDigits:2})}
+                          </td>
+                          <td className="px-5 py-3 text-right">
+                            {!isVoid&&(
+                              <button onClick={()=>isCharge?voidCharge(entry.id):voidPayment(entry.id)}
+                                className="text-[9px] font-bold uppercase tracking-widest text-black hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
+                                Void
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
 
-        {/* Footer Info */}
-        <div className="px-8 py-4 bg-white/[0.02] border-t border-black/5 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">Audited & Real-time</span>
+            {/* Bottom totals bar */}
+            <div className="flex items-center gap-8 px-6 py-4" style={{background:'#fff',borderTop:'1px solid rgba(0,0,0,0.08)'}}>
+              {[
+                {label:'TOTAL CHARGES', value:fmtA(folioTotals.charges), color:'text-black'},
+                {label:'TOTAL PAYMENTS', value:fmtA(folioTotals.payments), color:'text-black'},
+                {label:'OUTSTANDING BALANCE', value:fmtA(folioTotals.balance), color:'text-[#00754A]'},
+              ].map(s=>(
+                <div key={s.label} className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-black/[0.05] flex items-center justify-center">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                  </div>
+                  <div>
+                    <div className="text-[9px] font-bold text-black uppercase tracking-widest">{s.label}</div>
+                    <div className={`text-base font-black ${s.color}`}>{s.value}</div>
+                  </div>
+                </div>
+              ))}
+              {folioEmailMsg && (
+                <div className="ml-auto text-xs font-semibold text-[#00754A] bg-green-50 border border-green-200 px-3 py-1.5 rounded-full">{folioEmailMsg}</div>
+              )}
+            </div>
           </div>
-          {folioEmailMsg && <div className="text-[10px] font-bold text-[#00754A] px-3 py-1 rounded-full bg-[#00754A]/10">{folioEmailMsg}</div>}
-          <button onClick={sendFolioEmail} disabled={folioEmailSending} className="text-[10px] font-black uppercase tracking-widest text-[#00754A] hover:text-[#000000]/87 transition-all disabled:opacity-30">
-            {folioEmailSending ? 'Sending...' : 'Email Invoice to Guest'}
-          </button>
         </div>
       </div>
+
+      {/* Add Charge Slide Panel */}
+      {addChargeOpen && (
+        <div className="w-80 flex-shrink-0 flex flex-col" style={{background:'#fff',borderLeft:'1px solid rgba(0,0,0,0.10)',boxShadow:'-6px 0 24px rgba(0,0,0,0.07)'}}>
+          <div className="flex items-center justify-between px-5 py-4" style={{borderBottom:'1px solid rgba(0,0,0,0.08)'}}>
+            <span className="font-bold text-black">Add Charge</span>
+            <button onClick={()=>setAddChargeOpen(false)} className="text-black hover:text-black text-xl leading-none transition-colors">×</button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{scrollbarWidth:'thin'}}>
+
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-5 h-5 rounded-full bg-[#00754A] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">1</span>
+                <span className="text-xs font-bold text-black">Select Charge Type</span>
+              </div>
+              <div className="grid grid-cols-3 gap-1.5">
+                {chargeTypes.map(ct=>(
+                  <button key={ct.id} onClick={()=>{setChargeType(ct.id); setChargeDesc(ct.id==='Room Charge'?`Room Charge - ${folioRes.room_type_name||folioRes.room_type}`:ct.label);}}
+                    className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border text-center transition-all ${chargeType===ct.id?'border-[#00754A] bg-[#00754A]/5 text-[#00754A]':'border-black/10 text-black hover:border-black/20'}`}>
+                    {ct.icon}
+                    <span className="text-[9px] font-semibold leading-tight">{ct.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-5 h-5 rounded-full bg-[#00754A] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">2</span>
+                <span className="text-xs font-bold text-black">Charge Details</span>
+              </div>
+              <div className="space-y-2.5">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-black mb-1">Date</label>
+                    <input type="date" value={chargeDate} onChange={e=>setChargeDate(e.target.value)}
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-black mb-1">Time</label>
+                    <input type="time" value={chargeTime} onChange={e=>setChargeTime(e.target.value)}
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-black mb-1">Description</label>
+                  <input type="text" value={chargeDesc} onChange={e=>setChargeDesc(e.target.value)} placeholder={`e.g. ${chargeType}`}
+                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-black mb-1">Quantity</label>
+                    <input type="number" min="1" value={chargeQty} onChange={e=>setChargeQty(e.target.value)}
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono"/>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-black mb-1">Rate (₱)</label>
+                    <input type="number" min="0" step="0.01" value={chargeRate} onChange={e=>setChargeRate(e.target.value)} placeholder="0.00"
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono"/>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-black mb-1">Amount (₱)</label>
+                    <input type="text" readOnly placeholder="0.00"
+                      value={chargeRate&&chargeQty ? (parseFloat(chargeRate||0)*parseFloat(chargeQty||1)).toFixed(2) : ''}
+                      className="w-full text-xs border border-black/10 rounded-lg px-2.5 py-1.5 bg-black/[0.025] text-black font-mono cursor-default"/>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-black mb-1">Reference (Optional)</label>
+                  <input type="text" value={chargeRef} onChange={e=>setChargeRef(e.target.value)} placeholder="e.g. Invoice #, Remarks, etc."
+                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-black mb-1">Department</label>
+                    <select value={chargeDept} onChange={e=>setChargeDept(e.target.value)}
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white text-black">
+                      {['Front Office','Housekeeping','Restaurant','Bar','Spa','Maintenance','Accounting'].map(d=><option key={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-black mb-1">Notes (Optional)</label>
+                    <input type="text" value={chargeNotes} onChange={e=>setChargeNotes(e.target.value)} placeholder="e.g. Room charge for Jul 4"
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-5 h-5 rounded-full bg-[#00754A] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
+                <span className="text-xs font-bold text-black">Apply Charge To</span>
+              </div>
+              <label className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-black/[0.02]">
+                <span className="w-4 h-4 rounded-full border-2 border-[#00754A] flex items-center justify-center flex-shrink-0">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]"/>
+                </span>
+                <span className="text-xs text-black">Guest Folio (Outstanding Balance {fmtA(folioTotals.balance)})</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="px-5 py-4 flex gap-2" style={{borderTop:'1px solid rgba(0,0,0,0.08)'}}>
+            <button onClick={()=>setAddChargeOpen(false)}
+              className="flex-1 py-2 rounded-lg border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+              Cancel
+            </button>
+            <button onClick={handleAddCharge} disabled={fcSaving||!chargeRate}
+              className="flex-1 py-2 rounded-lg bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
+              {fcSaving?'Saving…':'Add Charge'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
     , document.body);
 }
