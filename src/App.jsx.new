@@ -5577,7 +5577,7 @@ function MenuPage() {
           </p>
           <div className="mt-8 inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-full text-white font-medium shadow-sm">
             <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Open Daily: 6:00 AM - 10:00 PM
+             Open Daily: 6:00 AM - 8:00 PM
           </div>
         </div>
       </div>

@@ -1598,6 +1598,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(!!localStorage.getItem('adminToken'));
 
   // Dashboard state
   const [reservations, setReservations] = useState([]);
@@ -1706,6 +1707,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     const token = localStorage.getItem('adminToken');
     if (token) {
       verifyToken(token);
+    } else {
+      setIsVerifying(false);
     }
   }, []);
 
@@ -1723,9 +1726,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         fetchReservations();
       } else {
         localStorage.removeItem('adminToken');
+        window.dispatchEvent(new Event('authChanged'));
       }
     } catch (error) {
       localStorage.removeItem('adminToken');
+      window.dispatchEvent(new Event('authChanged'));
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -2423,6 +2430,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   }, [activeTab, isLoggedIn, calendarMonth, calendarYear]);
 
   // Login Page
+  if (isVerifying) return <div className="min-h-screen bg-[#1E3932] flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>;
   if (!isLoggedIn) {
     const inputCls = "w-full px-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-sm";
     const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
@@ -4532,17 +4540,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1 mb-2">Formatted Page Content</label>
                             <div className="bg-white rounded-xl shadow-sm border border-black/10 overflow-hidden text-black flex flex-col">
                               <div className="flex flex-wrap gap-2 p-2 border-b border-black/10 bg-black/5">
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h1>Heading 1</h1>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H1</button>
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h2>Heading 2</h2>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H2</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h1>Heading 1</h1>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H1</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h2>Heading 2</h2>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H2</button>
                                 <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<b>Bold Text</b>' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Bold</button>
                                 <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<i>Italic Text</i>' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Italic</button>
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<p>Paragraph</p>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Paragraph</button>
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<br/>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Line Break</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<p>Paragraph</p>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Paragraph</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<br/>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Line Break</button>
                                 <div className="w-[1px] h-6 bg-black/10 self-center mx-1"></div>
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: left;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Left</button>
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: center;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Center</button>
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: right;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Right</button>
-                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: justify;">\n  \n</div>\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Justify</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: left;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Left</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: center;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Center</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: right;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Right</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: justify;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Justify</button>
                               </div>
                               <textarea
                                 value={hotelSettings.about_us_content || ''}
@@ -5102,47 +5110,61 @@ function AdminInboxTab() {
         </div>
 
         {/* Message View */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
           {selected ? (
-            <div className="flex-1 overflow-y-auto p-8">
-              <div className="max-w-2xl mx-auto">
-                <button onClick={() => setSelected(null)} className="mb-6 text-xs text-gray-400 hover:text-gray-600 flex items-center gap-1 font-medium transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
-                  Back to inbox
-                </button>
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
-                  <div className="bg-[#1E3932] p-6 text-white">
-                    <h3 className="text-xl font-bold mb-1">{selected.subject}</h3>
-                    <p className="text-white/60 text-xs">{new Date(selected.created_at).toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' })}</p>
-                  </div>
-                  <div className="p-6 border-b border-black/5">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-[#00754A]/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-[#00754A] font-black text-lg">{selected.name[0].toUpperCase()}</span>
-                      </div>
-                      <div>
-                        <p className="font-bold text-gray-900">{selected.name}</p>
-                        <a href={`mailto:${selected.email}`} className="text-sm text-[#00754A] hover:underline">{selected.email}</a>
-                      </div>
-                      <a
-                        href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
-                        className="ml-auto flex items-center gap-2 px-4 py-2 bg-[#00754A] text-white text-xs font-bold rounded-lg hover:bg-[#006241] transition-colors"
-                      >
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
-                        Reply via Email
-                      </a>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{selected.message}</p>
-                  </div>
+            <div className="flex-1 flex flex-col overflow-y-auto">
+              {/* Header / Actions */}
+              <div className="px-8 py-4 border-b border-black/5 flex items-center justify-between sticky top-0 bg-white z-10">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-900 transition-colors p-2 -ml-2 rounded-full hover:bg-gray-100" title="Back to inbox">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                  </button>
                 </div>
+                <div>
+                  <a
+                    href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#f8f9fa] border border-black/10 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                    Reply
+                  </a>
+                </div>
+              </div>
+              
+              {/* Subject */}
+              <div className="px-8 pt-8 pb-6">
+                <h2 className="text-2xl sm:text-3xl font-normal text-gray-900">{selected.subject}</h2>
+              </div>
+              
+              {/* Sender Info */}
+              <div className="px-8 pb-6 flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-[#00754A] flex items-center justify-center flex-shrink-0 text-white shadow-sm mt-1">
+                  <span className="font-bold text-lg">{selected.name[0].toUpperCase()}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between flex-wrap gap-2">
+                    <div className="flex items-baseline gap-2 truncate">
+                      <span className="font-bold text-gray-900 text-base">{selected.name}</span>
+                      <span className="text-sm text-gray-500">&lt;{selected.email}&gt;</span>
+                    </div>
+                    <span className="text-xs text-gray-500 flex-shrink-0" title={new Date(selected.created_at).toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' })}>
+                      {new Date(selected.created_at).toLocaleString('en-PH', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">to Northomes Pensionne</p>
+                </div>
+              </div>
+              
+              {/* Message Content */}
+              <div className="px-8 pb-12 flex-1">
+                <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-[15px]">{selected.message}</div>
               </div>
             </div>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
-              <svg className="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
-              <p className="text-gray-400 font-medium">Select a message to read</p>
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-6 bg-[#f8f9fa]">
+              <svg className="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
+              <p className="text-gray-400 font-medium">Select an item to read</p>
+              <p className="text-gray-400 text-sm mt-1">Nothing is selected</p>
             </div>
           )}
         </div>
@@ -5528,7 +5550,7 @@ function ContactPage({ setCurrentPage }) {
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Email Address</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
                     General Inquiries:<br />
-                    <a href="mailto:info@northomespensione.com" className="text-[#00754A] font-bold hover:underline"></a>
+                    <a href="mailto:info@northomespensione.com" className="text-[#00754A] font-bold hover:underline">info@northomespensione.com</a>
                   </p>
                 </div>
               </div>
@@ -5540,9 +5562,7 @@ function ContactPage({ setCurrentPage }) {
                 <div>
                   <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Operating Hours</h3>
                   <p className="text-black/60 text-sm leading-relaxed">
-                    Front Desk is open 24/7.<br />
-                    Check-in: 2:00 PM<br />
-                    Check-out: 12:00 PM
+                    Front Desk is open 24/7.
                   </p>
                 </div>
               </div>
@@ -5632,12 +5652,12 @@ function ContactPage({ setCurrentPage }) {
         </div>
 
         {/* Map Section */}
-        <div className="mt-8 bg-white rounded-3xl shadow-sm border border-black/5 p-4 h-[400px] overflow-hidden">
+        <div className="mt-8 bg-white rounded-3xl shadow-sm h-[600px] lg:h-[700px] overflow-hidden">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15663.023812852758!2d124.004149!3d11.056976!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTHCsDAzJzI1LjEiTiAxMjTCsDAwJzE0LjkiRQ!5e0!3m2!1sen!2sph!4v1634567890123!5m2!1sen!2sph"
+            src="https://maps.google.com/maps?q=Pelaez%20St.,%20Bogo%20City,%20Cebu&t=&z=15&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="100%"
-            style={{ border: 0, borderRadius: '1rem' }}
+            style={{ border: 0 }}
             allowFullScreen=""
             loading="lazy"
             title="Northomes Pensionne Location"
@@ -9441,6 +9461,31 @@ function FrontDeskTab() {
   const [wkResult, setWkResult] = React.useState(null);
   const [wkError, setWkError] = React.useState('');
 
+  // New Walk-in fields to match mockup
+  const [wkCompany, setWkCompany] = React.useState('');
+  const [wkAddToProfile, setWkAddToProfile] = React.useState(true);
+  const [wkVipGuest, setWkVipGuest] = React.useState(false);
+  const [wkRepeatGuest, setWkRepeatGuest] = React.useState(false);
+  const [wkCheckInTime, setWkCheckInTime] = React.useState('14:00');
+  const [wkCheckOutTime, setWkCheckOutTime] = React.useState('12:00');
+  const [wkAdults, setWkAdults] = React.useState(2);
+  const [wkChildren, setWkChildren] = React.useState(1);
+  const [wkNumRooms, setWkNumRooms] = React.useState(1);
+  const [wkSource, setWkSource] = React.useState('Direct Booking');
+  const [wkRoomPreference, setWkRoomPreference] = React.useState('High Floor');
+  const [wkBedType, setWkBedType] = React.useState('Queen Bed');
+  const [wkDiscountPct, setWkDiscountPct] = React.useState(0);
+  const [wkDiscountCode, setWkDiscountCode] = React.useState('');
+  const [wkCardType, setWkCardType] = React.useState('Visa');
+  const [wkCardNumberFull, setWkCardNumberFull] = React.useState('');
+  const [wkCardExpiry, setWkCardExpiry] = React.useState('');
+  const [wkCardCvv, setWkCardCvv] = React.useState('');
+  const [wkCardholder, setWkCardholder] = React.useState('');
+  const [wkGuaranteeType, setWkGuaranteeType] = React.useState('Guarantee by Credit Card');
+  const [wkGuaranteeAmount, setWkGuaranteeAmount] = React.useState('');
+  const [wkSendConfirmEmail, setWkSendConfirmEmail] = React.useState(true);
+  const [wkSearchGuest, setWkSearchGuest] = React.useState('');
+
   // ── Rooms state ─────────────────────────────────────────────────────────────
   const [rooms, setRooms] = React.useState([]);
   const [roomsLoading, setRoomsLoading] = React.useState(false);
@@ -9851,8 +9896,8 @@ function FrontDeskTab() {
           id_type: wkIdType, id_number: wkIdNumber.trim(),
           room_type: wkRoomType, rate_code: wkRateCode,
           check_in_date: wkCheckIn, check_out_date: wkCheckOut,
-          eta: wkEta, number_of_guests: wkGuests, room_number: wkRoomNumber.trim(),
-          purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: wkDepositAmount || 0,
+          eta: wkEta, number_of_guests: wkAdults + wkChildren, room_number: wkRoomNumber.trim(),
+          purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: wkGuaranteeAmount || 0,
           payment_collected: wkPayment, special_requests: wkSpecialReq.trim(), notes: wkNotes.trim(),
         }),
       });
@@ -9874,6 +9919,14 @@ function FrontDeskTab() {
     setWkPurpose(''); setWkPaymentMethod('Cash'); setWkDepositAmount('');
     setWkPayment(false); setWkSpecialReq(''); setWkNotes('');
     setWkSuccess(false); setWkResult(null); setWkError('');
+    
+    // Reset new fields
+    setWkCompany(''); setWkAddToProfile(true); setWkVipGuest(false); setWkRepeatGuest(false);
+    setWkCheckInTime('14:00'); setWkCheckOutTime('12:00'); setWkAdults(2); setWkChildren(1); setWkNumRooms(1);
+    setWkSource('Direct Booking'); setWkRoomPreference('High Floor'); setWkBedType('Queen Bed');
+    setWkDiscountPct(0); setWkDiscountCode(''); setWkCardType('Visa'); setWkCardNumberFull('');
+    setWkCardExpiry(''); setWkCardCvv(''); setWkCardholder(''); setWkGuaranteeType('Guarantee by Credit Card');
+    setWkGuaranteeAmount(''); setWkSendConfirmEmail(true); setWkSearchGuest('');
   };
 
   // ── Guest Profile helpers ──────────────────────────────────────────────────
@@ -10864,334 +10917,605 @@ function FrontDeskTab() {
 
               {/* ── Walk-In View ── */}
               {fdView === 'walkin' && (
-                <div>
+                <div className="flex gap-6 items-start h-full p-4 overflow-y-auto" style={{ background: '#f8f9fa' }}>
                   {wkSuccess && wkResult ? (
-                    <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center mb-4">
-                        <span className="text-3xl">✅</span>
+                    <div className="flex flex-col items-center justify-center py-16 text-center w-full">
+                      <div className="w-20 h-20 rounded-full bg-[#00754A]/20 border border-[#00754A]/30 flex items-center justify-center mb-6">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                       </div>
-                      <h3 className="text-xl font-bold text-[#000000]/87 mb-1">Walk-In Complete!</h3>
-                      <p className="text-sm text-black/60 mb-6">{wkResult.full_name} is now checked in.</p>
-                      <div className="bg-green-500/15 border border-green-400/30 rounded-2xl px-12 py-5 mb-4 w-full max-w-xs">
-                        <div className="text-5xl font-mono font-black text-green-300">{wkResult.room_number}</div>
-                        <div className="text-xs text-green-400 font-semibold uppercase tracking-widest mt-2">Room Assigned</div>
+                      <h3 className="text-3xl font-bold text-[#1E3932] mb-2">Reservation Complete!</h3>
+                      <p className="text-lg text-black/60 mb-8">{wkResult.full_name} has been checked in successfully.</p>
+                      <div className="bg-[#00754A]/10 border border-[#00754A]/20 rounded-2xl px-12 py-6 mb-6 w-full max-w-sm">
+                        <div className="text-6xl font-mono font-black text-[#00754A]">{wkResult.room_number}</div>
+                        <div className="text-sm text-[#00754A]/80 font-bold uppercase tracking-widest mt-2">Room Assigned</div>
                       </div>
-                      <div className="text-xs text-black/60 mb-5 font-mono">Confirmation #{wkResult.id}</div>
-                      <span className="inline-block bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-6">🔑 Key Ready</span>
-                      <button onClick={resetWalkin} className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white font-semibold py-3 rounded-full transition-all">
-                        + New Walk-In Guest
+                      <div className="text-sm text-black/60 mb-8 font-mono bg-white px-4 py-2 rounded-lg border border-black/5 shadow-sm">Confirmation #{wkResult.id}</div>
+                      <button onClick={resetWalkin} className="w-full max-w-sm bg-[#00754A] hover:bg-[#006241] text-white font-bold py-4 rounded-xl shadow-md transition-all text-lg">
+                        + New Walk-In Reservation
                       </button>
                     </div>
                   ) : (
-                    <div>
-                      {/* ── 2-COLUMN LAYOUT ── */}
-                      <div className="flex gap-4 mt-1">
-
-                        {/* ── LEFT: Guest Profile · Contact · Identification ── */}
-                        <div className="flex-1 min-w-0 flex flex-col gap-2">
-
-                          {/* Guest Profile */}
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Guest Profile</span>
-                            <div className="flex-1 h-px bg-white shadow-sm" />
-                          </div>
-                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Title</label>
-                              <select value={wkTitle} onChange={e => setWkTitle(e.target.value)}
-                                style={{ background: '#f8f9fa', color: '#000000' }}
-                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                                {['Mr.', 'Mrs.', 'Ms.', 'Dr.', 'Engr.', 'Atty.', 'Prof.', 'Rev.', 'Hon.'].map(t => <option key={t} value={t} style={{ background: '#f8f9fa' }}>{t}</option>)}
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Last Name <span className="text-red-400">*</span></label>
-                              <input type="text" value={wkLastName} onChange={e => setWkLastName(e.target.value)} placeholder="dela Cruz"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">First Name <span className="text-red-400">*</span></label>
-                              <input type="text" value={wkFirstName} onChange={e => setWkFirstName(e.target.value)} placeholder="Juan"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Middle Name</label>
-                              <input type="text" value={wkMiddleName} onChange={e => setWkMiddleName(e.target.value)} placeholder="Santos"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Gender</label>
-                              <select value={wkGender} onChange={e => setWkGender(e.target.value)}
-                                style={{ background: '#f8f9fa', color: wkGender ? '#000000' : 'rgba(0,0,0,0.4)' }}
-                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                                {['', 'Male', 'Female', 'Non-binary', 'Prefer not to say'].map(g => <option key={g} value={g} style={{ background: '#f8f9fa', color: '#000000' }}>{g || '— select —'}</option>)}
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Date of Birth</label>
-                              <input type="date" value={wkBirthDate} onChange={e => setWkBirthDate(e.target.value)}
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Nationality</label>
-                              <input type="text" value={wkNationality} onChange={e => setWkNationality(e.target.value)} placeholder="Filipino"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Country</label>
-                              <input type="text" value={wkCountry} onChange={e => setWkCountry(e.target.value)} placeholder="Philippines"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                          </div>
-
-                          {/* Contact */}
-                          <div className="flex items-center gap-2 mt-1 mb-1">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Contact Information</span>
-                            <div className="flex-1 h-px bg-white shadow-sm" />
-                          </div>
-                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
-                            <div className="col-span-2">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Email Address</label>
-                              <input type="email" value={wkEmail} onChange={e => setWkEmail(e.target.value)} placeholder="juan@example.com"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div className="col-span-2">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Mobile / Phone</label>
-                              <input type="tel" value={wkPhone} onChange={e => setWkPhone(e.target.value)} placeholder="09XX XXX XXXX"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div className="col-span-3">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Street / Barangay Address</label>
-                              <input type="text" value={wkAddress} onChange={e => setWkAddress(e.target.value)} placeholder="123 Rizal St., Brgy. San Antonio"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">City / Municipality</label>
-                              <input type="text" value={wkCity} onChange={e => setWkCity(e.target.value)} placeholder="Makati City"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                          </div>
-
-                          {/* Identification */}
-                          <div className="flex items-center gap-2 mt-1 mb-1">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Identification</span>
-                            <div className="flex-1 h-px bg-white shadow-sm" />
-                          </div>
-                          <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Type</label>
-                              <select value={wkIdType} onChange={e => setWkIdType(e.target.value)}
-                                style={{ background: '#f8f9fa', color: wkIdType ? '#000000' : 'rgba(0,0,0,0.4)' }}
-                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                                {['', 'Passport', "Driver's License", 'SSS ID', 'PhilHealth ID', 'Postal ID', 'Senior Citizen ID', 'PWD ID', 'UMID', 'PhilSys / National ID', 'Other'].map(t => (
-                                  <option key={t} value={t} style={{ background: '#f8f9fa', color: '#000000' }}>{t || '— select ID type —'}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ID Number</label>
-                              <input type="text" value={wkIdNumber} onChange={e => setWkIdNumber(e.target.value)} placeholder="ID / reference number"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                          </div>
-
+                    <>
+                      {/* LEFT FORM COLUMN */}
+                      <div className="flex-1 min-w-0 flex flex-col gap-6">
+                        {/* Header */}
+                        <div>
+                          <h2 className="text-2xl font-bold text-[#1E3932] mb-1">New Reservation</h2>
+                          <p className="text-sm text-black/60">Create a new reservation</p>
                         </div>
 
-                        {/* ── RIGHT: Stay Details · Payment · Remarks · Submit ── */}
-                        <div className="flex-1 min-w-0 flex flex-col gap-2">
-
-                          {/* Stay Details */}
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Stay Details</span>
-                            <div className="flex-1 h-px bg-white shadow-sm" />
+                        {/* Section 1: Guest Information */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
+                          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-black/5">
+                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">1</div>
+                            <h3 className="text-xl font-bold text-[#1E3932]">Guest Information</h3>
                           </div>
-                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
+                          
+                          <div className="mb-6">
+                            <label className="block text-xs font-semibold text-black/60 mb-1.5">Search Existing Guest</label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                              </span>
+                              <input type="text" value={wkSearchGuest} onChange={e => setWkSearchGuest(e.target.value)} placeholder="Search by name, email or phone number"
+                                className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-black/10 rounded-lg text-sm focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none transition-all" />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-5">
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">First Name *</label>
+                              <input type="text" value={wkFirstName} onChange={e => setWkFirstName(e.target.value)} placeholder="Juan"
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Last Name *</label>
+                              <input type="text" value={wkLastName} onChange={e => setWkLastName(e.target.value)} placeholder="dela Cruz"
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Email Address</label>
+                              <input type="email" value={wkEmail} onChange={e => setWkEmail(e.target.value)} placeholder="juan@example.com"
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Phone Number</label>
+                              <div className="flex">
+                                <div className="flex items-center gap-1.5 px-3 border border-r-0 border-black/10 rounded-l-lg bg-[#f8f9fa] text-sm text-black/70">
+                                  <span>🇵🇭</span> <span>+63</span>
+                                </div>
+                                <input type="tel" value={wkPhone} onChange={e => setWkPhone(e.target.value)} placeholder="912 345 6789"
+                                  className="flex-1 px-3 py-2.5 bg-white border border-black/10 rounded-r-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">ID Type</label>
+                                <select value={wkIdType} onChange={e => setWkIdType(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  {['Passport', "Driver's License", 'National ID', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">ID / Passport No.</label>
+                                <input type="text" value={wkIdNumber} onChange={e => setWkIdNumber(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Nationality</label>
+                                <input type="text" value={wkNationality} onChange={e => setWkNationality(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Date of Birth</label>
+                                <input type="date" value={wkBirthDate} onChange={e => setWkBirthDate(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Gender</label>
+                                <select value={wkGender} onChange={e => setWkGender(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  {['Male', 'Female', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Address</label>
+                                <input type="text" value={wkAddress} onChange={e => setWkAddress(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              </div>
+                            </div>
+                            
+                            <div>
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Company</label>
+                                <input type="text" value={wkCompany} onChange={e => setWkCompany(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-black/5">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" checked={wkAddToProfile} onChange={e => setWkAddToProfile(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
+                              <span className="text-sm font-medium text-black/80">Add to guest profile</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" checked={wkVipGuest} onChange={e => setWkVipGuest(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
+                              <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">VIP Guest</span>
+                            </label>
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <input type="checkbox" checked={wkRepeatGuest} onChange={e => setWkRepeatGuest(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
+                              <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-0.5 rounded uppercase tracking-wider">Repeat Guest</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Section 2: Stay Information */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
+                          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-black/5">
+                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">2</div>
+                            <h3 className="text-xl font-bold text-[#1E3932]">Stay Information</h3>
+                          </div>
+                          
+                          <div className="grid grid-cols-5 gap-x-4 gap-y-5 mb-5">
                             <div className="col-span-2">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Type <span className="text-red-400">*</span></label>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Check-in Date *</label>
+                              <div className="flex gap-2">
+                                <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
+                                  className="w-2/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                <input type="time" value={wkCheckInTime} onChange={e => setWkCheckInTime(e.target.value)}
+                                  className="w-1/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              </div>
+                            </div>
+                            <div className="col-span-2">
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Check-out Date *</label>
+                              <div className="flex gap-2">
+                                <input type="date" value={wkCheckOut} min={wkCheckIn || today} onChange={e => setWkCheckOut(e.target.value)}
+                                  className="w-2/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                <input type="time" value={wkCheckOutTime} onChange={e => setWkCheckOutTime(e.target.value)}
+                                  className="w-1/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              </div>
+                            </div>
+                            <div className="col-span-1">
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Nights</label>
+                              <div className="w-full px-3 py-2.5 bg-[#f8f9fa] border border-black/5 rounded-lg text-sm font-semibold text-black/70 flex items-center justify-center">
+                                {(() => {
+                                  if (!wkCheckIn || !wkCheckOut) return '-';
+                                  const diff = Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
+                                  return diff;
+                                })()}
+                              </div>
+                            </div>
+                            
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Adults</label>
+                              <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
+                                <button onClick={() => setWkAdults(Math.max(1, wkAdults-1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
+                                <input type="text" readOnly value={wkAdults} className="w-full h-9 text-center text-sm font-semibold outline-none" />
+                                <button onClick={() => setWkAdults(wkAdults+1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Children</label>
+                              <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
+                                <button onClick={() => setWkChildren(Math.max(0, wkChildren-1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
+                                <input type="text" readOnly value={wkChildren} className="w-full h-9 text-center text-sm font-semibold outline-none" />
+                                <button onClick={() => setWkChildren(wkChildren+1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Rooms</label>
+                              <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
+                                <button onClick={() => setWkNumRooms(Math.max(1, wkNumRooms-1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
+                                <input type="text" readOnly value={wkNumRooms} className="w-full h-9 text-center text-sm font-semibold outline-none" />
+                                <button onClick={() => setWkNumRooms(wkNumRooms+1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Purpose of Stay</label>
+                              <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                {['Leisure', 'Business', 'Event', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Source / Channel</label>
+                              <select value={wkSource} onChange={e => setWkSource(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                {['Direct Booking', 'Walk-in', 'OTA', 'Corporate', 'Agent'].map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-6">
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Special Requests</label>
+                              <textarea rows="3" value={wkSpecialReq} onChange={e => setWkSpecialReq(e.target.value)} placeholder="Any special requests..."
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm resize-none"></textarea>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Remarks / Notes</label>
+                              <textarea rows="3" value={wkNotes} onChange={e => setWkNotes(e.target.value)} placeholder="Internal remarks..."
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm resize-none"></textarea>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Section 3: Room & Rate */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
+                          <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">3</div>
+                              <h3 className="text-xl font-bold text-[#1E3932]">Room & Rate</h3>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-4 mb-5">
+                            <div className="col-span-1">
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Room Type</label>
                               <select value={wkRoomType} onChange={e => { setWkRoomType(e.target.value); setWkRoomNumber(''); }}
-                                style={{ background: '#f8f9fa', color: '#000000' }}
-                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                                {wkRoomTypes.length === 0 && <option value="" style={{ background: '#f8f9fa' }}>Loading...</option>}
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name}>{rt.name}</option>)}
+                              </select>
+                            </div>
+                            <div className="col-span-1">
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Room Preference</label>
+                              <select value={wkRoomPreference} onChange={e => setWkRoomPreference(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                {['Any', 'High Floor', 'Low Floor', 'Near Elevator', 'Quiet Room'].map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </div>
+                            <div className="col-span-1">
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Bed Type</label>
+                              <select value={wkBedType} onChange={e => setWkBedType(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                {['Any', 'King Bed', 'Queen Bed', 'Twin Beds'].map(t => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </div>
+                            <div className="col-span-1 flex items-end">
+                              <button className="w-full h-[42px] bg-[#f8f9fa] border border-black/10 hover:bg-black/5 text-black/80 font-bold rounded-lg text-sm transition-all shadow-sm">
+                                Check Availability
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="bg-[#f8f9fa] rounded-xl p-4 border border-black/5">
+                            <table className="w-full text-left">
+                              <thead>
+                                <tr>
+                                  <th className="pb-3 text-xs font-semibold text-black/60 w-[20%]">Room Number</th>
+                                  <th className="pb-3 text-xs font-semibold text-black/60 w-[20%]">Rate (Per Night)</th>
+                                  <th className="pb-3 text-xs font-semibold text-black/60 w-[35%]">Discount</th>
+                                  <th className="pb-3 text-xs font-semibold text-black/60 text-right w-[25%]">Total (Per Night)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr>
+                                  <td className="pr-2">
+                                    <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
+                                      className="w-full px-3 py-2 bg-white border border-black/10 rounded-lg text-sm font-semibold focus:border-[#00754A] outline-none shadow-sm">
+                                      <option value="">Select...</option>
+                                      {rooms.filter(r => r.room_type === wkRoomType && r.computed_status !== 'occupied' && r.computed_status !== 'arriving').map(r => (
+                                        <option key={r.room_number} value={r.room_number}>{r.room_number}</option>
+                                      ))}
+                                    </select>
+                                  </td>
+                                  <td className="pr-2">
+                                    {(() => {
+                                      const rt = wkRoomTypes.find(r => r.name === wkRoomType);
+                                      return <div className="text-sm font-semibold">₱{rt ? Number(rt.price_per_night).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '0.00'}</div>;
+                                    })()}
+                                  </td>
+                                  <td className="pr-2 flex gap-2">
+                                    <div className="flex items-center bg-white border border-black/10 rounded-lg shadow-sm overflow-hidden flex-1">
+                                      <input type="number" value={wkDiscountPct} onChange={e => setWkDiscountPct(e.target.value)} className="w-full px-2 py-2 text-sm text-center outline-none" />
+                                      <span className="pr-2 text-sm text-black/60">%</span>
+                                    </div>
+                                    <input type="text" value={wkDiscountCode} onChange={e => setWkDiscountCode(e.target.value)} placeholder="Promo Code"
+                                      className="w-2/3 px-3 py-2 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none shadow-sm uppercase placeholder:normal-case" />
+                                  </td>
+                                  <td className="text-right flex items-center justify-end gap-2">
+                                    {(() => {
+                                      const rt = wkRoomTypes.find(r => r.name === wkRoomType);
+                                      const price = rt ? Number(rt.price_per_night) : 0;
+                                      const disc = parseFloat(wkDiscountPct) || 0;
+                                      const net = price * (1 - disc/100);
+                                      return (
+                                        <>
+                                          <div className="text-sm font-bold text-[#1E3932]">₱{net.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+                                          <div className="w-5 h-5 rounded-full bg-[#00754A] flex items-center justify-center">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                          </div>
+                                        </>
+                                      );
+                                    })()}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                            
+                            <div className="mt-4 pt-4 border-t border-black/10 flex justify-between items-center text-sm">
+                              {(() => {
+                                const nights = (!wkCheckIn || !wkCheckOut) ? 0 : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
+                                const rt = wkRoomTypes.find(r => r.name === wkRoomType);
+                                const price = rt ? Number(rt.price_per_night) : 0;
+                                const disc = parseFloat(wkDiscountPct) || 0;
+                                const netPerNight = price * (1 - disc/100);
+                                const subTotal = netPerNight * nights * wkNumRooms;
+                                const tax = subTotal * 0.12;
+                                const total = subTotal + tax;
+                                return (
+                                  <>
+                                    <div className="font-semibold text-black/60">Total Nights: <span className="text-[#1E3932]">{nights}</span></div>
+                                    <div className="flex gap-6">
+                                      <div className="text-black/60">Sub Total: <span className="font-semibold text-black/80 ml-1">₱{subTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span></div>
+                                      <div className="text-black/60">Taxes & Fees: <span className="font-semibold text-black/80 ml-1">₱{tax.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span></div>
+                                      <div className="text-[#1E3932] font-bold text-base">Estimated Total: <span className="ml-1">₱{total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span></div>
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Section 4: Payment & Guarantee */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
+                          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-black/5">
+                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">4</div>
+                            <h3 className="text-xl font-bold text-[#1E3932]">Payment & Guarantee</h3>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-8">
+                            {/* Left: Payment details */}
+                            <div>
+                              <div className="mb-4">
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Payment Method</label>
+                                <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  {['Credit Card', 'Cash', 'Bank Transfer', 'Other'].map(m => <option key={m} value={m}>{m}</option>)}
+                                </select>
+                              </div>
+                              
+                              {wkPaymentMethod === 'Credit Card' && (
+                                <div className="space-y-4">
+                                  <div className="flex gap-4">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input type="radio" name="cardType" checked={wkCardType==='Visa'} onChange={() => setWkCardType('Visa')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Visa</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input type="radio" name="cardType" checked={wkCardType==='Mastercard'} onChange={() => setWkCardType('Mastercard')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Mastercard</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input type="radio" name="cardType" checked={wkCardType==='Amex'} onChange={() => setWkCardType('Amex')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Amex</span>
+                                    </label>
+                                  </div>
+                                  
+                                  <div>
+                                    <label className="block text-xs font-semibold text-black/60 mb-1.5">Card Number</label>
+                                    <input type="text" value={wkCardNumberFull} onChange={e => setWkCardNumberFull(e.target.value)} placeholder="0000 0000 0000 0000"
+                                      className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  </div>
+                                  
+                                  <div className="flex gap-4">
+                                    <div className="w-1/2">
+                                      <label className="block text-xs font-semibold text-black/60 mb-1.5">Expiry Date</label>
+                                      <input type="text" value={wkCardExpiry} onChange={e => setWkCardExpiry(e.target.value)} placeholder="MM/YY"
+                                        className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                    </div>
+                                    <div className="w-1/2">
+                                      <label className="block text-xs font-semibold text-black/60 mb-1.5">CVV</label>
+                                      <input type="text" value={wkCardCvv} onChange={e => setWkCardCvv(e.target.value)} placeholder="123"
+                                        className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                    </div>
+                                  </div>
+                                  
+                                  <div>
+                                    <label className="block text-xs font-semibold text-black/60 mb-1.5">Cardholder Name</label>
+                                    <input type="text" value={wkCardholder} onChange={e => setWkCardholder(e.target.value)} placeholder="Juan dela Cruz"
+                                      className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            
+                            {/* Right: Guarantee */}
+                            <div>
+                              <div className="mb-4">
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Guarantee Type</label>
+                                <select value={wkGuaranteeType} onChange={e => setWkGuaranteeType(e.target.value)}
+                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  {['Guarantee by Credit Card', 'Company Guarantee', 'Deposit Paid', 'Non-Guaranteed'].map(m => <option key={m} value={m}>{m}</option>)}
+                                </select>
+                              </div>
+                              <div className="mb-6">
+                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Amount Guaranteed</label>
+                                <div className="relative">
+                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 font-semibold">₱</span>
+                                  <input type="number" value={wkGuaranteeAmount} onChange={e => setWkGuaranteeAmount(e.target.value)} placeholder="0.00"
+                                    className="w-full pl-8 pr-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                </div>
+                              </div>
+                              <div className="pt-4 border-t border-black/5">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                  <input type="checkbox" checked={wkSendConfirmEmail} onChange={e => setWkSendConfirmEmail(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
+                                  <span className="text-sm font-medium text-black/80">Send confirmation email to guest</span>
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Error message */}
+                        {wkError && (
+                          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm text-red-700 text-sm font-medium mb-4">
+                            {wkError}
+                          </div>
+                        )}
+                        <div className="h-4"></div>
+                      </div>
+
+                      {/* RIGHT SIDEBAR */}
+                      <div className="w-[340px] xl:w-[380px] flex-shrink-0 flex flex-col gap-5 sticky top-0 pb-4 max-h-full overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                        
+                        {/* Status tag */}
+                        <div className="flex justify-end mb-1">
+                          <span className="bg-[#1E3932]/10 text-[#1E3932] font-bold text-[11px] px-3 py-1.5 rounded-full uppercase tracking-wider">Walk-in Reservation</span>
+                        </div>
+                        
+                        {/* Reservation Summary */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex-shrink-0">
+                          <div className="bg-[#1E3932] text-white p-4">
+                            <h3 className="font-bold text-lg mb-1">Reservation Summary</h3>
+                            <p className="text-white/70 text-xs">Review details before confirming</p>
+                          </div>
+                          
+                          <div className="p-5">
+                            <div className="flex gap-4 pb-4 border-b border-black/5">
+                              <div className="w-12 h-12 rounded-full bg-[#f8f9fa] border border-black/10 flex items-center justify-center flex-shrink-0 text-[#1E3932]">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                              </div>
+                              <div>
+                                <div className="text-xs text-black/50 font-semibold mb-0.5">Guest Name</div>
+                                <div className="font-bold text-[#1E3932] leading-tight text-lg">{(wkFirstName || wkLastName) ? `${wkFirstName} ${wkLastName}` : 'Pending'}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-y-4 gap-x-2 py-4 border-b border-black/5">
+                              <div>
+                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-in</div>
+                                <div className="font-semibold text-sm">{wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-out</div>
+                                <div className="font-semibold text-sm">{wkCheckOut ? new Date(wkCheckOut).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Nights</div>
+                                <div className="font-semibold text-sm">{(!wkCheckIn || !wkCheckOut) ? '-' : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000))}</div>
+                              </div>
+                              <div>
+                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Room Type</div>
+                                <div className="font-semibold text-sm">{wkRoomType || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Room No.</div>
+                                <div className="font-semibold text-sm">{wkRoomNumber || '-'}</div>
+                              </div>
+                              <div>
+                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Guests</div>
+                                <div className="font-semibold text-sm">{wkAdults} Adults{wkChildren > 0 ? `, ${wkChildren} Children` : ''}</div>
+                              </div>
+                              <div className="col-span-2">
+                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Rate Plan</div>
+                                <div className="font-semibold text-sm text-[#00754A]">{wkRateCode || 'Standard Rate'}</div>
+                              </div>
+                            </div>
+                            
+                            <div className="pt-4 space-y-2">
+                              {(() => {
+                                const nights = (!wkCheckIn || !wkCheckOut) ? 0 : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
+                                const rt = wkRoomTypes.find(r => r.name === wkRoomType);
+                                const price = rt ? Number(rt.price_per_night) : 0;
+                                const disc = parseFloat(wkDiscountPct) || 0;
+                                const netPerNight = price * (1 - disc/100);
+                                const subTotal = netPerNight * nights * wkNumRooms;
+                                const tax = subTotal * 0.12;
+                                const total = subTotal + tax;
+                                return (
+                                  <>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-black/60">Sub Total</span>
+                                      <span className="font-semibold">₱{subTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                      <span className="text-black/60">Taxes & Fees (12%)</span>
+                                      <span className="font-semibold">₱{tax.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                                    </div>
+                                    <div className="flex justify-between text-lg font-bold pt-2 border-t border-black/5 mt-1 text-[#1E3932]">
+                                      <span>Estimated Total</span>
+                                      <span>₱{total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Room Availability */}
+                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex flex-col flex-shrink-0" style={{maxHeight: '300px'}}>
+                          <div className="p-4 border-b border-black/5 flex justify-between items-center bg-[#f8f9fa]">
+                            <h3 className="font-bold text-[#1E3932]">Room Availability</h3>
+                            <div className="text-xs font-semibold text-black/50 bg-white px-2 py-1 rounded shadow-sm border border-black/5">
+                              {wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '-'}
+                              {wkCheckOut && wkCheckOut !== wkCheckIn ? ` - ${new Date(wkCheckOut).toLocaleDateString('en-US', {month:'short', day:'numeric'})}` : ''}
+                            </div>
+                          </div>
+                          
+                          <div className="overflow-y-auto p-4 flex-1">
+                            <table className="w-full text-left text-sm">
+                              <thead>
+                                <tr>
+                                  <th className="pb-2 text-xs font-semibold text-black/50 uppercase tracking-wider">Room Type</th>
+                                  <th className="pb-2 text-xs font-semibold text-black/50 uppercase tracking-wider text-center">Avail</th>
+                                  <th className="pb-2 text-xs font-semibold text-black/50 uppercase tracking-wider text-right">Rate</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-black/5">
                                 {wkRoomTypes.map(rt => {
-                                  const full = rt.available !== undefined && rt.available <= 0;
-                                  const label = rt.available !== undefined ? `${rt.name} (${rt.available}/${rt.total_rooms} avail)` : rt.name;
+                                  const avail = rt.available !== undefined ? rt.available : rt.total_rooms;
+                                  const selected = rt.name === wkRoomType;
                                   return (
-                                    <option key={rt.id} value={rt.name} disabled={full}
-                                      style={{ background: full ? '#3b1a1a' : '#4B5563', color: full ? '#f87171' : 'white' }}>
-                                      {label}{full ? ' — FULL' : ''}
-                                    </option>
+                                    <tr key={rt.id} className={selected ? 'bg-[#00754A]/5' : ''} onClick={() => setWkRoomType(rt.name)} style={{cursor: 'pointer'}}>
+                                      <td className="py-2.5 font-medium flex items-center gap-2">
+                                        {rt.name}
+                                        {selected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
+                                      </td>
+                                      <td className="py-2.5 text-center">
+                                        <span className={`inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-bold ${avail > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                          {avail}
+                                        </span>
+                                      </td>
+                                      <td className="py-2.5 text-right font-semibold">
+                                        ₱{Number(rt.price_per_night).toLocaleString()}
+                                      </td>
+                                    </tr>
                                   );
                                 })}
-                              </select>
-                              {(() => {
-                                const sel = wkRoomTypes.find(rt => rt.name === wkRoomType);
-                                if (!sel || sel.available === undefined) return null;
-                                const full = sel.available <= 0; const low = sel.available === 1;
-                                return (
-                                  <div className={`mt-0.5 flex items-center gap-1 text-[10px] font-semibold ${full ? 'text-red-300' : low ? 'text-yellow-300' : 'text-green-300'}`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${full ? 'bg-red-400' : low ? 'bg-yellow-400' : 'bg-green-400'}`} />
-                                    {full ? `No rooms available` : low ? `Only 1 left` : `${sel.available}/${sel.total_rooms} available`}
-                                  </div>
-                                );
-                              })()}
-                            </div>
-                            <div className="col-span-2">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Rate Code</label>
-                              <select value={wkRateCode} onChange={e => setWkRateCode(e.target.value)}
-                                style={{ background: '#f8f9fa', color: '#000000' }}
-                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                                <option value="" style={{ background: '#f8f9fa' }}>— No rate code —</option>
-                                {wkRateCodes.map(rc => (
-                                  <option key={rc.id} value={rc.code} style={{ background: '#f8f9fa' }}>{rc.code} — {rc.name}</option>
-                                ))}
-                              </select>
-                              {(() => {
-                                if (!wkRateCode) return null;
-                                const rc = wkRateCodes.find(r => r.code === wkRateCode);
-                                const rt = wkRoomTypes.find(r => r.name === wkRoomType);
-                                if (!rc || !rt) return null;
-                                const priceEntry = rc.prices?.find(p => p.room_type_id === rt.id);
-                                const price = priceEntry ? priceEntry.price_per_night : rt.price_per_night;
-                                return <div className="mt-0.5 text-[10px] text-sky-300 font-semibold">₱{Number(price).toLocaleString()} / night</div>;
-                              })()}
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-In <span className="text-red-400">*</span></label>
-                              <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Check-Out <span className="text-red-400">*</span></label>
-                              <input type="date" value={wkCheckOut} min={wkCheckIn || today} onChange={e => setWkCheckOut(e.target.value)}
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">ETA</label>
-                              <input type="time" value={wkEta} onChange={e => setWkEta(e.target.value)}
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">No. of Guests</label>
-                              <input type="number" min="1" max="20" value={wkGuests} onChange={e => setWkGuests(parseInt(e.target.value) || 1)}
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div className="col-span-2">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Room Number <span className="text-red-400">*</span></label>
-                              {(() => {
-                                const typeRooms = rooms.filter(r => r.room_type === wkRoomType);
-                                const selRoom = typeRooms.find(r => r.room_number === wkRoomNumber);
-                                const isBlocked = selRoom && (selRoom.computed_status === 'occupied' || selRoom.computed_status === 'arriving');
-                                const isWarn = selRoom && (selRoom.computed_status === 'dirty' || selRoom.computed_status === 'out_of_order');
-                                if (typeRooms.length === 0) {
-                                  return (
-                                    <input type="text" value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
-                                      placeholder="e.g. 201" autoComplete="off"
-                                      className="w-full px-2 py-1 border border-black/10 bg-[#f8f9fa] text-[#000000]/87 text-[11px] font-mono font-bold placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                                  );
-                                }
-                                return (
-                                  <div>
-                                    <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
-                                      style={{ background: '#f8f9fa', color: '#000000' }}
-                                      className={`w-full px-2 py-1 border ${isBlocked ? 'border-red-400/50' : 'border-black/5'} text-[11px] font-mono font-bold outline-none focus:border-black/5 rounded-sm`}>
-                                      <option value="" style={{ background: '#4B5563', color: 'rgba(255,255,255,0.35)' }}>— select room —</option>
-                                      {typeRooms.map(r => {
-                                        const cfg = roomStatusConfig[r.computed_status] || roomStatusConfig.available;
-                                        const unavailable = r.computed_status === 'occupied' || r.computed_status === 'arriving';
-                                        return (
-                                          <option key={r.room_number} value={r.room_number} disabled={unavailable}
-                                            style={{ background: unavailable ? '#3b1a1a' : '#4B5563', color: unavailable ? '#f87171' : 'white' }}>
-                                            {`${r.room_number}${r.floor ? ` · F${r.floor}` : ''} — ${cfg.label}${unavailable ? ' ✗' : ''}`}
-                                          </option>
-                                        );
-                                      })}
-                                    </select>
-                                    {selRoom && (
-                                      <div className={`mt-0.5 flex items-center gap-1 text-[10px] font-semibold ${isBlocked ? 'text-red-300' : isWarn ? 'text-yellow-300' : 'text-green-300'}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isBlocked ? 'bg-red-400' : isWarn ? 'bg-yellow-400' : 'bg-green-400'}`} />
-                                        {isBlocked ? `Unavailable — choose another` : isWarn ? `${selRoom.hk_status} — confirm ready` : `Available`}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })()}
-                            </div>
-                            <div className="col-span-2">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Purpose of Visit</label>
-                              <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
-                                style={{ background: '#f8f9fa', color: wkPurpose ? '#000000' : 'rgba(0,0,0,0.4)' }}
-                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                                {['', 'Leisure / Vacation', 'Business', 'Official / Government', 'Medical', 'Honeymoon / Anniversary', 'Transit', 'Others'].map(p => (
-                                  <option key={p} value={p} style={{ background: '#f8f9fa', color: '#000000' }}>{p || '— select —'}</option>
-                                ))}
-                              </select>
-                            </div>
+                                {wkRoomTypes.length === 0 && (
+                                  <tr><td colSpan="3" className="py-4 text-center text-black/50 text-xs">No rooms available for selected dates</td></tr>
+                                )}
+                              </tbody>
+                            </table>
                           </div>
-
-                          {/* Payment */}
-                          <div className="flex items-center gap-2 mt-1 mb-1">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Payment</span>
-                            <div className="flex-1 h-px bg-white shadow-sm" />
-                          </div>
-                          <div className="grid grid-cols-4 gap-x-2 gap-y-1.5">
-                            <div className="col-span-2">
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Payment Method</label>
-                              <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
-                                style={{ background: '#f8f9fa', color: '#000000' }}
-                                className="w-full px-2 py-1 border border-black/5 text-[11px] outline-none focus:border-black/5 rounded-sm">
-                                {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Maya', 'Bank Transfer', 'Check', 'Other'].map(m => (
-                                  <option key={m} value={m} style={{ background: '#f8f9fa' }}>{m}</option>
-                                ))}
-                              </select>
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Deposit Amount</label>
-                              <input type="number" min="0" step="0.01" value={wkDepositAmount} onChange={e => setWkDepositAmount(e.target.value)} placeholder="0.00"
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] font-mono placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div className="flex items-end pb-1">
-                              <label className="flex items-center gap-1.5 cursor-pointer">
-                                <input type="checkbox" checked={wkPayment} onChange={e => setWkPayment(e.target.checked)}
-                                  className="w-3 h-3 accent-[#576CA8] cursor-pointer" />
-                                <span className="text-[10px] text-black/60 uppercase tracking-wide">Collected</span>
-                              </label>
-                            </div>
-                          </div>
-
-                          {/* Remarks */}
-                          <div className="flex items-center gap-2 mt-1 mb-1">
-                            <span className="text-[9px] font-bold tracking-[0.2em] text-black/60 uppercase whitespace-nowrap">Remarks</span>
-                            <div className="flex-1 h-px bg-white shadow-sm" />
-                          </div>
-                          <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Special Requests</label>
-                              <input type="text" value={wkSpecialReq} onChange={e => setWkSpecialReq(e.target.value)} placeholder="non-smoking, high floor, extra pillow..."
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                            <div>
-                              <label className="block text-[9px] text-black/60 mb-0.5 uppercase tracking-widest">Front Desk Notes</label>
-                              <input type="text" value={wkNotes} onChange={e => setWkNotes(e.target.value)} placeholder="Internal notes..."
-                                className="w-full px-2 py-1 bg-[#f8f9fa] border border-black/10 text-[#000000]/87 text-[11px] placeholder-black/30 focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none rounded-sm" />
-                            </div>
-                          </div>
-
-                          <div className="h-px bg-white shadow-sm mt-auto pt-2" />
-                          {wkError && (
-                            <div className="bg-red-500/15 border border-red-400/30 rounded px-3 py-1.5 text-[11px] text-red-300">{wkError}</div>
-                          )}
-                          <button onClick={submitWalkin} disabled={wkSubmitting}
-                            className="w-full bg-gradient-to-r from-[#006241] to-[#1a4f99] hover:opacity-90 disabled:opacity-50 text-white font-bold py-2 rounded transition-all text-[11px] tracking-[0.12em] uppercase border border-black/5">
-                            {wkSubmitting ? 'Processing...' : 'Complete Walk-In Check-In'}
-                          </button>
-
                         </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col gap-3 mt-auto">
+                          <button className="w-full py-3 rounded-xl border border-[#1E3932] text-[#1E3932] font-bold hover:bg-[#1E3932]/5 transition-all text-sm">
+                            Save as Draft
+                          </button>
+                          <button onClick={resetWalkin} className="w-full py-3 rounded-xl text-black/60 font-semibold hover:text-black/80 hover:bg-black/5 transition-all text-sm">
+                            Clear Form
+                          </button>
+                          <button onClick={submitWalkin} disabled={wkSubmitting}
+                            className="w-full bg-gradient-to-br from-[#00754A] to-[#005a38] hover:shadow-lg disabled:opacity-70 text-white font-bold py-4 rounded-xl transition-all shadow-md mt-1 text-base relative overflow-hidden">
+                            {wkSubmitting ? 'Processing...' : 'Create Reservation'}
+                            {!wkSubmitting && <div className="absolute inset-0 bg-white/20 hover:opacity-100 opacity-0 transition-opacity"></div>}
+                          </button>
+                        </div>
+                        
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               )}
-
               {/* ── Rooms View ── */}
               {fdView === 'rooms' && (
                 <div>
