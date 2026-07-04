@@ -6,7 +6,8 @@ import GradientText from './components/GradientText/GradientText';
 import Orb from './components/Orb/Orb';
 import AdminOnlineReservationsTab from './AdminOnlineReservationsTab';
 import AdminGuestsTab from './AdminGuestsTab';
-import LocationRoutingBox from './components/common/LocationRoutingBox';
+import AdminDashboardTab from './AdminDashboardTab';
+import ContactMapSection from './components/common/ContactMapSection';
 
 
 // Dynamically resolve backend API URL depending on current environment
@@ -953,7 +954,7 @@ export default function RestaurantApp() {
 
       {/* ── Global Admin Sidebar ── */}
       {showAdminSidebar && (
-        <aside style={{ position: 'fixed', top: 0, left: 0, width: '120px', height: '100vh', background: '#142b22', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.08)', zIndex: 200 }}>
+        <aside className="print:hidden" style={{ position: 'fixed', top: 0, left: 0, width: '120px', height: '100vh', background: '#142b22', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.08)', zIndex: 200 }}>
           {/* Primary nav */}
           <nav style={{ flex: 1, padding: '12px 6px', overflowY: 'auto' }} className="no-scrollbar">
             {[
@@ -1027,7 +1028,7 @@ export default function RestaurantApp() {
         </aside>
       )}
 
-      <div className="min-h-screen pb-16 md:pb-0" style={{ position: 'relative', zIndex: 1, marginLeft: showAdminSidebar ? '150px' : 0 }}>
+      <div className={`min-h-screen pb-16 md:pb-0 print:!ml-0 ${showAdminSidebar ? 'ml-[150px]' : 'ml-0'}`} style={{ position: 'relative', zIndex: 1 }}>
         {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
           <Header
             currentPage={currentPage}
@@ -2975,101 +2976,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   // Dashboard
   return (
-    <div className="bg-[#1E3932] min-h-screen pt-[70px] pb-24">
+    <div className="bg-[#1E3932] min-h-screen pt-[70px] pb-24 print:p-0 print:min-h-0">
       {activeTab === 'queue' && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 10, pointerEvents: 'none', mixBlendMode: 'screen' }}>
           <Orb hoverIntensity={2} rotateOnHover hue={0} forceHoverState={false} backgroundColor="#000000" />
         </div>
       )}
-      <div className="w-full px-4 md:px-8 py-6">
+      <div className="w-full px-4 md:px-8 py-6 print:p-0">
 
         {/* ==================== DASHBOARD TAB ==================== */}
         {activeTab === 'dashboard' && (
-          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
-            <div className="flex-1 flex flex-col min-h-0 w-full">
-              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                {/* Header bar */}
-                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="shrink-0">
-                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Dashboard</h2>
-                      <p className="text-black/60 text-xs mt-0.5">Overview of today's activities and operations</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
-                  <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                    {/* Main Stats */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                      {[
-                        { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg> },
-                        { label: 'Departures Today', value: reservations.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15m-3 0l-3-3m0 0l3-3m-3 3H15" /></svg> },
-                        { label: 'In-House', value: reservations.filter(a => a.status === 'checked_in').length, color: 'text-amber-600', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-3h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg> },
-                        { label: 'Occupancy', value: `${Math.round((reservations.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-[#006241]', icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg> },
-                      ].map((stat, i) => (
-                        <div key={i} className="rounded-xl p-5 bg-white group hover:scale-[1.01] transition-all cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                          <div className="flex justify-between items-start mb-3">
-                            <span className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em]">{stat.label}</span>
-                            <span className="text-[#006241] opacity-60 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
-                          </div>
-                          <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      {/* Recent Activity */}
-                      <div className="lg:col-span-2 rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                        <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]"></span>
-                          Recent Activity
-                        </h3>
-                        <div className="space-y-3">
-                          {reservations.slice(0, 5).map((res, i) => (
-                            <div key={i} className="flex items-center justify-between p-3.5 rounded-xl bg-[#f2f0eb] hover:bg-[#edebe9] transition-all group" style={{ border: '1px solid rgba(0,0,0,0.06)' }}>
-                              <div className="flex items-center gap-3.5">
-                                <div className="w-9 h-9 rounded-xl bg-[#1E3932] flex items-center justify-center text-white font-black text-sm">
-                                  {res.full_name.charAt(0)}
-                                </div>
-                                <div>
-                                  <p className="font-bold text-[#000000]/87 text-sm">{res.full_name}</p>
-                                  <p className="text-[10px] text-black/50 font-bold uppercase tracking-wider mt-0.5">{res.service_type} • {res.preferred_date}</p>
-                                </div>
-                              </div>
-                              <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusColor(res.status)}`}>
-                                {res.status}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Status Overview */}
-                      <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                        <h3 className="text-[10px] font-black text-black/50 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#006241]"></span>
-                          Status Overview
-                        </h3>
-                        <div className="grid grid-cols-1 gap-3">
-                          {[
-                            { label: 'Clean', value: 24, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-                            { label: 'Dirty', value: 8, color: 'text-[#c82014]', bg: 'bg-red-50', border: 'border-red-200' },
-                            { label: 'Inspected', value: 15, color: 'text-[#006241]', bg: 'bg-[#d4e9e2]', border: 'border-[#d4e9e2]' },
-                            { label: 'Out of Order', value: 2, color: 'text-black/50', bg: 'bg-[#f9f9f9]', border: 'border-black/10' },
-                          ].map((item, i) => (
-                            <div key={i} className={`rounded-xl p-4 flex justify-between items-center border ${item.bg} ${item.border}`}>
-                              <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>{item.label}</span>
-                              <span className={`text-2xl font-black ${item.color}`}>{item.value}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <AdminDashboardTab reservations={reservations} stats={stats} />
         )}
 
         {/* ==================== RESERVATIONS TAB ==================== */}
@@ -3342,7 +3259,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== REPORTS TAB ==================== */}
         {activeTab === 'reports' && <AdminReportsTab />}
-\n{/* ==================== INBOX TAB ==================== */}
+        {/* ==================== INBOX TAB ==================== */}
         {activeTab === 'inbox' && <AdminInboxTab />}
 
         {/* ==================== SETTINGS TAB ==================== */}
@@ -4642,10 +4559,565 @@ function MyAppointment({ setCurrentPage, initialToken }) {
   );
 }
 
-// Admin Inbox Tab Component
+function ManagerDailyReportUI({ data, date }) {
+ if (!data || !data.kpi) return null;
+ return (
+ <div className="bg-[#f8f9fa] text-[#333333] font-sans print:bg-white pb-12">
+ <div className="grid grid-cols-4 gap-4 mb-6">
+ <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+ <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-4 shrink-0">
+ <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
+ </div>
+ <div className="min-w-0">
+ <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">Occupancy</div>
+ <div className=" font-black text-gray-800 truncate">{data.kpi?.occupancy}%</div>
+ <div className=" font-medium text-gray-500 mt-1 truncate">{data.kpi?.occupiedRooms} / {data.kpi?.totalRooms} Rooms</div>
+ </div>
+ </div>
+ <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+ <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-4 shrink-0">
+ <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg>
+ </div>
+ <div className="min-w-0">
+ <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">ADR</div>
+ <div className=" font-black text-gray-800 truncate">₱{data.kpi?.adr?.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+ <div className=" font-medium text-gray-500 mt-1 truncate">Average Daily Rate</div>
+ </div>
+ </div>
+ <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+ <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-4 shrink-0">
+ <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+ </div>
+ <div className="min-w-0">
+ <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">REVPAR</div>
+ <div className=" font-black text-gray-800 truncate">₱{data.kpi?.revpar?.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+ <div className=" font-medium text-gray-500 mt-1 truncate">Rev. per Available Rm</div>
+ </div>
+ </div>
+ <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+ <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mr-4 shrink-0">
+ <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 18V6"/></svg>
+ </div>
+ <div className="min-w-0">
+ <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">TOTAL REVENUE</div>
+ <div className=" font-black text-gray-800 truncate">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+ <div className=" font-medium text-gray-500 mt-1 truncate">Room + Other Revenue</div>
+ </div>
+ </div>
+ </div>
+ 
+ <div className="grid grid-cols-3 gap-6 mb-6">
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM STATISTICS</h3>
+ <div className="space-y-4 font-medium">
+ <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.roomStatistics?.totalRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Available Rooms</span><span className="font-bold text-blue-600">{data.roomStatistics?.availableRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Occupied Rooms</span><span className="font-bold text-green-600">{data.roomStatistics?.occupiedRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-orange-500">{data.roomStatistics?.outOfOrderRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Due Out</span><span className="font-bold text-red-600">{data.roomStatistics?.dueOut}</span></div>
+ <div className="pt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Occupancy %</span><span className="font-black text-gray-900">{data.roomStatistics?.occupancyPercentage}%</span></div>
+ </div>
+ </div>
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ARRIVALS & DEPARTURES</h3>
+ <div className="grid grid-cols-2 gap-4 mb-4">
+ <div className="flex items-center">
+ <div className="w-10 h-10 rounded-full bg-green-50 text-green-700 flex items-center justify-center mr-3">
+ <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+ </div>
+ <div>
+ <div className=" font-bold text-gray-400 uppercase tracking-widest">ARRIVALS</div>
+ <div className=" font-black text-gray-800">{data.arrivalsDepartures?.arrivals}</div>
+ </div>
+ </div>
+ <div className="flex items-center">
+ <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mr-3">
+ <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+ </div>
+ <div>
+ <div className=" font-bold text-gray-400 uppercase tracking-widest">DEPARTURES</div>
+ <div className=" font-black text-gray-800">{data.arrivalsDepartures?.departures}</div>
+ </div>
+ </div>
+ </div>
+ <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-6">
+ <div className="flex justify-between"><span className="text-gray-500">Walk-in</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.walkIn}</span></div>
+ <div className="flex justify-between"><span className="text-gray-500">On Time</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.onTime}</span></div>
+ <div className="flex justify-between"><span className="text-gray-500">Reservations</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.reservations}</span></div>
+ <div className="flex justify-between"><span className="text-gray-500">Late Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.lateCheckout}</span></div>
+ <div className="flex justify-between"><span className="text-gray-500">VIP Arrivals</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.vipArrivals}</span></div>
+ <div className="flex justify-between"><span className="text-gray-500">Early Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.earlyCheckout}</span></div>
+ </div>
+ </div>
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">GUESTS IN HOUSE</h3>
+ <div className=" font-black text-gray-800 mb-8 mt-2">{data.guestsInHouse?.total}</div>
+ <div className="space-y-4 font-medium mt-auto">
+ <div className="flex justify-between items-center"><span className="text-gray-500">Adults</span><span className="font-bold text-gray-800">{data.guestsInHouse?.adults}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Children</span><span className="font-bold text-gray-800">{data.guestsInHouse?.children}</span></div>
+ <div className="pt-4 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">No. of Rooms</span><span className="font-black text-gray-900">{data.guestsInHouse?.noOfRooms}</span></div>
+ </div>
+ </div>
+ </div>
+
+ <div className="grid grid-cols-[3fr_2fr] gap-6 mb-6">
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE SUMMARY (TODAY)</h3>
+ <table className="w-full text-left ">
+ <thead>
+ <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+ <th className="pb-3 w-1/2">DEPARTMENT</th>
+ <th className="pb-3 text-right">REVENUE (₱)</th>
+ <th className="pb-3 text-right">% OF TOTAL</th>
+ </tr>
+ </thead>
+ <tbody className="divide-y divide-gray-50">
+ {data.revenueSummary?.map((item, i) => (
+ <tr key={i} className="hover:bg-gray-50">
+ <td className="py-3 font-medium text-gray-600">{item.department}</td>
+ <td className="py-3 text-right font-medium text-gray-800">{item.revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+ <td className="py-3 text-right font-bold text-gray-500">{item.pct}%</td>
+ </tr>
+ ))}
+ <tr className="bg-gray-50/50">
+ <td className="py-3 font-bold text-green-700">TOTAL REVENUE</td>
+ <td className="py-3 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+ <td className="py-3 text-right font-bold text-green-700">100%</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE BREAKDOWN</h3>
+ <div className="flex-1 flex items-center justify-between gap-8 mt-4">
+ <div className="relative w-40 h-40 shrink-0">
+ <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+ {(() => {
+ let currentOffset = 0;
+ return data.revenueSummary?.map((item, i) => {
+ const val = parseFloat(item.pct);
+ const dasharray = `${val} ${100 - val}`;
+ const offset = currentOffset;
+ currentOffset -= val;
+ return (
+ <circle
+ key={i}
+ cx="50" cy="50" r="15.91549430918954"
+ fill="transparent"
+ stroke={item.color}
+ strokeWidth="8"
+ strokeDasharray={dasharray}
+ strokeDashoffset={offset}
+ />
+ );
+ });
+ })()}
+ <circle cx="50" cy="50" r="11" fill="white" />
+ </svg>
+ <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
+ <span className=" font-black text-gray-800">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
+ <span className=" font-medium text-gray-500">Total Revenue</span>
+ </div>
+ </div>
+ <div className="flex-1 space-y-3 font-medium text-gray-600">
+ {data.revenueSummary?.map((item, i) => (
+ <div key={i} className="flex items-center justify-between">
+ <div className="flex items-center">
+ <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: item.color }}></span>
+ {item.department}
+ </div>
+ <span className="text-gray-500">{item.pct}%</span>
+ </div>
+ ))}
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <div className="grid grid-cols-3 gap-6 mb-6">
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM TYPES PERFORMANCE</h3>
+ <table className="w-full text-left ">
+ <thead>
+ <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+ <th className="pb-3 w-1/3">ROOM TYPE</th>
+ <th className="pb-3 text-right">OCC</th>
+ <th className="pb-3 text-right">AVAIL</th>
+ <th className="pb-3 text-right">OCC.%</th>
+ <th className="pb-3 text-right">ADR (₱)</th>
+ </tr>
+ </thead>
+ <tbody className="divide-y divide-gray-50">
+ {data.roomTypesPerformance?.map((rt, i) => (
+ <tr key={i} className="hover:bg-gray-50">
+ <td className="py-2.5 font-medium text-gray-600">{rt.roomType}</td>
+ <td className="py-2.5 text-right font-medium text-gray-800">{rt.occupied}</td>
+ <td className="py-2.5 text-right font-medium text-gray-800">{rt.available}</td>
+ <td className="py-2.5 text-right font-bold text-gray-500">{rt.occPct}%</td>
+ <td className="py-2.5 text-right font-medium text-gray-800">{parseFloat(rt.adr).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+ </tr>
+ ))}
+ <tr className="bg-gray-50/50">
+ <td className="py-2.5 font-bold text-green-700">TOTAL</td>
+ <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupiedRooms}</td>
+ <td className="py-2.5 text-right font-bold text-green-700">{data.roomStatistics?.availableRooms}</td>
+ <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupancy}%</td>
+ <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.adr?.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">PAYMENT SUMMARY (TODAY)</h3>
+ <table className="w-full text-left ">
+ <thead>
+ <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+ <th className="pb-3 w-1/2">PAYMENT METHOD</th>
+ <th className="pb-3 text-right">AMOUNT (₱)</th>
+ <th className="pb-3 text-right">%</th>
+ </tr>
+ </thead>
+ <tbody className="divide-y divide-gray-50">
+ {data.paymentSummary?.map((ps, i) => (
+ <tr key={i} className="hover:bg-gray-50">
+ <td className="py-2.5 font-medium text-gray-600">{ps.method}</td>
+ <td className="py-2.5 text-right font-medium text-gray-800">{ps.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+ <td className="py-2.5 text-right font-bold text-gray-500">{(data.kpi?.totalRevenue ? (ps.amount / data.kpi.totalRevenue * 100) : 0).toFixed(1)}%</td>
+ </tr>
+ ))}
+ <tr className="bg-gray-50/50">
+ <td className="py-2.5 font-bold text-green-700">TOTAL PAYMENTS</td>
+ <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+ <td className="py-2.5 text-right font-bold text-green-700">100%</td>
+ </tr>
+ </tbody>
+ </table>
+ </div>
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">HOUSEKEEPING SUMMARY</h3>
+ <div className="space-y-4 font-medium mt-6">
+ <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.housekeeping?.totalRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Clean Rooms</span><span className="font-bold text-green-700">{data.housekeeping?.cleanRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Dirty Rooms</span><span className="font-bold text-orange-500">{data.housekeeping?.dirtyRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Inspected Rooms</span><span className="font-bold text-blue-600">{data.housekeeping?.inspectedRooms}</span></div>
+ <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-red-600">{data.housekeeping?.outOfOrderRooms}</span></div>
+ <div className="pt-4 mt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Cleanliness %</span><span className="font-black text-green-700">{data.housekeeping?.cleanlinessPct}%</span></div>
+ </div>
+ </div>
+ </div>
+
+ <div className="grid grid-cols-3 gap-6">
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">TOP 5 ROOM REVENUE</h3>
+ <table className="w-full text-left ">
+ <thead>
+ <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+ <th className="pb-3">ROOM NO.</th>
+ <th className="pb-3">ROOM TYPE</th>
+ <th className="pb-3 text-right">REVENUE (₱)</th>
+ </tr>
+ </thead>
+ <tbody className="divide-y divide-gray-50">
+ {data.topRooms?.map((tr, i) => (
+ <tr key={i} className="hover:bg-gray-50">
+ <td className="py-2.5 font-bold text-gray-800">{tr.roomNo}</td>
+ <td className="py-2.5 font-medium text-gray-600">{tr.roomType}</td>
+ <td className="py-2.5 text-right font-medium text-gray-800">{tr.revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+ </tr>
+ ))}
+ </tbody>
+ </table>
+ </div>
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">NOTES & REMINDERS</h3>
+ <ul className="space-y-4 font-medium text-gray-600">
+ {data.notes?.map((n, i) => (
+ <li key={i}>{n}</li>
+ ))}
+ </ul>
+ </div>
+ <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+ <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">WEATHER</h3>
+ <div className="flex items-center mt-2 mb-8">
+ <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ea9f2f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-6"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+ <div>
+ <div className=" font-black text-gray-800">{data.weather?.temp}</div>
+ <div className=" font-bold text-gray-600 mt-1">{data.weather?.condition}</div>
+ </div>
+ </div>
+ <div className="flex justify-between items-center font-bold text-gray-500 mt-auto pt-4 border-t border-gray-100">
+ <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2770c8" strokeWidth="2" className="mr-1"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> Humidity<br/><span className="text-gray-800 ml-4 ">{data.weather?.humidity}</span></div>
+ <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8858a7" strokeWidth="2" className="mr-1"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Wind<br/><span className="text-gray-800 ml-4 ">{data.weather?.wind}</span></div>
+ <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#317e3f" strokeWidth="2" className="mr-1"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg> Forecast<br/><span className="text-gray-800 ml-4 ">{data.weather?.forecast}</span></div>
+ </div>
+ </div>
+ </div>
+ <div className="mt-8 text-gray-400 italic">* This report is system generated and does not require signature.</div>
+ </div>
+ );
+}
+
+function ReportViewer({ report, onBack }) {
+  const [data, setData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [reportDate, setReportDate] = React.useState(new Date().toISOString().split('T')[0]);
+
+  const fetchReportData = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      let endpoint = '';
+      if (report.title === "Daily Manager's Report") endpoint = `/api/reports/front-office/manager?date=${reportDate}`;
+      else if (report.title === "Arrival Report") endpoint = `/api/reports/front-office/arrivals?date=${reportDate}`;
+      else if (report.title === "Departure Report") endpoint = `/api/reports/front-office/departures?date=${reportDate}`;
+      else if (report.title === "In-House Guest Report") endpoint = `/api/reports/front-office/in-house`;
+      else if (report.title === "Room Status Report") endpoint = `/api/reports/front-office/room-status`;
+      
+      if (endpoint) {
+        const res = await fetch(`${API_BASE_URL || 'http://localhost:5000'}${endpoint}`);
+        const result = await res.json();
+        if (result.success) {
+          setData(result);
+        } else {
+          console.error("Report failed:", result.message);
+          setData(null);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch report:", e);
+    }
+    setLoading(false);
+  }, [report, reportDate]);
+
+  React.useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportCSV = () => {
+    if (!data) return;
+    let rows = [];
+    let headers = [];
+    
+    if (report.title === "Daily Manager's Report" && data.stats) {
+      headers = ['Metric', 'Value'];
+      rows.push(['Total Arrivals', data.stats.total_arrivals]);
+      rows.push(['Total Departures', data.stats.total_departures]);
+      rows.push(['Total In-House', data.stats.total_in_house]);
+      rows.push(['Total Rooms', data.stats.total_rooms]);
+      rows.push(['Occupancy %', ((data.stats.total_in_house / data.stats.total_rooms) * 100 || 0).toFixed(1) + '%']);
+      rows.push(['Total Room Revenue', data.stats.total_room_revenue]);
+    } else if (report.title === "Arrival Report" && data.arrivals) {
+      headers = ['Guest Name', 'Room Type', 'Room #', 'Check-in', 'Check-out', 'Status', 'Guests'];
+      rows = data.arrivals.map(a => [a.full_name, a.room_type, a.room_number || '-', a.check_in_date, a.check_out_date, a.status, a.number_of_guests]);
+    } else if (report.title === "Departure Report" && data.departures) {
+      headers = ['Guest Name', 'Room Type', 'Room #', 'Check-in', 'Check-out', 'Status', 'Guests'];
+      rows = data.departures.map(d => [d.full_name, d.room_type, d.room_number || '-', d.check_in_date, d.check_out_date, d.status, d.number_of_guests]);
+    } else if (report.title === "In-House Guest Report" && data.inHouse) {
+      headers = ['Guest Name', 'Room Type', 'Room #', 'Check-in', 'Check-out', 'Guests', 'Balance'];
+      rows = data.inHouse.map(h => [h.full_name, h.room_type, h.room_number || '-', h.check_in_date, h.check_out_date, h.number_of_guests, h.balance]);
+    } else if (report.title === "Room Status Report" && data.rooms) {
+      headers = ['Room Number', 'Room Type', 'Occupancy', 'Cleanliness', 'Guest'];
+      rows = data.rooms.map(r => [r.room_number, r.room_type, r.occupancy_status, r.cleanliness, r.guest_name || '-']);
+    }
+
+    if (headers.length === 0) return;
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + headers.join(',') + '\n' 
+      + rows.map(e => e.map(cell => `"${cell}"`).join(",")).join("\n");
+    
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${report.title.replace(/\s+/g, '_')}_${reportDate}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderTable = () => {
+    if (loading) return <div className="p-8 text-center text-black/40 font-medium">Generating report...</div>;
+    if (!data) return <div className="p-8 text-center text-red-500 font-medium">Failed to load report data.</div>;
+
+    if (report.title === "Daily Manager's Report" && data.stats) {
+      return (
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-black/10 bg-gray-50/50">
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Metric</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Value</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/5">
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Arrivals</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_arrivals}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Departures</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_departures}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total In-House</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_in_house}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Rooms</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_rooms}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Occupancy %</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{((data.stats.total_in_house / data.stats.total_rooms) * 100 || 0).toFixed(1)}%</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Room Revenue</td><td className="px-6 py-4 text-[13px] font-bold text-emerald-600 text-right">₱{Number(data.stats.total_room_revenue || 0).toLocaleString()}</td></tr>
+          </tbody>
+        </table>
+      );
+    }
+
+    if (report.title === "Arrival Report" && data.arrivals) {
+      if (data.arrivals.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No arrivals scheduled for this date.</div>;
+      return (
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-black/10 bg-gray-50/50">
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest Name</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room Type</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room #</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Dates</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/5">
+            {data.arrivals.map((a, i) => (
+              <tr key={i} className="hover:bg-gray-50/50">
+                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{a.full_name}</td>
+                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{a.room_type}</td>
+                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{a.room_number || '-'}</td>
+                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{a.check_in_date} to {a.check_out_date}</td>
+                <td className="px-6 py-4 text-right"><span className="px-2.5 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-md text-[10px] font-bold uppercase tracking-wider">{a.status}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+    
+    if (report.title === "Departure Report" && data.departures) {
+      if (data.departures.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No departures scheduled for this date.</div>;
+      return (
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-black/10 bg-gray-50/50">
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest Name</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room Type</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room #</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/5">
+            {data.departures.map((d, i) => (
+              <tr key={i} className="hover:bg-gray-50/50">
+                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{d.full_name}</td>
+                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{d.room_type}</td>
+                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{d.room_number || '-'}</td>
+                <td className="px-6 py-4 text-right"><span className="px-2.5 py-1 bg-amber-50 text-amber-600 border border-amber-100 rounded-md text-[10px] font-bold uppercase tracking-wider">{d.status.replace('_', ' ')}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+    
+    if (report.title === "In-House Guest Report" && data.inHouse) {
+      if (data.inHouse.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No guests currently in-house.</div>;
+      return (
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-black/10 bg-gray-50/50">
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest Name</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room #</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Departure</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Balance</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/5">
+            {data.inHouse.map((h, i) => (
+              <tr key={i} className="hover:bg-gray-50/50">
+                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{h.full_name}</td>
+                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{h.room_number || '-'}</td>
+                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{h.check_out_date}</td>
+                <td className={`px-6 py-4 text-[13px] font-bold text-right ${h.balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>₱{Number(h.balance).toLocaleString()}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+    
+    if (report.title === "Room Status Report" && data.rooms) {
+      return (
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-black/10 bg-gray-50/50">
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room Number</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Occupancy</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Cleanliness</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/5">
+            {data.rooms.map((r, i) => (
+              <tr key={i} className="hover:bg-gray-50/50">
+                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{r.room_number}</td>
+                <td className="px-6 py-4 text-[13px] font-medium text-black/60 uppercase">{r.occupancy_status}</td>
+                <td className="px-6 py-4 text-[13px] font-medium text-black/60 uppercase">{r.cleanliness}</td>
+                <td className="px-6 py-4 text-[13px] font-medium text-black/80">{r.guest_name || '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
+
+    return <div className="p-8 text-center text-black/40 font-medium">Report format not yet implemented.</div>;
+  };
+
+  return (
+    <div className="fixed top-0 left-[120px] right-0 bottom-0 flex flex-col z-10 print:static print:block print:left-0 print:w-full print:h-auto print:overflow-visible print:bg-white">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#f8f9fa] print:block print:overflow-visible print:bg-white" id="printable-report">
+        <div className="px-8 py-6 border-b border-black/5 bg-white shrink-0 flex items-center justify-between print:hidden">
+          <div className="flex items-center gap-4">
+            <button onClick={onBack} className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/60">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            </button>
+            <div>
+              <h2 className="text-[#000000]/87 font-black text-2xl tracking-tight leading-tight">{report.title}</h2>
+              <p className="text-black/60 text-[13px] mt-1 font-medium">{report.desc}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {['Arrival Report', 'Departure Report', "Daily Manager's Report"].includes(report.title) && (
+              <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-lg text-sm outline-none focus:border-[#00754A]" />
+            )}
+            <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              <span>Print</span>
+            </button>
+            <button onClick={handleExportCSV} className="flex items-center gap-2 px-5 py-2.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto p-8 bg-[#f8f9fa] print:block print:overflow-visible print:p-0 print:bg-white w-full">
+          {report.title === "Daily Manager's Report" && data ? (
+            <div className="max-w-[1400px] mx-auto print:max-w-[1400px] print:mx-auto w-full">
+              <ManagerDailyReportUI data={data} date={reportDate} />
+            </div>
+          ) : (
+            <div className="max-w-[1200px] mx-auto border border-black/10 rounded-xl overflow-hidden bg-white shadow-sm print:shadow-none print:border-none">
+              {renderTable()}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminReportsTab() {
   const [reportsSubTab, setReportsSubTab] = React.useState('All Reports');
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [selectedReport, setSelectedReport] = React.useState(null);
 
   const reportCategories = [
     {
@@ -4703,6 +5175,10 @@ function AdminReportsTab() {
     { id: 'Housekeeping', label: 'Housekeeping', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg> },
     { id: 'Audit', label: 'Audit', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
   ];
+
+  if (selectedReport) {
+    return <ReportViewer report={selectedReport} onBack={() => setSelectedReport(null)} />;
+  }
 
   return (
     <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
@@ -4765,13 +5241,13 @@ function AdminReportsTab() {
                   <h3 className="text-[12px] font-black uppercase tracking-[0.1em] text-[#00754A] mb-5">{cat.title}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
                     {cat.reports.filter(r => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.desc.toLowerCase().includes(searchQuery.toLowerCase())).map((report, i) => (
-                      <div key={i} className="group bg-white border border-black/10 rounded-xl hover:border-[#00754A]/30 hover:shadow-[0_8px_24px_rgba(0,117,74,0.08)] transition-all cursor-pointer flex flex-col relative overflow-hidden">
+                      <div key={i} onClick={() => setSelectedReport(report)} className="group bg-white border border-black/10 rounded-xl hover:border-[#00754A]/30 hover:shadow-[0_8px_24px_rgba(0,117,74,0.08)] transition-all cursor-pointer flex flex-col relative overflow-hidden">
                         <div className="p-6 flex flex-col gap-4">
                           <div className="flex items-start justify-between">
                             <div className="w-10 h-10 rounded-lg bg-emerald-50/50 flex items-center justify-center shrink-0 border border-emerald-100/50">
                               {React.cloneElement(report.icon, { strokeWidth: "2" })}
                             </div>
-                            <button className="text-black/20 hover:text-amber-400 transition-colors shrink-0">
+                            <button className="text-black/20 hover:text-amber-400 transition-colors shrink-0" onClick={(e) => e.stopPropagation()}>
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                             </button>
                           </div>
@@ -5347,8 +5823,6 @@ function ContactPage({ setCurrentPage }) {
                 </div>
               </div>
 
-              <LocationRoutingBox />
-
             </div>
           </div>
 
@@ -5434,17 +5908,7 @@ function ContactPage({ setCurrentPage }) {
         </div>
 
         {/* Map Section */}
-        <div className="mt-8 bg-white rounded-3xl shadow-sm h-[600px] lg:h-[700px] overflow-hidden">
-          <iframe
-            src="https://maps.google.com/maps?q=Pelaez%20St.,%20Bogo%20City,%20Cebu&t=&z=15&ie=UTF8&iwloc=&output=embed"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen=""
-            loading="lazy"
-            title="Northomes Pensionne Location"
-          ></iframe>
-        </div>
+        <ContactMapSection />
       </div>
     </div>
   );

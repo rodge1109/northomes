@@ -106,3 +106,29 @@ input, select, textarea {
     --chart-5: 340 75% 55%;
   }
 }
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  aside, .no-print {
+    display: none !important;
+  }
+
+  /* Force the report wrapper to have a fixed width and use zoom to scale down to fit the A4 page without breaking layout flow */
+  #printable-report {
+    /* Use zoom to shrink both visual size and layout height, preventing 2-page blank space */
+    width: 1400px !important;
+    max-width: 1400px !important;
+    position: static !important;
+    zoom: 0.5 !important;
+    margin: 0 !important;
+    background: white !important;
+  }
+}

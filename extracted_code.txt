@@ -1,0 +1,19 @@
+The following is a <SYSTEM_MESSAGE> not actually sent by the user. It is provided by the system as important information to pay attention to.
+
+<SYSTEM_MESSAGE>
+[Message] timestamp=2026-07-04T14:21:49Z sender=f19706b5-8e47-4df1-8741-71b7480abe7c/task-2101 priority=MESSAGE_PRIORITY_HIGH content=Task id "f19706b5-8e47-4df1-8741-71b7480abe7c/task-2101" finished with result:
+
+				The command failed with exit code: 1
+				Output:
+				grep : The term 'grep' is not recognized as the name of a cmdlet, function, script file, or operable program. Check 
+the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ grep -C 50 "function ManagerDailyReportUI" C:\Users\ADMIN\.gemini\ant ...
++ ~~~~
+    + CategoryInfo          : ObjectNotFound: (grep:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+ 
+
+
+Log: file:///C:/Users/ADMIN/.gemini/antigravity-ide/brain/f19706b5-8e47-4df1-8741-71b7480abe7c/.system_generated/tasks/task-2101.log
+</SYSTEM_MESSAGE>
