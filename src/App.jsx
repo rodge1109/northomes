@@ -58,6 +58,443 @@ const categories = ['All', 'Pizza', 'Burgers', 'Pasta', 'Salads', 'Drinks', 'Des
 const LIQUID_COLORS = ['#006241', '#00754A', '#1E3932'];
 const LOGO_COLORS = ["#006241", "#00754A", "#1E3932"];
 
+
+function AdminBillingTab({
+  reservations, openFolio,
+  folioOpen, setFolioOpen, folioRes, fmtDate, nightsCount, printFolio,
+  sendFolioEmail, folioEmailSending, folioEmailMsg, folioLoading, folioError,
+  folioTotals, folioItems, voidCharge, fcType, setFcType, fcDesc, setFcDesc,
+  fcQty, setFcQty, fcPrice, setFcPrice, addCharge, fcSaving, fcError,
+  folioPayments, voidPayment, fpMethod, setFpMethod, fpAmount, setFpAmount,
+  fpRef, setFpRef, addPayment, fpSaving, fpError, stats
+}) {
+  const [billingTab, setBillingTab] = React.useState('Guest Billing');
+  const [searchQ, setSearchQ] = React.useState('');
+  const [filterStatus, setFilterStatus] = React.useState('In-House');
+  const [addChargeOpen, setAddChargeOpen] = React.useState(false);
+  const [addPayOpen, setAddPayOpen] = React.useState(false);
+
+  const filteredGuests = reservations.filter(r => {
+    if (filterStatus !== 'All' && r.status !== filterStatus) return false;
+    if (searchQ) {
+      const q = searchQ.toLowerCase();
+      return (r.full_name||'').toLowerCase().includes(q) || (r.room_number||'').toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  const fmtA = (n) => `₱${parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+
+  const handleAddCharge = () => {
+    addCharge(fcType, fcDesc || fcType, fcQty, fcPrice);
+    setAddChargeOpen(false);
+    setFcDesc(''); setFcPrice(''); setFcQty(1);
+  };
+
+  const handleAddPayment = () => {
+    addPayment(fpMethod, fpAmount, fpRef);
+    setAddPayOpen(false);
+    setFpAmount(''); setFpRef('');
+  };
+
+  // Folio logic
+  const isDueOut = folioRes?.check_out_date && folioRes.check_out_date.slice(0,10) === new Date().toISOString().slice(0,10);
+  const initials = (folioRes?.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const nights = folioRes ? nightsCount(folioRes) : 0;
+  
+  const ledger = [
+    ...folioItems.map(i=>({...i,type:'charge',timestamp:new Date(i.created_at||Date.now()).getTime()})),
+    ...folioPayments.map(p=>({...p,type:'payment',timestamp:new Date(p.posted_at||Date.now()).getTime()}))
+  ].sort((a,b)=>a.timestamp-b.timestamp);
+  
+  let runBal=0;
+  const ledgerWithBalance = ledger.map(e=>{
+    if(!e.voided){ if(e.type==='charge') runBal+=parseFloat(e.amount); else runBal-=parseFloat(e.amount); }
+    return{...e,currentBalance:runBal};
+  });
+
+  const [todayFin, setTodayFin] = React.useState(null);
+
+  React.useEffect(() => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    fetch(`${API_BASE_URL}/api/reports/hotel/financial?startDate=${todayStr}&endDate=${todayStr}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setTodayFin(data);
+      })
+      .catch(console.error);
+  }, [folioTotals]); // Re-fetch when folio changes (payments/charges are posted)
+
+  const totalCharges = todayFin?.summary?.totalCharged || 0;
+  const totalPayments = todayFin?.summary?.totalCollected || 0;
+  const totalRefunds = 0; // Not available in endpoint right now
+  const totalOutstanding = totalCharges - totalPayments - totalRefunds;
+  const paymentMethods = todayFin?.byPaymentMethod || [];
+  const outstandingDict = (todayFin?.outstandingList || []).reduce((acc, row) => {
+    acc[row.id] = parseFloat(row.balance);
+    return acc;
+  }, {});
+
+  return (
+    <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10, background: '#f5f7f9' }}>
+      
+      {/* Top Header */}
+      <div className="bg-white border-b border-black/10 px-8 py-5 shrink-0">
+        <div className="flex justify-between items-end mb-6">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight text-[#111]">Billing</h1>
+            <p className="text-black/50 text-xs font-medium mt-1">Manage guest folios, charges and payments</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <input type="text" placeholder="Search guest, room, or reservation..." className="pl-4 pr-10 py-2 w-72 text-xs border border-black/10 rounded-lg outline-none focus:border-[#00754A]" />
+              <Search className="w-4 h-4 text-black/40 absolute right-3 top-2" />
+            </div>
+            <button className="relative w-8 h-8 rounded-full border border-black/10 flex items-center justify-center text-black/60 hover:text-black hover:bg-black/5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
+              <span className="absolute top-0 right-0 w-3 h-3 bg-[#00754A] border-2 border-white rounded-full"></span>
+            </button>
+            <button className="flex items-center gap-1.5 bg-[#1E3932] hover:bg-[#142b22] text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">
+              <Plus className="w-3.5 h-3.5" /> Add Charge
+            </button>
+          </div>
+        </div>
+        
+        {/* Tabs */}
+        <div className="flex items-center gap-8 -mb-5">
+          {['Guest Billing', 'Invoices', 'Payments', 'City Ledger', 'Cashier Shift', 'Taxes & Discounts'].map(tab => (
+            <button key={tab} onClick={() => setBillingTab(tab)}
+              className={`pb-4 text-xs font-bold transition-colors border-b-2 ${billingTab === tab ? 'border-[#00754A] text-[#00754A]' : 'border-transparent text-black/60 hover:text-black'}`}>
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 flex overflow-hidden p-6 gap-6">
+        
+        {/* Left Panel: Guest Search & List */}
+        <div className="w-[300px] shrink-0 flex flex-col gap-6">
+          
+          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-5">
+            <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest mb-4">Search Guest</h3>
+            <div className="space-y-4">
+              <div className="relative">
+                <input type="text" placeholder="Search guest name, room no. or folio no." value={searchQ} onChange={e=>setSearchQ(e.target.value)}
+                  className="w-full pl-3 pr-8 py-2.5 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none focus:border-[#00754A]" />
+                <Search className="w-3.5 h-3.5 text-black/40 absolute right-3 top-3" />
+              </div>
+              <div>
+                <label className="block text-[10px] text-black/50 font-bold mb-1">Status</label>
+                <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} className="w-full py-2.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none">
+                  <option value="All">All</option>
+                  <option value="In-House">In-House</option>
+                  <option value="Checked-Out">Checked-Out</option>
+                  <option value="Reserved">Reserved</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] text-black/50 font-bold mb-1">Payment Status</label>
+                <select className="w-full py-2.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none">
+                  <option>All</option>
+                  <option>Outstanding</option>
+                  <option>Paid</option>
+                </select>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button className="flex-1 py-2 text-[11px] font-bold text-black/60 bg-black/5 rounded-lg hover:bg-black/10">Reset</button>
+                <button className="flex-1 py-2 text-[11px] font-bold text-white bg-[#00754A] rounded-lg hover:bg-[#006241]">Search</button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-black/5 flex-1 flex flex-col overflow-hidden">
+            <div className="p-4 border-b border-black/5">
+              <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Guest Billing List ({filteredGuests.length})</h3>
+            </div>
+            <div className="flex-1 overflow-y-auto">
+              {filteredGuests.map(r => {
+                const isActive = folioRes?.id === r.id;
+                // use actual outstanding balance or 0
+                const bal = isActive ? folioTotals.balance : (outstandingDict[r.id] || 0);
+                return (
+                  <div key={r.id} onClick={() => openFolio(r)}
+                    className={`p-4 border-b border-black/5 cursor-pointer hover:bg-black/[0.02] transition-colors flex flex-col ${isActive?'bg-[#00754A]/5 border-l-4 border-l-[#00754A]':'border-l-4 border-l-transparent'}`}>
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-[#111] text-xs">{r.room_number||'TBA'}</span>
+                        <span className="font-bold text-black/80 text-xs truncate max-w-[100px]">{r.full_name}</span>
+                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${r.status==='In-House'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-600'}`}>{r.status}</span>
+                      </div>
+                      <span className={`text-xs font-bold ${bal>0?'text-red-600':'text-[#00754A]'}`}>{fmtA(bal)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] text-black/50">
+                      <span>{r.room_type} | {nightsCount(r)} Nights</span>
+                      <span className={bal>0?'text-red-500':'text-[#00754A]'}>{bal>0?'Outstanding':'Paid'}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="p-3 border-t border-black/5 text-center">
+              <button className="text-[10px] font-bold text-[#00754A] hover:underline">View All Guests →</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Middle Panel: Guest Folio View */}
+        <div className="flex-[2] bg-white rounded-xl shadow-sm border border-black/5 flex flex-col overflow-hidden">
+          {folioRes ? (
+            <>
+              {/* Guest Header */}
+              <div className="p-6 border-b border-black/5 shrink-0">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#f0f0f0] flex items-center justify-center text-lg font-bold text-black border border-black/10">
+                      {initials}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-[#111]">{folioRes.full_name}</h2>
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-green-100 text-green-700 uppercase tracking-widest">{folioRes.status}</span>
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700 uppercase tracking-widest">VIP</span>
+                      </div>
+                    </div>
+                  </div>
+                  <button className="px-4 py-1.5 border border-black/10 rounded-lg text-[11px] font-bold hover:bg-black/5 flex items-center gap-1.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Edit
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-6 gap-4 text-xs">
+                  <div>
+                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5 flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Room</div>
+                    <div className="font-bold">{folioRes.room_number||'TBA'}</div>
+                    <div className="text-black/60 truncate">{folioRes.room_type}</div>
+                  </div>
+                  <div className="col-span-1">
+                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Reservation #</div>
+                    <div className="font-medium text-black/80">NHP-{String(folioRes.id).padStart(8,'0')}</div>
+                  </div>
+                  <div>
+                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Check-In</div>
+                    <div className="font-medium text-black/80">{fmtDate(folioRes.check_in_date)}<br/><span className="text-black/50">2:00 PM</span></div>
+                  </div>
+                  <div>
+                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Check-Out</div>
+                    <div className="font-medium text-black/80">{fmtDate(folioRes.check_out_date)}<br/><span className="text-black/50">11:00 AM</span></div>
+                  </div>
+                  <div>
+                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Nights</div>
+                    <div className="font-medium text-black/80">{nights}</div>
+                  </div>
+                  <div>
+                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Adults / Children</div>
+                    <div className="font-medium text-black/80">{folioRes.number_of_guests} / 0</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Folio Tabs */}
+              <div className="px-6 flex gap-6 border-b border-black/5 shrink-0 bg-[#fbfcfc]">
+                {['Folio', 'Stay Details', 'Payments', 'Deposits', 'Notes', 'Documents', 'Audit Trail'].map(tab => (
+                  <button key={tab} className={`py-3 text-[11px] font-bold border-b-2 transition-colors ${tab==='Folio'?'border-[#00754A] text-[#00754A]':'border-transparent text-black/60 hover:text-black'}`}>
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* TRANSACTIONS SECTION */}
+              <div className="flex-1 flex flex-col min-h-0">
+                <div className="px-6 py-4 flex justify-between items-center border-b border-black/5 shrink-0">
+                  <h3 className="text-[11px] font-black text-[#00754A] uppercase tracking-widest">Transactions</h3>
+                  <div className="flex gap-2">
+                    <select className="border border-black/10 rounded px-2 py-1.5 text-[10px] outline-none bg-white"><option>All Types</option></select>
+                    <select className="border border-black/10 rounded px-2 py-1.5 text-[10px] outline-none bg-white"><option>All Categories</option></select>
+                    <button className="border border-black/10 rounded px-2 py-1.5 bg-white"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 11V7a5 5 0 0110 0v4"/><path d="M4 11h16v10H4z"/></svg></button>
+                  </div>
+                </div>
+
+                <div className="flex-1 overflow-y-auto" style={{scrollbarWidth:'thin'}}>
+                  <table className="w-full text-left border-collapse text-[11px]">
+                    <thead className="sticky top-0 bg-[#fbfcfc] border-b border-black/5">
+                      <tr className="text-black/60 font-bold">
+                        <th className="px-6 py-3">Date</th>
+                        <th className="px-3 py-3">Time</th>
+                        <th className="px-3 py-3">Description</th>
+                        <th className="px-3 py-3">Category</th>
+                        <th className="px-3 py-3 text-right">Debit (₱)</th>
+                        <th className="px-3 py-3 text-right">Credit (₱)</th>
+                        <th className="px-6 py-3 text-right">Balance (₱)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-black/5">
+                      {ledgerWithBalance.length === 0 ? (
+                        <tr><td colSpan="7" className="px-6 py-8 text-center text-black/40 italic">No transactions found</td></tr>
+                      ) : ledgerWithBalance.map((entry) => {
+                        const isCharge = entry.type==='charge';
+                        const ts = new Date(entry.timestamp);
+                        return (
+                          <tr key={entry.id} className="hover:bg-black/[0.02]">
+                            <td className="px-6 py-3 font-medium">{ts.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+                            <td className="px-3 py-3 text-black/60">{ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
+                            <td className="px-3 py-3">{entry.description||entry.charge_type||entry.payment_method}</td>
+                            <td className="px-3 py-3 text-black/60">{entry.charge_type || 'Payment'}</td>
+                            <td className="px-3 py-3 text-right font-mono">{isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}</td>
+                            <td className="px-3 py-3 text-right font-mono">{!isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}</td>
+                            <td className="px-6 py-3 text-right font-mono font-bold text-black">{parseFloat(entry.currentBalance||0).toLocaleString('en-PH',{minimumFractionDigits:2})}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <div className="p-4 text-center">
+                    <button className="text-[10px] font-bold text-[#00754A] hover:underline">View All Transactions</button>
+                  </div>
+                </div>
+
+                {/* Folio Summary Block */}
+                <div className="p-6 bg-[#fbfcfc] border-t border-black/5 shrink-0">
+                  <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest mb-4">Folio Summary</h3>
+                  <div className="flex items-center gap-8">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Total Charges</span><span className="font-bold">{fmtA(folioTotals.charges)}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Total Payments</span><span className="font-bold">{fmtA(folioTotals.payments)}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Total Refunds</span><span className="font-bold">₱0.00</span></div>
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Deposit</span><span className="font-bold">₱0.00</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Adjustments</span><span className="font-bold">₱0.00</span></div>
+                    </div>
+                    <div className="w-[200px] shrink-0 bg-[#006241] text-white p-4 rounded-xl flex flex-col items-center justify-center shadow-md">
+                      <span className="text-[9px] font-bold uppercase tracking-widest opacity-80 mb-1">Outstanding Balance</span>
+                      <span className="text-2xl font-black">{fmtA(folioTotals.balance)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-black/40">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4 opacity-50"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <h2 className="text-lg font-bold text-black/60">No Guest Selected</h2>
+              <p className="text-xs">Select a guest from the list to view their folio and billing details.</p>
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel: Quick Actions & Summaries */}
+        <div className="w-[260px] shrink-0 flex flex-col gap-6 overflow-y-auto no-scrollbar">
+          
+          <div className="space-y-4">
+            <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Quick Actions</h3>
+            <div className="space-y-2">
+              <button onClick={()=>setAddChargeOpen(true)} className="w-full flex items-center gap-3 p-3 bg-[#1E3932] text-white rounded-lg hover:bg-[#142b22] transition-colors text-xs font-bold shadow-sm">
+                <Plus className="w-4 h-4"/> Add Charge
+              </button>
+              <button onClick={()=>setAddPayOpen(o=>!o)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Add Payment
+              </button>
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg> Refund
+              </button>
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Add Deposit
+              </button>
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg> Discount / Adjustment
+              </button>
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <X className="w-4 h-4"/> Void Transaction
+              </button>
+              <button onClick={sendFolioEmail} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email Folio
+              </button>
+              <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Print Folio
+              </button>
+              <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download PDF
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-5 space-y-4 mt-2">
+            <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Today's Summary</h3>
+            <div className="space-y-3 text-xs">
+              <div className="flex justify-between"><span className="text-black/60">Total Charges</span><span className="font-medium">{fmtA(totalCharges)}</span></div>
+              <div className="flex justify-between"><span className="text-black/60">Total Payments</span><span className="font-medium">{fmtA(totalPayments)}</span></div>
+              <div className="flex justify-between"><span className="text-black/60">Refunds</span><span className="font-medium">{fmtA(totalRefunds)}</span></div>
+              <div className="flex justify-between pt-3 border-t border-black/5 font-bold"><span className="text-[#111]">Outstanding</span><span className={totalOutstanding > 0 ? "text-red-600" : "text-[#00754A]"}>{fmtA(totalOutstanding)}</span></div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-5 space-y-4">
+            <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Payment Methods (Today)</h3>
+            <div className="space-y-3 text-xs">
+              {paymentMethods.length > 0 ? (
+                paymentMethods.map(m => (
+                  <div key={m.payment_method} className="flex justify-between">
+                    <span className="text-black/60">{m.payment_method}</span>
+                    <span className="font-medium">{fmtA(m.total)}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="text-black/40 italic text-center py-2">No payments recorded today</div>
+              )}
+            </div>
+          </div>
+
+        </div>
+      </div>
+      
+      {addChargeOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold mb-4">Add Charge</h3>
+            <div className="space-y-4">
+              <select value={fcType} onChange={e=>setFcType(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
+                <option value="Room Charge">Room Charge</option>
+                <option value="Food & Beverage">Food & Beverage</option>
+                <option value="Mini Bar">Mini Bar</option>
+                <option value="Laundry">Laundry</option>
+              </select>
+              <input type="text" placeholder="Description" value={fcDesc} onChange={e=>setFcDesc(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+              <div className="flex gap-4">
+                <input type="number" placeholder="Qty" value={fcQty} onChange={e=>setFcQty(e.target.value)} className="w-20 border rounded-lg p-2 text-sm" />
+                <input type="number" placeholder="Price" value={fcPrice} onChange={e=>setFcPrice(e.target.value)} className="flex-1 border rounded-lg p-2 text-sm" />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button onClick={()=>setAddChargeOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddCharge} disabled={fcSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fcSaving?'Saving...':'Post Charge'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {addPayOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold mb-4">Post Payment</h3>
+            <div className="space-y-4">
+              <select value={fpMethod} onChange={e=>setFpMethod(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
+                {['Cash','Credit Card','Debit Card','GCash','Maya','Bank Transfer'].map(m=><option key={m}>{m}</option>)}
+              </select>
+              <input type="number" placeholder="Amount (₱)" value={fpAmount} onChange={e=>setFpAmount(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+              <input type="text" placeholder="Reference No. (Optional)" value={fpRef} onChange={e=>setFpRef(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+              <div className="flex gap-3 pt-4">
+                <button onClick={()=>setAddPayOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddPayment} disabled={fpSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving?'Saving...':'Post Payment'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
 export default function RestaurantApp() {
   const [cartItems, setCartItems] = useState([]);
   const [currentPage, setCurrentPage] = useState('home');
@@ -2521,6 +2958,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     );
   }
 
+  const nightsCount = (r) => {
+    if (!r || !r.check_in_date || !r.check_out_date) return 0;
+    const d1 = new Date(r.check_in_date), d2 = new Date(r.check_out_date);
+    return Math.round((d2 - d1) / 86400000);
+  };
+
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
   // Dashboard
   return (
     <div className="bg-[#1E3932] min-h-screen pt-[70px] pb-24">
@@ -3017,108 +3462,19 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== BILLING TAB ==================== */}
         {activeTab === 'billing' && (
-          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
-            <div className="flex-1 flex flex-col min-h-0 w-full">
-              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                {/* Header bar */}
-                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <div className="shrink-0">
-                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Billing & Ledger</h2>
-                      <p className="text-black/60 text-xs mt-0.5">Financial operations and guest folios</p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder="Search invoices..."
-                          className="pl-8 pr-4 py-2 rounded-xl bg-[#f9f9f9] border border-black/5 text-[#000000]/87 text-[10px] placeholder-black/40 focus:border-[#00754A]/40 outline-none transition-all w-48"
-                        />
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 text-[10px]">🔍</span>
-                      </div>
-                      <button
-                        className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
-                        style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
-                        onMouseEnter={e => e.currentTarget.style.background = '#006241'}
-                        onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
-                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
-                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-                      >
-                        + New Invoice
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-6">
-
-                  {/* Metric Cards */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {[
-                      { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#006241]' },
-                      { label: 'Outstanding', value: `₱${Number(stats.pending * 8500).toLocaleString()}`, color: 'text-amber-600' },
-                      { label: 'Collected', value: `₱${Number(stats.confirmed * 10200).toLocaleString()}`, color: 'text-emerald-600' },
-                      { label: 'Avg. Stay', value: '₱12,400', color: 'text-[#006241]' },
-                    ].map((card, i) => (
-                      <div key={i} className="rounded-xl p-5 bg-white flex flex-col justify-between min-h-[90px]" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                        <span className="text-[9px] font-black text-black/40 uppercase tracking-[0.2em]">{card.label}</span>
-                        <div className={`text-xl font-black ${card.color}`}>{card.value}</div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Transactions Table */}
-                  <div className="rounded-2xl border border-black/5 bg-white/[0.01] overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left border-collapse">
-                        <thead className="bg-white/[0.03] text-black/60 text-[9px] font-black uppercase tracking-[0.2em] border-b border-black/5">
-                          <tr>
-                            <th className="px-6 py-4">Stay Ref</th>
-                            <th className="px-6 py-4">Guest</th>
-                            <th className="px-6 py-4">Room</th>
-                            <th className="px-6 py-4">Category</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/[0.03]">
-                          {reservations.length === 0 ? (
-                            <tr><td colSpan="6" className="px-6 py-12 text-center text-black/60 italic text-xs">No stay records found for billing.</td></tr>
-                          ) : reservations.map((res, i) => (
-                            <tr key={i} onClick={() => openFolio(apt)} className="hover:bg-white/[0.03] transition-all group cursor-pointer text-xs">
-                              <td className="px-6 py-4">
-                                <span className="font-mono font-bold text-[#00754A]">#{res.id}</span>
-                                <span className="text-[9px] text-black/60 ml-2">{new Date(res.preferred_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                              </td>
-                              <td className="px-6 py-4 font-bold text-black/60">{res.full_name}</td>
-                              <td className="px-6 py-4">
-                                <span className="px-2 py-0.5 rounded bg-white shadow-sm border border-black/5 font-mono text-[10px] text-black/60">{res.room_number || 'TBA'}</span>
-                              </td>
-                              <td className="px-6 py-4 text-black/60">{res.service_type || res.room_type}</td>
-                              <td className="px-6 py-4">
-                                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(res.status)}`}>
-                                  {res.status}
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 text-right">
-                                <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="View Ledger">📄</button>
-                                  <button className="p-1.5 rounded-full bg-white shadow-sm text-black/60 hover:text-[#000000]/87 transition-all" title="Print Invoice">🖨</button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    <div className="px-6 py-3 bg-white/[0.02] border-t border-black/5 flex items-center justify-between text-[9px] font-bold text-black/60 uppercase">
-                      <span>{reservations.length} Stay Records Found</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <AdminBillingTab
+            reservations={reservations}
+            openFolio={openFolio}
+            folioOpen={folioOpen} setFolioOpen={setFolioOpen} folioRes={folioRes}
+            fmtDate={fmtDate} nightsCount={nightsCount} printFolio={printFolio}
+            sendFolioEmail={sendFolioEmail} folioEmailSending={folioEmailSending} folioEmailMsg={folioEmailMsg}
+            folioLoading={folioLoading} folioError={folioError} folioTotals={folioTotals} folioItems={folioItems}
+            voidCharge={voidCharge} fcType={fcType} setFcType={setFcType} fcDesc={fcDesc} setFcDesc={setFcDesc}
+            fcQty={fcQty} setFcQty={setFcQty} fcPrice={fcPrice} setFcPrice={setFcPrice} addCharge={addCharge} fcSaving={fcSaving} fcError={fcError}
+            folioPayments={folioPayments} voidPayment={voidPayment} fpMethod={fpMethod} setFpMethod={setFpMethod} fpAmount={fpAmount} setFpAmount={setFpAmount}
+            fpRef={fpRef} setFpRef={setFpRef} addPayment={addPayment} fpSaving={fpSaving} fpError={fpError}
+            stats={stats}
+          />
         )}
 
         {/* ==================== CALENDAR TAB ==================== */}
@@ -3223,506 +3579,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
 
         {/* ==================== REPORTS TAB ==================== */}
-        {activeTab === 'reports' && (() => {
-          const fmtA = (n) => `₱${Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
-          const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-          const subBtnCls = (id) => `px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all rounded-xl border ${reportsSubTab === id ? 'bg-[#00754A] text-[#000000]/87 border-[#00754A] shadow-[0_0_20px_rgba(85,162,245,0.3)]' : 'bg-white shadow-sm text-black/60 border-black/5 hover:bg-white shadow-sm hover:text-white'}`;
-          return (
-            <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
-              <div className="flex-1 flex flex-col min-h-0 w-full">
-                <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                  {/* Header bar */}
-                  <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="shrink-0">
-                        <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Analytics & Reports</h2>
-                        <p className="text-black/60 text-xs mt-0.5">Comprehensive insights on property performance</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-8">
-                    {/* Sub-tab navigation */}
-                    <div className="flex gap-2 flex-wrap">
-                      {[
-                        { id: 'reservations', label: 'Reservations' },
-                        { id: 'management', label: 'Stay Reports' },
-                        { id: 'financial', label: 'Financials' },
-                      ].map(sub => (
-                        <button key={sub.id} className="px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all"
-                          style={{
-                            borderRadius: '50px',
-                            border: reportsSubTab === sub.id ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
-                            background: reportsSubTab === sub.id ? '#00754A' : '#ffffff',
-                            color: reportsSubTab === sub.id ? '#ffffff' : 'rgba(0,0,0,0.58)',
-                            boxShadow: reportsSubTab === sub.id ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
-                          }}
-                          onClick={() => setReportsSubTab(sub.id)}
-                          onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
-                          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                        >{sub.label}</button>
-                      ))}
-                    </div>
-
-                    {/* ── Reservations sub-tab (existing) ── */}
-                    {reportsSubTab === 'reservations' && (
-                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* Reservations filter bar */}
-                        <div className="bg-white rounded-xl p-6" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                          <div className="flex flex-wrap gap-6 items-end">
-                            <div className="flex-1 min-w-[200px]">
-                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
-                              <div className="grid grid-cols-2 gap-3">
-                                <input type="date" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)}
-                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                                <input type="date" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)}
-                                  className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                              </div>
-                            </div>
-                            <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
-                          </div>
-                        </div>
-                        {reportStats && (
-                          <>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              {[
-                                { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#00754A' },
-                                { label: 'Completed', value: reportStats.totals?.completed || 0, color: '#10B981' },
-                                { label: 'Cancelled', value: reportStats.totals?.cancelled || 0, color: '#F43F5E' },
-                                { label: 'Conversion', value: `${reportStats.totals?.total > 0 ? Math.round((reportStats.totals.completed / reportStats.totals.total) * 100) : 0}%`, color: '#F59E0B' },
-                              ].map((c, i) => (
-                                <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
-                                  <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                                  <p className="text-3xl font-black text-[#000000]/87">{c.value}</p>
-                                </div>
-                              ))}
-                            </div>
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                                  <span>Service Distribution</span>
-                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
-                                </h3>
-                                <div className="space-y-5">
-                                  {reportStats.byService?.map((item, idx) => (
-                                    <div key={idx} className="group">
-                                      <div className="flex items-center justify-between text-xs mb-2">
-                                        <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors">{item.service_type}</span>
-                                        <span className="text-[#000000]/87 font-black font-mono">{item.count} <span className="text-black/60 font-medium ml-1">bookings</span></span>
-                                      </div>
-                                      <div className="w-full h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                        <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.3)]" style={{ width: `${(item.count / reportStats.totals.total) * 100}%` }} />
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                                  <span>Peak Occupancy Times</span>
-                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
-                                </h3>
-                                <div className="grid grid-cols-2 gap-3">
-                                  {reportStats.hourly?.map((item, idx) => (
-                                    <div key={idx} className="bg-white shadow-sm border border-black/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
-                                      <p className="text-[#00754A] font-black text-sm font-mono tracking-tighter">{item.time}</p>
-                                      <p className="text-black/60 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    )}
-
-                    {/* ── Management sub-tab ── */}
-                    {reportsSubTab === 'management' && (
-                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* Filter bar */}
-                        <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
-                          <div className="flex-1 min-w-[200px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Check-in Window</label>
-                            <div className="grid grid-cols-2 gap-3">
-                              <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                              <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                            </div>
-                          </div>
-                          <button onClick={fetchManagementReport} disabled={hotelRptLoading}
-                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
-                            {hotelRptLoading ? 'Generating...' : 'Generate Analytics'}
-                          </button>
-                        </div>
-
-                        {mgmtData && (() => {
-                          const s = mgmtData.summary;
-                          const total = parseInt(s.total) || 1;
-                          return (
-                            <>
-                              {/* Summary cards */}
-                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                                {[
-                                  { label: 'Total Stays', value: s.total, color: '#00754A' },
-                                  { label: 'Confirmed', value: s.confirmed, color: '#00754A' },
-                                  { label: 'In-House', value: s.checked_in, color: '#10B981' },
-                                  { label: 'Checked Out', value: s.checked_out, color: '#94A3B8' },
-                                  { label: 'Cancelled', value: s.cancelled, color: '#F43F5E' },
-                                  { label: 'Guest Count', value: s.unique_guests, color: '#8B5CF6' },
-                                ].map((c, i) => (
-                                  <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-4 relative overflow-hidden group">
-                                    <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                                    <p className="text-[8px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                                    <p className="text-2xl font-black text-[#000000]/87">{c.value || 0}</p>
-                                  </div>
-                                ))}
-                              </div>
-
-                              {/* Status mix & callouts */}
-                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-6  flex flex-wrap gap-8 items-center">
-                                <div className="flex gap-8 divide-x divide-white/5">
-                                  <div className="text-center px-4">
-                                    <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">Loss Rate</p>
-                                    <p className="text-2xl font-black text-rose-400">{total > 0 ? Math.round((parseInt(s.cancelled) / total) * 100) : 0}%</p>
-                                  </div>
-                                  <div className="text-center px-8">
-                                    <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-1">No-Shows</p>
-                                    <p className="text-2xl font-black text-amber-500">{s.no_show || 0}</p>
-                                  </div>
-                                </div>
-
-                                <div className="flex-1 min-w-[240px]">
-                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-widest mb-3">Occupancy Status Mix</p>
-                                  <div className="h-3 rounded-full overflow-hidden flex gap-0.5 bg-white shadow-sm border border-black/5">
-                                    {[
-                                      { val: parseInt(s.checked_out), color: '#94A3B8' },
-                                      { val: parseInt(s.checked_in), color: '#10B981' },
-                                      { val: parseInt(s.confirmed), color: '#00754A' },
-                                      { val: parseInt(s.cancelled), color: '#F43F5E' },
-                                    ].filter(x => x.val > 0).map((x, i) => (
-                                      <div key={i} className="h-full transition-all hover:brightness-125" style={{ width: `${(x.val / total) * 100}%`, background: x.color }} />
-                                    ))}
-                                  </div>
-                                  <div className="flex flex-wrap gap-4 mt-3 text-[9px] font-black uppercase tracking-widest">
-                                    <span className="flex items-center gap-1.5 text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />In-House</span>
-                                    <span className="flex items-center gap-1.5 text-[#00754A]"><span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />Confirmed</span>
-                                    <span className="flex items-center gap-1.5 text-slate-400"><span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Completed</span>
-                                    <span className="flex items-center gap-1.5 text-rose-400"><span className="w-1.5 h-1.5 rounded-full bg-rose-400" />Cancelled</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Room Type Performance */}
-                              <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                                <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60 mb-8 flex items-center gap-3">
-                                  <span>Inventory Performance by Tier</span>
-                                  <div className="flex-1 h-px bg-white shadow-sm"></div>
-                                </h3>
-                                {mgmtData.byRoomType.length === 0 ? (
-                                  <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">No inventory metrics found for this window.</div>
-                                ) : (
-                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-6">
-                                    {mgmtData.byRoomType.map((rt, i) => {
-                                      const pct = total > 0 ? Math.round((parseInt(rt.valid_bookings) / total) * 100) : 0;
-                                      return (
-                                        <div key={i} className="group">
-                                          <div className="flex items-center justify-between text-xs mb-2">
-                                            <span className="font-bold text-black/60 group-hover:text-[#000000]/87 transition-colors uppercase tracking-widest text-[10px]">{rt.room_type}</span>
-                                            <div className="flex gap-4 text-black/60 font-black text-[9px] uppercase">
-                                              <span>{rt.valid_bookings} stays</span>
-                                              <span className="text-rose-400/50">{rt.cancellations} voids</span>
-                                              <span className="text-[#00754A]">{pct}%</span>
-                                            </div>
-                                          </div>
-                                          <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                            <div className="h-full bg-gradient-to-r from-[#00754A] to-[#006241] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)]" style={{ width: `${pct}%` }} />
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            </>
-                          );
-                        })()}
-                      </div>
-                    )}
-
-                    {/* ── Financial sub-tab ── */}
-                    {reportsSubTab === 'financial' && (
-                      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        {/* Filter bar */}
-                        <div className="bg-white/[0.03] rounded-2xl p-6 border border-black/5  flex flex-wrap gap-6 items-end">
-                          <div className="flex-1 min-w-[200px]">
-                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
-                            <div className="grid grid-cols-2 gap-3">
-                              <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                              <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all" />
-                            </div>
-                          </div>
-                          <button onClick={fetchFinancialReport} disabled={hotelRptLoading}
-                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
-                            {hotelRptLoading ? 'Auditing...' : 'Run Financial Audit'}
-                          </button>
-                        </div>
-
-                        {finData && (
-                          <>
-                            {/* Summary cards */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              {[
-                                { label: 'Revenue Accrued', value: fmtA(finData.summary.totalCharged), color: '#00754A', sub: `${finData.summary.chargeCount} items posted` },
-                                { label: 'Revenue Collected', value: fmtA(finData.summary.totalCollected), color: '#10B981', sub: `${finData.summary.paymentCount} payments` },
-                                { label: 'Total Receivables', value: fmtA(finData.summary.totalOutstanding), color: finData.summary.totalOutstanding > 0 ? '#F43F5E' : '#94A3B8', sub: 'unsettled folios' },
-                                { label: 'Capture Rate', value: `${finData.summary.collectionRate}%`, color: '#8B5CF6', sub: 'efficiency metric' },
-                              ].map((c, i) => (
-                                <div key={i} className="bg-white/[0.03] border border-black/5 rounded-2xl p-5 relative overflow-hidden group">
-                                  <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
-                                  <p className="text-[9px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
-                                  <p className="text-2xl font-black text-[#000000]/87">{c.value}</p>
-                                  <p className="text-[9px] font-bold text-black/60 mt-1 uppercase tracking-widest">{c.sub}</p>
-                                </div>
-                              ))}
-                            </div>
-
-                            {/* Revenue view toggle */}
-                            <div className="bg-white/[0.03] rounded-2xl border border-black/5  overflow-hidden">
-                              <div className="flex items-center justify-between px-6 py-5 border-b border-black/5 bg-white/[0.02]">
-                                <div>
-                                  <h3 className="text-xs font-black uppercase tracking-[0.2em] text-black/60">Revenue Distribution</h3>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                  <div className="flex bg-white shadow-sm p-1 rounded-xl border border-black/5">
-                                    <button onClick={() => setFinView('daily')}
-                                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'daily' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
-                                      Daily
-                                    </button>
-                                    <button onClick={() => { setFinView('monthly'); fetchMonthlyReport(); }}
-                                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'monthly' ? 'bg-white shadow-sm text-[#000000]/87 shadow-xl' : 'text-black/60 hover:text-[#000000]/87'}`}>
-                                      Monthly
-                                    </button>
-                                  </div>
-                                  {finView === 'monthly' && (
-                                    <div className="flex items-center gap-3 pl-4 border-l border-black/5">
-                                      <label className="text-[9px] font-black text-black/60 uppercase tracking-widest">Year</label>
-                                      <input type="number" value={finYear} min="2020" max="2099"
-                                        onChange={e => setFinYear(parseInt(e.target.value))}
-                                        onBlur={fetchMonthlyReport}
-                                        className="w-20 px-3 py-1.5 text-xs bg-white shadow-sm border border-black/5 rounded-lg text-[#000000]/87 font-mono outline-none focus:border-[#00754A]/50 transition-all" />
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-
-                              {/* Daily table */}
-                              {finView === 'daily' && (
-                                dailyRevData.length === 0 ? (
-                                  <div className="py-16 text-center text-black/60 italic text-xs font-medium">No ledger entries for this window.</div>
-                                ) : (
-                                  <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                      <thead>
-                                        <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                                          <th className="px-6 py-4">Transaction Date</th>
-                                          <th className="px-6 py-4 text-right">Revenue Charged</th>
-                                          <th className="px-6 py-4 text-right">Cash Collected</th>
-                                          <th className="px-6 py-4 text-right">Net Balance</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-white/[0.03]">
-                                        {dailyRevData.map((r, i) => (
-                                          <tr key={i} className="hover:bg-white/[0.02] transition-all group">
-                                            <td className="px-6 py-4 text-black/60 text-xs font-bold">{fmtD(r.date)}</td>
-                                            <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
-                                            <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
-                                            <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                      <tfoot>
-                                        <tr className="bg-white/[0.05] font-black border-t border-black/5">
-                                          <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
-                                          <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.charged, 0))}</td>
-                                          <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.paid, 0))}</td>
-                                          <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.balance, 0))}</td>
-                                        </tr>
-                                      </tfoot>
-                                    </table>
-                                  </div>
-                                )
-                              )}
-
-                              {/* Monthly table */}
-                              {finView === 'monthly' && (
-                                hotelRptLoading ? (
-                                  <div className="py-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Synchronizing monthly metrics...</div>
-                                ) : (
-                                  <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                      <thead>
-                                        <tr className="bg-white/[0.03] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                                          <th className="px-6 py-4">Fiscal Month</th>
-                                          <th className="px-6 py-4 text-right">Unit Stays</th>
-                                          <th className="px-6 py-4 text-right">Revenue Accrued</th>
-                                          <th className="px-6 py-4 text-right">Total Collected</th>
-                                          <th className="px-6 py-4 text-right">Audit Balance</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody className="divide-y divide-white/[0.03]">
-                                        {monthlyRevData.map((r, i) => (
-                                          <tr key={i} className={`hover:bg-white/[0.02] transition-all group ${r.charged === 0 && r.paid === 0 ? 'opacity-20' : ''}`}>
-                                            <td className="px-6 py-4 text-[#000000]/87 font-black text-xs uppercase tracking-widest">{r.month}</td>
-                                            <td className="px-6 py-4 text-right text-black/60 font-mono text-xs">{r.bookings}</td>
-                                            <td className="px-6 py-4 text-right text-[#00754A] font-black font-mono text-xs">{fmtA(r.charged)}</td>
-                                            <td className="px-6 py-4 text-right text-emerald-400 font-black font-mono text-xs">{fmtA(r.paid)}</td>
-                                            <td className={`px-6 py-4 text-right font-black font-mono text-xs ${r.balance > 0 ? 'text-rose-400' : 'text-black/60'}`}>{fmtA(r.balance)}</td>
-                                          </tr>
-                                        ))}
-                                      </tbody>
-                                      <tfoot>
-                                        <tr className="bg-white/[0.05] font-black border-t border-black/5">
-                                          <td className="px-6 py-5 text-black/60 text-[9px] uppercase tracking-[0.2em]">Annual Summary</td>
-                                          <td className="px-6 py-5 text-right text-black/60 font-mono text-sm">{monthlyRevData.reduce((s, r) => s + r.bookings, 0)}</td>
-                                          <td className="px-6 py-5 text-right text-[#00754A] font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.charged, 0))}</td>
-                                          <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.paid, 0))}</td>
-                                          <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.balance, 0))}</td>
-                                        </tr>
-                                      </tfoot>
-                                    </table>
-                                  </div>
-                                )
-                              )}
-                            </div>
-
-
-                            {/* Payment Methods + Room Revenue */}
-                            <div className="grid md:grid-cols-2 gap-8">
-                              {/* Payment method breakdown */}
-                              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
-                                <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
-                                  Payment Channels
-                                </h3>
-                                {finData.byPaymentMethod.length === 0 ? (
-                                  <div className="py-8 text-center text-black/60 italic text-xs font-medium">No transaction data recorded.</div>
-                                ) : (
-                                  <div className="space-y-6">
-                                    {finData.byPaymentMethod.map((m, i) => {
-                                      const maxAmt = Math.max(...finData.byPaymentMethod.map(x => parseFloat(x.total)));
-                                      const pct = maxAmt > 0 ? (parseFloat(m.total) / maxAmt) * 100 : 0;
-                                      return (
-                                        <div key={i} className="group">
-                                          <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
-                                            <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{m.payment_method}</span>
-                                            <div className="flex gap-4 items-center">
-                                              <span className="text-black/60 font-bold">{m.count} TX</span>
-                                              <span className="text-emerald-400">{fmtA(m.total)}</span>
-                                            </div>
-                                          </div>
-                                          <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                            <div className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-400 rounded-full shadow-[0_0_10px_rgba(52,211,153,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Revenue by room type */}
-                              <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5 ">
-                                <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
-                                  <div className="w-1.5 h-1.5 rounded-full bg-[#00754A] shadow-[0_0_8px_#00754A]"></div>
-                                  Room Category Revenue
-                                </h3>
-                                {finData.byRoomType.length === 0 ? (
-                                  <div className="py-8 text-center text-black/60 italic text-xs font-medium">No category revenue data.</div>
-                                ) : (
-                                  <div className="space-y-6">
-                                    {finData.byRoomType.map((rt, i) => {
-                                      const maxC = Math.max(...finData.byRoomType.map(x => parseFloat(x.charged)));
-                                      const pct = maxC > 0 ? (parseFloat(rt.charged) / maxC) * 100 : 0;
-                                      return (
-                                        <div key={i} className="group">
-                                          <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
-                                            <span className="text-black/60 group-hover:text-[#000000]/87 transition-colors">{rt.room_type}</span>
-                                            <div className="flex gap-4 items-center">
-                                              <span className="text-black/60 font-bold">{rt.bookings} STAYS</span>
-                                              <span className="text-[#00754A]">{fmtA(rt.charged)}</span>
-                                            </div>
-                                          </div>
-                                          <div className="h-1.5 bg-white shadow-sm rounded-full overflow-hidden">
-                                            <div className="h-full bg-gradient-to-r from-[#00754A]/50 to-[#00754A] rounded-full shadow-[0_0_10px_rgba(85,162,245,0.2)] transition-all duration-1000" style={{ width: `${pct}%` }} />
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-
-                            {/* Outstanding Balances */}
-                            {finData.outstandingList.length > 0 && (
-                              <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl overflow-hidden  mt-8">
-                                <div className="px-8 py-5 border-b border-rose-500/10 flex items-center justify-between bg-rose-500/5">
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_#f43f5e]"></div>
-                                    <h3 className="text-[10px] font-black text-rose-400 uppercase tracking-[0.2em]">Aging Receivables / Outstanding Folios</h3>
-                                  </div>
-                                  <span className="text-[9px] font-black text-rose-400/50 uppercase tracking-widest">{finData.outstandingList.length} Accounts Pending</span>
-                                </div>
-                                <div className="overflow-x-auto">
-                                  <table className="w-full text-left border-collapse">
-                                    <thead>
-                                      <tr className="bg-white/[0.02] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
-                                        <th className="px-8 py-4">Guest Identity</th>
-                                        <th className="px-8 py-4">Unit Assignment</th>
-                                        <th className="px-8 py-4">Status</th>
-                                        <th className="px-8 py-4 text-right">Accrued</th>
-                                        <th className="px-8 py-4 text-right">Settled</th>
-                                        <th className="px-8 py-4 text-right">Net Due</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-white/[0.03]">
-                                      {finData.outstandingList.map((r, i) => (
-                                        <tr key={i} className="hover:bg-white/[0.02] transition-all group">
-                                          <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{r.full_name}</td>
-                                          <td className="px-8 py-4 text-black/60 text-xs font-medium">{r.room_number || '—'} · {r.room_type}</td>
-                                          <td className="px-8 py-4">
-                                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${r.status === 'checked_in' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : r.status === 'checked_out' ? 'bg-white shadow-sm text-black/60 border-black/5' : 'bg-[#00754A]/10 text-[#00754A] border-[#00754A]/20'}`}>
-                                              {r.status.replace('_', ' ')}
-                                            </span>
-                                          </td>
-                                          <td className="px-8 py-4 text-right text-black/60 font-mono text-xs">{fmtA(r.charged)}</td>
-                                          <td className="px-8 py-4 text-right text-emerald-400/50 font-mono text-xs">{fmtA(r.paid)}</td>
-                                          <td className="px-8 py-4 text-right text-rose-400 font-black font-mono text-xs">{fmtA(r.balance)}</td>
-                                        </tr>
-                                      ))}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* ==================== INBOX TAB ==================== */}
+        {activeTab === 'reports' && <AdminReportsTab />}
+\n{/* ==================== INBOX TAB ==================== */}
         {activeTab === 'inbox' && <AdminInboxTab />}
 
         {/* ==================== SETTINGS TAB ==================== */}
@@ -5023,6 +4881,166 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 }
 
 // Admin Inbox Tab Component
+function AdminReportsTab() {
+  const [reportsSubTab, setReportsSubTab] = React.useState('All Reports');
+  const [searchQuery, setSearchQuery] = React.useState('');
+
+  const reportCategories = [
+    {
+      title: 'FRONT OFFICE REPORTS',
+      id: 'Front Office',
+      reports: [
+        { title: "Daily Manager's Report", desc: "Summary of daily hotel operations and performance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-5 5"/><path d="M18 9h-4"/><path d="M18 9v4"/></svg> },
+        { title: "Arrival Report", desc: "List of guests arriving today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg> },
+        { title: "Departure Report", desc: "List of guests departing today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M17 11h6M20 8l3 3-3 3"/></svg> },
+        { title: "In-House Guest Report", desc: "List of all in-house guests.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-3-3.87"/><path d="M9 21v-2a4 4 0 014-4h2"/><circle cx="9" cy="7" r="4"/><circle cx="16" cy="7" r="3"/></svg> },
+        { title: "Room Status Report", desc: "Current status of all rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M10 13h4"/></svg> }
+      ]
+    },
+    {
+      title: 'FINANCIAL REPORTS',
+      id: 'Financial',
+      reports: [
+        { title: "Revenue Report", desc: "Summary of revenue by department.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 18V6"/></svg> },
+        { title: "Cashier Shift Report", desc: "Summary of cashier shift transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h12"/><path d="M6 12h12"/><path d="M6 16h4"/></svg> },
+        { title: "Payment Collection Report", desc: "Summary of payments collected by method.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
+        { title: "Outstanding Balance Report", desc: "List of guests with outstanding balance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 12v6M17 15h6"/></svg> },
+        { title: "Guest Ledger Report", desc: "Detailed ledger of guest accounts.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> },
+        { title: "City Ledger Report", desc: "List of company accounts and balances.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/></svg> },
+        { title: "Trial Balance", desc: "Summary of balances for reconciliation.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> }
+      ]
+    },
+    {
+      title: 'HOUSEKEEPING REPORTS',
+      id: 'Housekeeping',
+      reports: [
+        { title: "Housekeeping Assignment", desc: "Rooms assigned to housekeeping staff.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg> },
+        { title: "Dirty Room Report", desc: "List of rooms to be cleaned.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 21.5l14-14M7 21v-4a2 2 0 012-2h2a2 2 0 012 2v4M12 11l5-5"/></svg> },
+        { title: "Clean Room Report", desc: "List of clean and inspected rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16M2 8h18a2 2 0 012 2v10M2 17h20M6 8v9"/></svg> },
+        { title: "Out of Order Report", desc: "Rooms that are out of order.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> }
+      ]
+    },
+    {
+      title: 'AUDIT REPORTS',
+      id: 'Audit',
+      reports: [
+        { title: "Night Audit Report", desc: "Summary of end-of-day audit.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> },
+        { title: "Void Report", desc: "List of voided transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> },
+        { title: "Discount Report", desc: "Summary of discounts given.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 15l6-6"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg> },
+        { title: "Refund Report", desc: "Summary of refunds issued.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> },
+        { title: "Deleted Charges Report", desc: "List of deleted charges.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> },
+        { title: "Rate Override Report", desc: "List of rate overrides.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> }
+      ]
+    }
+  ];
+
+  const tabs = [
+    { id: 'All Reports', label: 'All Reports', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg> },
+    { id: 'Front Office', label: 'Front Office', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+    { id: 'Financial', label: 'Financial', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
+    { id: 'Housekeeping', label: 'Housekeeping', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg> },
+    { id: 'Audit', label: 'Audit', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
+  ];
+
+  return (
+    <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+      <div className="flex-1 flex flex-col min-h-0 w-full bg-[#f8f9fa]">
+        <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden">
+          
+          {/* Header bar */}
+          <div className="px-8 py-6 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
+            <div>
+              <h2 className="text-[#000000]/87 font-black text-2xl tracking-tight leading-tight">Reports</h2>
+              <p className="text-black/60 text-[13px] mt-1 font-medium">View and generate hotel reports</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 px-4 py-2.5 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm cursor-pointer hover:bg-gray-50 transition-colors font-medium">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/60"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>May 28, 2025 - May 28, 2025</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-1 text-black/40"><path d="M6 9l6 6 6-6"/></svg>
+              </div>
+              <button className="flex items-center gap-2 px-5 py-2.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
+                <span>Custom Range</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Sub Header / Tabs / Search */}
+          <div className="px-8 py-3 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
+            <div className="flex gap-2">
+              {tabs.map(tab => {
+                const active = reportsSubTab === tab.id;
+                return (
+                  <button key={tab.id} onClick={() => setReportsSubTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] transition-all ${active ? 'bg-[#00754A]/[0.06] text-[#00754A] font-bold' : 'text-black/60 hover:bg-black/5 font-medium'}`}>
+                    {React.cloneElement(tab.icon, { stroke: active ? '#00754A' : 'currentColor' })}
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <input type="text" placeholder="Search reports..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-4 py-2.5 border border-black/10 rounded-lg text-xs w-64 outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] transition-all bg-white font-medium" />
+              </div>
+              <button className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/40"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Favorites</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto p-10 bg-white">
+            <div className="space-y-12 max-w-[1400px]">
+              {reportCategories.filter(cat => reportsSubTab === 'All Reports' || cat.id === reportsSubTab).map(cat => (
+                <div key={cat.id}>
+                  <h3 className="text-[12px] font-black uppercase tracking-[0.1em] text-[#00754A] mb-5">{cat.title}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                    {cat.reports.filter(r => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.desc.toLowerCase().includes(searchQuery.toLowerCase())).map((report, i) => (
+                      <div key={i} className="group bg-white border border-black/10 rounded-xl hover:border-[#00754A]/30 hover:shadow-[0_8px_24px_rgba(0,117,74,0.08)] transition-all cursor-pointer flex flex-col relative overflow-hidden">
+                        <div className="p-6 flex flex-col gap-4">
+                          <div className="flex items-start justify-between">
+                            <div className="w-10 h-10 rounded-lg bg-emerald-50/50 flex items-center justify-center shrink-0 border border-emerald-100/50">
+                              {React.cloneElement(report.icon, { strokeWidth: "2" })}
+                            </div>
+                            <button className="text-black/20 hover:text-amber-400 transition-colors shrink-0">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                            </button>
+                          </div>
+                          <div className="flex-1 min-w-0 mt-2">
+                            <h4 className="font-bold text-black text-[13px] leading-snug mb-1.5">{report.title}</h4>
+                            <p className="text-[11px] text-black/50 leading-relaxed font-medium">{report.desc}</p>
+                          </div>
+                        </div>
+                        <div className="mt-auto px-6 py-3.5 border-t border-black/5 bg-white flex items-center justify-between transition-colors">
+                          <span className="text-[11px] font-bold text-black/40 group-hover:text-[#00754A] transition-colors">Generate Report</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/30 group-hover:text-[#00754A] transition-transform group-hover:translate-x-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-20 mb-8 flex items-center justify-center gap-2 text-black/40 text-xs font-medium">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <span>All reports can be exported to PDF, Excel, or CSV format.</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AdminInboxTab() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9086,6 +9104,32 @@ function GuestCheckinPage({ setCurrentPage }) {
   const inputStyle = { border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' };
   const labelCls = "block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-1.5";
 
+  const handleLookup = async (e) => {
+    if (e) e.preventDefault();
+    setCkLoading(true);
+    setCkError('');
+    try {
+      const payload = ckMethod === 'id' 
+        ? { method: 'id', id: ckConfId }
+        : { method: 'email', email: ckEmail, lastName: ckLastName };
+      
+      const res = await fetch(`${API_BASE_URL}/api/checkin/lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Reservation not found');
+      
+      setCkReservation(data.reservation);
+      setCkStep(2);
+    } catch (err) {
+      setCkError(err.message || 'Failed to lookup reservation');
+    } finally {
+      setCkLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{ background: '#1E3932' }}>
