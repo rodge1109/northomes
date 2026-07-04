@@ -4,6 +4,9 @@ import { ShoppingCart, Plus, Minus, Trash2, ChevronRight, Check, X, Search } fro
 import LiquidEther from './components/LiquidEther/LiquidEther';
 import GradientText from './components/GradientText/GradientText';
 import Orb from './components/Orb/Orb';
+import AdminOnlineReservationsTab from './AdminOnlineReservationsTab';
+import AdminGuestsTab from './AdminGuestsTab';
+import LocationRoutingBox from './components/common/LocationRoutingBox';
 
 
 // Dynamically resolve backend API URL depending on current environment
@@ -965,6 +968,10 @@ export default function RestaurantApp() {
               {
                 id: 'frontdesk', label: 'Front Desk', tabId: 'frontdesk', act: () => { setAdminTab('frontdesk'); setCurrentPage('admin'); },
                 icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+              },
+              {
+                id: 'guests', label: 'Guests', tabId: 'guests', act: () => { setAdminTab('guests'); setCurrentPage('admin'); },
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path strokeLinecap="round" strokeLinejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               },
               {
                 id: 'rooms', label: 'Rooms', tabId: 'rooms', act: () => { setAdminTab('rooms'); setCurrentPage('admin'); },
@@ -3066,255 +3073,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
 
         {/* ==================== RESERVATIONS TAB ==================== */}
-        {activeTab === 'reservations' && (
-          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
-            <div className="flex-1 flex flex-col min-h-0 w-full">
-              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                {/* Header bar */}
-                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="shrink-0">
-                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Bookings</h2>
-                      <p className="text-black/60 text-xs mt-0.5">Manage room reservations and availability</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
-                  <div className="space-y-6">
-                    {/* Analytics Chart */}
-                    {(() => {
-                      const chartData = [
-                        { label: 'Pending', value: stats.pending, color: '#F59E0B' },
-                        { label: 'Confirmed', value: stats.confirmed, color: '#00754A' },
-                        { label: 'Completed', value: stats.completed, color: '#10B981' },
-                        { label: 'Cancelled', value: stats.cancelled, color: '#c82014' },
-                      ];
-                      const total = stats.total || 1;
-                      const radius = 54;
-                      const circumference = 2 * Math.PI * radius;
-                      let cumulative = 0;
-                      return (
-                        <div className="rounded-xl p-7 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                          <div className="flex flex-col md:flex-row items-center gap-10">
-                            {/* Donut Chart */}
-                            <div className="relative flex-shrink-0">
-                              <svg width="160" height="160" viewBox="0 0 128 128">
-                                <circle cx="64" cy="64" r={radius} fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="12" />
-                                {chartData.map((seg, i) => {
-                                  const pct = seg.value / total;
-                                  const dashLen = pct * circumference;
-                                  const offset = -cumulative * circumference;
-                                  cumulative += pct;
-                                  if (seg.value === 0) return null;
-                                  return (
-                                    <circle
-                                      key={i}
-                                      cx="64" cy="64" r={radius}
-                                      fill="none"
-                                      stroke={seg.color}
-                                      strokeWidth="12"
-                                      strokeDasharray={`${dashLen} ${circumference - dashLen}`}
-                                      strokeDashoffset={offset}
-                                      strokeLinecap="round"
-                                      transform="rotate(-90 64 64)"
-                                      className="transition-all duration-1000"
-                                    />
-                                  );
-                                })}
-                                <text x="64" y="62" textAnchor="middle" className="text-2xl font-black fill-[#1E3932] tracking-tighter">{stats.total}</text>
-                                <text x="64" y="78" textAnchor="middle" className="text-[10px] font-bold fill-[#1E3932]/40 uppercase tracking-widest">Total</text>
-                              </svg>
-                            </div>
-                            {/* Legend + Bar Breakdown */}
-                            <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-                              {chartData.map((seg, i) => {
-                                const pct = stats.total > 0 ? Math.round((seg.value / stats.total) * 100) : 0;
-                                return (
-                                  <div key={i} className="space-y-2">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: seg.color }}></div>
-                                        <span className="text-xs font-bold text-black/50 uppercase tracking-wider">{seg.label}</span>
-                                      </div>
-                                      <span className="text-sm font-black text-[#000000]/87">{seg.value} <span className="text-black/40 font-medium ml-1">({pct}%)</span></span>
-                                    </div>
-                                    <div className="w-full bg-[#f2f0eb] rounded-full h-1.5 overflow-hidden">
-                                      <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
+        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} />}
 
-                    {/* Search & Filter Bar */}
-                    <div className="rounded-xl p-6 bg-white" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div className="md:col-span-2">
-                          <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">Search Guest</label>
-                          <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
-                            <input
-                              type="text"
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              placeholder="Name, phone, or email..."
-                              className="w-full pl-12 pr-4 py-3 rounded-lg text-[#000000]/87 placeholder-black/30 text-sm outline-none transition-all"
-                              style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
-                              onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
-                              onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">From Date</label>
-                          <input
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
-                            style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
-                            onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
-                            onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-2">To Date</label>
-                          <input
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
-                            style={{ border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' }}
-                            onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
-                            onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
-                          />
-                        </div>
-                      </div>
-                      {(searchQuery || startDate || endDate) && (
-                        <button onClick={clearFilters} className="mt-4 text-xs font-bold text-[#00754A] hover:text-[#006241] transition-colors uppercase tracking-[0.1em]">
-                          × Clear active filters
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Filter Tabs */}
-                    <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-                      {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(f => (
-                        <button
-                          key={f}
-                          onClick={() => setFilter(f)}
-                          className="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap"
-                          style={{
-                            borderRadius: '50px',
-                            border: filter === f ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
-                            background: filter === f ? '#00754A' : '#ffffff',
-                            color: filter === f ? '#ffffff' : 'rgba(0,0,0,0.58)',
-                            boxShadow: filter === f ? '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' : '0 0 0.5px rgba(0,0,0,0.08)',
-                          }}
-                          onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
-                          onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
-                        >
-                          {f}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Reservations List */}
-                    {isLoading ? (
-                      <div className="text-center py-24">
-                        <div className="inline-block animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#00754A] mb-4"></div>
-                        <p className="text-black/60 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
-                      </div>
-                    ) : filteredReservations.length === 0 ? (
-                      <div className="text-center py-24 rounded-2xl border border-black/5 bg-white shadow-sm ">
-                        <p className="text-black/60 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
-                      </div>
-                    ) : (
-                      <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-                        {/* Table Header */}
-                        <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_250px] gap-4 px-6 py-4 bg-white shadow-sm border-b border-black/5 text-[10px] font-black text-black/60 uppercase tracking-widest items-center">
-                          <span>#</span>
-                          <span>Guest Name</span>
-                          <span>Service</span>
-                          <span>Check-in</span>
-                          <span>Time</span>
-                          <span>Status</span>
-                          <span className="text-right">Actions</span>
-                        </div>
-                        {filteredReservations.map((res, index) => (
-                          <div key={res.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_250px] gap-4 px-6 py-4 items-center text-sm border-b border-black/5 hover:bg-white shadow-sm transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
-                            <span className="text-black/60 font-mono text-xs">{res.id}</span>
-                            <div className="min-w-0">
-                              <p className="text-[#000000]/87 font-bold group-hover:text-[#00754A] transition-colors truncate">{res.full_name}</p>
-                              <p className="text-black/60 text-[10px] truncate md:hidden">{res.phone_number}</p>
-                            </div>
-                            <span className="text-black/60 text-xs font-medium truncate">{res.service_type}</span>
-                            <span className="text-black/60 text-xs font-medium">{res.preferred_date}</span>
-                            <span className="text-black/60 text-xs font-medium">{res.preferred_time}</span>
-                            <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(res.status)}`}>
-                              {res.status}
-                            </span>
-                            <div className="flex flex-nowrap gap-1 justify-end">
-                              {(res.status === 'pending' || res.status === 'confirmed') && (
-                                <button onClick={() => openEditModal(res)} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs hover:bg-purple-100 transition-all border border-purple-200">
-                                  Edit Booking
-                                </button>
-                              )}
-                              {res.status === 'pending' && (
-                                <>
-                                  <button onClick={() => updateStatus(res.id, 'confirmed')} disabled={updatingId === res.id} className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs hover:bg-green-100 transition-all border border-green-200 disabled:opacity-50">
-                                    Confirm
-                                  </button>
-                                  <button onClick={() => updateStatus(res.id, 'cancelled')} disabled={updatingId === res.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
-                                    Cancel
-                                  </button>
-                                </>
-                              )}
-                              {res.status === 'confirmed' && (
-                                <>
-                                  <button onClick={() => updateStatus(res.id, 'completed')} disabled={updatingId === res.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
-                                    Complete
-                                  </button>
-                                  <button onClick={() => updateStatus(res.id, 'cancelled')} disabled={updatingId === res.id} className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs hover:bg-red-100 transition-all border border-red-200 disabled:opacity-50">
-                                    Cancel
-                                  </button>
-                                </>
-                              )}
-                              {(res.status === 'cancelled' || res.status === 'completed') && (
-                                <button onClick={() => updateStatus(res.id, 'pending')} disabled={updatingId === res.id} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs hover:bg-blue-100 transition-all border border-blue-200 disabled:opacity-50">
-                                  Reopen
-                                </button>
-                              )}
-                              <button onClick={() => sendSMSReminder(apt)} className="px-2 py-1 bg-cyan-50 text-cyan-600 rounded text-xs hover:bg-cyan-100 transition-all border border-cyan-200" title="Send SMS Reminder">
-                                📱
-                              </button>
-                              <button onClick={() => printSlip(apt)} className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs hover:bg-gray-100 transition-all border border-gray-200" title="Print Appointment Slip">
-                                🖨️
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {/* Export Button */}
-                    <div className="mt-6 flex gap-2">
-                      <button
-                        onClick={exportToCSV}
-                        className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-full hover:bg-green-100 transition-all text-sm flex items-center gap-2"
-                      >
-                        📥 Export to CSV
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* ==================== GUESTS TAB ==================== */}
+        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
         {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} />}
@@ -5584,6 +5346,8 @@ function ContactPage({ setCurrentPage }) {
                   </p>
                 </div>
               </div>
+
+              <LocationRoutingBox />
 
             </div>
           </div>
