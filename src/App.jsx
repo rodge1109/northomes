@@ -2993,7 +2993,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} />}
 
         {/* ==================== GUESTS TAB ==================== */}
-        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} />}
+        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
         {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} />}

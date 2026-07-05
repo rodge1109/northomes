@@ -1,51 +1,42 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import GuestProfileView from './GuestProfileView';
+import NewGuestProfileForm from './NewGuestProfileForm';
 
-export default function AdminGuestsTab({ reservations = [] }) {
+const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:5000'
+  : 'https://northomes.onrender.com';
+
+export default function AdminGuestsTab({ reservations = [], onRefresh }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterNationality, setFilterNationality] = useState('All Nationalities');
   const [filterSource, setFilterSource] = useState('All Sources');
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [viewingProfile, setViewingProfile] = useState(false);
+  const [creatingProfile, setCreatingProfile] = useState(false);
+  const [editingGuest, setEditingGuest] = useState(null);
 
-  // Group reservations by email to create unique guest profiles
+  const [guestsList, setGuestsList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Map database guest profiles and calculate stay history dynamically from reservations prop
   const guests = useMemo(() => {
-    const guestMap = new Map();
+    return guestsList.map(g => {
+      // Find all reservations linked to this guest
+      const guestReservations = reservations.filter(r => 
+        r.guest_id === g.id || 
+        ((r.email && r.email.trim().toLowerCase() === g.email?.trim().toLowerCase()) && 
+         (r.full_name && r.full_name.trim().toLowerCase() === g.full_name?.trim().toLowerCase()))
+      );
 
-    reservations.forEach(r => {
-      const email = (r.email || '').trim().toLowerCase();
-      const name = (r.full_name || '').trim().toLowerCase();
-      const guestKey = `${name}_${email || r.phone_number}`;
-      
-      if (!guestMap.has(guestKey)) {
-        guestMap.set(guestKey, {
-          id: `P${Math.abs(guestKey.split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a }, 0)).toString().padStart(7, '0')}`,
-          email: r.email,
-          phone: r.phone_number,
-          name: r.full_name,
-          initials: r.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'G',
-          nationality: r.nationality || 'Filipino',
-          dob: r.date_of_birth,
-          company: r.company || 'ABC Corporation',
-          language: 'English',
-          guestSince: new Date(r.created_at || Date.now()),
-          stays: [],
-        });
-      }
-      
-      const guest = guestMap.get(guestKey);
-      guest.stays.push({
+      const sortedStays = guestReservations.map(r => ({
         ...r,
         checkIn: new Date(r.check_in_date || r.preferred_date),
         checkOut: new Date(r.check_out_date || r.preferred_date),
         nights: Math.max(1, Math.round((new Date(r.check_out_date || r.preferred_date) - new Date(r.check_in_date || r.preferred_date)) / 86400000)),
         total: Math.max(1, Math.round((new Date(r.check_out_date || r.preferred_date) - new Date(r.check_in_date || r.preferred_date)) / 86400000)) * (r.room_type === 'Suite' ? 6500 : 3500)
-      });
-    });
+      })).sort((a, b) => b.checkIn - a.checkIn);
 
-    return Array.from(guestMap.values()).map(guest => {
-      const sortedStays = guest.stays.sort((a, b) => b.checkIn - a.checkIn);
       const totalStays = sortedStays.length;
       const totalNights = sortedStays.reduce((sum, s) => sum + s.nights, 0);
       const totalSpent = sortedStays.reduce((sum, s) => sum + s.total, 0);
@@ -60,24 +51,108 @@ export default function AdminGuestsTab({ reservations = [] }) {
       } else if (sortedStays.some(s => s.status === 'confirmed' || s.status === 'pending')) {
         status = 'Confirmed';
         statusColor = 'bg-blue-50 text-blue-600';
-      } else if (sortedStays.every(s => s.status === 'cancelled')) {
+      } else if (sortedStays.every(s => s.status === 'cancelled') && sortedStays.length > 0) {
         status = 'Cancelled';
         statusColor = 'bg-rose-50 text-rose-600';
+      } else if (sortedStays.length === 0) {
+        status = 'No Bookings';
+        statusColor = 'bg-gray-50 text-gray-400';
       }
 
+      const initials = g.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'G';
+
       return {
-        ...guest,
+        id: g.id ? `P${String(g.id).padStart(7, '0')}` : `P0000000`,
+        dbId: g.id,
+        email: g.email,
+        phone: g.phone_number,
+        name: g.full_name,
+        initials,
+        nationality: g.nationality || 'Filipino',
+        dob: g.date_of_birth,
+        company: g.company || '—',
+        language: g.language || 'English',
+        guestSince: new Date(g.created_at || Date.now()),
+        stays: sortedStays,
+        first_name: g.first_name || '',
+        last_name: g.last_name || '',
+        middle_name: g.middle_name || '',
+        title: g.title || '',
+        gender: g.gender || '',
+        expiry_date: g.expiry_date || null,
+        issuing_country: g.issuing_country || '',
+        telephone: g.telephone || '',
+        address_line_1: g.address_line_1 || '',
+        address_line_2: g.address_line_2 || '',
+        province_state: g.province_state || '',
+        zip_postal_code: g.zip_postal_code || '',
+        country: g.country || '',
+        preferred_room_type: g.preferred_room_type || '',
+        preferred_floor: g.preferred_floor || '',
+        bed_type: g.bed_type || '',
+        smoking_preference: g.smoking_preference || 'Non-Smoking',
+        pillow_type: g.pillow_type || '',
+        special_requests_notes: g.special_requests_notes || '',
+        vip_status: g.vip_status || 'Standard',
+        source: g.source || '',
+        market_segment: g.market_segment || '',
+        referred_by: g.referred_by || '',
+        tags: g.tags || '',
+        notes: g.notes || '',
+        purpose_of_visit: g.purpose_of_visit || '',
         totalStays,
         totalNights,
         totalSpent,
-        avgSpend: totalSpent / totalStays,
-        lastStayDate: lastStay.checkIn,
+        avgSpend: totalStays > 0 ? totalSpent / totalStays : 0,
+        lastStayDate: lastStay ? lastStay.checkIn : null,
         status,
         statusColor,
-        isVip: totalStays >= 5 || totalSpent >= 20000
+        isVip: totalStays >= 5 || totalSpent >= 20000 || g.vip_status === 'VIP'
       };
-    }).sort((a, b) => b.lastStayDate - a.lastStayDate);
-  }, [reservations]);
+    });
+  }, [guestsList, reservations]);
+
+  const fetchGuestsList = async () => {
+    try {
+      setLoading(true);
+      const url = searchQuery 
+        ? `${API_BASE_URL}/api/admin/guests?search=${encodeURIComponent(searchQuery)}`
+        : `${API_BASE_URL}/api/admin/guests`;
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.success) {
+        setGuestsList(data.guests);
+      }
+    } catch (err) {
+      console.error('Error fetching guests:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGuestsList();
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (selectedGuest) {
+      const updated = guests.find(g => g.dbId === selectedGuest.dbId);
+      if (updated) {
+        const hasChanged = 
+          updated.email !== selectedGuest.email ||
+          updated.phone !== selectedGuest.phone ||
+          updated.name !== selectedGuest.name ||
+          updated.totalStays !== selectedGuest.totalStays ||
+          updated.totalSpent !== selectedGuest.totalSpent ||
+          updated.purpose_of_visit !== selectedGuest.purpose_of_visit;
+        if (hasChanged) {
+          setSelectedGuest(updated);
+        }
+      }
+    }
+  }, [guests]);
+
+
 
   const statsDerived = useMemo(() => {
     const total = guests.length;
@@ -125,8 +200,36 @@ export default function AdminGuestsTab({ reservations = [] }) {
     return colors[idx] || colors[0];
   };
 
+  if (editingGuest) {
+    return (
+      <NewGuestProfileForm
+        guest={editingGuest}
+        onBack={() => setEditingGuest(null)}
+        onSave={() => {
+          setEditingGuest(null);
+          fetchGuestsList();
+          if (onRefresh) onRefresh();
+        }}
+      />
+    );
+  }
+
   if (viewingProfile && selectedGuest) {
-    return <GuestProfileView guest={selectedGuest} onBack={() => setViewingProfile(false)} />;
+    return (
+      <GuestProfileView 
+        guest={selectedGuest} 
+        onBack={() => setViewingProfile(false)} 
+        onSave={(updatedGuest) => {
+          fetchGuestsList();
+          setSelectedGuest(updatedGuest);
+          if (onRefresh) onRefresh();
+        }} 
+      />
+    );
+  }
+
+  if (creatingProfile) {
+    return <NewGuestProfileForm onBack={() => setCreatingProfile(false)} onSave={() => { setCreatingProfile(false); if (onRefresh) onRefresh(); }} />;
   }
 
   return (
@@ -149,6 +252,15 @@ export default function AdminGuestsTab({ reservations = [] }) {
               <span className="text-[10px] font-bold text-black/30 border border-black/10 rounded px-1.5 py-0.5">/</span>
             </div>
           </div>
+
+          <button 
+            type="button"
+            onClick={() => setCreatingProfile(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-lg text-[13px] font-bold shadow-sm transition-colors shrink-0 animate-fade-in"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            New Guest Profile
+          </button>
           
           <div className="relative cursor-pointer hover:bg-gray-50 p-2 rounded-full transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>

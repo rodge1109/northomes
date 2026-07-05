@@ -374,6 +374,270 @@ const initGuestCheckinColumn = async () => {
 };
 initGuestCheckinColumn().catch(err => console.error('Guest checkin column migration failed:', err));
 
+const parseFullName = (fullName) => {
+  let first = '';
+  let middle = '';
+  let last = '';
+  
+  if (!fullName) return { first, middle, last };
+  
+  if (fullName.includes(',')) {
+    // Format: "LastName, FirstName MiddleName"
+    const parts = fullName.split(',');
+    last = parts[0].trim();
+    const rest = parts[1].trim().split(/\s+/);
+    if (rest.length > 0) {
+      first = rest[0];
+      if (rest.length > 1) {
+        middle = rest.slice(1).join(' ');
+      }
+    }
+  } else {
+    // Format: "FirstName MiddleName LastName"
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length === 1) {
+      first = parts[0];
+    } else if (parts.length === 2) {
+      first = parts[0];
+      last = parts[1];
+    } else if (parts.length > 2) {
+      first = parts[0];
+      middle = parts.slice(1, parts.length - 1).join(' ');
+      last = parts[parts.length - 1];
+    }
+  }
+  return { first, middle, last };
+};
+
+// ─── Guest Profile Dedicated Migration & Helper ──────────────────────────────
+const initGuestProfileMigration = async () => {
+  // 1. Create table and column if not exists
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hotel_guests (
+        id               SERIAL PRIMARY KEY,
+        title            TEXT DEFAULT '',
+        full_name        TEXT NOT NULL,
+        middle_name      TEXT DEFAULT '',
+        gender           TEXT DEFAULT '',
+        date_of_birth    DATE,
+        nationality      TEXT DEFAULT '',
+        country          TEXT DEFAULT '',
+        address          TEXT DEFAULT '',
+        city             TEXT DEFAULT '',
+        email            TEXT DEFAULT '',
+        phone_number     TEXT DEFAULT '',
+        id_type          TEXT DEFAULT '',
+        id_number        TEXT DEFAULT '',
+        purpose_of_visit TEXT DEFAULT '',
+        created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+  
+  // 1b. Add new guest profile fields
+  const addColumns = [
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS first_name TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS last_name TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS expiry_date DATE`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS issuing_country TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS telephone TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS address_line_1 TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS address_line_2 TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS province_state TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS zip_postal_code TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS preferred_room_type TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS preferred_floor TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS bed_type TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS smoking_preference TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS pillow_type TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS language TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS special_requests_notes TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS vip_status TEXT DEFAULT 'Standard'`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS source TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS market_segment TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS referred_by TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT ''`
+  ];
+  for (const q of addColumns) {
+    await pool.query(q);
+  }
+
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_hotel_guests_email ON hotel_guests(email)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_hotel_guests_phone ON hotel_guests(phone_number)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_hotel_guests_name ON hotel_guests(full_name)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_hotel_guests_first_name ON hotel_guests(first_name)`);
+  await pool.query(`CREATE INDEX IF NOT EXISTS idx_hotel_guests_last_name ON hotel_guests(last_name)`);
+  await pool.query(`ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_id INTEGER REFERENCES hotel_guests(id)`);
+  
+  // 2. Backfill existing reservations
+  const unlinked = await pool.query('SELECT * FROM hotel_reservations WHERE guest_id IS NULL');
+  if (unlinked.rows.length > 0) {
+    console.log(`Found ${unlinked.rows.length} unlinked reservations. Starting backfill migration...`);
+    for (const r of unlinked.rows) {
+      const email = (r.email || '').trim().toLowerCase();
+      const phone = (r.phone_number || '').trim();
+      const fullName = (r.full_name || '').trim();
+      
+      let guestId = null;
+      
+      // Step A: Search for existing guest profile
+      if (email && fullName) {
+        const check = await pool.query('SELECT id FROM hotel_guests WHERE LOWER(email) = $1 AND LOWER(full_name) = $2', [email, fullName.toLowerCase()]);
+        if (check.rows.length > 0) guestId = check.rows[0].id;
+      }
+      if (!guestId && phone && fullName) {
+        const check = await pool.query('SELECT id FROM hotel_guests WHERE phone_number = $1 AND LOWER(full_name) = $2', [phone, fullName.toLowerCase()]);
+        if (check.rows.length > 0) guestId = check.rows[0].id;
+      }
+      if (!guestId && fullName) {
+        // Fallback to name only if phone/email are empty
+        if (!email && !phone) {
+          const check = await pool.query('SELECT id FROM hotel_guests WHERE LOWER(full_name) = $1', [fullName.toLowerCase()]);
+          if (check.rows.length > 0) guestId = check.rows[0].id;
+        }
+      }
+      
+      // Step B: Create guest profile if not found
+      if (!guestId) {
+        const { first, middle, last } = parseFullName(r.full_name);
+        const insertRes = await pool.query(`
+          INSERT INTO hotel_guests (
+            title, full_name, first_name, last_name, middle_name, gender, date_of_birth,
+            nationality, country, address, city, email, phone_number,
+            id_type, id_number, purpose_of_visit, created_at
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+          RETURNING id
+        `, [
+          r.title || '', r.full_name, first, last, r.middle_name || middle || '', r.gender || '', r.date_of_birth || null,
+          r.nationality || '', r.country || '', r.address || '', r.city || '', r.email || '', r.phone_number || '',
+          r.id_type || '', r.id_number || '', r.purpose_of_visit || '', r.created_at || new Date()
+        ]);
+        guestId = insertRes.rows[0].id;
+      }
+      
+      // Step C: Link reservation to the guest profile
+      await pool.query('UPDATE hotel_reservations SET guest_id = $1 WHERE id = $2', [guestId, r.id]);
+    }
+    console.log('Backfill migration to dedicated guests table completed successfully.');
+  }
+};
+initGuestProfileMigration().catch(err => console.error('Guest profile migration failed:', err));
+
+const findOrCreateGuest = async (client, data) => {
+  const email = (data.email || '').trim().toLowerCase();
+  const phone = (data.phone_number || data.phone || '').trim();
+  let fullName = (data.full_name || '').trim();
+  let firstName = (data.first_name || '').trim();
+  let lastName = (data.last_name || '').trim();
+  let middleName = (data.middle_name || '').trim();
+  
+  if ((!firstName || !lastName) && fullName) {
+    const parsed = parseFullName(fullName);
+    firstName = parsed.first;
+    lastName = parsed.last;
+    middleName = middleName || parsed.middle;
+  }
+  
+  if (!fullName && (firstName || lastName)) {
+    fullName = `${lastName}, ${firstName}${middleName ? ' ' + middleName : ''}`;
+  }
+  
+  let guestId = null;
+  const db = client || pool; // allows transaction context
+  
+  if (email && fullName) {
+    const check = await db.query('SELECT id FROM hotel_guests WHERE LOWER(email) = $1 AND LOWER(full_name) = $2', [email, fullName.toLowerCase()]);
+    if (check.rows.length > 0) guestId = check.rows[0].id;
+  }
+  if (!guestId && phone && fullName) {
+    const check = await db.query('SELECT id FROM hotel_guests WHERE phone_number = $1 AND LOWER(full_name) = $2', [phone, fullName.toLowerCase()]);
+    if (check.rows.length > 0) guestId = check.rows[0].id;
+  }
+  if (!guestId && fullName) {
+    if (!email && !phone) {
+      const check = await db.query('SELECT id FROM hotel_guests WHERE LOWER(full_name) = $1', [fullName.toLowerCase()]);
+      if (check.rows.length > 0) guestId = check.rows[0].id;
+    }
+  }
+  
+  if (!guestId) {
+    const insertRes = await db.query(`
+      INSERT INTO hotel_guests (
+        title, full_name, first_name, last_name, middle_name, gender, date_of_birth,
+        nationality, country, address, city, email, phone_number,
+        id_type, id_number, purpose_of_visit, expiry_date, issuing_country,
+        telephone, address_line_1, address_line_2, province_state, zip_postal_code,
+        preferred_room_type, preferred_floor, bed_type, smoking_preference, pillow_type,
+        language, special_requests_notes, vip_status, source, market_segment, referred_by, tags, notes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36)
+      RETURNING id
+    `, [
+      data.title || '', fullName, firstName, lastName, middleName, data.gender || '', data.date_of_birth || null,
+      data.nationality || '', data.country || '', data.address || data.address_line_1 || '', data.city || '', data.email || '', phone,
+      data.id_type || '', data.id_number || '', data.purpose_of_visit || '', data.expiry_date || null, data.issuing_country || '',
+      data.telephone || '', data.address_line_1 || '', data.address_line_2 || '', data.province_state || '', data.zip_postal_code || '',
+      data.preferred_room_type || '', data.preferred_floor || '', data.bed_type || '', data.smoking_preference || '', data.pillow_type || '',
+      data.language || '', data.special_requests_notes || '', data.vip_status || 'Standard', data.source || '', data.market_segment || '', data.referred_by || '', data.tags || '', data.notes || ''
+    ]);
+    guestId = insertRes.rows[0].id;
+  } else {
+    // Update guest information if they provided newer/different details
+    await db.query(`
+      UPDATE hotel_guests SET
+        title = COALESCE(NULLIF($1, ''), title),
+        full_name = COALESCE(NULLIF($2, ''), full_name),
+        first_name = COALESCE(NULLIF($3, ''), first_name),
+        last_name = COALESCE(NULLIF($4, ''), last_name),
+        middle_name = COALESCE(NULLIF($5, ''), middle_name),
+        gender = COALESCE(NULLIF($6, ''), gender),
+        date_of_birth = COALESCE($7, date_of_birth),
+        nationality = COALESCE(NULLIF($8, ''), nationality),
+        country = COALESCE(NULLIF($9, ''), country),
+        address = COALESCE(NULLIF($10, ''), address),
+        city = COALESCE(NULLIF($11, ''), city),
+        email = COALESCE(NULLIF($12, ''), email),
+        phone_number = COALESCE(NULLIF($13, ''), phone_number),
+        id_type = COALESCE(NULLIF($14, ''), id_type),
+        id_number = COALESCE(NULLIF($15, ''), id_number),
+        purpose_of_visit = COALESCE(NULLIF($16, ''), purpose_of_visit),
+        expiry_date = COALESCE($17, expiry_date),
+        issuing_country = COALESCE(NULLIF($18, ''), issuing_country),
+        telephone = COALESCE(NULLIF($19, ''), telephone),
+        address_line_1 = COALESCE(NULLIF($20, ''), address_line_1),
+        address_line_2 = COALESCE(NULLIF($21, ''), address_line_2),
+        province_state = COALESCE(NULLIF($22, ''), province_state),
+        zip_postal_code = COALESCE(NULLIF($23, ''), zip_postal_code),
+        preferred_room_type = COALESCE(NULLIF($24, ''), preferred_room_type),
+        preferred_floor = COALESCE(NULLIF($25, ''), preferred_floor),
+        bed_type = COALESCE(NULLIF($26, ''), bed_type),
+        smoking_preference = COALESCE(NULLIF($27, ''), smoking_preference),
+        pillow_type = COALESCE(NULLIF($28, ''), pillow_type),
+        language = COALESCE(NULLIF($29, ''), language),
+        special_requests_notes = COALESCE(NULLIF($30, ''), special_requests_notes),
+        vip_status = COALESCE(NULLIF($31, ''), vip_status),
+        source = COALESCE(NULLIF($32, ''), source),
+        market_segment = COALESCE(NULLIF($33, ''), market_segment),
+        referred_by = COALESCE(NULLIF($34, ''), referred_by),
+        tags = COALESCE(NULLIF($35, ''), tags),
+        notes = COALESCE(NULLIF($36, ''), notes),
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $37
+    `, [
+      data.title || '', fullName, firstName, lastName, middleName, data.gender || '', data.date_of_birth || null,
+      data.nationality || '', data.country || '', data.address || data.address_line_1 || '', data.city || '', data.email || '', phone,
+      data.id_type || '', data.id_number || '', data.purpose_of_visit || '', data.expiry_date || null, data.issuing_country || '',
+      data.telephone || '', data.address_line_1 || '', data.address_line_2 || '', data.province_state || '', data.zip_postal_code || '',
+      data.preferred_room_type || '', data.preferred_floor || '', data.bed_type || '', data.smoking_preference || '', data.pillow_type || '',
+      data.language || '', data.special_requests_notes || '', data.vip_status || 'Standard', data.source || '', data.market_segment || '', data.referred_by || '', data.tags || '', data.notes || '',
+      guestId
+    ]);
+  }
+  
+  return guestId;
+};
+
+
 // Initialize queue_settings table for queue system
 const initQueueSettings = async () => {
   await pool.query(`
@@ -535,13 +799,20 @@ app.post('/api/reservations', async (req, res) => {
       });
     }
 
+    // Find or create the guest profile in hotel_guests
+    const guestId = await findOrCreateGuest(null, {
+      full_name: fullName,
+      phone_number: phoneNumber,
+      email: email
+    });
+
     // Insert the reservation
     const result = await pool.query(
       `INSERT INTO hotel_reservations
-         (full_name, phone_number, email, room_type, check_in_date, check_out_date, number_of_guests, special_requests, rate_code)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         (full_name, phone_number, email, room_type, check_in_date, check_out_date, number_of_guests, special_requests, rate_code, guest_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
-      [fullName, phoneNumber, email, roomType, checkInDate, checkOutDate, numberOfGuests || 1, specialRequests || '', promoCode || '']
+      [fullName, phoneNumber, email, roomType, checkInDate, checkOutDate, numberOfGuests || 1, specialRequests || '', promoCode || '', guestId]
     );
 
     const reservation = result.rows[0];
@@ -573,32 +844,51 @@ app.get('/api/reservations', async (req, res) => {
   try {
     const { query, startDate, endDate, status } = req.query;
     
-    let sql = 'SELECT * FROM hotel_reservations WHERE 1=1';
+    let sql = `
+      SELECT r.*, 
+             COALESCE(g.title, r.title) AS title,
+             COALESCE(g.full_name, r.full_name) AS full_name,
+             COALESCE(g.middle_name, r.middle_name) AS middle_name,
+             COALESCE(g.gender, r.gender) AS gender,
+             COALESCE(g.date_of_birth, r.date_of_birth) AS date_of_birth,
+             COALESCE(g.nationality, r.nationality) AS nationality,
+             COALESCE(g.country, r.country) AS country,
+             COALESCE(g.address, r.address) AS address,
+             COALESCE(g.city, r.city) AS city,
+             COALESCE(g.email, r.email) AS email,
+             COALESCE(g.phone_number, r.phone_number) AS phone_number,
+             COALESCE(g.id_type, r.id_type) AS id_type,
+             COALESCE(g.id_number, r.id_number) AS id_number,
+             COALESCE(g.purpose_of_visit, r.purpose_of_visit) AS purpose_of_visit
+      FROM hotel_reservations r
+      LEFT JOIN hotel_guests g ON r.guest_id = g.id
+      WHERE 1=1
+    `;
     const params = [];
     let paramIdx = 1;
 
     if (query) {
-      sql += ` AND (full_name ILIKE $${paramIdx} OR email ILIKE $${paramIdx} OR phone_number ILIKE $${paramIdx})`;
+      sql += ` AND (COALESCE(g.full_name, r.full_name) ILIKE $${paramIdx} OR COALESCE(g.email, r.email) ILIKE $${paramIdx} OR COALESCE(g.phone_number, r.phone_number) ILIKE $${paramIdx})`;
       params.push(`%${query}%`);
       paramIdx++;
     }
     if (startDate) {
-      sql += ` AND check_in_date >= $${paramIdx}`;
+      sql += ` AND r.check_in_date >= $${paramIdx}`;
       params.push(startDate);
       paramIdx++;
     }
     if (endDate) {
-      sql += ` AND check_in_date <= $${paramIdx}`;
+      sql += ` AND r.check_in_date <= $${paramIdx}`;
       params.push(endDate);
       paramIdx++;
     }
     if (status && status !== 'all') {
-      sql += ` AND status = $${paramIdx}`;
+      sql += ` AND r.status = $${paramIdx}`;
       params.push(status);
       paramIdx++;
     }
 
-    sql += ' ORDER BY created_at DESC';
+    sql += ' ORDER BY r.created_at DESC';
 
     const result = await pool.query(sql, params);
     res.json({ success: true, reservations: result.rows });
@@ -961,10 +1251,26 @@ app.get('/api/front-desk/arrivals', async (req, res) => {
   try {
     const date = req.query.date || new Date().toISOString().split('T')[0];
     const arrivals = await pool.query(
-      `SELECT *, guest_arrived_at FROM hotel_reservations
-       WHERE check_in_date = $1
-         AND status IN ('pending', 'confirmed', 'arrived')
-       ORDER BY guest_arrived_at ASC NULLS LAST, created_at ASC`,
+      `SELECT r.*, 
+              COALESCE(g.title, r.title) AS title,
+              COALESCE(g.full_name, r.full_name) AS full_name,
+              COALESCE(g.middle_name, r.middle_name) AS middle_name,
+              COALESCE(g.gender, r.gender) AS gender,
+              COALESCE(g.date_of_birth, r.date_of_birth) AS date_of_birth,
+              COALESCE(g.nationality, r.nationality) AS nationality,
+              COALESCE(g.country, r.country) AS country,
+              COALESCE(g.address, r.address) AS address,
+              COALESCE(g.city, r.city) AS city,
+              COALESCE(g.email, r.email) AS email,
+              COALESCE(g.phone_number, r.phone_number) AS phone_number,
+              COALESCE(g.id_type, r.id_type) AS id_type,
+              COALESCE(g.id_number, r.id_number) AS id_number,
+              COALESCE(g.purpose_of_visit, r.purpose_of_visit) AS purpose_of_visit
+       FROM hotel_reservations r
+       LEFT JOIN hotel_guests g ON r.guest_id = g.id
+       WHERE r.check_in_date = $1
+         AND r.status IN ('pending', 'confirmed', 'arrived')
+       ORDER BY r.guest_arrived_at ASC NULLS LAST, r.created_at ASC`,
       [date]
     );
     const statsRes = await pool.query(
@@ -993,9 +1299,27 @@ app.get('/api/front-desk/arrivals', async (req, res) => {
 // GET /api/front-desk/in-house
 app.get('/api/front-desk/in-house', async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT * FROM hotel_reservations WHERE status = 'checked_in' ORDER BY checked_in_at ASC`
-    );
+    const result = await pool.query(`
+      SELECT r.*, 
+             COALESCE(g.title, r.title) AS title,
+             COALESCE(g.full_name, r.full_name) AS full_name,
+             COALESCE(g.middle_name, r.middle_name) AS middle_name,
+             COALESCE(g.gender, r.gender) AS gender,
+             COALESCE(g.date_of_birth, r.date_of_birth) AS date_of_birth,
+             COALESCE(g.nationality, r.nationality) AS nationality,
+             COALESCE(g.country, r.country) AS country,
+             COALESCE(g.address, r.address) AS address,
+             COALESCE(g.city, r.city) AS city,
+             COALESCE(g.email, r.email) AS email,
+             COALESCE(g.phone_number, r.phone_number) AS phone_number,
+             COALESCE(g.id_type, r.id_type) AS id_type,
+             COALESCE(g.id_number, r.id_number) AS id_number,
+             COALESCE(g.purpose_of_visit, r.purpose_of_visit) AS purpose_of_visit
+      FROM hotel_reservations r
+      LEFT JOIN hotel_guests g ON r.guest_id = g.id
+      WHERE r.status = 'checked_in'
+      ORDER BY r.checked_in_at ASC
+    `);
     res.json({ success: true, guests: result.rows });
   } catch (err) {
     console.error(err);
@@ -1009,16 +1333,31 @@ app.get('/api/front-desk/search', async (req, res) => {
     const q = (req.query.q || '').trim();
     if (!q) return res.json({ success: true, reservations: [] });
     const term = `%${q}%`;
-    const result = await pool.query(
-      `SELECT * FROM hotel_reservations
-       WHERE full_name    ILIKE $1
-          OR email        ILIKE $1
-          OR phone_number ILIKE $1
-          OR CAST(id AS TEXT) ILIKE $1
-       ORDER BY check_in_date DESC
-       LIMIT 50`,
-      [term]
-    );
+    const result = await pool.query(`
+      SELECT r.*, 
+             COALESCE(g.title, r.title) AS title,
+             COALESCE(g.full_name, r.full_name) AS full_name,
+             COALESCE(g.middle_name, r.middle_name) AS middle_name,
+             COALESCE(g.gender, r.gender) AS gender,
+             COALESCE(g.date_of_birth, r.date_of_birth) AS date_of_birth,
+             COALESCE(g.nationality, r.nationality) AS nationality,
+             COALESCE(g.country, r.country) AS country,
+             COALESCE(g.address, r.address) AS address,
+             COALESCE(g.city, r.city) AS city,
+             COALESCE(g.email, r.email) AS email,
+             COALESCE(g.phone_number, r.phone_number) AS phone_number,
+             COALESCE(g.id_type, r.id_type) AS id_type,
+             COALESCE(g.id_number, r.id_number) AS id_number,
+             COALESCE(g.purpose_of_visit, r.purpose_of_visit) AS purpose_of_visit
+      FROM hotel_reservations r
+      LEFT JOIN hotel_guests g ON r.guest_id = g.id
+      WHERE COALESCE(g.full_name, r.full_name) ILIKE $1
+         OR COALESCE(g.email, r.email)        ILIKE $1
+         OR COALESCE(g.phone_number, r.phone_number) ILIKE $1
+         OR CAST(r.id AS TEXT) ILIKE $1
+      ORDER BY r.check_in_date DESC
+      LIMIT 50
+    `, [term]);
     res.json({ success: true, reservations: result.rows });
   } catch (err) {
     console.error(err);
@@ -1026,7 +1365,154 @@ app.get('/api/front-desk/search', async (req, res) => {
   }
 });
 
-// GET /api/admin/guests — unique guests with aggregate stats (grouped by email)
+// POST /api/admin/guests — create a new guest profile manually
+app.post('/api/admin/guests', async (req, res) => {
+  try {
+    const {
+      title, first_name, middle_name, last_name, gender, date_of_birth,
+      nationality, id_type, id_number, expiry_date, issuing_country,
+      email, phone_number, telephone, address_line_1, address_line_2,
+      city, province_state, zip_postal_code, country,
+      preferred_room_type, preferred_floor, bed_type, smoking_preference,
+      pillow_type, language, special_requests_notes,
+      vip_status, source, market_segment, referred_by, tags, notes, purpose_of_visit
+    } = req.body;
+
+    if (!first_name || !last_name) {
+      return res.status(400).json({ success: false, message: 'First name and last name are required.' });
+    }
+
+    const fullName = `${last_name.trim()}, ${first_name.trim()}${middle_name?.trim() ? ' ' + middle_name.trim() : ''}`;
+
+    // Deduplication check
+    const emailCheck = email ? email.trim().toLowerCase() : null;
+    const phoneCheck = phone_number ? phone_number.trim() : null;
+    let existingGuest = null;
+
+    if (emailCheck) {
+      const check = await pool.query('SELECT id FROM hotel_guests WHERE LOWER(email) = $1 AND LOWER(full_name) = $2', [emailCheck, fullName.toLowerCase()]);
+      if (check.rows.length > 0) existingGuest = check.rows[0];
+    }
+    if (!existingGuest && phoneCheck) {
+      const check = await pool.query('SELECT id FROM hotel_guests WHERE phone_number = $1 AND LOWER(full_name) = $2', [phoneCheck, fullName.toLowerCase()]);
+      if (check.rows.length > 0) existingGuest = check.rows[0];
+    }
+
+    if (existingGuest) {
+      return res.status(409).json({ success: false, message: 'A guest profile with the same name and email/phone already exists.' });
+    }
+
+    const insertRes = await pool.query(`
+      INSERT INTO hotel_guests (
+        title, full_name, first_name, last_name, middle_name, gender, date_of_birth,
+        nationality, country, address, city, email, phone_number,
+        id_type, id_number, purpose_of_visit, expiry_date, issuing_country,
+        telephone, address_line_1, address_line_2, province_state, zip_postal_code,
+        preferred_room_type, preferred_floor, bed_type, smoking_preference, pillow_type,
+        language, special_requests_notes, vip_status, source, market_segment, referred_by, tags, notes
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36)
+      RETURNING *
+    `, [
+      title || '', fullName, first_name.trim(), last_name.trim(), middle_name || '', gender || '', date_of_birth || null,
+      nationality || '', country || '', address_line_1 || '', city || '', email || '', phone_number || '',
+      id_type || '', id_number || '', purpose_of_visit || '', expiry_date || null, issuing_country || '',
+      telephone || '', address_line_1 || '', address_line_2 || '', province_state || '', zip_postal_code || '',
+      preferred_room_type || '', preferred_floor || '', bed_type || '', smoking_preference || '', pillow_type || '',
+      language || '', special_requests_notes || '', vip_status || 'Standard', source || '', market_segment || '', referred_by || '', tags || '', notes || ''
+    ]);
+
+    res.status(201).json({ success: true, guest: insertRes.rows[0], message: 'Guest profile created successfully.' });
+  } catch (err) {
+    console.error('Error creating guest profile:', err);
+    res.status(500).json({ success: false, message: 'Failed to create guest profile.' });
+  }
+});
+
+// PUT /api/admin/guests/:id — update an existing guest profile
+app.put('/api/admin/guests/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      title, first_name, middle_name, last_name, gender, date_of_birth,
+      nationality, id_type, id_number, expiry_date, issuing_country,
+      email, phone_number, telephone, address_line_1, address_line_2,
+      city, province_state, zip_postal_code, country,
+      preferred_room_type, preferred_floor, bed_type, smoking_preference,
+      pillow_type, language, special_requests_notes,
+      vip_status, source, market_segment, referred_by, tags, notes, purpose_of_visit
+    } = req.body;
+
+    if (!first_name || !last_name) {
+      return res.status(400).json({ success: false, message: 'First name and last name are required.' });
+    }
+
+    const fullName = `${last_name.trim()}, ${first_name.trim()}${middle_name?.trim() ? ' ' + middle_name.trim() : ''}`;
+
+    const updateQuery = `
+      UPDATE hotel_guests SET
+        title = $1,
+        full_name = $2,
+        first_name = $3,
+        last_name = $4,
+        middle_name = $5,
+        gender = $6,
+        date_of_birth = $7,
+        nationality = $8,
+        country = $9,
+        address = $10,
+        city = $11,
+        email = $12,
+        phone_number = $13,
+        id_type = $14,
+        id_number = $15,
+        purpose_of_visit = $16,
+        expiry_date = $17,
+        issuing_country = $18,
+        telephone = $19,
+        address_line_1 = $20,
+        address_line_2 = $21,
+        province_state = $22,
+        zip_postal_code = $23,
+        preferred_room_type = $24,
+        preferred_floor = $25,
+        bed_type = $26,
+        smoking_preference = $27,
+        pillow_type = $28,
+        language = $29,
+        special_requests_notes = $30,
+        vip_status = $31,
+        source = $32,
+        market_segment = $33,
+        referred_by = $34,
+        tags = $35,
+        notes = $36,
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = $37
+      RETURNING *
+    `;
+
+    const result = await pool.query(updateQuery, [
+      title || '', fullName, first_name.trim(), last_name.trim(), middle_name || '', gender || '', date_of_birth || null,
+      nationality || '', country || '', address_line_1 || '', city || '', email || '', phone_number || '',
+      id_type || '', id_number || '', purpose_of_visit || '', expiry_date || null, issuing_country || '',
+      telephone || '', address_line_1 || '', address_line_2 || '', province_state || '', zip_postal_code || '',
+      preferred_room_type || '', preferred_floor || '', bed_type || '', smoking_preference || '', pillow_type || '',
+      language || '', special_requests_notes || '', vip_status || 'Standard', source || '', market_segment || '', referred_by || '', tags || '', notes || '',
+      id
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Guest profile not found.' });
+    }
+
+    res.json({ success: true, guest: result.rows[0], message: 'Guest profile updated successfully.' });
+  } catch (err) {
+    console.error('PUT /api/admin/guests error:', err);
+    res.status(500).json({ success: false, message: 'Failed to update guest profile.' });
+  }
+});
+
+// GET /api/admin/guests — unique guests with aggregate stats (grouped by guest ID)
 app.get('/api/admin/guests', async (req, res) => {
   try {
     const search = req.query.search ? `%${req.query.search}%` : null;
@@ -1034,31 +1520,29 @@ app.get('/api/admin/guests', async (req, res) => {
     if (search) {
       query = `
         SELECT
-          email,
-          MAX(full_name)     AS full_name,
-          MAX(phone_number)  AS phone_number,
-          COUNT(*)           AS total_bookings,
-          MAX(check_in_date) AS last_stay,
-          MIN(created_at)    AS first_booking,
-          MAX(room_type)     AS fav_room
-        FROM hotel_reservations
-        WHERE email ILIKE $1 OR full_name ILIKE $1 OR phone_number ILIKE $1
-        GROUP BY email
+          g.*,
+          COUNT(r.id) AS total_bookings,
+          MAX(r.check_in_date) AS last_stay,
+          MIN(r.created_at) AS first_booking,
+          (SELECT room_type FROM hotel_reservations WHERE guest_id = g.id GROUP BY room_type ORDER BY COUNT(*) DESC LIMIT 1) AS fav_room
+        FROM hotel_guests g
+        LEFT JOIN hotel_reservations r ON g.id = r.guest_id
+        WHERE g.email ILIKE $1 OR g.full_name ILIKE $1 OR g.phone_number ILIKE $1
+        GROUP BY g.id
         ORDER BY last_stay DESC NULLS LAST
         LIMIT 200`;
       params = [search];
     } else {
       query = `
         SELECT
-          email,
-          MAX(full_name)     AS full_name,
-          MAX(phone_number)  AS phone_number,
-          COUNT(*)           AS total_bookings,
-          MAX(check_in_date) AS last_stay,
-          MIN(created_at)    AS first_booking,
-          MAX(room_type)     AS fav_room
-        FROM hotel_reservations
-        GROUP BY email
+          g.*,
+          COUNT(r.id) AS total_bookings,
+          MAX(r.check_in_date) AS last_stay,
+          MIN(r.created_at) AS first_booking,
+          (SELECT room_type FROM hotel_reservations WHERE guest_id = g.id GROUP BY room_type ORDER BY COUNT(*) DESC LIMIT 1) AS fav_room
+        FROM hotel_guests g
+        LEFT JOIN hotel_reservations r ON g.id = r.guest_id
+        GROUP BY g.id
         ORDER BY last_stay DESC NULLS LAST
         LIMIT 200`;
       params = [];
@@ -1077,12 +1561,13 @@ app.get('/api/admin/guests/history', async (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ success: false, error: 'email required' });
     const result = await pool.query(
-      `SELECT id, room_type, room_number, check_in_date, check_out_date,
-              number_of_guests, status, special_requests,
-              checked_in_at, checked_out_at, front_desk_notes, created_at
-       FROM hotel_reservations
-       WHERE email = $1
-       ORDER BY check_in_date DESC`,
+      `SELECT r.id, r.room_type, r.room_number, r.check_in_date, r.check_out_date,
+              r.number_of_guests, r.status, r.special_requests,
+              r.checked_in_at, r.checked_out_at, r.front_desk_notes, r.created_at
+       FROM hotel_reservations r
+       LEFT JOIN hotel_guests g ON r.guest_id = g.id
+       WHERE g.email = $1 OR r.email = $1
+       ORDER BY r.check_in_date DESC`,
       [email]
     );
     res.json({ success: true, history: result.rows });
@@ -1099,7 +1584,26 @@ app.get('/api/folio/:reservationId', async (req, res) => {
   try {
     const { reservationId } = req.params;
     const [resResult, itemsResult, paymentsResult] = await Promise.all([
-      pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [reservationId]),
+      pool.query(`
+        SELECT r.*, 
+               COALESCE(g.title, r.title) AS title,
+               COALESCE(g.full_name, r.full_name) AS full_name,
+               COALESCE(g.middle_name, r.middle_name) AS middle_name,
+               COALESCE(g.gender, r.gender) AS gender,
+               COALESCE(g.date_of_birth, r.date_of_birth) AS date_of_birth,
+               COALESCE(g.nationality, r.nationality) AS nationality,
+               COALESCE(g.country, r.country) AS country,
+               COALESCE(g.address, r.address) AS address,
+               COALESCE(g.city, r.city) AS city,
+               COALESCE(g.email, r.email) AS email,
+               COALESCE(g.phone_number, r.phone_number) AS phone_number,
+               COALESCE(g.id_type, r.id_type) AS id_type,
+               COALESCE(g.id_number, r.id_number) AS id_number,
+               COALESCE(g.purpose_of_visit, r.purpose_of_visit) AS purpose_of_visit
+        FROM hotel_reservations r
+        LEFT JOIN hotel_guests g ON r.guest_id = g.id
+        WHERE r.id = $1
+      `, [reservationId]),
       pool.query('SELECT * FROM hotel_folio_items WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
       pool.query('SELECT * FROM hotel_folio_payments WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
     ]);
@@ -1199,7 +1703,27 @@ app.post('/api/folio/:reservationId/email', async (req, res) => {
     const { reservationId } = req.params;
 
     // Fetch reservation
-    const resResult = await pool.query(`SELECT * FROM hotel_reservations WHERE id = $1`, [reservationId]);
+    const resResult = await pool.query(
+      `SELECT r.*, 
+              COALESCE(g.title, r.title) AS title,
+              COALESCE(g.full_name, r.full_name) AS full_name,
+              COALESCE(g.middle_name, r.middle_name) AS middle_name,
+              COALESCE(g.gender, r.gender) AS gender,
+              COALESCE(g.date_of_birth, r.date_of_birth) AS date_of_birth,
+              COALESCE(g.nationality, r.nationality) AS nationality,
+              COALESCE(g.country, r.country) AS country,
+              COALESCE(g.address, r.address) AS address,
+              COALESCE(g.city, r.city) AS city,
+              COALESCE(g.email, r.email) AS email,
+              COALESCE(g.phone_number, r.phone_number) AS phone_number,
+              COALESCE(g.id_type, r.id_type) AS id_type,
+              COALESCE(g.id_number, r.id_number) AS id_number,
+              COALESCE(g.purpose_of_visit, r.purpose_of_visit) AS purpose_of_visit
+       FROM hotel_reservations r
+       LEFT JOIN hotel_guests g ON r.guest_id = g.id
+       WHERE r.id = $1`,
+      [reservationId]
+    );
     if (!resResult.rows.length) return res.status(404).json({ success: false, message: 'Reservation not found.' });
     const reservation = resResult.rows[0];
 
@@ -1377,6 +1901,13 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     const isToday = checkInDate.toDateString() === new Date().toDateString();
     const isFuture = checkInDate > new Date();
     const initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';
+    // Find or create the guest profile in hotel_guests
+    const guestId = await findOrCreateGuest(null, {
+      title, full_name, middle_name, gender, date_of_birth: birth_date,
+      nationality, country, address, city, email, phone_number: phone,
+      id_type, id_number, purpose_of_visit: purpose
+    });
+
     const result = await pool.query(
       `INSERT INTO hotel_reservations
          (full_name, email, phone_number, room_type, check_in_date, check_out_date,
@@ -1384,11 +1915,11 @@ app.post('/api/front-desk/walkin', async (req, res) => {
           front_desk_notes, rate_code, status, checked_in_at, guest_arrived_at,
           title, middle_name, gender, date_of_birth, nationality, country,
           address, city, id_type, id_number, purpose_of_visit, eta,
-          payment_method, deposit_amount)
+          payment_method, deposit_amount, guest_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$27,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
-               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)
+               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28)
        RETURNING *`,
       [
         full_name, email || '', phone || '', room_type,
@@ -1399,7 +1930,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
         birth_date || null, nationality || '', country || '',
         address || '', city || '', id_type || '', id_number || '',
         purpose || '', eta || '', payment_method || '', deposit_amount || 0,
-        initialStatus,
+        initialStatus, guestId
       ]
     );
     // Auto-upsert room record
@@ -1427,6 +1958,54 @@ app.patch('/api/reservations/:id/profile', async (req, res) => {
       payment_method, deposit_amount,
       special_requests, front_desk_notes,
     } = req.body;
+    // Get the guest_id for this reservation
+    const resRes = await pool.query('SELECT guest_id FROM hotel_reservations WHERE id = $1', [id]);
+    if (resRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Reservation not found.' });
+    }
+    
+    let guestId = resRes.rows[0].guest_id;
+    
+    // If no guest_id is linked, find or create one
+    if (!guestId) {
+      guestId = await findOrCreateGuest(null, {
+        title, full_name, middle_name, gender, date_of_birth,
+        nationality, country, address, city, email, phone_number,
+        id_type, id_number, purpose_of_visit
+      });
+      await pool.query('UPDATE hotel_reservations SET guest_id = $1 WHERE id = $2', [guestId, id]);
+    } else {
+      // Update the guest profile in hotel_guests
+      await pool.query(
+        `UPDATE hotel_guests SET
+           title = COALESCE($1, title),
+           full_name = COALESCE($2, full_name),
+           middle_name = COALESCE($3, middle_name),
+           gender = COALESCE($4, gender),
+           date_of_birth = COALESCE($5, date_of_birth),
+           nationality = COALESCE($6, nationality),
+           country = COALESCE($7, country),
+           address = COALESCE($8, address),
+           city = COALESCE($9, city),
+           email = COALESCE($10, email),
+           phone_number = COALESCE($11, phone_number),
+           id_type = COALESCE($12, id_type),
+           id_number = COALESCE($13, id_number),
+           purpose_of_visit = COALESCE($14, purpose_of_visit),
+           updated_at = CURRENT_TIMESTAMP
+         WHERE id = $15`,
+        [
+          title, full_name, middle_name, gender,
+          date_of_birth || null,
+          nationality, country, address, city,
+          email, phone_number,
+          id_type, id_number,
+          purpose_of_visit,
+          guestId
+        ]
+      );
+    }
+
     const result = await pool.query(
       `UPDATE hotel_reservations SET
          title = COALESCE($1, title),
@@ -1462,7 +2041,6 @@ app.patch('/api/reservations/:id/profile', async (req, res) => {
         id,
       ]
     );
-    if (result.rows.length === 0) return res.status(404).json({ success: false, message: 'Reservation not found.' });
     res.json({ success: true, reservation: result.rows[0] });
   } catch (err) {
     console.error('Profile update error:', err);
