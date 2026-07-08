@@ -5912,9 +5912,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
 function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
   const [currentImg, setCurrentImg] = useState(0);
 
-  // Here you can pull room-specific images if available from the backend.
-  // For now, we cycle through some placeholders based on room ID to give variety.
-  const images = room.id % 2 === 0 ? [
+  const images = (room.images && Array.isArray(room.images) && room.images.length > 0) ? room.images : (room.id % 2 === 0 ? [
     "/assets/images/rooms/sample_room_2.png",
     "/assets/images/gallery/bathroom.jpg",
     "/assets/images/gallery/room_standard.jpg"
