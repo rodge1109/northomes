@@ -7,6 +7,7 @@ import Orb from './components/Orb/Orb';
 import AdminOnlineReservationsTab from './AdminOnlineReservationsTab';
 import AdminGuestsTab from './AdminGuestsTab';
 import AdminDashboardTab from './AdminDashboardTab';
+import CorporateSettingsTab from './CorporateSettingsTab';
 import ContactMapSection from './components/common/ContactMapSection';
 
 
@@ -102,7 +103,8 @@ function AdminBillingTab({
   };
 
   // Folio logic
-  const isDueOut = folioRes?.check_out_date && folioRes.check_out_date.slice(0,10) === new Date().toISOString().slice(0,10);
+  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
   const initials = (folioRes?.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const nights = folioRes ? nightsCount(folioRes) : 0;
   
@@ -3590,6 +3592,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       { id: 'notifications', label: 'Notifications' },
                       { id: 'about-us', label: 'About Us' },
                       { id: 'staff', label: 'Staff & Permissions' },
+                      { id: 'corporate', label: 'Corporate Accounts' },
                     ].map(tab => (
                       <button
                         key={tab.id}
@@ -3605,6 +3608,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   </div>
 
                   {/* ── Property ── */}
+                  {settingsSubTab === 'corporate' && <CorporateSettingsTab />}
                   {settingsSubTab === 'property' && (
                     <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
@@ -10034,8 +10038,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     return inHouseGuests
       .filter(r => {
         if (inHouseFilterStatus === 'All Status') return true;
-        const isDueOut = r.check_out_date && r.check_out_date.slice(0, 10) === today;
-        if (inHouseFilterStatus === 'Due Out') return isDueOut;
+        const isDueOut = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+    const isOverdue = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');if (inHouseFilterStatus === 'Due Out') return isDueOut;
         if (inHouseFilterStatus === 'Checked In') return !isDueOut;
         return true;
       })
@@ -10915,7 +10919,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
   const InHouseCard = ({ r }) => {
     const nights = nightsCount(r);
-    const isDueOut = r.check_out_date && r.check_out_date.slice(0, 10) === today;
+    const isDueOut = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+    const isOverdue = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
 
     const menuItems = [
       {
@@ -11078,7 +11083,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
     return (
       <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all"
-        style={{ gridTemplateColumns: '3rem 1fr 6rem 5.5rem 5.5rem 6rem 2.5rem 6rem', borderBottom: `1px solid ${isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(0,0,0,0.05)'}`, background: isDueOut ? 'rgba(251,191,36,0.04)' : '#ffffff' }}>
+        style={{ gridTemplateColumns: '3rem 1fr 6rem 5.5rem 5.5rem 6rem 2.5rem 6rem', borderBottom: `1px solid ${isOverdue ? 'rgba(239,68,68,0.2)' : isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(0,0,0,0.05)'}`, background: isOverdue ? 'rgba(239,68,68,0.04)' : isDueOut ? 'rgba(251,191,36,0.04)' : '#ffffff' }}>
         {/* Room */}
         <span className="font-mono font-bold text-sm text-[#000000]/87">
           {r.room_number || '—'}
@@ -11813,7 +11818,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 filteredInHouse.map((res) => {
                                   const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(res.id).padStart(3, '0')}`;
                                   const nights = nightsCount(res);
-                                  const isDueOut = res.check_out_date && res.check_out_date.slice(0, 10) === today;
+                                  const isDueOut = res.check_out_date && new Date(res.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+                                  const isOverdue = res.check_out_date && new Date(res.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
                                   
                                   const handleSendEmail = async (r) => {
                                     setFolioRes(r);
@@ -11876,8 +11882,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                         {res.number_of_guests ? `${res.number_of_guests} Guest(s)` : '1 Guest(s)'}
                                       </td>
                                       <td className="px-4 py-4 align-top">
-                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isDueOut ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                                          {isDueOut ? 'DUE OUT' : 'IN-HOUSE'}
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isOverdue ? 'bg-red-50 text-red-600' : isDueOut ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                          {isOverdue ? 'OVERDUE' : isDueOut ? 'DUE OUT' : 'IN-HOUSE'}
                                         </span>
                                       </td>
                                       <td className="px-4 py-4 align-top text-right font-bold text-black/80">
@@ -13162,18 +13168,21 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
               {/* ── Check-In Wizard Modal ── */}
               {wizardOpen && wizardReservation && ReactDOM.createPortal(
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
-                    <div className="bg-gradient-to-br from-[#00754A] to-[#006241] px-6 py-4 flex items-center justify-between">
-                      <div>
-                        <div className="text-[#000000]/87 font-bold">Check-In Wizard</div>
-                        <div className="text-black/60 text-xs">{wizardReservation.full_name} · #{wizardReservation.id}</div>
+                <div className="fixed inset-0 z-[100] bg-gray-100 overflow-y-auto">
+                  <div className="min-h-screen flex flex-col lg:pl-[260px]">
+                    <div className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 flex flex-col">
+                      <div className="flex items-center justify-between mb-6 px-2">
+                        <div>
+                          <h2 className="text-xl font-bold text-[#000000]/87 tracking-tight">Check-In Wizard</h2>
+                          <p className="text-sm text-black/60 font-medium mt-0.5">{wizardReservation.full_name} &bull; Confirmation #{wizardReservation.id}</p>
+                        </div>
+                        {!wizardSuccess && (
+                          <button onClick={closeWizard} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 transition-colors">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                          </button>
+                        )}
                       </div>
-                      {!wizardSuccess && (
-                        <button onClick={closeWizard} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors">✕</button>
-                      )}
-                    </div>
-                    <div className="p-6">
+                      <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-6 sm:p-8 flex-1">
                       {wizardSuccess ? (
                         <WizardSuccessCard />
                       ) : (
@@ -13217,6 +13226,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           </div>
                         </>
                       )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -13721,7 +13731,8 @@ function FolioModal({
 
   const nights = nightsCount(folioRes);
   const fmtA = (n) => `₱${parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
-  const isDueOut = folioRes.check_out_date && folioRes.check_out_date.slice(0,10) === new Date().toISOString().slice(0,10);
+  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
 
   const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
 
@@ -13796,8 +13807,8 @@ function FolioModal({
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xl font-bold text-black tracking-tight">{folioRes.full_name}</span>
-              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${isDueOut?'bg-amber-100 text-amber-700':'bg-green-100 text-green-700'}`}>
-                {isDueOut ? 'Due Out' : 'In-House'}
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${isOverdue ? 'bg-red-100 text-red-700' : isDueOut ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                {isOverdue ? 'Overdue' : isDueOut ? 'Due Out' : 'In-House'}
               </span>
             </div>
           </div>
