@@ -1101,7 +1101,7 @@ app.put('/api/admin/room-types/:id', async (req, res) => {
          floor           = COALESCE($7, floor),
          area            = COALESCE($8, area),
          active          = COALESCE($9, active),
-         images          = COALESCE($10, images)
+         images          = COALESCE($10::jsonb, images)
        WHERE id = $11 RETURNING *`;
       params = [name, description, totalRooms, pricePerNight, maxGuests, amenities, floor, area, active, JSON.stringify(imageArray), id];
     } else {
