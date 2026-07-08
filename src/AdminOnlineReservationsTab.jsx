@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus }) {
+export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openWizard }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterChannel, setFilterChannel] = useState('All Channels');
@@ -16,12 +16,15 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
     return n > 0 ? n : 1;
   };
 
+  const today = new Date().toISOString().split('T')[0];
+
   const getHint = (d) => {
     if (!d) return '';
     const diff = Math.round((new Date(d).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
     if (diff === 0) return '(Today)';
     if (diff === 1) return '(Tomorrow)';
     if (diff > 1) return `(In ${diff} Days)`;
+    if (diff < 0) return `(${Math.abs(diff)} Day${Math.abs(diff) > 1 ? 's' : ''} Overdue)`;
     return '';
   };
 
@@ -36,6 +39,10 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
   // Derive display reservations
   const displayReservations = useMemo(() => {
     return reservations
+      .filter(r => {
+        const s = (r.status || '').toLowerCase();
+        return s !== 'checked_in' && s !== 'checked_out' && s !== 'completed';
+      })
       .filter(r => filterStatus === 'All Status' || r.status.toLowerCase() === filterStatus.toLowerCase())
       .filter(r => filterChannel === 'All Channels' || (r.source || 'Direct Website') === filterChannel)
       .filter(r => {
@@ -43,26 +50,41 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
         const q = searchQuery.toLowerCase();
         return r.full_name?.toLowerCase().includes(q) || r.email?.toLowerCase().includes(q) || String(r.id).includes(q) || r.phone_number?.includes(q);
       })
-      .map(r => ({
-        id: `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`,
-        dbId: r.id,
-        booked: fmtDateTime(r.created_at),
-        guest: r.full_name,
-        email: r.email || r.phone_number,
-        vip: false,
-        channel: r.source || 'Direct Website',
-        channelIcon: (r.source || 'Direct Website') === 'Direct Website' ? 'globe' : 'globe',
-        room: r.room_type || r.service_name || 'Standard Room',
-        ratePlan: 'Best Available Rate',
-        checkIn: fmtDate(r.check_in_date || r.preferred_date),
-        checkInHint: getHint(r.check_in_date || r.preferred_date),
-        checkOut: fmtDate(r.check_out_date || r.preferred_date),
-        nights: getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date),
-        guests: r.number_of_guests ? `${r.number_of_guests} Guest(s)` : '1 Adult',
-        status: r.status,
-        statusColor: getStatusColor(r.status),
-        total: `₱${(getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date) * 3500).toLocaleString('en-US', {minimumFractionDigits: 2})}`
-      }));
+      .map(r => {
+        const rawCheckIn = r.check_in_date || r.preferred_date;
+        let isNoShowWarning = false;
+        try {
+          if (rawCheckIn && (r.status === 'pending' || r.status === 'confirmed')) {
+            const checkInStr = typeof rawCheckIn === 'string' ? rawCheckIn : new Date(rawCheckIn).toISOString();
+            isNoShowWarning = checkInStr.slice(0,10) < today;
+          }
+        } catch (e) {
+          console.error('Error calculating isNoShowWarning:', e, rawCheckIn);
+        }
+        
+        return {
+          originalRes: r,
+          id: `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`,
+          dbId: r.id,
+          isNoShowWarning,
+          booked: fmtDateTime(r.created_at),
+          guest: r.full_name,
+          email: r.email || r.phone_number,
+          vip: false,
+          channel: r.source || 'Direct Website',
+          channelIcon: (r.source || 'Direct Website') === 'Direct Website' ? 'globe' : 'globe',
+          room: r.room_type || r.service_name || 'Standard Room',
+          ratePlan: 'Best Available Rate',
+          checkIn: fmtDate(r.check_in_date || r.preferred_date),
+          checkInHint: getHint(r.check_in_date || r.preferred_date),
+          checkOut: fmtDate(r.check_out_date || r.preferred_date),
+          nights: getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date),
+          guests: r.number_of_guests ? `${r.number_of_guests} Guest(s)` : '1 Adult',
+          status: r.status,
+          statusColor: getStatusColor(r.status),
+          total: `₱${(getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date) * 3500).toLocaleString('en-US', {minimumFractionDigits: 2})}`
+        };
+      });
   }, [reservations, searchQuery, filterStatus, filterChannel]);
 
   const statsDerived = useMemo(() => {
@@ -120,11 +142,11 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-[1500px] mx-auto space-y-6">
+        <div className="flex-1 overflow-y-auto p-8 flex flex-col">
+          <div className="max-w-[1500px] mx-auto w-full h-full flex flex-col gap-6">
 
             {/* Top Stat Cards */}
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-5 gap-4 shrink-0">
               <div className="bg-white rounded-xl border border-black/5 p-5 shadow-sm flex items-center justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-1">TOTAL ONLINE RESERVATIONS</h4>
@@ -178,10 +200,10 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
             </div>
 
             {/* Main Table Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-black/5 flex-1 flex flex-col min-h-0">
               
               {/* Toolbar */}
-              <div className="p-4 border-b border-black/5 flex items-center justify-between gap-4">
+              <div className="p-4 border-b border-black/5 flex items-center justify-between gap-4 shrink-0">
                 <div className="flex items-center gap-3 flex-1">
                   <div className="relative w-[320px]">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -194,7 +216,6 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                     <option>All Status</option>
                     <option value="confirmed">Confirmed</option>
                     <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
                   <select value={filterChannel} onChange={e => setFilterChannel(e.target.value)} className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8">
@@ -213,10 +234,10 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
               </div>
 
               {/* Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-[12px]">
-                  <thead>
-                    <tr className="border-b border-black/5 bg-gray-50/50">
+              <div className="overflow-auto flex-1 bg-white relative">
+                <table className="w-full text-left text-[12px] relative">
+                  <thead className="sticky top-0 z-10">
+                    <tr className="border-b border-black/5 bg-gray-50/95 backdrop-blur-sm">
                       <th className="px-5 py-4 w-10">
                         <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
                       </th>
@@ -237,7 +258,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                     {displayReservations.length === 0 ? (
                       <tr><td colSpan="12" className="text-center py-8 text-black/50">No reservations found.</td></tr>
                     ) : displayReservations.map((res, i) => (
-                      <tr key={res.dbId} className="hover:bg-gray-50/50 transition-colors">
+                      <tr key={res.dbId} className={`transition-colors ${res.isNoShowWarning ? 'bg-rose-50 hover:bg-rose-100/70 border-b border-rose-100' : 'hover:bg-gray-50/50'}`}>
                         <td className="px-5 py-4">
                           <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
                         </td>
@@ -264,7 +285,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                         </td>
                         <td className="px-4 py-4 align-top">
                           <div className="font-medium text-black/80">{res.checkIn}</div>
-                          <div className="text-[11px] text-emerald-600 font-medium mt-0.5">{res.checkInHint}</div>
+                          <div className={`text-[11px] font-medium mt-0.5 ${res.isNoShowWarning ? 'text-rose-600 font-bold' : 'text-emerald-600'}`}>{res.checkInHint}</div>
                         </td>
                         <td className="px-4 py-4 align-top">
                           <div className="font-medium text-black/80">{res.checkOut}</div>
@@ -287,10 +308,19 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                           
                           {openDropdown === res.dbId && (
                             <div className="absolute right-8 top-10 mt-1 w-40 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+                              {(res.status === 'pending' || res.status === 'Pending' || res.status === 'confirmed' || res.status === 'Confirmed') && openWizard && (
+                                <button 
+                                  onClick={() => { openWizard(res.originalRes); setOpenDropdown(null); }}
+                                  className="w-full px-4 py-2 text-left text-[12px] font-medium text-emerald-600 hover:bg-emerald-50 flex items-center gap-2"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                  Check In
+                                </button>
+                              )}
                               {(res.status === 'pending' || res.status === 'Pending') && (
                                 <button 
                                   onClick={() => { updateStatus && updateStatus(res.dbId, 'confirmed'); setOpenDropdown(null); }}
-                                  className="w-full px-4 py-2 text-left text-[12px] font-medium text-emerald-600 hover:bg-emerald-50 flex items-center gap-2"
+                                  className="w-full px-4 py-2 text-left text-[12px] font-medium text-blue-600 hover:bg-blue-50 flex items-center gap-2"
                                 >
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                   Confirm Booking
@@ -303,6 +333,15 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                                 >
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                                   Cancel Booking
+                                </button>
+                              )}
+                              {res.isNoShowWarning && res.status !== 'no_show' && (
+                                <button 
+                                  onClick={() => { updateStatus && updateStatus(res.dbId, 'no_show'); setOpenDropdown(null); }}
+                                  className="w-full px-4 py-2 text-left text-[12px] font-medium text-orange-600 hover:bg-orange-50 flex items-center gap-2"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                  Mark as No Show
                                 </button>
                               )}
                               <a 
@@ -323,7 +362,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
               </div>
 
               {/* Pagination */}
-              <div className="px-6 py-4 border-t border-black/5 flex items-center justify-between text-[13px]">
+              <div className="px-6 py-4 border-t border-black/5 flex items-center justify-between text-[13px] shrink-0 bg-white">
                 <div className="text-black/50 font-medium">
                   Showing 1 to {displayReservations.length} of {displayReservations.length} entries
                 </div>
@@ -336,7 +375,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
             </div>
 
             {/* Bottom Footer Info */}
-            <div className="bg-[#F0F7FD] border border-[#BDE0FE] rounded-xl p-5 flex items-center gap-8 shadow-sm">
+            <div className="bg-[#F0F7FD] border border-[#BDE0FE] rounded-xl p-5 flex items-center gap-8 shadow-sm shrink-0">
               <div className="flex gap-4 items-start flex-1">
                 <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 mt-0.5">
                   <span className="font-serif italic text-sm font-bold">i</span>

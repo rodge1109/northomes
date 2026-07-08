@@ -61,7 +61,15 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
       if (r.status === 'checked_in') {
         inHouse++;
         // Rough estimate of revenue for in-house
-        const rate = r.room_type?.toLowerCase().includes('suite') ? 6500 : 3500;
+        const getRoomRate = (t) => {
+          const type = (t || '').toLowerCase();
+          if (type.includes('presidential')) return 25000;
+          if (type.includes('suite')) return 9000;
+          if (type.includes('family')) return 6500;
+          if (type.includes('deluxe')) return 4500;
+          return 2500; // Standard Room and fallback
+        };
+        const rate = getRoomRate(r.room_type);
         totalRevenue += rate;
         
         if (isToday(checkOut)) {

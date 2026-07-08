@@ -1161,6 +1161,7 @@ const initHotelSettingsTable = async () => {
     cancellation_policy: 'Free cancellation up to 24 hours before check-in.',
     deposit_required: 'false',
     deposit_percentage: '50',
+    auto_post_room_charge: 'false',
     sms_sender_name: 'HOTEL',
     email_sender_name: 'Grand Hotel',
     email_booking_subject: 'Booking Confirmation - Northomes Pensionne',
@@ -1268,15 +1269,15 @@ app.get('/api/front-desk/arrivals', async (req, res) => {
               COALESCE(g.purpose_of_visit, r.purpose_of_visit) AS purpose_of_visit
        FROM hotel_reservations r
        LEFT JOIN hotel_guests g ON r.guest_id = g.id
-       WHERE r.check_in_date = $1
+       WHERE r.check_in_date <= $1
          AND r.status IN ('pending', 'confirmed', 'arrived')
        ORDER BY r.guest_arrived_at ASC NULLS LAST, r.created_at ASC`,
       [date]
     );
     const statsRes = await pool.query(
       `SELECT status, COUNT(*) as count FROM hotel_reservations
-       WHERE check_in_date = $1
-         AND status IN ('pending','confirmed','checked_in','no_show')
+       WHERE (check_in_date = $1 AND status IN ('checked_in','no_show'))
+          OR (check_in_date <= $1 AND status IN ('pending','confirmed','arrived'))
        GROUP BY status`,
       [date]
     );
@@ -1938,7 +1939,11 @@ app.post('/api/front-desk/walkin', async (req, res) => {
       `INSERT INTO hotel_rooms (room_number, room_type) VALUES ($1,$2) ON CONFLICT (room_number) DO NOTHING`,
       [room_number, room_type || '']
     );
-    res.json({ success: true, reservation: result.rows[0] });
+    const reservation = result.rows[0];
+    if (reservation.status === 'checked_in') {
+      await autoPostRoomCharge(reservation.id);
+    }
+    res.json({ success: true, reservation });
   } catch (err) {
     console.error('Walk-in error:', err);
     res.status(500).json({ success: false, message: 'Walk-in check-in failed.' });
@@ -2182,6 +2187,53 @@ app.delete('/api/rooms/:roomNumber', async (req, res) => {
   }
 });
 
+// Helper to auto-post room charges when auto-billing is enabled
+const autoPostRoomCharge = async (reservationId, client = null) => {
+  const db = client || pool;
+  try {
+    // 1. Check if auto-post is enabled
+    const settingRes = await db.query("SELECT value FROM hotel_settings WHERE key = 'auto_post_room_charge'");
+    const isEnabled = settingRes.rows[0]?.value === 'true';
+    if (!isEnabled) return;
+
+    // 2. Fetch reservation
+    const resResult = await db.query("SELECT id, room_type, check_in_date, check_out_date FROM hotel_reservations WHERE id = $1", [reservationId]);
+    if (resResult.rows.length === 0) return;
+
+    const r = resResult.rows[0];
+    const checkIn = new Date(r.check_in_date);
+    const checkOut = new Date(r.check_out_date);
+    const nights = Math.max(1, Math.round((checkOut - checkIn) / 86400000));
+
+    // 3. Fetch price per night for the room type
+    const rtResult = await db.query("SELECT price_per_night FROM hotel_room_types WHERE name = $1", [r.room_type]);
+    const price = rtResult.rows.length > 0 ? parseFloat(rtResult.rows[0].price_per_night) : 3500; // fallback to 3500
+
+    const amount = nights * price;
+    const desc = `Room Charge (${nights} night${nights > 1 ? 's' : ''} @ ₱${price.toLocaleString()}/night)`;
+
+    // 4. Check if a room charge has already been posted to prevent duplicates
+    const duplicateRes = await db.query(
+      "SELECT id FROM hotel_folio_items WHERE reservation_id = $1 AND charge_type = 'Room Rate' AND voided = false",
+      [reservationId]
+    );
+    if (duplicateRes.rows.length > 0) {
+      console.log(`Auto room rate charge already posted for reservation ${reservationId}`);
+      return;
+    }
+
+    // 5. Post charge
+    await db.query(
+      `INSERT INTO hotel_folio_items (reservation_id, charge_type, description, quantity, unit_price, amount)
+       VALUES ($1, 'Room Rate', $2, $3, $4, $5)`,
+      [reservationId, desc, nights, price, amount]
+    );
+    console.log(`Auto room rate charge posted for reservation ${reservationId}: ${amount}`);
+  } catch (err) {
+    console.error('Failed to auto-post room charge:', err);
+  }
+};
+
 // POST /api/reservations/:id/checkin
 app.post('/api/reservations/:id/checkin', async (req, res) => {
   try {
@@ -2231,6 +2283,8 @@ app.post('/api/reservations/:id/checkin', async (req, res) => {
         [roomNumber, existing.rows[0].room_type || '']
       );
     }
+    // Auto-post room charge if setting is active
+    await autoPostRoomCharge(id);
     res.json({ success: true, reservation: result.rows[0], message: 'Check-in complete.' });
   } catch (err) {
     console.error(err);

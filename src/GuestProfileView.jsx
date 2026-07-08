@@ -18,7 +18,7 @@ const formatDateForInput = (dateStr) => {
   }
 };
 
-export default function GuestProfileView({ guest, onBack, onSave }) {
+export default function GuestProfileView({ guest, onBack, onSave, printGuestDataSheet }) {
   if (!guest) return null;
 
   const [activeTab, setActiveTab] = useState('Profile');
@@ -194,6 +194,15 @@ export default function GuestProfileView({ guest, onBack, onSave }) {
               >
                 Edit Profile
               </button>
+              {guest.stays && guest.stays.length > 0 && printGuestDataSheet && (
+                <button 
+                  onClick={() => printGuestDataSheet(guest.stays[0])}
+                  className="flex items-center gap-2 px-5 py-2 border border-black/10 text-black/80 hover:bg-gray-50 rounded-lg text-[13px] font-bold shadow-sm transition-colors bg-white"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
+                  Print Data Sheet
+                </button>
+              )}
               <button className="flex items-center gap-2 px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-lg text-[13px] font-bold shadow-sm transition-colors">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 New Reservation
@@ -363,10 +372,19 @@ export default function GuestProfileView({ guest, onBack, onSave }) {
                                 <td className="px-6 py-4">{stay.room_type}</td>
                                 <td className="px-6 py-4 font-bold">{stay.nights}</td>
                                 <td className="px-6 py-4 font-bold">{fmtCurrency(stay.total)}</td>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-4 flex items-center gap-3">
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${stay.status === 'checked_in' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-600'}`}>
                                     {stay.status === 'checked_in' ? 'In-House' : stay.status}
                                   </span>
+                                  {printGuestDataSheet && (
+                                    <button 
+                                      onClick={(e) => { e.stopPropagation(); printGuestDataSheet(stay); }}
+                                      className="p-1 border border-black/10 rounded-md hover:bg-gray-100 text-black/50 hover:text-black/80 transition-colors bg-white shadow-sm"
+                                      title="Print Guest Data Sheet"
+                                    >
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
+                                    </button>
+                                  )}
                                 </td>
                               </tr>
                             );

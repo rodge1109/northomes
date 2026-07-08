@@ -1826,6 +1826,12 @@ function AppointmentForm({ onSuccess }) {
 
 // Admin Dashboard Component
 function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
+  const [pendingCheckInRes, setPendingCheckInRes] = useState(null);
+  const handleOpenWizard = (res) => {
+    setPendingCheckInRes(res);
+    setActiveTab('frontdesk');
+  };
+
   // ── Folio & Ledger State (Lifted for global access) ──────────────────────────
   const [folioOpen, setFolioOpen] = useState(false);
   const [folioRes, setFolioRes] = useState(null);
@@ -2036,6 +2042,302 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     win.document.close();
   };
 
+  const printGuestDataSheet = (res) => {
+    if (!res) return;
+    const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const fmtCurrency = (n) => `₱${parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    
+    // Parse name parts
+    let last = '', first = '', mi = '—';
+    if (res.full_name) {
+      if (res.full_name.includes(',')) {
+        const parts = res.full_name.split(',');
+        last = parts[0].trim();
+        const firstParts = parts[1].trim().split(' ');
+        first = firstParts[0];
+        if (firstParts.length > 1) {
+          mi = firstParts[firstParts.length - 1][0].toUpperCase() + '.';
+        }
+      } else {
+        const parts = res.full_name.trim().split(' ');
+        if (parts.length > 1) {
+          last = parts[parts.length - 1];
+          first = parts[0];
+          if (parts.length > 2) {
+            mi = parts[1][0].toUpperCase() + '.';
+          }
+        } else {
+          first = parts[0];
+        }
+      }
+    }
+
+    const nights = Math.max(1, Math.round((new Date(res.check_out_date || res.check_in_date) - new Date(res.check_in_date)) / 86400000));
+    const getRoomRate = (t) => {
+      const type = (t || '').toLowerCase();
+      if (type.includes('presidential')) return 25000;
+      if (type.includes('suite')) return 9000;
+      if (type.includes('family')) return 6500;
+      if (type.includes('deluxe')) return 4500;
+      return 2500; // Standard Room and fallback
+    };
+    const rate = getRoomRate(res.room_type);
+    const totalAmt = nights * rate;
+
+    // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
+    const payMethod = (res.payment_method || '').toLowerCase();
+    const source = (res.source || '').toLowerCase();
+    
+    const isCash = payMethod.includes('cash') || source.includes('cash') ? 'checked' : '';
+    const isBank = payMethod.includes('bank') || payMethod.includes('transfer') ? 'checked' : '';
+    const isGcash = payMethod.includes('gcash') ? 'checked' : '';
+    const isMaya = payMethod.includes('maya') || payMethod.includes('paymaya') ? 'checked' : '';
+    const isOther = !isCash && !isBank && !isGcash && !isMaya ? 'checked' : '';
+
+    const win = window.open('', '_blank', 'width=800,height=900');
+    win.document.write(`<!DOCTYPE html><html><head><title>Guest Data Sheet — ${res.full_name}</title>
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 750px; margin: 20px auto; padding: 0 10px; color: #222; font-size: 11px; line-height: 1.3; }
+        .header { text-align: center; margin-bottom: 12px; }
+        .header h1 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header p { margin: 2px 0; font-size: 9px; color: #555; }
+        .divider { border-bottom: 2px solid #222; margin: 8px 0; }
+        .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .title-row h2 { margin: 0; font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .doc-no { font-weight: bold; font-size: 11px; color: #b91c1c; }
+        
+        .section-title { font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 12px 0 6px 0; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+        
+        .grid-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .grid-table td { padding: 4px 6px; border: 1px solid #ddd; vertical-align: middle; }
+        .lbl { font-weight: bold; color: #333; width: 12%; font-size: 9px; text-transform: uppercase; background: #fafafa; }
+        .val { width: 21%; }
+        .line-input { border-bottom: 1px solid #222; min-height: 14px; padding-left: 4px; }
+        
+        .checkbox-group { display: flex; gap: 15px; align-items: center; margin-top: 4px; }
+        .checkbox-group label { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 9px; }
+        
+        .ack-box { border: 1px solid #888; padding: 8px; margin: 10px 0; font-size: 9.5px; line-height: 1.4; background: #fafafa; border-radius: 4px; }
+        .sig-row { display: flex; justify-content: space-between; margin-top: 15px; }
+        .sig-col { width: 45%; text-align: center; }
+        .sig-line { border-bottom: 1px solid #222; margin-bottom: 4px; height: 18px; }
+        
+        .data-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+        .data-table th { border: 1px solid #222; padding: 5px; font-weight: bold; text-align: center; background: #f0f0f0; font-size: 9px; }
+        .data-table td { border: 1px solid #222; padding: 4px; font-size: 10px; }
+        .data-table td.center { text-align: center; }
+        .data-table td.right { text-align: right; }
+        
+        .footer-row { display: flex; justify-content: space-between; margin-top: 20px; font-size: 10px; }
+        
+        @media print {
+          body { margin: 10px; }
+          button { display: none; }
+        }
+      </style></head><body>
+      <div class="header">
+        <h1>Northomes Pensione</h1>
+        <p>PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+        <p>TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+      </div>
+      <div class="divider"></div>
+      
+      <div class="title-row">
+        <h2>Guest Data Sheet</h2>
+        <div class="doc-no">F1-D-${String(res.id).padStart(4, '0')}</div>
+      </div>
+      
+      <table class="grid-table">
+        <tr>
+          <td class="lbl">Last Name</td>
+          <td class="val"><div class="line-input">${last}</div></td>
+          <td class="lbl">First Name</td>
+          <td class="val"><div class="line-input">${first}</div></td>
+          <td class="lbl">M.I.</td>
+          <td class="val"><div class="line-input">${mi}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Company Name</td>
+          <td class="val" colspan="3"><div class="line-input">${res.company || '—'}</div></td>
+          <td class="lbl">T.I.N.</td>
+          <td class="val"><div class="line-input">—</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Address</td>
+          <td class="val" colspan="5"><div class="line-input">${res.address || '—'}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Date of Birth</td>
+          <td class="val"><div class="line-input">${fmtD(res.date_of_birth)}</div></td>
+          <td class="lbl">Citizenship</td>
+          <td class="val"><div class="line-input">${res.nationality || 'Filipino'}</div></td>
+          <td class="lbl">Contact No.</td>
+          <td class="val"><div class="line-input">${res.phone_number || '—'}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Email Add</td>
+          <td class="val" colspan="5"><div class="line-input">${res.email || '—'}</div></td>
+        </tr>
+      </table>
+      
+      <div class="section-title">In case of emergency please notify</div>
+      <table class="grid-table">
+        <tr>
+          <td class="lbl" style="width:15%;">Name</td>
+          <td style="width:35%;"><div class="line-input">—</div></td>
+          <td class="lbl" style="width:15%;">Contact No.</td>
+          <td style="width:35%;"><div class="line-input">—</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Address</td>
+          <td colspan="3"><div class="line-input">—</div></td>
+        </tr>
+      </table>
+      
+      <div class="section-title">Booking Details</div>
+      <table class="grid-table">
+        <tr>
+          <td class="lbl">Check-In Date</td>
+          <td class="val"><div class="line-input">${fmtD(res.check_in_date)}</div></td>
+          <td class="lbl">Check-Out Date</td>
+          <td class="val"><div class="line-input">${fmtD(res.check_out_date)}</div></td>
+          <td class="lbl">No. of Nights</td>
+          <td class="val"><div class="line-input">${nights}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Check-In Time</td>
+          <td class="val"><div class="line-input">${res.check_in_time || '14:00'}</div></td>
+          <td class="lbl">Check-Out Time</td>
+          <td class="val"><div class="line-input">${res.check_out_time || '12:00'}</div></td>
+          <td class="lbl">No. of Guests</td>
+          <td class="val"><div class="line-input">${res.number_of_guests || 1}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Accommodation</td>
+          <td class="val"><div class="line-input">Room ${res.room_number || '—'}</div></td>
+          <td class="lbl">Rate Per Night</td>
+          <td class="val"><div class="line-input">${fmtCurrency(rate)}</div></td>
+          <td class="lbl">Room Charges</td>
+          <td class="val"><div class="line-input">${fmtCurrency(totalAmt)}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Inclusions</td>
+          <td class="val" colspan="3"><div class="line-input">Standard Room Amenities</div></td>
+          <td class="lbl">Other Charges</td>
+          <td class="val"><div class="line-input">₱0.00</div></td>
+        </tr>
+        <tr>
+          <td class="lbl" colspan="4" style="text-align:right; font-weight:bold; background:#fafafa;">Total Amount Due:</td>
+          <td class="val" colspan="2" style="font-weight:bold;"><div class="line-input">${fmtCurrency(totalAmt)}</div></td>
+        </tr>
+      </table>
+      
+      <div style="margin-top:6px;">
+        <span style="font-weight:bold; font-size:9px; text-transform:uppercase;">Payment Method:</span>
+        <div class="checkbox-group">
+          <label><input type="checkbox" ${isCash}> CASH</label>
+          <label><input type="checkbox" ${isBank}> BANK TRANSFER</label>
+          <label><input type="checkbox" ${isGcash}> GCASH</label>
+          <label><input type="checkbox" ${isMaya}> MAYA</label>
+          <label><input type="checkbox" ${isOther}> OTHER</label>
+        </div>
+      </div>
+      
+      <div class="section-title">Guest Acknowledgement & Confirmation</div>
+      <div class="ack-box">
+        I, <strong>${res.full_name}</strong>, affirm that the above information is true and correct. I have read and understood the house rules and agree to abide by them. Additionally, I have reviewed and confirmed the billing details, acknowledging that all charges are accurate.
+      </div>
+      
+      <div class="sig-row">
+        <div class="sig-col">
+          <div class="sig-line"></div>
+          <div style="font-size:9px;">Guest Signature</div>
+          <div style="font-size:8px; color:#666;">(Signature over printed name)</div>
+        </div>
+        <div class="sig-col">
+          <div class="sig-line" style="width:100px; margin-left:auto; margin-right:auto;"></div>
+          <div style="font-size:9px;">Date</div>
+        </div>
+      </div>
+      
+      <div class="divider" style="margin-top:20px; border-bottom: 1px dashed #666;"></div>
+      
+      <div class="title-row" style="margin-top:10px;">
+        <span style="font-weight:bold;">Guest Name: ${res.full_name}</span>
+        <div class="doc-no">F1-D-${String(res.id).padStart(4, '0')}</div>
+      </div>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:20%;">DATE</th>
+            <th style="width:15%;">RM#</th>
+            <th style="width:20%;">RATE</th>
+            <th style="width:15%;"># OF DAYS</th>
+            <th style="width:30%;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="center">${fmtD(res.check_in_date)}</td>
+            <td class="center">${res.room_number || '—'}</td>
+            <td class="right">${fmtCurrency(rate)}</td>
+            <td class="center">${nights}</td>
+            <td class="right">${fmtCurrency(totalAmt)}</td>
+          </tr>
+          <tr><td colspan="4" style="text-align:right; font-weight:bold;">Total PhP</td><td class="right" style="font-weight:bold;">${fmtCurrency(totalAmt)}</td></tr>
+        </tbody>
+      </table>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:20%;">DATE</th>
+            <th style="width:15%;">O.S. #</th>
+            <th style="width:35%;">DETAILS</th>
+            <th style="width:30%;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td colspan="3" style="text-align:right; font-weight:bold;">Total PhP</td><td class="right" style="font-weight:bold;">₱0.00</td></tr>
+        </tbody>
+      </table>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:20%;">DATE</th>
+            <th style="width:15%;">REF. #</th>
+            <th style="width:35%;">DETAILS</th>
+            <th style="width:30%;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td colspan="3" style="text-align:right; font-weight:bold;">Total PhP ( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</td><td class="right" style="font-weight:bold;">₱0.00</td></tr>
+        </tbody>
+      </table>
+      
+      <div style="display:flex; justify-content:flex-end; font-weight:bold; font-size:12px; margin-top:8px; border-top:1px solid #222; padding-top:6px;">
+        TOTAL AMOUNT DUE: &nbsp; <span style="text-decoration: underline; text-underline-offset: 3px;">${fmtCurrency(totalAmt)}</span>
+      </div>
+      
+      <div class="footer-row">
+        <div>CHECK IN DATE: <span style="text-decoration:underline;">&nbsp; &nbsp; ${fmtD(res.check_in_date)} &nbsp; &nbsp;</span> &nbsp; &nbsp; TIME: <span style="text-decoration:underline;">&nbsp; &nbsp; ${res.check_in_time || '14:00'} &nbsp; &nbsp;</span></div>
+        <div style="text-align:center; width:200px;">
+          <div style="border-bottom:1px solid #222; height:18px; font-weight:bold; font-size:9px;">Maria Santos</div>
+          <div style="font-size:8px; text-transform:uppercase; color:#666; margin-top:3px;">Front Desk Officer</div>
+        </div>
+      </div>
+      
+      <script>window.onload=()=>{window.print();}</script>
+    </body></html>`);
+    win.document.close();
+  };
+
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPermissions, setUserPermissions] = useState([]);
@@ -2107,7 +2409,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     hotel_website: '', check_in_time: '14:00', check_out_time: '12:00',
     currency: 'PHP', min_stay_nights: '1', max_stay_nights: '30',
     advance_booking_days: '365', cancellation_policy: '',
-    deposit_required: 'false', deposit_percentage: '50',
+    deposit_required: 'false', deposit_percentage: '50', auto_post_room_charge: 'false',
     sms_sender_name: '', email_sender_name: '', hero_images: '[]', gallery_images: '[]', about_us_content: ''
   });
   const [heroFiles, setHeroFiles] = useState([]);
@@ -2990,13 +3292,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
 
         {/* ==================== RESERVATIONS TAB ==================== */}
-        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} />}
+        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} openWizard={handleOpenWizard} />}
 
         {/* ==================== GUESTS TAB ==================== */}
-        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} />}
+        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
-        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} />}
+        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} />}
 
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
@@ -3847,6 +4149,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             />
                           </div>
                         )}
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Auto-Post Room Charge on Check-in</label>
+                          <select
+                            value={hotelSettings.auto_post_room_charge || 'false'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, auto_post_room_charge: e.target.value }))}
+                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all appearance-none"
+                          >
+                            <option value="false">No (Manual Billing)</option>
+                            <option value="true">Yes (Automatic Billing)</option>
+                          </select>
+                        </div>
                       </div>
                       <div>
                         <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Cancellation Policy</label>
@@ -9610,7 +9923,7 @@ function GuestCheckinPage({ setCurrentPage }) {
   );
 }
 
-function FrontDeskTab() {
+function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes }) {
   const today = new Date().toISOString().split('T')[0];
   const [fdView, setFdView] = React.useState('arrivals');
 
@@ -9657,6 +9970,87 @@ function FrontDeskTab() {
 
   // Status update state
   const [statusUpdating, setStatusUpdating] = React.useState(null);
+
+  // New arrivals local filtering and formatting helpers
+  const [arrivalSearchQuery, setArrivalSearchQuery] = React.useState('');
+  const [arrivalFilterStatus, setArrivalFilterStatus] = React.useState('All Status');
+  const [arrivalFilterChannel, setArrivalFilterChannel] = React.useState('All Channels');
+  const [openArrivalDropdown, setOpenArrivalDropdown] = React.useState(null);
+
+  const getArrivalStatusColor = (s) => {
+    const status = (s || '').toLowerCase();
+    if (status === 'confirmed') return 'bg-emerald-50 text-emerald-600';
+    if (status === 'pending') return 'bg-orange-50 text-orange-600';
+    if (status === 'checked_in') return 'bg-blue-50 text-blue-600';
+    if (status === 'cancelled') return 'bg-rose-50 text-rose-600';
+    return 'bg-gray-50 text-gray-600';
+  };
+
+  const renderChannelIcon = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t === 'direct website' || t === 'globe' || t === 'website') {
+      return (
+        <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center bg-white">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const filteredArrivals = React.useMemo(() => {
+    return arrivals
+      .filter(r => {
+        if (arrivalFilterStatus === 'All Status') return true;
+        return (r.status || '').toLowerCase() === arrivalFilterStatus.toLowerCase();
+      })
+      .filter(r => {
+        if (arrivalFilterChannel === 'All Channels') return true;
+        return (r.source || 'Direct Website') === arrivalFilterChannel;
+      })
+      .filter(r => {
+        if (!arrivalSearchQuery) return true;
+        const q = arrivalSearchQuery.toLowerCase();
+        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`;
+        return (
+          r.full_name?.toLowerCase().includes(q) ||
+          r.email?.toLowerCase().includes(q) ||
+          confId.toLowerCase().includes(q) ||
+          r.phone_number?.includes(q)
+        );
+      });
+  }, [arrivals, arrivalFilterStatus, arrivalFilterChannel, arrivalSearchQuery]);
+
+  // New In-House local filtering and formatting helpers
+  const [inHouseSearchQuery, setInHouseSearchQuery] = React.useState('');
+  const [inHouseFilterStatus, setInHouseFilterStatus] = React.useState('All Status');
+  const [openInHouseDropdown, setOpenInHouseDropdown] = React.useState(null);
+
+  const filteredInHouse = React.useMemo(() => {
+    return inHouseGuests
+      .filter(r => {
+        if (inHouseFilterStatus === 'All Status') return true;
+        const isDueOut = r.check_out_date && r.check_out_date.slice(0, 10) === today;
+        if (inHouseFilterStatus === 'Due Out') return isDueOut;
+        if (inHouseFilterStatus === 'Checked In') return !isDueOut;
+        return true;
+      })
+      .filter(r => {
+        if (!inHouseSearchQuery) return true;
+        const q = inHouseSearchQuery.toLowerCase();
+        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`;
+        return (
+          r.full_name?.toLowerCase().includes(q) ||
+          r.email?.toLowerCase().includes(q) ||
+          confId.toLowerCase().includes(q) ||
+          (r.room_number || '').includes(q)
+        );
+      });
+  }, [inHouseGuests, inHouseFilterStatus, inHouseSearchQuery, today]);
 
   // ── Folio state ──────────────────────────────────────────────────────────────
   const [folioOpen, setFolioOpen] = React.useState(false);
@@ -9821,6 +10215,13 @@ function FrontDeskTab() {
   }, [searchQ, runSearch]);
 
   // ── Wizard helpers ─────────────────────────────────────────────────────────
+  React.useEffect(() => {
+    if (pendingCheckInRes) {
+      openWizard(pendingCheckInRes);
+      if (setPendingCheckInRes) setPendingCheckInRes(null);
+    }
+  }, [pendingCheckInRes, setPendingCheckInRes]);
+
   const openWizard = (r) => {
     setWizardReservation(r);
     setWizardStep(1);
@@ -10770,22 +11171,41 @@ function FrontDeskTab() {
     );
   };
 
-  const WizardStep1 = () => (
-    <div>
-      <h3 className="font-semibold text-gray-900 mb-1">Verify Guest Identity</h3>
-      <p className="text-xs text-gray-500 mb-4">Ask the guest to present a valid government-issued photo ID.</p>
-      <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-2 mb-3">
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Name</span><span className="font-medium text-gray-900">{wizardReservation?.full_name}</span></div>
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Email</span><span className="font-medium text-gray-900">{wizardReservation?.email || '—'}</span></div>
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Phone</span><span className="font-medium text-gray-900">{wizardReservation?.phone_number || '—'}</span></div>
-        {wizardReservation?.nationality && <div className="flex justify-between text-sm"><span className="text-gray-500">Nationality</span><span className="font-medium text-gray-900">{wizardReservation.nationality}</span></div>}
-        {wizardReservation?.id_type && <div className="flex justify-between text-sm"><span className="text-gray-500">ID</span><span className="font-medium text-gray-900">{wizardReservation.id_type} — {wizardReservation.id_number || '—'}</span></div>}
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Confirmation #</span><span className="font-mono text-[#576CA8] font-bold">{wizardReservation?.id}</span></div>
-      </div>
-      <button onClick={() => wizardReservation && openGuestProfile(wizardReservation)}
-        className="w-full mb-4 py-1.5 text-xs text-[#576CA8] border border-[#576CA8]/30 rounded-lg hover:bg-[#576CA8]/5 transition-colors font-medium">
-        ✏ Complete / Edit Guest Profile
-      </button>
+  const WizardStep1 = () => {
+    const r = wizardReservation || {};
+    return (
+      <div>
+        <h3 className="font-semibold text-gray-900 mb-1">Verify Guest Identity</h3>
+        <p className="text-xs text-gray-500 mb-4">Review all guest profile details and verify against their government-issued ID.</p>
+        
+        <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 mb-4">
+          <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">Profile Information</h4>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Full Name</span><span className="font-medium text-gray-900 text-sm">{r.title ? `${r.title} ` : ''}{r.full_name}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Confirmation #</span><span className="font-mono text-[#576CA8] font-bold text-sm">{r.id}</span></div>
+            
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Email</span><span className="font-medium text-gray-900 text-sm">{r.email || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Phone</span><span className="font-medium text-gray-900 text-sm">{r.phone_number || '-'}</span></div>
+            
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Date of Birth</span><span className="font-medium text-gray-900 text-sm">{r.date_of_birth ? new Date(r.date_of_birth).toLocaleDateString() : '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Gender</span><span className="font-medium text-gray-900 text-sm capitalize">{r.gender || '-'}</span></div>
+
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Nationality</span><span className="font-medium text-gray-900 text-sm">{r.nationality || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Country</span><span className="font-medium text-gray-900 text-sm">{r.country || '-'}</span></div>
+
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">ID Type</span><span className="font-medium text-gray-900 text-sm">{r.id_type || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">ID Number</span><span className="font-medium text-gray-900 text-sm">{r.id_number || '-'}</span></div>
+
+            <div className="flex flex-col col-span-2"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Address</span><span className="font-medium text-gray-900 text-sm">{[r.address, r.city].filter(Boolean).join(', ') || '-'}</span></div>
+            <div className="flex flex-col col-span-2"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Purpose of Visit</span><span className="font-medium text-gray-900 text-sm">{r.purpose_of_visit || '-'}</span></div>
+          </div>
+        </div>
+        
+        <button onClick={() => wizardReservation && openGuestProfile(wizardReservation)}
+          className="w-full mb-4 py-2.5 text-sm text-[#576CA8] border border-[#576CA8]/30 bg-white rounded-xl hover:bg-[#576CA8]/5 transition-colors font-semibold flex items-center justify-center gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          Complete / Edit Guest Profile
+        </button>
       <label className="flex items-start gap-3 cursor-pointer group">
         <input type="checkbox" checked={wizardIdVerified} onChange={(e) => setWizardIdVerified(e.target.checked)}
           className="mt-0.5 w-4 h-4 accent-[#576CA8] cursor-pointer" />
@@ -10795,6 +11215,7 @@ function FrontDeskTab() {
       </label>
     </div>
   );
+};
 
   const WizardStep2 = () => {
     const nights = wizardReservation ? nightsCount(wizardReservation) : 0;
@@ -10989,12 +11410,12 @@ function FrontDeskTab() {
                 })}
               </div>
             </div>
-            <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+            <div className="p-6 md:p-8 flex-1 flex flex-col min-h-0 overflow-y-auto">
 
               {/* ── Arrivals View ── */}
               {fdView === 'arrivals' && (
-                <div>
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
+                <div className="flex-1 flex flex-col min-h-0">
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5 shrink-0">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-semibold text-black/60 uppercase tracking-wider">Date</span>
                       <input
@@ -11023,25 +11444,218 @@ function FrontDeskTab() {
                     </button>
                   </div>
 
-                  {/* Arrivals Grid */}
-                  <div className="border border-black/5 overflow-hidden bg-white rounded-xl shadow-sm mt-2" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 1px 1px rgba(0,0,0,0.24)' }}>
-                    {/* Column headers */}
-                    <div className="grid gap-x-3 px-4 py-3 border-b border-black/5" style={{ gridTemplateColumns: '1fr 6rem 6rem 2.5rem 5.5rem', background: '#f9f9f9' }}>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Guest</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Room Type</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Check-In</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Nts</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-black/60">Status</span>
+                  {/* Arrivals Toolbar */}
+                  <div className="p-4 border-b border-black/5 bg-white flex items-center justify-between gap-4 rounded-t-xl mt-4 border border-black/5 border-b-0 shadow-sm shrink-0">
+                    <div className="flex items-center gap-3 flex-1">
+                      <div className="relative w-[320px]">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        </div>
+                        <input 
+                          type="text" 
+                          placeholder="Search guest name, email, or confirmation no." 
+                          value={arrivalSearchQuery} 
+                          onChange={e => setArrivalSearchQuery(e.target.value)}
+                          className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm" 
+                        />
+                      </div>
+                      <select 
+                        value={arrivalFilterStatus} 
+                        onChange={e => setArrivalFilterStatus(e.target.value)} 
+                        className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
+                      >
+                        <option>All Status</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="pending">Pending</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                      <select 
+                        value={arrivalFilterChannel} 
+                        onChange={e => setArrivalFilterChannel(e.target.value)} 
+                        className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
+                      >
+                        <option>All Channels</option>
+                        <option value="Direct Website">Direct Website</option>
+                      </select>
+                      <button className="flex items-center gap-2 border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        More Filters
+                      </button>
                     </div>
-                    {/* Rows */}
-                    <div style={{ height: '150px', overflowY: 'auto' }}>
-                      {arrivalsLoading ? (
-                        <div className="flex items-center justify-center h-full text-black/60 text-xs">Loading arrivals…</div>
-                      ) : arrivals.length === 0 ? (
-                        <div className="flex items-center justify-center h-full text-black/60 text-xs">No arrivals for this date</div>
-                      ) : (
-                        arrivals.map((r) => <ArrivalRow key={r.id} r={r} />)
-                      )}
+                    <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      Export
+                    </button>
+                  </div>
+
+                  {/* Arrivals Grid */}
+                  <div className="bg-white rounded-b-xl shadow-sm border border-black/5 flex-1 flex flex-col min-h-0">
+                    <div className="overflow-auto flex-1 relative bg-white">
+                      <table className="w-full text-left text-[12px] border-collapse relative">
+                        <thead className="sticky top-0 z-10">
+                          <tr className="border-b border-black/5 bg-gray-50/95 backdrop-blur-sm">
+                            <th className="px-5 py-4 w-10">
+                              <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
+                            </th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CONFIRMATION NO.</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">GUEST</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHANNEL</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">ROOM / RATE PLAN</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-IN</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-OUT</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">NIGHTS</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">GUESTS</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">STATUS</th>
+                            <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60 text-right">TOTAL AMOUNT</th>
+                            <th className="px-5 py-4 font-black uppercase tracking-widest text-[10px] text-black/60 text-center">ACTIONS</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-black/5">
+                          {arrivalsLoading ? (
+                            <tr><td colSpan="12" className="text-center py-8 text-black/50">Loading arrivals...</td></tr>
+                          ) : filteredArrivals.length === 0 ? (
+                            <tr><td colSpan="12" className="text-center py-8 text-black/50">No arrivals found for this date.</td></tr>
+                          ) : (
+                            filteredArrivals.map((res) => {
+                              const isSelected = selectedArrival?.id === res.id;
+                              const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(res.id).padStart(3, '0')}`;
+                              const nights = nightsCount(res);
+                              const totalAmt = nights * 3500;
+                              const checkInDateStr = fmtDate(res.check_in_date);
+                              
+                              // Check-in date relative hint
+                              const getRelativeHint = (d) => {
+                                if (!d) return '';
+                                const diff = Math.round((new Date(d).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
+                                if (diff === 0) return '(Today)';
+                                if (diff === 1) return '(Tomorrow)';
+                                if (diff > 1) return `(In ${diff} Days)`;
+                                if (diff < 0) return `(${Math.abs(diff)} Day${Math.abs(diff) > 1 ? 's' : ''} Overdue)`;
+                                return '';
+                              };
+                              const relativeHint = getRelativeHint(res.check_in_date);
+                              
+                              const isNoShowWarning = res.check_in_date && (res.check_in_date.slice(0,10) < today) && (res.status === 'pending' || res.status === 'confirmed');
+
+                              return (
+                                <tr 
+                                  key={res.id} 
+                                  onClick={() => setSelectedArrival(isSelected ? null : res)}
+                                  className={`transition-colors cursor-pointer ${
+                                    isNoShowWarning 
+                                      ? 'bg-rose-50 hover:bg-rose-100/70 border-b border-rose-100' 
+                                      : 'hover:bg-gray-50/50'
+                                  } ${isSelected ? (isNoShowWarning ? 'bg-rose-100' : 'bg-gray-100/50') : ''}`}
+                                >
+                                  <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                    <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
+                                  </td>
+                                  <td className="px-4 py-4 align-top">
+                                    <div className="font-bold text-[#00754A]">{confId}</div>
+                                    <div className="text-[10px] text-black/40 mt-0.5">
+                                      Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'}) : '—'}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-4 align-top">
+                                    <div className="font-bold text-black/80">{res.full_name}</div>
+                                    <div className="text-[11px] text-black/50 mt-0.5">{res.email || res.phone_number}</div>
+                                  </td>
+                                  <td className="px-4 py-4 align-top">
+                                    <div className="flex items-center gap-2">
+                                      {renderChannelIcon(res.source)}
+                                      <span className="font-medium text-black/80">{res.source || 'Direct Website'}</span>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-4 align-top">
+                                    <div className="font-bold text-black/80">{res.room_type_name || res.room_type || 'Standard Room'}</div>
+                                    <div className="text-[11px] text-black/50 mt-0.5">Best Available Rate</div>
+                                  </td>
+                                  <td className="px-4 py-4 align-top">
+                                    <div className="font-medium text-black/80">{checkInDateStr}</div>
+                                    {relativeHint && (
+                                      <div className={`text-[11px] font-semibold mt-0.5 ${isNoShowWarning ? 'text-rose-600' : 'text-[#00754A]'}`}>{relativeHint}</div>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-4 align-top">
+                                    <div className="font-medium text-black/80">{fmtDate(res.check_out_date)}</div>
+                                  </td>
+                                  <td className="px-4 py-4 align-top font-medium text-black/80">{nights}</td>
+                                  <td className="px-4 py-4 align-top font-medium text-black/80">
+                                    {res.number_of_guests ? `${res.number_of_guests} Guest(s)` : '1 Guest(s)'}
+                                  </td>
+                                  <td className="px-4 py-4 align-top">
+                                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${getArrivalStatusColor(res.status)}`}>
+                                      {statusLabel(res.status)}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-4 align-top text-right font-bold text-black/80">
+                                    ₱{totalAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                  </td>
+                                  <td className="px-5 py-4 align-top text-center relative" onClick={e => e.stopPropagation()}>
+                                    <button 
+                                      onClick={() => setOpenArrivalDropdown(openArrivalDropdown === res.id ? null : res.id)}
+                                      className="p-1.5 border border-black/10 rounded hover:bg-gray-100 text-black/60 transition-colors bg-white shadow-sm"
+                                    >
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                                    </button>
+                                    
+                                    {openArrivalDropdown === res.id && (
+                                      <div className="absolute right-8 top-10 mt-1 w-40 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+                                        {(res.status === 'pending' || res.status === 'confirmed') && (
+                                          <button 
+                                            onClick={() => { openWizard(res); setOpenArrivalDropdown(null); }}
+                                            className="w-full px-4 py-2 text-left text-[12px] font-medium text-emerald-600 hover:bg-emerald-50 flex items-center gap-2"
+                                          >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                            Check In
+                                          </button>
+                                        )}
+                                        <button 
+                                          onClick={() => { openGuestProfile(res); setOpenArrivalDropdown(null); }}
+                                          className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                        >
+                                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                          View Profile
+                                        </button>
+                                        {res.status !== 'cancelled' && (
+                                          <button 
+                                            onClick={() => { updateStatus && updateStatus(res.id, 'cancelled'); setOpenArrivalDropdown(null); }}
+                                            className="w-full px-4 py-2 text-left text-[12px] font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2"
+                                          >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                                            Cancel Booking
+                                          </button>
+                                        )}
+                                        {isNoShowWarning && res.status !== 'no_show' && (
+                                          <button 
+                                            onClick={() => { updateStatus && updateStatus(res.id, 'no_show'); setOpenArrivalDropdown(null); }}
+                                            className="w-full px-4 py-2 text-left text-[12px] font-medium text-orange-600 hover:bg-orange-50 flex items-center gap-2"
+                                          >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                            Mark as No Show
+                                          </button>
+                                        )}
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className="px-6 py-4 border-t border-black/5 flex items-center justify-between text-[13px] bg-white shrink-0 rounded-b-xl">
+                      <div className="text-black/50 font-medium">
+                        Showing 1 to {filteredArrivals.length} of {filteredArrivals.length} entries
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <select className="border border-black/10 rounded-lg px-2 py-1 outline-none text-black/80 font-medium bg-white shadow-sm">
+                          <option>10 per page</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
 
@@ -11115,7 +11729,7 @@ function FrontDeskTab() {
 
               {/* ── In-House View ── */}
               {fdView === 'inhouse' && (
-                <div>
+                <div className="flex-1 flex flex-col min-h-0">
                   <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
                     <div>
                       <span className="text-sm font-semibold text-[#000000]/87">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
@@ -11134,17 +11748,236 @@ function FrontDeskTab() {
                       <div className="text-xs text-black/60">All rooms are currently vacant</div>
                     </div>
                   ) : (
-                    <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
-                      {/* Column header */}
-                      <div className="grid gap-x-3 px-3 py-2 bg-[#f9f9f9] border-b border-black/5" style={{ gridTemplateColumns: '3rem 1fr 6rem 5.5rem 5.5rem 6rem 2.5rem 6rem' }}>
-                        {['Room', 'Guest', 'Type', 'Check-In', 'Checkout', 'Status', 'Nts', ''].map((h, i) => (
-                          <span key={i} className="text-[10px] font-bold uppercase tracking-widest text-black/60">{h}</span>
-                        ))}
+                    <>
+                      {/* In-House Toolbar */}
+                      <div className="p-4 border-b border-black/5 bg-white flex items-center justify-between gap-4 rounded-t-xl mt-4 border border-black/5 border-b-0 shadow-sm shrink-0">
+                        <div className="flex items-center gap-3 flex-1">
+                          <div className="relative w-[320px]">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            </div>
+                            <input 
+                              type="text" 
+                              placeholder="Search guest name, room #, email, or confirmation no." 
+                              value={inHouseSearchQuery} 
+                              onChange={e => setInHouseSearchQuery(e.target.value)}
+                              className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm" 
+                            />
+                          </div>
+                          <select 
+                            value={inHouseFilterStatus} 
+                            onChange={e => setInHouseFilterStatus(e.target.value)} 
+                            className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
+                          >
+                            <option>All Status</option>
+                            <option value="Checked In">Checked In</option>
+                            <option value="Due Out">Due Out</option>
+                          </select>
+                          <button className="flex items-center gap-2 border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                            More Filters
+                          </button>
+                        </div>
+                        <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                          Export
+                        </button>
                       </div>
-                      <div className="flex flex-col">
-                        {inHouseGuests.map((r) => <InHouseCard key={r.id} r={r} />)}
+
+                      {/* In-House Grid */}
+                      <div className="bg-white rounded-b-xl shadow-sm border border-black/5 flex-1 flex flex-col min-h-0 overflow-hidden">
+                        <div className="overflow-auto flex-1 min-h-0 relative bg-white">
+                          <table className="w-full text-left text-[12px] border-collapse relative">
+                            <thead className="sticky top-0 z-10">
+                              <tr className="border-b border-black/5 bg-gray-50/95 backdrop-blur-sm">
+                                <th className="px-5 py-4 w-10">
+                                  <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
+                                </th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CONFIRMATION NO.</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">GUEST</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHANNEL</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">ROOM / RATE PLAN</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-IN</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-OUT</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">NIGHTS</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">GUESTS</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">STATUS</th>
+                                <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60 text-right">TOTAL AMOUNT</th>
+                                <th className="px-5 py-4 font-black uppercase tracking-widest text-[10px] text-black/60 text-center">ACTIONS</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-black/5">
+                              {filteredInHouse.length === 0 ? (
+                                <tr><td colSpan="12" className="text-center py-8 text-black/50">No guests in-house found.</td></tr>
+                              ) : (
+                                filteredInHouse.map((res) => {
+                                  const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(res.id).padStart(3, '0')}`;
+                                  const nights = nightsCount(res);
+                                  const isDueOut = res.check_out_date && res.check_out_date.slice(0, 10) === today;
+                                  
+                                  const handleSendEmail = async (r) => {
+                                    setFolioRes(r);
+                                    setFolioItems([]); setFolioPayments([]); setFolioTotals({ charges: 0, payments: 0, balance: 0 });
+                                    setFolioEmailSending(true); setFolioEmailMsg('');
+                                    try {
+                                      const response = await fetch(`${API_BASE_URL}/api/folio/${r.id}/email`, { method: 'POST' });
+                                      const data = await response.json();
+                                      alert(data.success ? `✓ ${data.message}` : `✗ ${data.message || 'Failed to send email.'}`);
+                                    } catch { alert('✗ Failed to send email.'); }
+                                    setFolioEmailSending(false);
+                                  };
+
+                                  const getRoomRate = (t) => {
+                                    const type = (t || '').toLowerCase();
+                                    if (type.includes('presidential')) return 25000;
+                                    if (type.includes('suite')) return 9000;
+                                    if (type.includes('family')) return 6500;
+                                    if (type.includes('deluxe')) return 4500;
+                                    return 2500; // Standard Room and fallback
+                                  };
+                                  const totalAmt = nights * getRoomRate(res.room_type);
+
+                                  return (
+                                    <tr 
+                                      key={res.id} 
+                                      className="hover:bg-gray-50/50 transition-colors"
+                                    >
+                                      <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
+                                        <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
+                                      </td>
+                                      <td className="px-4 py-4 align-top">
+                                        <div className="font-bold text-[#00754A]">{confId}</div>
+                                        <div className="text-[10px] text-black/40 mt-0.5">
+                                          Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'}) : '—'}
+                                        </div>
+                                      </td>
+                                      <td className="px-4 py-4 align-top">
+                                        <div className="font-bold text-black/80">{res.full_name}</div>
+                                        <div className="text-[11px] text-black/50 mt-0.5">{res.email || res.phone_number}</div>
+                                      </td>
+                                      <td className="px-4 py-4 align-top">
+                                        <div className="flex items-center gap-2">
+                                          {renderChannelIcon(res.source)}
+                                          <span className="font-medium text-black/80">{res.source || 'Direct Website'}</span>
+                                        </div>
+                                      </td>
+                                      <td className="px-4 py-4 align-top">
+                                        <div className="font-bold text-black/80">{res.room_number ? `Room ${res.room_number} (${res.room_type_name || res.room_type || 'Standard Room'})` : (res.room_type_name || res.room_type || 'Standard Room')}</div>
+                                        <div className="text-[11px] text-black/50 mt-0.5">Best Available Rate</div>
+                                      </td>
+                                      <td className="px-4 py-4 align-top">
+                                        <div className="font-medium text-black/80">{fmtDate(res.check_in_date)}</div>
+                                      </td>
+                                      <td className="px-4 py-4 align-top">
+                                        <div className="font-medium text-black/80">{fmtDate(res.check_out_date)}</div>
+                                      </td>
+                                      <td className="px-4 py-4 align-top font-medium text-black/80">{nights}</td>
+                                      <td className="px-4 py-4 align-top font-medium text-black/80">
+                                        {res.number_of_guests ? `${res.number_of_guests} Guest(s)` : '1 Guest(s)'}
+                                      </td>
+                                      <td className="px-4 py-4 align-top">
+                                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isDueOut ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                                          {isDueOut ? 'DUE OUT' : 'IN-HOUSE'}
+                                        </span>
+                                      </td>
+                                      <td className="px-4 py-4 align-top text-right font-bold text-black/80">
+                                        ₱{totalAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                      </td>
+                                      <td className="px-5 py-4 align-top text-center relative" onClick={e => e.stopPropagation()}>
+                                        <div className="flex items-center justify-center gap-1.5">
+                                          <button 
+                                            onClick={() => openGuestProfile(res)} 
+                                            className="p-1.5 border border-black/10 rounded-md hover:bg-gray-100 text-black/60 transition-colors bg-white shadow-sm"
+                                            title="View Profile"
+                                          >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                          </button>
+                                          <button 
+                                            onClick={() => setOpenInHouseDropdown(openInHouseDropdown === res.id ? null : res.id)}
+                                            className="p-1.5 border border-black/10 rounded-md hover:bg-gray-100 text-black/60 transition-colors bg-white shadow-sm"
+                                          >
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                                          </button>
+                                        </div>
+                                        
+                                        {openInHouseDropdown === res.id && (
+                                          <div className="absolute right-8 top-10 mt-1 w-44 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+                                            <button 
+                                              onClick={() => { openGuestProfile(res); setOpenInHouseDropdown(null); }}
+                                              className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="5" r="3" /><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
+                                              View Profile
+                                            </button>
+                                            <button 
+                                              onClick={() => { openFolio(res); setOpenInHouseDropdown(null); }}
+                                              className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="1" width="10" height="14" rx="1.5" /><path d="M6 5h4M6 8h4M6 11h2" /></svg>
+                                              Guest Folio
+                                            </button>
+                                            {printGuestDataSheet && (
+                                              <button 
+                                                onClick={() => { printGuestDataSheet(res); setOpenInHouseDropdown(null); }}
+                                                className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                              >
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
+                                                Print Data Sheet
+                                              </button>
+                                            )}
+                                            <button 
+                                              onClick={() => { openFolio(res); setOpenInHouseDropdown(null); }}
+                                              className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="14" height="10" rx="1.5" /><path d="M1 8h14" /><path d="M5 12h2M10 12h1" /></svg>
+                                              Add Payment
+                                            </button>
+                                            <button 
+                                              onClick={() => { handleSendEmail(res); setOpenInHouseDropdown(null); }}
+                                              className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="14" height="10" rx="1.5" /><path d="M1 4l7 5 7-5" /></svg>
+                                              Send Email
+                                            </button>
+                                            <div className="border-t border-gray-100 my-1" />
+                                            <button 
+                                              onClick={() => { openTransfer(res); setOpenInHouseDropdown(null); }}
+                                              className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8h12M10 4l4 4-4 4" /></svg>
+                                              Transfer Room
+                                            </button>
+                                            <button 
+                                              onClick={() => { setCheckoutConfirmId(res.id); fetchCheckoutBalance(res.id); setOpenInHouseDropdown(null); }}
+                                              className="w-full px-4 py-2 text-left text-[12px] font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2"
+                                            >
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M10 3h4v10h-4" /><path d="M7 11l4-3-4-3" /><path d="M2 8h9" /></svg>
+                                              Check Out
+                                            </button>
+                                          </div>
+                                        )}
+                                      </td>
+                                    </tr>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* Pagination */}
+                        <div className="px-6 py-4 border-t border-black/5 flex items-center justify-between text-[13px] bg-white shrink-0">
+                          <div className="text-black/50 font-medium">
+                            Showing 1 to {filteredInHouse.length} of {filteredInHouse.length} entries
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <select className="border border-black/10 rounded-lg px-2 py-1 outline-none text-black/80 font-medium bg-white shadow-sm">
+                              <option>10 per page</option>
+                            </select>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
                 </div>
               )}
@@ -12330,7 +13163,7 @@ function FrontDeskTab() {
               {/* ── Check-In Wizard Modal ── */}
               {wizardOpen && wizardReservation && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden">
                     <div className="bg-gradient-to-br from-[#00754A] to-[#006241] px-6 py-4 flex items-center justify-between">
                       <div>
                         <div className="text-[#000000]/87 font-bold">Check-In Wizard</div>

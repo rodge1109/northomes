@@ -6,7 +6,7 @@ const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname 
   ? 'http://localhost:5000'
   : 'https://northomes.onrender.com';
 
-export default function AdminGuestsTab({ reservations = [], onRefresh }) {
+export default function AdminGuestsTab({ reservations = [], onRefresh, printGuestDataSheet }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterNationality, setFilterNationality] = useState('All Nationalities');
@@ -29,13 +29,25 @@ export default function AdminGuestsTab({ reservations = [], onRefresh }) {
          (r.full_name && r.full_name.trim().toLowerCase() === g.full_name?.trim().toLowerCase()))
       );
 
-      const sortedStays = guestReservations.map(r => ({
-        ...r,
-        checkIn: new Date(r.check_in_date || r.preferred_date),
-        checkOut: new Date(r.check_out_date || r.preferred_date),
-        nights: Math.max(1, Math.round((new Date(r.check_out_date || r.preferred_date) - new Date(r.check_in_date || r.preferred_date)) / 86400000)),
-        total: Math.max(1, Math.round((new Date(r.check_out_date || r.preferred_date) - new Date(r.check_in_date || r.preferred_date)) / 86400000)) * (r.room_type === 'Suite' ? 6500 : 3500)
-      })).sort((a, b) => b.checkIn - a.checkIn);
+      const sortedStays = guestReservations.map(r => {
+        const nights = Math.max(1, Math.round((new Date(r.check_out_date || r.preferred_date) - new Date(r.check_in_date || r.preferred_date)) / 86400000));
+        const getRoomRate = (t) => {
+          const type = (t || '').toLowerCase();
+          if (type.includes('presidential')) return 25000;
+          if (type.includes('suite')) return 9000;
+          if (type.includes('family')) return 6500;
+          if (type.includes('deluxe')) return 4500;
+          return 2500; // Standard Room and fallback
+        };
+        const total = nights * getRoomRate(r.room_type);
+        return {
+          ...r,
+          checkIn: new Date(r.check_in_date || r.preferred_date),
+          checkOut: new Date(r.check_out_date || r.preferred_date),
+          nights,
+          total
+        };
+      }).sort((a, b) => b.checkIn - a.checkIn);
 
       const totalStays = sortedStays.length;
       const totalNights = sortedStays.reduce((sum, s) => sum + s.nights, 0);
@@ -224,6 +236,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh }) {
           setSelectedGuest(updatedGuest);
           if (onRefresh) onRefresh();
         }} 
+        printGuestDataSheet={printGuestDataSheet}
       />
     );
   }
@@ -631,9 +644,18 @@ export default function AdminGuestsTab({ reservations = [], onRefresh }) {
                       Add Note
                     </button>
                     <button className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm col-span-2">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-7.6 4.7c0-.2.2-.4.4-.4"/></svg>
                       Send Message
                     </button>
+                    {selectedGuest.stays && selectedGuest.stays.length > 0 && printGuestDataSheet && (
+                      <button 
+                        onClick={() => printGuestDataSheet(selectedGuest.stays[0])}
+                        className="flex items-center gap-2 px-3 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-lg text-[12px] font-bold transition-colors shadow-sm col-span-2 justify-center"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
+                        Print Guest Data Sheet
+                      </button>
+                    )}
                   </div>
                 </div>
 
