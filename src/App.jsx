@@ -5920,7 +5920,7 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
     "/assets/images/rooms/sample_room_1.png",
     "/assets/images/gallery/room_standard.jpg",
     "/assets/images/gallery/bathroom.jpg"
-  ];
+  ]);
 
   const nextImg = (e) => {
     e.stopPropagation();
