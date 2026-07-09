@@ -28,11 +28,11 @@ export default function ContactMapSection() {
   };
 
   // Default hotel location URL
-  let mapSrc = "https://maps.google.com/maps?q=Pelaez%20St.,%20Bogo%20City,%20Cebu&t=&z=15&ie=UTF8&iwloc=&output=embed";
+  let mapSrc = "https://maps.google.com/maps?q=Northomes%20Pensione,%20Pelaez%20St.,%20Bogo%20City,%20Cebu&t=&z=17&ie=UTF8&iwloc=&output=embed";
   
   if (userLocation) {
     // If we have user location, generate a directions URL
-    mapSrc = `https://maps.google.com/maps?saddr=${userLocation.lat},${userLocation.lng}&daddr=Pelaez%20St.,%20Bogo%20City,%20Cebu&output=embed`;
+    mapSrc = `https://maps.google.com/maps?saddr=${userLocation.lat},${userLocation.lng}&daddr=Northomes%20Pensione,%20Pelaez%20St.,%20Bogo%20City,%20Cebu&output=embed`;
   }
 
   return (
