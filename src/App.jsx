@@ -2075,17 +2075,26 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     }
 
     const nights = Math.max(1, Math.round((new Date(res.check_out_date || res.check_in_date) - new Date(res.check_in_date)) / 86400000));
-    const getRoomRate = (t) => {
-      const matched = (typeof roomTypes !== 'undefined' ? roomTypes : adminRoomTypes).find(rt => rt.name === t);
+    const getRoomRate = (roomTypeName, rateCodeCode) => {
+      if (rateCodeCode) {
+        const matchedRc = adminRateCodes.find(rc => rc.code === rateCodeCode);
+        if (matchedRc && matchedRc.prices) {
+          const priceObj = matchedRc.prices.find(p => p.room_type_name === roomTypeName);
+          if (priceObj && priceObj.price_per_night) {
+            return parseFloat(priceObj.price_per_night);
+          }
+        }
+      }
+      const matched = adminRoomTypes.find(rt => rt.name === roomTypeName);
       if (matched) return parseFloat(matched.price_per_night);
-      const type = (t || '').toLowerCase();
+      const type = (roomTypeName || '').toLowerCase();
       if (type.includes('presidential')) return 25000;
       if (type.includes('suite')) return 9000;
       if (type.includes('family')) return 6500;
       if (type.includes('deluxe')) return 4500;
       return 2500; // Standard Room and fallback
     };
-    const rate = getRoomRate(res.room_type);
+    const rate = getRoomRate(res.room_type, res.rate_code);
     const totalAmt = nights * rate;
 
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
@@ -3302,7 +3311,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
-        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} roomTypes={adminRoomTypes} />}
+        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} />}
 
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
@@ -9972,7 +9981,7 @@ function GuestCheckinPage({ setCurrentPage }) {
   );
 }
 
-function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, roomTypes = [] }) {
+function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, roomTypes = [], rateCodes = [] }) {
   const today = new Date().toISOString().split('T')[0];
   const [fdView, setFdView] = React.useState('arrivals');
 
@@ -11569,10 +11578,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             filteredArrivals.map((res) => {
                               const isSelected = selectedArrival?.id === res.id;
                               const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(res.id).padStart(3, '0')}`;
-                              const getRoomRate = (t) => {
-                                const matched = roomTypes.find(rt => rt.name === t);
+                              const getRoomRate = (roomTypeName, rateCodeCode) => {
+                                if (rateCodeCode) {
+                                  const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
+                                  if (matchedRc && matchedRc.prices) {
+                                    const priceObj = matchedRc.prices.find(p => p.room_type_name === roomTypeName);
+                                    if (priceObj && priceObj.price_per_night) {
+                                      return parseFloat(priceObj.price_per_night);
+                                    }
+                                  }
+                                }
+                                const matched = roomTypes.find(rt => rt.name === roomTypeName);
                                 if (matched) return parseFloat(matched.price_per_night);
-                                const type = (t || '').toLowerCase();
+                                const type = (roomTypeName || '').toLowerCase();
                                 if (type.includes('presidential')) return 25000;
                                 if (type.includes('suite')) return 9000;
                                 if (type.includes('family')) return 6500;
@@ -11580,7 +11598,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 return 2500;
                               };
                               const nights = nightsCount(res);
-                              const totalAmt = nights * getRoomRate(res.room_type);
+                              const totalAmt = nights * getRoomRate(res.room_type, res.rate_code);
                               const checkInDateStr = fmtDate(res.check_in_date);
                               
                               // Check-in date relative hint
@@ -11888,17 +11906,26 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                     setFolioEmailSending(false);
                                   };
 
-                                  const getRoomRate = (t) => {
-      const matched = (typeof roomTypes !== 'undefined' ? roomTypes : adminRoomTypes).find(rt => rt.name === t);
-      if (matched) return parseFloat(matched.price_per_night);
-      const type = (t || '').toLowerCase();
-      if (type.includes('presidential')) return 25000;
-      if (type.includes('suite')) return 9000;
-      if (type.includes('family')) return 6500;
-      if (type.includes('deluxe')) return 4500;
-      return 2500; // Standard Room and fallback
-    };
-                                  const totalAmt = nights * getRoomRate(res.room_type);
+                                  const getRoomRate = (roomTypeName, rateCodeCode) => {
+                                    if (rateCodeCode) {
+                                      const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
+                                      if (matchedRc && matchedRc.prices) {
+                                        const priceObj = matchedRc.prices.find(p => p.room_type_name === roomTypeName);
+                                        if (priceObj && priceObj.price_per_night) {
+                                          return parseFloat(priceObj.price_per_night);
+                                        }
+                                      }
+                                    }
+                                    const matched = roomTypes.find(rt => rt.name === roomTypeName);
+                                    if (matched) return parseFloat(matched.price_per_night);
+                                    const type = (roomTypeName || '').toLowerCase();
+                                    if (type.includes('presidential')) return 25000;
+                                    if (type.includes('suite')) return 9000;
+                                    if (type.includes('family')) return 6500;
+                                    if (type.includes('deluxe')) return 4500;
+                                    return 2500; // Standard Room and fallback
+                                  };
+                                  const totalAmt = nights * getRoomRate(res.room_type, res.rate_code);
 
                                   return (
                                     <tr 
