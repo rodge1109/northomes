@@ -5830,7 +5830,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); setIsMobileMenuOpen(!isMobileMenuOpen); }}
-            className="lg:hidden text-white/90 hover:text-white p-1 ml-2"
+            className="md:hidden text-white/90 hover:text-white p-1 ml-2"
           >
             {isMobileMenuOpen ? (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -5854,7 +5854,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
             </div>
 
             {/* Navigation Center */}
-            <nav className="hidden lg:flex items-center space-x-1">
+            <nav className="hidden md:flex items-center space-x-1">
               {[
                 { name: 'Home', id: 'home' },
                 { name: 'About Us', id: 'about' },
@@ -5918,7 +5918,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
             </nav>
 
             {/* Book Now Button Right */}
-            <div className="hidden lg:block">
+            <div className="hidden md:block">
               <button
                 onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 className="flex items-center gap-2 px-5 py-2.5 bg-[#1E3932] hover:opacity-90 text-white font-bold text-xs uppercase tracking-widest rounded-lg transition-all shadow-sm"
@@ -5932,7 +5932,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
 
         {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
-          <nav className="lg:hidden flex flex-col items-center space-y-4 py-6 bg-white border-t border-black/5 shadow-lg absolute top-full left-0 w-full z-50">
+          <nav className="md:hidden flex flex-col items-center space-y-4 py-6 bg-white border-t border-black/5 shadow-lg absolute top-full left-0 w-full z-50">
             {[
               { name: 'Home', id: 'home' },
               { name: 'About Us', id: 'about' },
@@ -6736,6 +6736,21 @@ function HomePage({ setCurrentPage }) {
     <div className="w-full flex flex-col bg-[#f2f0eb]">
       {/* Unified Side-by-Side Hero Section */}
       <div className="w-full relative bg-[#FAF8F5] overflow-hidden border-b border-black/5">
+        
+        {/* Right Column: Slideshow with fade mask - pushed to full right side of window */}
+        <div className="absolute inset-y-0 right-0 w-full md:w-1/2 hidden md:block z-0">
+          {heroImages.map((img, idx) => (
+            <img
+              key={idx}
+              src={img}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentHeroImg ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+              alt="Hero Background"
+            />
+          ))}
+          {/* Smooth left-to-right fade overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/35 to-transparent w-full md:w-1/2"></div>
+        </div>
+
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row relative min-h-[550px] md:min-h-[620px] z-10">
           
           {/* Left Column: Brand & Trust Details */}
@@ -6802,7 +6817,7 @@ function HomePage({ setCurrentPage }) {
             <div className="pt-2 text-left space-y-1">
               <div className="flex items-center gap-0.5 text-amber-500">
                 {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-4.5 h-4.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                  <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
                 ))}
               </div>
               <p className="text-black/60 text-[10px] font-bold uppercase tracking-wider">Trusted by Business Travelers, Families &amp; Balikbayans</p>
@@ -6810,19 +6825,7 @@ function HomePage({ setCurrentPage }) {
             </div>
           </div>
 
-          {/* Right Column: Slideshow with fade mask */}
-          <div className="absolute inset-y-0 right-0 w-full md:w-3/5 hidden md:block">
-            {heroImages.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentHeroImg ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                alt="Hero Background"
-              />
-            ))}
-            {/* Smooth left-to-right fade overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/30 to-transparent w-full md:w-1/2"></div>
-          </div>
+
 
         </div>
       </div>
