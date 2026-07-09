@@ -6607,11 +6607,24 @@ function HomePage({ setCurrentPage }) {
       .catch(() => { });
   }, []);
 
-  let heroImage = "/assets/images/hero/hero1.jpg";
+  const [currentHeroImg, setCurrentHeroImg] = useState(0);
+
+  let heroImages = ["/assets/images/hero/hero1.jpg"];
   try {
     const parsed = JSON.parse(hotelSettings.hero_images || '[]');
-    if (parsed.length > 0) heroImage = parsed[0];
+    if (parsed.length > 0) {
+      heroImages = parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`);
+    }
   } catch(e) {}
+
+  useEffect(() => {
+    if (heroImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentHeroImg(prev => (prev + 1) % heroImages.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [heroImages.length]);
 
   let galleryItems = [
     { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
@@ -6643,11 +6656,14 @@ function HomePage({ setCurrentPage }) {
     <div className="w-full flex flex-col bg-[#f2f0eb]">
       {/* Hero Image Container */}
       <div className="w-full h-[60vh] md:h-[70vh] relative">
-        <img
-          src={heroImage.startsWith('http') ? heroImage : `${API_BASE_URL}${heroImage}`}
-          alt="Northomes Pensionne"
-          className="w-full h-full object-cover"
-        />
+        {heroImages.map((img, idx) => (
+          <img
+            key={idx}
+            src={img}
+            alt="Northomes Pensionne"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentHeroImg ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+          />
+        ))}
         {/* Beautiful Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#006241]/40 via-[#1E3932]/10 to-[#CBA258]/30 mix-blend-multiply"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-[#f2f0eb] via-transparent to-transparent opacity-80"></div>
