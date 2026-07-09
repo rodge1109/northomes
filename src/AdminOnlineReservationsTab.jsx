@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openWizard }) {
+export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openWizard, roomTypes = [], rateCodes = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterChannel, setFilterChannel] = useState('All Channels');
@@ -82,7 +82,29 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
           guests: r.number_of_guests ? `${r.number_of_guests} Guest(s)` : '1 Adult',
           status: r.status,
           statusColor: getStatusColor(r.status),
-          total: `₱${(getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date) * 3500).toLocaleString('en-US', {minimumFractionDigits: 2})}`
+          total: (() => {
+            const nights = getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date);
+            const getRoomRate = (roomTypeName, rateCodeCode) => {
+              if (rateCodeCode) {
+                const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
+                if (matchedRc && matchedRc.prices) {
+                  const priceObj = matchedRc.prices.find(p => p.room_type_name === roomTypeName);
+                  if (priceObj && priceObj.price_per_night) {
+                    return parseFloat(priceObj.price_per_night);
+                  }
+                }
+              }
+              const matched = roomTypes.find(rt => rt.name === roomTypeName);
+              if (matched) return parseFloat(matched.price_per_night);
+              const type = (roomTypeName || '').toLowerCase();
+              if (type.includes('presidential')) return 25000;
+              if (type.includes('suite')) return 9000;
+              if (type.includes('family')) return 6500;
+              if (type.includes('deluxe')) return 4500;
+              return 2500;
+            };
+            return `₱${(nights * getRoomRate(r.room_type || r.service_name || 'Standard Room', r.rate_code)).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+          })()
         };
       });
   }, [reservations, searchQuery, filterStatus, filterChannel]);

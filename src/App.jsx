@@ -3305,7 +3305,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
 
         {/* ==================== RESERVATIONS TAB ==================== */}
-        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} openWizard={handleOpenWizard} />}
+        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} openWizard={handleOpenWizard} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} />}
 
         {/* ==================== GUESTS TAB ==================== */}
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
