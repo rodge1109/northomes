@@ -6631,6 +6631,7 @@ function BookingPage({ setCurrentPage }) {
 // Home Page
 function HomePage({ setCurrentPage }) {
   const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
   const [roomTypes, setRoomTypes] = useState([]);
 
@@ -6689,6 +6690,17 @@ function HomePage({ setCurrentPage }) {
       }));
     }
   } catch(e) {}
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'ArrowRight') setLightboxIndex(prev => (prev + 1) % galleryItems.length);
+      if (e.key === 'ArrowLeft') setLightboxIndex(prev => (prev - 1 + galleryItems.length) % galleryItems.length);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, galleryItems]);
 
   const handleBookingSearch = () => {
     if (checkIn) sessionStorage.setItem('northomes_checkin', checkIn);
@@ -6828,10 +6840,10 @@ function HomePage({ setCurrentPage }) {
           <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Our Gallery</h2>
         </div>
 
-        <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {galleryItems.map((img, i) => (
-            <div key={i} className="break-inside-avoid relative group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm">
-              <div className={`w-full ${img.aspect} flex items-center justify-center bg-black/5`}>
+            <div key={i} onClick={() => setLightboxIndex(i)} className="relative aspect-square group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="w-full h-full flex items-center justify-center bg-black/5">
                 <img
                   src={img.src}
                   alt={img.alt}
@@ -6842,8 +6854,8 @@ function HomePage({ setCurrentPage }) {
                   }}
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/90 via-[#1E3932]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
-                <h3 className="text-white font-bold text-lg tracking-tight">{img.alt}</h3>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/80 via-[#1E3932]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
+                <h3 className="text-white font-bold text-sm tracking-tight">{img.alt}</h3>
               </div>
             </div>
           ))}
@@ -6999,6 +7011,71 @@ function HomePage({ setCurrentPage }) {
           </div>
         </div>
       </footer>
+
+      {/* Lightbox Modal */}
+      {lightboxIndex !== null && (
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
+          onClick={() => setLightboxIndex(null)}
+        >
+          {/* Close button */}
+          <button 
+            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light p-2 transition-colors cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          {/* Left Arrow */}
+          <button 
+            className="absolute left-6 text-white/50 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all cursor-pointer hidden md:flex items-center justify-center"
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length); }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+
+          {/* Image Container */}
+          <div 
+            className="relative max-h-[85vh] max-w-[85vw] flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img 
+              src={galleryItems[lightboxIndex].src} 
+              alt={galleryItems[lightboxIndex].alt} 
+              className="max-h-[80vh] max-w-[80vw] object-contain rounded-lg shadow-2xl border border-white/10 select-none"
+            />
+            {galleryItems[lightboxIndex].alt && (
+              <span className="text-white/80 text-sm mt-4 font-semibold tracking-wide bg-black/40 px-4 py-1.5 rounded-full border border-white/5">
+                {galleryItems[lightboxIndex].alt}
+              </span>
+            )}
+          </div>
+
+          {/* Right Arrow */}
+          <button 
+            className="absolute right-6 text-white/50 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all cursor-pointer hidden md:flex items-center justify-center"
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % galleryItems.length); }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+
+          {/* Mobile controls */}
+          <div className="absolute bottom-6 flex gap-4 md:hidden">
+            <button 
+              className="text-white/70 bg-white/10 px-4 py-2 rounded-full text-xs font-bold"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length); }}
+            >
+              Prev
+            </button>
+            <button 
+              className="text-white/70 bg-white/10 px-4 py-2 rounded-full text-xs font-bold"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % galleryItems.length); }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
