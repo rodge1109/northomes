@@ -349,6 +349,7 @@ const initFolioTables = async () => {
       amount         NUMERIC(10,2) NOT NULL,
       reference      TEXT DEFAULT '',
       posted_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      notes          TEXT DEFAULT '',
       voided         BOOLEAN NOT NULL DEFAULT false
     )
   `);
@@ -1655,13 +1656,19 @@ app.post('/api/folio/:reservationId/charge', async (req, res) => {
 app.post('/api/folio/:reservationId/payment', async (req, res) => {
   try {
     const { reservationId } = req.params;
-    const { payment_method, amount, reference } = req.body;
+    const { payment_method, amount, reference, date, time, notes } = req.body;
     if (!payment_method || !amount)
       return res.status(400).json({ success: false, message: 'payment_method and amount are required.' });
+    
+    let customPostedAt = null;
+    if (date && time) {
+      customPostedAt = `${date}T${time}:00`;
+    }
+    
     const result = await pool.query(
-      `INSERT INTO hotel_folio_payments (reservation_id, payment_method, amount, reference)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [reservationId, payment_method, parseFloat(amount), reference || '']
+      `INSERT INTO hotel_folio_payments (reservation_id, payment_method, amount, reference, posted_at, notes)
+       VALUES ($1, $2, $3, $4, COALESCE($5, CURRENT_TIMESTAMP), $6) RETURNING *`,
+      [reservationId, payment_method, parseFloat(amount), reference || '', customPostedAt, notes || '']
     );
     res.json({ success: true, payment: result.rows[0] });
   } catch (err) {
