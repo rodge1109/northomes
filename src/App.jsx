@@ -10335,7 +10335,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
   const [newRoomNumber, setNewRoomNumber] = React.useState('');
   const [newRoomType, setNewRoomType] = React.useState('');
   const [newRoomFloor, setNewRoomFloor] = React.useState(1);
-  const [newRoomNotes, setNewRoomNotes] = React.useState('');
+  const [newRoomNotes, setNewRoomNotes] = React.useState('1 single bed');
+  const [isOthersBedConfig, setIsOthersBedConfig] = React.useState(false);
 
   // ── Data fetchers ──────────────────────────────────────────────────────────
   const fetchArrivals = React.useCallback(async (date) => {
@@ -10893,7 +10894,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ room_number: newRoomNumber.trim(), room_type: newRoomType, floor: newRoomFloor, notes: newRoomNotes.trim() }),
       });
-      setAddRoomOpen(false); setNewRoomNumber(''); setNewRoomType(''); setNewRoomFloor(1); setNewRoomNotes('');
+      setAddRoomOpen(false); setNewRoomNumber(''); setNewRoomType(''); setNewRoomFloor(1); setNewRoomNotes('1 single bed'); setIsOthersBedConfig(false);
       fetchRooms();
     } catch (e) { console.error(e); }
   };
@@ -12888,9 +12889,36 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         </div>
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Bed Config / Notes</label>
-                          <input type="text" value={newRoomNotes} onChange={e => setNewRoomNotes(e.target.value)}
-                            placeholder="e.g. 1 Queen or 2 Twins"
-                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-sm outline-none focus:border-[#00754A]" />
+                          <select 
+                            value={isOthersBedConfig ? 'others' : newRoomNotes} 
+                            onChange={e => {
+                              const val = e.target.value;
+                              if (val === 'others') {
+                                setIsOthersBedConfig(true);
+                                setNewRoomNotes('');
+                              } else {
+                                setIsOthersBedConfig(false);
+                                setNewRoomNotes(val);
+                              }
+                            }}
+                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5 mb-1.5"
+                          >
+                            <option value="1 single bed">1 single bed</option>
+                            <option value="1 queen bed">1 queen bed</option>
+                            <option value="2 single bed">2 single bed</option>
+                            <option value="2 double bed">2 double bed</option>
+                            <option value="4 single bed">4 single bed</option>
+                            <option value="others">others</option>
+                          </select>
+                          {isOthersBedConfig && (
+                            <input 
+                              type="text" 
+                              value={newRoomNotes} 
+                              onChange={e => setNewRoomNotes(e.target.value)}
+                              placeholder="specify custom config..."
+                              className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]" 
+                            />
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-2">
