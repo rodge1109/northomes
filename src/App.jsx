@@ -6594,6 +6594,8 @@ function HomePage({ setCurrentPage }) {
   const [roomTypes, setRoomTypes] = useState([]);
 
   const [hotelSettings, setHotelSettings] = useState({});
+  const [currentHeroImg, setCurrentHeroImg] = useState(0);
+  const [heroImages, setHeroImages] = useState(["/assets/images/hero/hero1.jpg"]);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/room-types`)
@@ -6603,19 +6605,20 @@ function HomePage({ setCurrentPage }) {
 
     fetch(`${API_BASE_URL}/api/hotel-settings`)
       .then(r => r.json())
-      .then(data => { if (data.success && data.settings) setHotelSettings(data.settings); })
+      .then(data => { 
+        if (data.success && data.settings) {
+          setHotelSettings(data.settings);
+          try {
+            const parsed = JSON.parse(data.settings.hero_images || '[]');
+            if (parsed.length > 0) {
+              const mapped = parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`);
+              setHeroImages(mapped);
+            }
+          } catch(e) {}
+        }
+      })
       .catch(() => { });
   }, []);
-
-  const [currentHeroImg, setCurrentHeroImg] = useState(0);
-
-  let heroImages = ["/assets/images/hero/hero1.jpg"];
-  try {
-    const parsed = JSON.parse(hotelSettings.hero_images || '[]');
-    if (parsed.length > 0) {
-      heroImages = parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`);
-    }
-  } catch(e) {}
 
   useEffect(() => {
     if (heroImages.length > 1) {
@@ -6624,7 +6627,7 @@ function HomePage({ setCurrentPage }) {
       }, 5000);
       return () => clearInterval(interval);
     }
-  }, [heroImages.length]);
+  }, [heroImages]);
 
   let galleryItems = [
     { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
@@ -6661,7 +6664,7 @@ function HomePage({ setCurrentPage }) {
             key={idx}
             src={img}
             alt="Northomes Pensionne"
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentHeroImg ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentHeroImg ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           />
         ))}
         {/* Beautiful Gradient Overlay */}
