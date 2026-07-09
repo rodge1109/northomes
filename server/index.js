@@ -2148,14 +2148,14 @@ app.get('/api/rooms', async (req, res) => {
 // POST /api/rooms — add a room manually
 app.post('/api/rooms', async (req, res) => {
   try {
-    const { room_number, room_type, floor } = req.body;
+    const { room_number, room_type, floor, notes } = req.body;
     if (!room_number) return res.status(400).json({ success: false, message: 'room_number required.' });
     const result = await pool.query(
-      `INSERT INTO hotel_rooms (room_number, room_type, floor)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (room_number) DO UPDATE SET room_type=$2, floor=$3, active=true
+      `INSERT INTO hotel_rooms (room_number, room_type, floor, notes)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (room_number) DO UPDATE SET room_type=$2, floor=$3, notes=$4, active=true
        RETURNING *`,
-      [room_number.trim(), room_type || '', parseInt(floor) || 1]
+      [room_number.trim(), room_type || '', parseInt(floor) || 1, notes || '']
     );
     res.json({ success: true, room: result.rows[0] });
   } catch (err) {

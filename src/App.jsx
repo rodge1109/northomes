@@ -10335,6 +10335,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
   const [newRoomNumber, setNewRoomNumber] = React.useState('');
   const [newRoomType, setNewRoomType] = React.useState('');
   const [newRoomFloor, setNewRoomFloor] = React.useState(1);
+  const [newRoomNotes, setNewRoomNotes] = React.useState('');
 
   // ── Data fetchers ──────────────────────────────────────────────────────────
   const fetchArrivals = React.useCallback(async (date) => {
@@ -10890,9 +10891,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     try {
       await fetch(`${API_BASE_URL}/api/rooms`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ room_number: newRoomNumber.trim(), room_type: newRoomType, floor: newRoomFloor }),
+        body: JSON.stringify({ room_number: newRoomNumber.trim(), room_type: newRoomType, floor: newRoomFloor, notes: newRoomNotes.trim() }),
       });
-      setAddRoomOpen(false); setNewRoomNumber(''); setNewRoomType(''); setNewRoomFloor(1);
+      setAddRoomOpen(false); setNewRoomNumber(''); setNewRoomType(''); setNewRoomFloor(1); setNewRoomNotes('');
       fetchRooms();
     } catch (e) { console.error(e); }
   };
@@ -11446,7 +11447,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                   return (
                     <option key={r.room_number} value={r.room_number} disabled={unavailable}
                       style={{ background: unavailable ? '#fef2f2' : '#f8fafc', color: unavailable ? '#ef4444' : '#111827' }}>
-                      {`Room ${r.room_number}${r.floor ? ` · Fl.${r.floor}` : ''} — ${cfg.label}${unavailable ? ' (unavailable)' : ''}`}
+                      {`Room ${r.room_number}${r.floor ? ` · Fl.${r.floor}` : ''} — ${cfg.label}${r.notes ? ` (${r.notes})` : ''}${unavailable ? ' (unavailable)' : ''}`}
                     </option>
                   );
                 })}
@@ -12865,7 +12866,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                   {addRoomOpen && (
                     <div className="mb-5 rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
                       <div className="text-xs font-semibold text-black/60 uppercase tracking-widest mb-3">New Room</div>
-                      <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div className="grid grid-cols-4 gap-3 mb-3">
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Room Number *</label>
                           <input type="text" value={newRoomNumber} onChange={e => setNewRoomNumber(e.target.value)}
@@ -12884,6 +12885,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           <label className="block text-xs text-black/60 mb-1">Floor</label>
                           <input type="number" min="1" max="99" value={newRoomFloor} onChange={e => setNewRoomFloor(parseInt(e.target.value) || 1)}
                             className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5" />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-black/60 mb-1">Bed Config / Notes</label>
+                          <input type="text" value={newRoomNotes} onChange={e => setNewRoomNotes(e.target.value)}
+                            placeholder="e.g. 1 Queen or 2 Twins"
+                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-sm outline-none focus:border-[#00754A]" />
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -13312,6 +13319,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 {selectedRoom.number_of_guests && <div className="text-xs text-black/60">{selectedRoom.number_of_guests} guest{selectedRoom.number_of_guests !== 1 ? 's' : ''}</div>}
                               </div>
                             )}
+
+                            {/* Bed Config / Notes */}
+                            <div>
+                              <div className="text-xs font-semibold text-black/60 uppercase tracking-wider mb-2">Bed Config / Notes</div>
+                              <div className="bg-gray-50 border border-black/5 rounded-xl p-3.5 text-xs text-[#000000]/87 font-semibold italic">
+                                {selectedRoom.notes || 'No bed configuration noted'}
+                              </div>
+                            </div>
 
                             {/* HK Status */}
                             <div>
