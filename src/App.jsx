@@ -1324,6 +1324,7 @@ function AppointmentForm({ onSuccess }) {
     specialRequests: ''
   };
 
+  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState(emptyForm);
   const [promoCodeInput, setPromoCodeInput] = useState(sessionStorage.getItem('northomes_promo') || '');
   const [appliedPromo, setAppliedPromo] = useState(null);
@@ -1333,6 +1334,10 @@ function AppointmentForm({ onSuccess }) {
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
   const [roomTypes, setRoomTypes] = useState([]);
   const [availability, setAvailability] = useState({});
+  const [depositMethod, setDepositMethod] = useState('GCash');
+  const [depositRef, setDepositRef] = useState('');
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositNotes, setDepositNotes] = useState('');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -1349,7 +1354,6 @@ function AppointmentForm({ onSuccess }) {
   const totalPrice = effectivePricePerNight * nights;
 
   useEffect(() => {
-    // Clear promo if room type changes
     if (appliedPromo) {
       setAppliedPromo(null);
       setPromoMessage({ type: '', text: '' });
@@ -1384,7 +1388,6 @@ function AppointmentForm({ onSuccess }) {
     }
   };
 
-  // Fetch all room types on mount
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/room-types`)
       .then(r => r.json())
@@ -1392,7 +1395,6 @@ function AppointmentForm({ onSuccess }) {
       .catch(() => { });
   }, []);
 
-  // Fetch availability when both dates are selected
   useEffect(() => {
     if (!formData.checkInDate || !formData.checkOutDate) {
       setAvailability({});
@@ -1414,7 +1416,6 @@ function AppointmentForm({ onSuccess }) {
     const { name, value } = e.target;
     setFormData(prev => {
       const next = { ...prev, [name]: value };
-      // Clear check-out if it's now before the new check-in
       if (name === 'checkInDate' && next.checkOutDate && next.checkOutDate <= value) {
         next.checkOutDate = '';
       }
@@ -1427,7 +1428,6 @@ function AppointmentForm({ onSuccess }) {
     setIsSubmitting(true);
     setSubmitStatus({ type: '', message: '' });
 
-    // Map to the shape the backend expects
     const payload = {
       fullName: `${formData.title} ${formData.firstName} ${formData.lastName}`.trim(),
       email: formData.email,
@@ -1437,7 +1437,7 @@ function AppointmentForm({ onSuccess }) {
       checkOutDate: formData.checkOutDate,
       numberOfGuests: parseInt(formData.adults) + parseInt(formData.children),
       specialRequests: formData.specialRequests,
-      promoCode: appliedPromo ? appliedPromo.code : ''
+      promoCode: appliedPromo ? appliedPromo.code : '',
     };
 
     try {
@@ -1448,19 +1448,25 @@ function AppointmentForm({ onSuccess }) {
       });
 
       const data = await response.json();
-
       if (data.success) {
-        if (onSuccess) {
-          onSuccess(data);
-        } else {
-          setSubmitStatus({ type: 'success', message: data.message });
-          setFormData(emptyForm);
-        }
+        // Automatically add deposit payment to folio
+        await fetch(`${API_BASE_URL}/api/folio/${data.reservation.id}/payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            payment_method: depositMethod,
+            amount: parseFloat(depositAmount),
+            reference: depositRef.trim() || 'Online Deposit' 
+          }),
+        });
+
+        if (onSuccess) onSuccess(data);
+        else { setSubmitStatus({ type: 'success', message: 'Reservation and deposit processed!' }); setFormData(emptyForm); setStep(1); }
       } else {
         setSubmitStatus({ type: 'error', message: data.message });
       }
     } catch {
-      setSubmitStatus({ type: 'error', message: 'Unable to reach the server. Please try again.' });
+      setSubmitStatus({ type: 'error', message: 'Unable to reach the server.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -1468,403 +1474,203 @@ function AppointmentForm({ onSuccess }) {
 
   const inputCls = "w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[#000000]/87 placeholder-white/40 text-sm";
   const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
-  const sectionCls = "flex items-center gap-3 mb-4";
-
-  const SectionDivider = ({ icon, title }) => (
-    <div className={sectionCls}>
-      <div className="flex items-center justify-center w-7 h-7 rounded-full bg-white shadow-sm text-black/60 shrink-0">
-        {icon}
-      </div>
-      <span className="text-xs font-bold text-black/60 uppercase tracking-widest">{title}</span>
-      <div className="flex-1 h-px bg-white shadow-sm" />
-    </div>
-  );
-
-  const totalRoomsAvailable = Object.values(availability).reduce((sum, rt) => sum + rt.available, 0);
 
   return (
-    <div className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-      {/* Header */}
-      <div className="px-6 py-5" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight">Book Your Stay</h3>
-            <p className="text-black/60 text-xs mt-0.5">Complete the form below to reserve your room</p>
-          </div>
-          <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
-            </span>
-            <span className="text-[#000000]/87 text-xs font-semibold tracking-wide">
-              {Object.keys(availability).length > 0
-                ? `${totalRoomsAvailable} Room${totalRoomsAvailable !== 1 ? 's' : ''} Available`
-                : 'Rooms Available'}
-            </span>
-          </div>
-        </div>
+    <div className="rounded-2xl border border-black/5 overflow-hidden bg-white">
+      <div className="px-6 py-5 bg-gray-50 border-b border-black/5">
+        <h3 className="text-[#000000]/87 font-bold text-lg">{step === 1 ? 'Step 1: Reservation Details' : 'Step 2: Deposit Payment'}</h3>
       </div>
+      <div className="p-6">
+        {step === 1 ? (
+          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
 
-      <div className="p-6 md:p-8">
-        {/* Status message */}
-        {submitStatus.message && (
-          <div className={`mb-6 p-4 rounded-xl text-sm flex items-start gap-3 ${submitStatus.type === 'success'
-            ? 'bg-green-50 text-green-800 border border-green-200'
-            : 'bg-red-50 text-red-800 border border-red-200'
-            }`}>
-            <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {submitStatus.type === 'success'
-                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z" />
-              }
-            </svg>
-            <span>{submitStatus.message}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* ── SECTION 1: Your Stay ── */}
-          <div>
-            <SectionDivider
-              title="Your Stay"
-              icon={
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              }
-            />
-
-            {/* Check-in / Check-out */}
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="relative">
-                <label className={labelCls}>Check-in</label>
-                <input
-                  type="date"
-                  name="checkInDate"
-                  value={formData.checkInDate}
-                  onChange={handleChange}
-                  min={today}
-                  required
-                  className={inputCls}
-                />
-              </div>
-              <div className="relative">
-                <label className={labelCls}>Check-out</label>
-                <input
-                  type="date"
-                  name="checkOutDate"
-                  value={formData.checkOutDate}
-                  onChange={handleChange}
-                  min={formData.checkInDate ? (() => {
-                    const d = new Date(formData.checkInDate);
-                    d.setDate(d.getDate() + 1);
-                    return d.toISOString().split('T')[0];
-                  })() : today}
-                  required
-                  disabled={!formData.checkInDate}
-                  className={`${inputCls} disabled:opacity-40 disabled:cursor-not-allowed`}
-                />
-              </div>
-            </div>
-
-            {/* Nights + price summary bar */}
-            {nights > 0 && (
-              <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg">
-                <svg className="w-4 h-4 text-black/60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-                <span className="text-sm font-semibold text-[#000000]/87">
-                  {nights} {nights === 1 ? 'night' : 'nights'}
-                </span>
-                {totalPrice > 0 && (
-                  <span className="text-xs font-bold text-[#000000]/87 bg-white shadow-sm px-2 py-0.5 rounded-full">
-                    ₱{totalPrice.toLocaleString('en-PH')} total
-                  </span>
-                )}
-                <span className="text-xs text-black/60 ml-auto">
-                  {new Date(formData.checkInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  {' → '}
-                  {new Date(formData.checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                </span>
-              </div>
-            )}
-
-            {/* Room Type */}
+            {/* Stay Details */}
             <div>
-              <label className={labelCls}>Room Type</label>
-              <select
-                name="roomType"
-                value={formData.roomType}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2.5 rounded-lg border border-black/5 focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-sm text-black bg-white"
-              >
-                <option value="">Select a room type</option>
-                {roomTypes.map(rt => {
-                  const avail = availability[rt.name];
-                  const roomsLeft = avail ? avail.available : rt.total_rooms;
-                  const soldOut = avail && avail.available === 0;
-                  const price = parseFloat(rt.price_per_night).toLocaleString('en-PH');
-                  const availNote = avail
-                    ? (soldOut ? ' · FULLY BOOKED' : roomsLeft <= 3 ? ` · Only ${roomsLeft} left!` : ` · ${roomsLeft} available`)
-                    : '';
-                  return (
-                    <option key={rt.id} value={rt.name} disabled={soldOut}>
-                      {rt.name} — ₱{price}/night · {rt.description}{availNote}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-          </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-3">Your Stay</p>
+              <div className="grid grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className={labelCls}>Check-in</label>
+                  <input type="date" name="checkInDate" value={formData.checkInDate} onChange={handleChange} min={today} required className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Check-out</label>
+                  <input type="date" name="checkOutDate" value={formData.checkOutDate} onChange={handleChange}
+                    min={formData.checkInDate ? (() => { const d = new Date(formData.checkInDate); d.setDate(d.getDate() + 1); return d.toISOString().split('T')[0]; })() : today}
+                    required disabled={!formData.checkInDate} className={`${inputCls} disabled:opacity-40 disabled:cursor-not-allowed`} />
+                </div>
+              </div>
 
-          {/* ── SECTION 2: Guest Information ── */}
-          <div>
-            <SectionDivider
-              title="Guest Information"
-              icon={
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              }
-            />
+              {nights > 0 && (
+                <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-[#f8f9fa] border border-black/5 rounded-lg text-sm">
+                  <span className="font-semibold text-black/80">{nights} {nights === 1 ? 'night' : 'nights'}</span>
+                  {totalPrice > 0 && <span className="font-black text-[#006241] bg-white px-2 py-0.5 rounded-full text-xs shadow-sm">₱{totalPrice.toLocaleString('en-PH')} total</span>}
+                  <span className="text-xs text-black/50 ml-auto">
+                    {new Date(formData.checkInDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} → {new Date(formData.checkOutDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+              )}
 
-            {/* Title + First + Last */}
-            <div className="grid grid-cols-12 gap-3 mb-3">
-              <div className="col-span-3">
-                <label className={labelCls}>Title</label>
-                <select name="title" value={formData.title} onChange={handleChange}
-                  className={inputCls}>
-                  <option>Mr.</option>
-                  <option>Mrs.</option>
-                  <option>Ms.</option>
-                  <option>Dr.</option>
-                  <option>Prof.</option>
-                </select>
-              </div>
-              <div className="col-span-4 sm:col-span-4">
-                <label className={labelCls}>First Name</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder="First"
-                  required
-                  className={inputCls}
-                />
-              </div>
-              <div className="col-span-5">
-                <label className={labelCls}>Last Name</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Last"
-                  required
-                  className={inputCls}
-                />
-              </div>
-            </div>
-
-            {/* Email + Phone */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className={labelCls}>Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="guest@email.com"
-                  required
-                  className={inputCls}
-                />
-              </div>
-              <div>
-                <label className={labelCls}>Phone Number</label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="+63 9XX XXX XXXX"
-                  required
-                  className={inputCls}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* ── SECTION 3: Occupancy ── */}
-          <div>
-            <SectionDivider
-              title="Occupancy"
-              icon={
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              }
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className={labelCls}>Adults</label>
-                <select name="adults" value={formData.adults} onChange={handleChange} required
-                  className={inputCls}>
-                  {[1, 2, 3, 4, 5, 6].map(n => (
-                    <option key={n} value={String(n)}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Children <span className="normal-case font-normal text-gray-400">(under 12)</span></label>
-                <select name="children" value={formData.children} onChange={handleChange}
-                  className={inputCls}>
-                  {[0, 1, 2, 3, 4, 5].map(n => (
-                    <option key={n} value={String(n)}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>
-                  ))}
+                <label className={labelCls}>Room Type</label>
+                <select name="roomType" value={formData.roomType} onChange={handleChange} required
+                  className="w-full px-3 py-2.5 rounded-lg border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 transition-all text-sm text-black bg-white">
+                  <option value="">Select a room type</option>
+                  {roomTypes.map(rt => {
+                    const avail = availability[rt.name];
+                    const soldOut = avail && avail.available === 0;
+                    const roomsLeft = avail ? avail.available : rt.total_rooms;
+                    const availNote = avail ? (soldOut ? ' · FULLY BOOKED' : roomsLeft <= 3 ? ` · Only ${roomsLeft} left!` : ` · ${roomsLeft} available`) : '';
+                    return (
+                      <option key={rt.id} value={rt.name} disabled={soldOut}>
+                        {rt.name} — ₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')}/night{availNote}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
-          </div>
 
-          {/* ── SECTION 4: Special Requests ── */}
-          <div>
-            <SectionDivider
-              title="Special Requests"
-              icon={
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                </svg>
-              }
-            />
-            <textarea
-              name="specialRequests"
-              value={formData.specialRequests}
-              onChange={handleChange}
-              rows={3}
-              placeholder="e.g. High floor, sea view, extra towels, early check-in (subject to availability)..."
-              className={`${inputCls} resize-none`}
-            />
-            <p className="text-xs text-black/60 mt-1.5">We will do our best to accommodate your requests.</p>
-          </div>
+            {/* Guest Info */}
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-3">Guest Information</p>
+              <div className="grid grid-cols-12 gap-3 mb-3">
+                <div className="col-span-3">
+                  <label className={labelCls}>Title</label>
+                  <select name="title" value={formData.title} onChange={handleChange} className={inputCls}>
+                    <option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option><option>Prof.</option>
+                  </select>
+                </div>
+                <div className="col-span-4">
+                  <label className={labelCls}>First Name</label>
+                  <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First" required className={inputCls} />
+                </div>
+                <div className="col-span-5">
+                  <label className={labelCls}>Last Name</label>
+                  <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last" required className={inputCls} />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                <div>
+                  <label className={labelCls}>Email Address</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="guest@email.com" required className={inputCls} />
+                </div>
+                <div>
+                  <label className={labelCls}>Phone Number</label>
+                  <input type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} placeholder="+63 9XX XXX XXXX" required className={inputCls} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>Adults</label>
+                  <select name="adults" value={formData.adults} onChange={handleChange} required className={inputCls}>
+                    {[1,2,3,4,5,6].map(n => <option key={n} value={String(n)}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelCls}>Children <span className="normal-case font-normal text-gray-400">(under 12)</span></label>
+                  <select name="children" value={formData.children} onChange={handleChange} className={inputCls}>
+                    {[0,1,2,3,4,5].map(n => <option key={n} value={String(n)}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
 
-          {/* ── SECTION 5: Promo Code ── */}
-          <div>
-            <SectionDivider
-              title="Promo Code"
-              icon={
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                </svg>
-              }
-            />
-            <div className="flex items-start gap-3">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={promoCodeInput}
-                  onChange={(e) => setPromoCodeInput(e.target.value)}
-                  placeholder="Enter Promo Code"
-                  disabled={appliedPromo !== null || isVerifyingPromo}
-                  className={`${inputCls} uppercase`}
-                />
-                {promoMessage.text && (
-                  <p className={`text-xs mt-1.5 ${promoMessage.type === 'success' ? 'text-green-600 font-semibold' : 'text-red-500'}`}>
-                    {promoMessage.text}
-                  </p>
+            {/* Special Requests */}
+            <div>
+              <label className={labelCls}>Special Requests <span className="normal-case font-normal text-gray-400">(optional)</span></label>
+              <textarea name="specialRequests" value={formData.specialRequests} onChange={handleChange} rows={2}
+                placeholder="e.g. High floor, early check-in, extra towels..." className={`${inputCls} resize-none`} />
+            </div>
+
+            {/* Promo Code */}
+            <div>
+              <label className={labelCls}>Promo Code <span className="normal-case font-normal text-gray-400">(optional)</span></label>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <input type="text" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value)}
+                    placeholder="Enter promo code" disabled={appliedPromo !== null || isVerifyingPromo}
+                    className={`${inputCls} uppercase`} />
+                  {promoMessage.text && (
+                    <p className={`text-xs mt-1 ${promoMessage.type === 'success' ? 'text-green-600 font-semibold' : 'text-red-500'}`}>{promoMessage.text}</p>
+                  )}
+                </div>
+                {appliedPromo ? (
+                  <button type="button" onClick={() => { setAppliedPromo(null); setPromoCodeInput(''); setPromoMessage({ type: '', text: '' }); }}
+                    className="px-4 py-2.5 bg-red-50 text-red-600 rounded-lg font-bold text-sm border border-red-200 h-[42px]">Remove</button>
+                ) : (
+                  <button type="button" onClick={validatePromoCode} disabled={isVerifyingPromo || !promoCodeInput.trim() || !formData.roomType}
+                    className="px-4 py-2.5 bg-slate-900 text-white rounded-lg font-bold text-sm disabled:opacity-50 h-[42px]">
+                    {isVerifyingPromo ? '...' : 'Apply'}
+                  </button>
                 )}
               </div>
-              {appliedPromo ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                     setAppliedPromo(null);
-                     setPromoCodeInput('');
-                     setPromoMessage({ type: '', text: '' });
-                     sessionStorage.removeItem('northomes_promo');
-                  }}
-                  className="px-6 py-2.5 bg-red-50 text-red-600 rounded-lg font-bold text-sm hover:bg-red-100 transition-colors border border-red-200 h-[42px]"
-                >
-                  Remove
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={validatePromoCode}
-                  disabled={isVerifyingPromo || !promoCodeInput.trim() || !formData.roomType}
-                  className="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed h-[42px] flex items-center gap-2"
-                >
-                  {isVerifyingPromo ? 'Checking...' : 'Apply'}
-                </button>
-              )}
             </div>
-          </div>
 
-          {/* Summary Details */}
-          {totalPrice > 0 && (
-            <div className="bg-[#f8f9fa] rounded-xl p-5 border border-black/5 flex justify-between items-end mb-4">
-              <div>
-                <h4 className="text-black/40 text-[10px] font-black uppercase tracking-widest mb-1">Total Due at Property</h4>
-                <div className="flex items-baseline gap-2">
-                   <span className="text-3xl font-black text-[#006241]">₱{totalPrice.toLocaleString('en-PH')}</span>
-                   {appliedPromo && (
-                     <span className="text-sm font-bold text-black/30 line-through decoration-2">₱{(pricePerNight * nights).toLocaleString('en-PH')}</span>
-                   )}
+            {/* Price summary */}
+            {totalPrice > 0 && (
+              <div className="bg-[#f8f9fa] rounded-xl p-4 border border-black/5 flex justify-between items-center">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-0.5">Total Stay Cost</p>
+                  <span className="text-2xl font-black text-[#006241]">₱{totalPrice.toLocaleString('en-PH')}</span>
+                  {appliedPromo && <span className="text-sm font-bold text-black/30 line-through ml-2">₱{(pricePerNight * nights).toLocaleString('en-PH')}</span>}
+                </div>
+                <div className="text-right text-xs text-black/50">
+                  <p>Deposit required on next step</p>
+                  <p className="font-bold text-[#00754A]">50% or full</p>
                 </div>
               </div>
-              {appliedPromo && (
-                <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border border-green-200">
-                   Promo Applied
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="btn-animated w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3.5 rounded-full font-semibold text-sm tracking-wide hover:bg-[#465a8f] active:scale-[0.98] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? (
-              <>
-                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                </svg>
-                Processing Reservation...
-              </>
-            ) : (
-              <>
-                Confirm Reservation
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </>
             )}
-          </button>
-        </form>
 
-        {/* Trust bar */}
-        <div className="mt-6 pt-5 border-t border-black/5 grid grid-cols-3 gap-2 text-center">
-          {[
-            { icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'Secure Booking' },
-            { icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z', label: 'Instant Confirmation' },
-            { icon: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z', label: '24/7 Support' },
-          ].map(({ icon, label }) => (
-            <div key={label} className="flex flex-col items-center gap-1.5">
-              <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center">
-                <svg className="w-4 h-4 text-black/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icon} />
-                </svg>
-              </div>
-              <span className="text-xs text-black/60 font-medium leading-tight">{label}</span>
+            <button type="submit"
+              className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3.5 rounded-full font-semibold text-sm tracking-wide shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+              Proceed to Deposit Payment
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <h4 className="font-bold text-sm text-black/70">Select Payment Method <span className="text-[#00754A] font-black">(Deposit Required)</span></h4>
+            <div className="grid grid-cols-3 gap-2">
+              {['GCash', 'PayMaya', 'Credit Card', 'PayPal', 'Bank Transfer', 'Others'].map(method => (
+                <button key={method} type="button" onClick={() => setDepositMethod(method)}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all ${depositMethod === method ? 'border-[#00754A] bg-[#00754A]/5' : 'border-black/10 bg-white hover:border-[#00754A]/40'}`}>
+                  <span className="text-xl">{method === 'GCash' ? '📱' : method === 'PayMaya' ? '💳' : method === 'Credit Card' ? '💳' : method === 'PayPal' ? '🅿️' : method === 'Bank Transfer' ? '🏦' : '💰'}</span>
+                  <span className={`text-[9px] font-black uppercase tracking-widest leading-tight ${depositMethod === method ? 'text-[#00754A]' : 'text-black/50'}`}>{method}</span>
+                </button>
+              ))}
             </div>
-          ))}
-        </div>
+            <div>
+              <label className={labelCls}>Deposit Amount (₱)</label>
+              <input type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} min="1" required placeholder="Enter deposit amount" className={inputCls} />
+              {totalPrice > 0 && (
+                <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={() => setDepositAmount(String(Math.ceil(totalPrice * 0.5)))} className="text-[10px] font-bold text-[#00754A] border border-[#00754A]/30 rounded-full px-3 py-1 hover:bg-[#00754A]/5 transition-colors">50% — ₱{Math.ceil(totalPrice * 0.5).toLocaleString()}</button>
+                  <button type="button" onClick={() => setDepositAmount(String(totalPrice))} className="text-[10px] font-bold text-[#00754A] border border-[#00754A]/30 rounded-full px-3 py-1 hover:bg-[#00754A]/5 transition-colors">Full — ₱{totalPrice.toLocaleString()}</button>
+                </div>
+              )}
+            </div>
+            <div>
+              <label className={labelCls}>Reference / Transaction No. <span className="normal-case font-normal text-gray-400">(optional)</span></label>
+              <input type="text" value={depositRef} onChange={(e) => setDepositRef(e.target.value)} placeholder="e.g. GCash Ref: 1234567890" className={inputCls} />
+            </div>
+            {totalPrice > 0 && (
+              <div className="bg-gray-50 rounded-xl p-4 border border-black/5 space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-black/60">Total Room Cost</span><span className="font-bold">₱{totalPrice.toLocaleString()}</span></div>
+                <div className="flex justify-between text-[#00754A]"><span>Deposit ({depositMethod})</span><span className="font-bold">— ₱{(parseFloat(depositAmount) || 0).toLocaleString()}</span></div>
+                <div className="flex justify-between border-t border-black/10 pt-2"><span className="text-black/60">Balance at Property</span><span className="font-bold text-[#006241]">₱{Math.max(0, totalPrice - (parseFloat(depositAmount) || 0)).toLocaleString()}</span></div>
+              </div>
+            )}
+            {submitStatus.message && <p className="text-sm text-red-500">{submitStatus.message}</p>}
+            <div className="flex gap-3">
+              <button type="button" onClick={() => { setStep(1); setSubmitStatus({ type: '', message: '' }); }} className="px-6 py-3 rounded-full border border-black/15 text-black/60 font-bold text-sm hover:bg-black/5 transition-all">← Back</button>
+              <button type="submit" disabled={isSubmitting} className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+                {isSubmitting ? 'Processing...' : 'Confirm & Pay Deposit'}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -6068,10 +5874,10 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
       </div>
 
       {/* Dark Bottom Section - Matches User Photo */}
-      <div className="w-full bg-[#1E3932] p-8 text-white grid grid-cols-2 md:grid-cols-4 gap-6 shrink-0 mt-auto">
+      <div className={`w-full bg-[#1E3932] p-8 text-white grid gap-6 shrink-0 mt-auto ${/economy/i.test(room.name) ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
         <div className="flex flex-col items-center text-center gap-2">
           <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Up to {room.capacity} Guests</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Up to {room.max_guests} Guests</span>
         </div>
         <div className="flex flex-col items-center text-center gap-2">
           <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
@@ -6081,10 +5887,12 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
           <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>
           <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Free Fast Wi-Fi</span>
         </div>
-        <div className="flex flex-col items-center text-center gap-2">
-          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Flatscreen TV</span>
-        </div>
+        {!/economy/i.test(room.name) && (
+          <div className="flex flex-col items-center text-center gap-2">
+            <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Flatscreen TV</span>
+          </div>
+        )}
       </div>
     </div>
   );

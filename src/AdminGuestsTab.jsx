@@ -115,6 +115,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
         totalStays,
         totalNights,
         totalSpent,
+        totalPayments: parseFloat(g.total_payments || 0),
         avgSpend: totalStays > 0 ? totalSpent / totalStays : 0,
         lastStayDate: lastStay ? lastStay.checkIn : null,
         status,

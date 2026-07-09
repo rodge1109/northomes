@@ -1526,7 +1526,13 @@ app.get('/api/admin/guests', async (req, res) => {
           COUNT(r.id) AS total_bookings,
           MAX(r.check_in_date) AS last_stay,
           MIN(r.created_at) AS first_booking,
-          (SELECT room_type FROM hotel_reservations WHERE guest_id = g.id GROUP BY room_type ORDER BY COUNT(*) DESC LIMIT 1) AS fav_room
+          (SELECT room_type FROM hotel_reservations WHERE guest_id = g.id GROUP BY room_type ORDER BY COUNT(*) DESC LIMIT 1) AS fav_room,
+          COALESCE((
+            SELECT SUM(fp.amount)
+            FROM hotel_folio_payments fp
+            JOIN hotel_reservations hr ON fp.reservation_id = hr.id
+            WHERE hr.guest_id = g.id AND fp.voided = false
+          ), 0) AS total_payments
         FROM hotel_guests g
         LEFT JOIN hotel_reservations r ON g.id = r.guest_id
         WHERE g.email ILIKE $1 OR g.full_name ILIKE $1 OR g.phone_number ILIKE $1
@@ -1541,7 +1547,13 @@ app.get('/api/admin/guests', async (req, res) => {
           COUNT(r.id) AS total_bookings,
           MAX(r.check_in_date) AS last_stay,
           MIN(r.created_at) AS first_booking,
-          (SELECT room_type FROM hotel_reservations WHERE guest_id = g.id GROUP BY room_type ORDER BY COUNT(*) DESC LIMIT 1) AS fav_room
+          (SELECT room_type FROM hotel_reservations WHERE guest_id = g.id GROUP BY room_type ORDER BY COUNT(*) DESC LIMIT 1) AS fav_room,
+          COALESCE((
+            SELECT SUM(fp.amount)
+            FROM hotel_folio_payments fp
+            JOIN hotel_reservations hr ON fp.reservation_id = hr.id
+            WHERE hr.guest_id = g.id AND fp.voided = false
+          ), 0) AS total_payments
         FROM hotel_guests g
         LEFT JOIN hotel_reservations r ON g.id = r.guest_id
         GROUP BY g.id

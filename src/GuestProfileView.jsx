@@ -515,11 +515,13 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                     </div>
                     <div className="flex items-center justify-between text-[13px]">
                       <span className="text-black/60 font-medium">Total Payments</span>
-                      <span className="font-bold text-black/90">{fmtCurrency(guest.totalSpent)}</span>
+                      <span className="font-bold text-black/90">{fmtCurrency(guest.totalPayments || 0)}</span>
                     </div>
                     <div className="flex items-center justify-between text-[13px] pt-2 border-t border-black/5">
                       <span className="text-black/80 font-black">Outstanding Balance</span>
-                      <span className="font-bold text-emerald-600">₱0.00</span>
+                      <span className={`font-bold ${(guest.totalSpent - (guest.totalPayments || 0)) > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
+                        {fmtCurrency(Math.max(0, guest.totalSpent - (guest.totalPayments || 0)))}
+                      </span>
                     </div>
                   </div>
                 </div>

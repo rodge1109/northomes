@@ -92,11 +92,67 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
       .sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
       .slice(0, 5);
 
-    // Housekeeping from actual rooms data
-    const hkDirty = rooms.filter(r => r.hk_status === 'dirty').length;
-    const hkClean = rooms.filter(r => r.hk_status === 'clean').length;
-    const hkInspected = rooms.filter(r => r.hk_status === 'inspected').length;
-    const hkOOO = rooms.filter(r => r.hk_status === 'out_of_order').length;
+    // Housekeeping from actual rooms data — use computed_status from the API
+    // The API returns hk_status (raw) and computed_status (contextual: occupied, due_out, arriving, dirty, inspected, available, out_of_order)
+    const hkOccupied  = rooms.filter(r => r.computed_status === 'occupied').length;
+    const hkDueOut    = rooms.filter(r => r.computed_status === 'due_out').length;
+    const hkArriving  = rooms.filter(r => r.computed_status === 'arriving').length;
+    const hkDirty     = rooms.filter(r => r.computed_status === 'dirty' || (r.hk_status === 'dirty' && !['occupied','due_out','arriving','out_of_order'].includes(r.computed_status))).length;
+    const hkClean     = rooms.filter(r => r.computed_status === 'available' && r.hk_status === 'clean').length;
+    const hkInspected = rooms.filter(r => r.computed_status === 'inspected' || r.hk_status === 'inspected').length;
+    const hkOOO       = rooms.filter(r => r.computed_status === 'out_of_order' || r.hk_status === 'out_of_order').length;
+
+    const hkStatuses = [
+      { label: 'Occupied',    count: hkOccupied,  color: '#005530' },
+      { label: 'Due Out',     count: hkDueOut,    color: '#F59E0B' },
+      { label: 'Arriving',    count: hkArriving,  color: '#3B82F6' },
+      { label: 'Dirty',       count: hkDirty,     color: '#EF4444' },
+      { label: 'Inspected',   count: hkInspected, color: '#8B5CF6' },
+      { label: 'Clean',       count: hkClean,     color: '#22C55E' },
+      { label: 'Out of Order',count: hkOOO,       color: '#94A3B8' },
+    ].filter(s => s.count > 0);
+
+    // Reservation source breakdown from real data
+    const sourceMap = {};
+    reservations.forEach(r => {
+      const raw = (r.source || '').trim();
+      // Normalize: blank or 'Direct Website' / 'Direct Booking' → 'Direct'
+      let label;
+      if (!raw || raw === 'Direct Website' || raw === 'Direct Booking' || raw === 'Online Booking') {
+        label = 'Direct / Online';
+      } else if (raw === 'Walk-in' || raw === 'Walk-In') {
+        label = 'Walk-in';
+      } else if (raw === 'OTA' || raw.toLowerCase().includes('booking.com')) {
+        label = 'Booking.com';
+      } else if (raw.toLowerCase().includes('agoda')) {
+        label = 'Agoda';
+      } else if (raw === 'Corporate') {
+        label = 'Corporate';
+      } else if (raw === 'Agent') {
+        label = 'Agent';
+      } else {
+        label = raw;
+      }
+      sourceMap[label] = (sourceMap[label] || 0) + 1;
+    });
+    const sourceColors = {
+      'Direct / Online': '#22C55E',
+      'Walk-in': '#3B82F6',
+      'Booking.com': '#F59E0B',
+      'Agoda': '#A855F7',
+      'Corporate': '#EC4899',
+      'Agent': '#06B6D4',
+    };
+    const defaultColor = '#94A3B8';
+    const totalRes = reservations.length;
+    const sourceCounts = Object.entries(sourceMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, count]) => ({
+        label,
+        count,
+        pct: totalRes > 0 ? ((count / totalRes) * 100).toFixed(1) : '0.0',
+        color: sourceColors[label] || defaultColor
+      }));
 
     return {
       inHouse,
@@ -108,11 +164,13 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
       totalRooms,
       totalRevenue,
       recent,
-      hkDirty,
-      hkClean,
-      hkInspected,
-      hkOOO,
-      totalReservations: reservations.length
+      hkDirty: rooms.filter(r => r.hk_status === 'dirty').length,
+      hkClean: rooms.filter(r => r.hk_status === 'clean').length,
+      hkInspected: rooms.filter(r => r.hk_status === 'inspected').length,
+      hkOOO: rooms.filter(r => r.hk_status === 'out_of_order').length,
+      hkStatuses,
+      totalReservations: reservations.length,
+      sourceCounts
     };
   }, [reservations, rooms]);
 
@@ -424,44 +482,53 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
               </div>
             </div>
 
-            {/* Housekeeping Overview */}
+            {/* Housekeeping Overview — live computed_status from rooms */}
             <div className="bg-white border border-black/5 rounded-2xl shadow-sm p-5">
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-5">
                 <h3 className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Housekeeping Overview</h3>
                 <span className="text-[10px] font-bold text-[#005530] cursor-pointer hover:underline">View HK Report →</span>
               </div>
-              <div className="flex items-center gap-6">
-                {/* Donut Chart */}
+              <div className="flex items-center gap-5">
+                {/* Dynamic Donut */}
                 <div className="w-32 h-32 relative shrink-0">
                   <svg viewBox="-4 -4 44 44" className="w-full h-full transform -rotate-90">
-                    <path strokeDasharray={`${(derivedStats.hkClean/totalRooms)*100}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22C55E" strokeWidth="6"></path>
-                    <path strokeDasharray={`${(derivedStats.hkDirty/totalRooms)*100}, 100`} strokeDashoffset={`-${(derivedStats.hkClean/totalRooms)*100}`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3B82F6" strokeWidth="6"></path>
-                    <path strokeDasharray={`${(derivedStats.hkInspected/totalRooms)*100}, 100`} strokeDashoffset={`-${((derivedStats.hkClean + derivedStats.hkDirty)/totalRooms)*100}`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F59E0B" strokeWidth="6"></path>
-                    <path strokeDasharray={`${(derivedStats.hkOOO/totalRooms)*100}, 100`} strokeDashoffset={`-${((derivedStats.hkClean + derivedStats.hkDirty + derivedStats.hkInspected)/totalRooms)*100}`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#EF4444" strokeWidth="6"></path>
+                    <path strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f1f5f9" strokeWidth="6"></path>
+                    {derivedStats.hkStatuses.reduce((acc, s) => {
+                      const pct = totalRooms > 0 ? (s.count / totalRooms) * 100 : 0;
+                      const offset = -acc.offset;
+                      acc.elements.push(
+                        <path key={s.label}
+                          strokeDasharray={`${pct.toFixed(2)}, 100`}
+                          strokeDashoffset={String(offset.toFixed(2))}
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          fill="none" stroke={s.color} strokeWidth="6"
+                        />
+                      );
+                      acc.offset += pct;
+                      return acc;
+                    }, { elements: [], offset: 0 }).elements}
                   </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center mt-1">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <span className="text-xl font-black leading-none text-black/90">{totalRooms}</span>
                     <span className="text-[9px] font-medium text-black/50 mt-1">Total Rooms</span>
                   </div>
                 </div>
-                {/* Legend */}
-                <div className="flex-1 space-y-3 text-[12px]">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 w-20"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22C55E' }}></span><span className="font-bold text-black/90 text-right w-4">{derivedStats.hkClean}</span> <span className="text-black/60">Clean</span></div>
-                    <span className="font-medium text-black/80">{((derivedStats.hkClean/totalRooms)*100).toFixed(1)}%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 w-20"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#3B82F6' }}></span><span className="font-bold text-black/90 text-right w-4">{derivedStats.hkDirty}</span> <span className="text-black/60">Dirty</span></div>
-                    <span className="font-medium text-black/80">{((derivedStats.hkDirty/totalRooms)*100).toFixed(1)}%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 w-20"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#F59E0B' }}></span><span className="font-bold text-black/90 text-right w-4">{derivedStats.hkInspected}</span> <span className="text-black/60">Inspected</span></div>
-                    <span className="font-medium text-black/80">{((derivedStats.hkInspected/totalRooms)*100).toFixed(1)}%</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 w-24"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#EF4444' }}></span><span className="font-bold text-black/90 text-right w-4">{derivedStats.hkOOO}</span> <span className="text-black/60 whitespace-nowrap">Out of Order</span></div>
-                    <span className="font-medium text-black/80">{((derivedStats.hkOOO/totalRooms)*100).toFixed(1)}%</span>
-                  </div>
+                {/* Dynamic Legend */}
+                <div className="flex-1 space-y-2 text-[11px]">
+                  {derivedStats.hkStatuses.length === 0 ? (
+                    <p className="text-black/40 text-xs text-center">No rooms found</p>
+                  ) : derivedStats.hkStatuses.map(s => (
+                    <div key={s.label} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }}></span>
+                        <span className="font-medium text-black/80 whitespace-nowrap">{s.label}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-black/90 w-5 text-right">{s.count}</span>
+                        <span className="text-black/40 w-12 text-right">{totalRooms > 0 ? ((s.count/totalRooms)*100).toFixed(1) : '0.0'}%</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -553,20 +620,29 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
               </div>
             </div>
 
-            {/* Source Donut */}
+            {/* Source Donut — live data */}
             <div className="bg-white border border-black/5 rounded-2xl shadow-sm p-5 flex flex-col">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Today's Reservation Source</h3>
-                <span className="text-[10px] font-bold text-[#005530] cursor-pointer hover:underline">View Report →</span>
+                <h3 className="text-[10px] font-bold text-black/60 uppercase tracking-widest">Reservation Source</h3>
+                <span className="text-[10px] font-bold text-[#005530]">All Time</span>
               </div>
               <div className="flex items-center gap-6 flex-1">
                 <div className="w-28 h-28 relative shrink-0">
                   <svg viewBox="-4 -4 44 44" className="w-full h-full transform -rotate-90">
-                    <path strokeDasharray="41.7, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22C55E" strokeWidth="8"></path>
-                    <path strokeDasharray="25, 100" strokeDashoffset="-41.7" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#3B82F6" strokeWidth="8"></path>
-                    <path strokeDasharray="16.7, 100" strokeDashoffset="-66.7" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F59E0B" strokeWidth="8"></path>
-                    <path strokeDasharray="8.3, 100" strokeDashoffset="-83.4" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#A855F7" strokeWidth="8"></path>
-                    <path strokeDasharray="8.3, 100" strokeDashoffset="-91.7" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#94A3B8" strokeWidth="8"></path>
+                    <path strokeDasharray="100, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#f1f5f9" strokeWidth="8"></path>
+                    {derivedStats.sourceCounts.reduce((acc, s) => {
+                      const offset = -acc.offset;
+                      acc.elements.push(
+                        <path key={s.label}
+                          strokeDasharray={`${s.pct}, 100`}
+                          strokeDashoffset={String(offset)}
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                          fill="none" stroke={s.color} strokeWidth="8"
+                        />
+                      );
+                      acc.offset += parseFloat(s.pct);
+                      return acc;
+                    }, { elements: [], offset: 0 }).elements}
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <span className="text-xl font-black leading-none text-black/90">{totalReservations}</span>
@@ -574,26 +650,20 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
                   </div>
                 </div>
                 <div className="flex-1 space-y-2.5 text-[11px]">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22C55E' }}></span><span className="font-medium text-black/80">Direct</span></div>
-                    <div><span className="font-bold text-black/90 mr-2 w-2 inline-block text-right">{Math.round(totalReservations * 0.417) || 0}</span><span className="text-black/50">(41.7%)</span></div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#3B82F6' }}></span><span className="font-medium text-black/80">Walk-in</span></div>
-                    <div><span className="font-bold text-black/90 mr-2 w-2 inline-block text-right">{Math.round(totalReservations * 0.25) || 0}</span><span className="text-black/50">(25.0%)</span></div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#F59E0B' }}></span><span className="font-medium text-black/80">Booking.com</span></div>
-                    <div><span className="font-bold text-black/90 mr-2 w-2 inline-block text-right">{Math.round(totalReservations * 0.167) || 0}</span><span className="text-black/50">(16.7%)</span></div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#A855F7' }}></span><span className="font-medium text-black/80">Agoda</span></div>
-                    <div><span className="font-bold text-black/90 mr-2 w-2 inline-block text-right">{Math.round(totalReservations * 0.083) || 0}</span><span className="text-black/50">(8.3%)</span></div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#94A3B8' }}></span><span className="font-medium text-black/80">Others</span></div>
-                    <div><span className="font-bold text-black/90 mr-2 w-2 inline-block text-right">{Math.round(totalReservations * 0.083) || 0}</span><span className="text-black/50">(8.3%)</span></div>
-                  </div>
+                  {derivedStats.sourceCounts.length === 0 ? (
+                    <p className="text-black/40 text-center text-xs">No reservation data</p>
+                  ) : derivedStats.sourceCounts.map(s => (
+                    <div key={s.label} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }}></span>
+                        <span className="font-medium text-black/80 truncate max-w-[80px]">{s.label}</span>
+                      </div>
+                      <div className="shrink-0">
+                        <span className="font-bold text-black/90 mr-1">{s.count}</span>
+                        <span className="text-black/40">({s.pct}%)</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
