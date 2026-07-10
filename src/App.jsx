@@ -127,12 +127,12 @@ function AdminBillingTab({
     if (filterStatus !== 'All' && r.status !== filterStatus) return false;
     if (searchQ) {
       const q = searchQ.toLowerCase();
-      return (r.full_name||'').toLowerCase().includes(q) || (r.room_number||'').toLowerCase().includes(q);
+      return (r.full_name || '').toLowerCase().includes(q) || (r.room_number || '').toLowerCase().includes(q);
     }
     return true;
   });
 
-  const fmtA = (n) => `₱${parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const handleAddCharge = () => {
     addCharge(fcType, fcDesc || fcType, fcQty, fcPrice);
@@ -149,18 +149,18 @@ function AdminBillingTab({
   // Folio logic
   const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
   const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
-  const initials = (folioRes?.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const initials = (folioRes?.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const nights = folioRes ? nightsCount(folioRes) : 0;
-  
+
   const ledger = [
-    ...folioItems.map(i=>({...i,type:'charge',timestamp:new Date(i.created_at||Date.now()).getTime()})),
-    ...folioPayments.map(p=>({...p,type:'payment',timestamp:new Date(p.posted_at||Date.now()).getTime()}))
-  ].sort((a,b)=>a.timestamp-b.timestamp);
-  
-  let runBal=0;
-  const ledgerWithBalance = ledger.map(e=>{
-    if(!e.voided){ if(e.type==='charge') runBal+=parseFloat(e.amount); else runBal-=parseFloat(e.amount); }
-    return{...e,currentBalance:runBal};
+    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: new Date(i.created_at || Date.now()).getTime() })),
+    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: new Date(p.posted_at || Date.now()).getTime() }))
+  ].sort((a, b) => a.timestamp - b.timestamp);
+
+  let runBal = 0;
+  const ledgerWithBalance = ledger.map(e => {
+    if (!e.voided) { if (e.type === 'charge') runBal += parseFloat(e.amount); else runBal -= parseFloat(e.amount); }
+    return { ...e, currentBalance: runBal };
   });
 
   const [todayFin, setTodayFin] = React.useState(null);
@@ -187,7 +187,7 @@ function AdminBillingTab({
 
   return (
     <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10, background: '#f5f7f9' }}>
-      
+
       {/* Top Header */}
       <div className="bg-white border-b border-black/10 px-8 py-5 shrink-0">
         <div className="flex justify-between items-end mb-6">
@@ -209,7 +209,7 @@ function AdminBillingTab({
             </button>
           </div>
         </div>
-        
+
         {/* Tabs */}
         <div className="flex items-center gap-8 -mb-5">
           {['Guest Billing', 'Invoices', 'Payments', 'City Ledger', 'Cashier Shift', 'Taxes & Discounts'].map(tab => (
@@ -222,21 +222,21 @@ function AdminBillingTab({
       </div>
 
       <div className="flex-1 flex overflow-hidden p-6 gap-6">
-        
+
         {/* Left Panel: Guest Search & List */}
         <div className="w-[300px] shrink-0 flex flex-col gap-6">
-          
+
           <div className="bg-white rounded-xl shadow-sm border border-black/5 p-5">
             <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest mb-4">Search Guest</h3>
             <div className="space-y-4">
               <div className="relative">
-                <input type="text" placeholder="Search guest name, room no. or folio no." value={searchQ} onChange={e=>setSearchQ(e.target.value)}
+                <input type="text" placeholder="Search guest name, room no. or folio no." value={searchQ} onChange={e => setSearchQ(e.target.value)}
                   className="w-full pl-3 pr-8 py-2.5 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none focus:border-[#00754A]" />
                 <Search className="w-3.5 h-3.5 text-black/40 absolute right-3 top-3" />
               </div>
               <div>
                 <label className="block text-[10px] text-black/50 font-bold mb-1">Status</label>
-                <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)} className="w-full py-2.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none">
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full py-2.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none">
                   <option value="All">All</option>
                   <option value="In-House">In-House</option>
                   <option value="Checked-Out">Checked-Out</option>
@@ -269,18 +269,18 @@ function AdminBillingTab({
                 const bal = isActive ? folioTotals.balance : (outstandingDict[r.id] || 0);
                 return (
                   <div key={r.id} onClick={() => openFolio(r)}
-                    className={`p-4 border-b border-black/5 cursor-pointer hover:bg-black/[0.02] transition-colors flex flex-col ${isActive?'bg-[#00754A]/5 border-l-4 border-l-[#00754A]':'border-l-4 border-l-transparent'}`}>
+                    className={`p-4 border-b border-black/5 cursor-pointer hover:bg-black/[0.02] transition-colors flex flex-col ${isActive ? 'bg-[#00754A]/5 border-l-4 border-l-[#00754A]' : 'border-l-4 border-l-transparent'}`}>
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-[#111] text-xs">{r.room_number||'TBA'}</span>
+                        <span className="font-bold text-[#111] text-xs">{r.room_number || 'TBA'}</span>
                         <span className="font-bold text-black/80 text-xs truncate max-w-[100px]">{r.full_name}</span>
-                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${r.status==='In-House'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-600'}`}>{r.status}</span>
+                        <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${r.status === 'In-House' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{r.status}</span>
                       </div>
-                      <span className={`text-xs font-bold ${bal>0?'text-red-600':'text-[#00754A]'}`}>{fmtA(bal)}</span>
+                      <span className={`text-xs font-bold ${bal > 0 ? 'text-red-600' : 'text-[#00754A]'}`}>{fmtA(bal)}</span>
                     </div>
                     <div className="flex justify-between items-center text-[10px] text-black/50">
                       <span>{r.room_type} | {nightsCount(r)} Nights</span>
-                      <span className={bal>0?'text-red-500':'text-[#00754A]'}>{bal>0?'Outstanding':'Paid'}</span>
+                      <span className={bal > 0 ? 'text-red-500' : 'text-[#00754A]'}>{bal > 0 ? 'Outstanding' : 'Paid'}</span>
                     </div>
                   </div>
                 );
@@ -312,27 +312,27 @@ function AdminBillingTab({
                     </div>
                   </div>
                   <button className="px-4 py-1.5 border border-black/10 rounded-lg text-[11px] font-bold hover:bg-black/5 flex items-center gap-1.5">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Edit
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg> Edit
                   </button>
                 </div>
-                
+
                 <div className="grid grid-cols-6 gap-4 text-xs">
                   <div>
-                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5 flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Room</div>
-                    <div className="font-bold">{folioRes.room_number||'TBA'}</div>
+                    <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5 flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg> Room</div>
+                    <div className="font-bold">{folioRes.room_number || 'TBA'}</div>
                     <div className="text-black/60 truncate">{folioRes.room_type}</div>
                   </div>
                   <div className="col-span-1">
                     <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Reservation #</div>
-                    <div className="font-medium text-black/80">NHP-{String(folioRes.id).padStart(8,'0')}</div>
+                    <div className="font-medium text-black/80">NHP-{String(folioRes.id).padStart(8, '0')}</div>
                   </div>
                   <div>
                     <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Check-In</div>
-                    <div className="font-medium text-black/80">{fmtDate(folioRes.check_in_date)}<br/><span className="text-black/50">2:00 PM</span></div>
+                    <div className="font-medium text-black/80">{fmtDate(folioRes.check_in_date)}<br /><span className="text-black/50">2:00 PM</span></div>
                   </div>
                   <div>
                     <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Check-Out</div>
-                    <div className="font-medium text-black/80">{fmtDate(folioRes.check_out_date)}<br/><span className="text-black/50">11:00 AM</span></div>
+                    <div className="font-medium text-black/80">{fmtDate(folioRes.check_out_date)}<br /><span className="text-black/50">11:00 AM</span></div>
                   </div>
                   <div>
                     <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5">Nights</div>
@@ -348,7 +348,7 @@ function AdminBillingTab({
               {/* Folio Tabs */}
               <div className="px-6 flex gap-6 border-b border-black/5 shrink-0 bg-[#fbfcfc]">
                 {['Folio', 'Stay Details', 'Payments', 'Deposits', 'Notes', 'Documents', 'Audit Trail'].map(tab => (
-                  <button key={tab} className={`py-3 text-[11px] font-bold border-b-2 transition-colors ${tab==='Folio'?'border-[#00754A] text-[#00754A]':'border-transparent text-black/60 hover:text-black'}`}>
+                  <button key={tab} className={`py-3 text-[11px] font-bold border-b-2 transition-colors ${tab === 'Folio' ? 'border-[#00754A] text-[#00754A]' : 'border-transparent text-black/60 hover:text-black'}`}>
                     {tab}
                   </button>
                 ))}
@@ -361,11 +361,11 @@ function AdminBillingTab({
                   <div className="flex gap-2">
                     <select className="border border-black/10 rounded px-2 py-1.5 text-[10px] outline-none bg-white"><option>All Types</option></select>
                     <select className="border border-black/10 rounded px-2 py-1.5 text-[10px] outline-none bg-white"><option>All Categories</option></select>
-                    <button className="border border-black/10 rounded px-2 py-1.5 bg-white"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 11V7a5 5 0 0110 0v4"/><path d="M4 11h16v10H4z"/></svg></button>
+                    <button className="border border-black/10 rounded px-2 py-1.5 bg-white"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 11V7a5 5 0 0110 0v4" /><path d="M4 11h16v10H4z" /></svg></button>
                   </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto" style={{scrollbarWidth:'thin'}}>
+                <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
                   <table className="w-full text-left border-collapse text-[11px]">
                     <thead className="sticky top-0 bg-[#fbfcfc] border-b border-black/5">
                       <tr className="text-black/60 font-bold">
@@ -382,17 +382,17 @@ function AdminBillingTab({
                       {ledgerWithBalance.length === 0 ? (
                         <tr><td colSpan="7" className="px-6 py-8 text-center text-black/40 italic">No transactions found</td></tr>
                       ) : ledgerWithBalance.map((entry) => {
-                        const isCharge = entry.type==='charge';
+                        const isCharge = entry.type === 'charge';
                         const ts = new Date(entry.timestamp);
                         return (
                           <tr key={entry.id} className="hover:bg-black/[0.02]">
-                            <td className="px-6 py-3 font-medium">{ts.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
-                            <td className="px-3 py-3 text-black/60">{ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
-                            <td className="px-3 py-3">{entry.description||entry.charge_type||entry.payment_method}</td>
+                            <td className="px-6 py-3 font-medium">{ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                            <td className="px-3 py-3 text-black/60">{ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                            <td className="px-3 py-3">{entry.description || entry.charge_type || entry.payment_method}</td>
                             <td className="px-3 py-3 text-black/60">{entry.charge_type || 'Payment'}</td>
-                            <td className="px-3 py-3 text-right font-mono">{isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}</td>
-                            <td className="px-3 py-3 text-right font-mono">{!isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}</td>
-                            <td className="px-6 py-3 text-right font-mono font-bold text-black">{parseFloat(entry.currentBalance||0).toLocaleString('en-PH',{minimumFractionDigits:2})}</td>
+                            <td className="px-3 py-3 text-right font-mono">{isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}</td>
+                            <td className="px-3 py-3 text-right font-mono">{!isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}</td>
+                            <td className="px-6 py-3 text-right font-mono font-bold text-black">{parseFloat(entry.currentBalance || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
                           </tr>
                         );
                       })}
@@ -426,7 +426,7 @@ function AdminBillingTab({
             </>
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-black/40">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4 opacity-50"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4 opacity-50"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
               <h2 className="text-lg font-bold text-black/60">No Guest Selected</h2>
               <p className="text-xs">Select a guest from the list to view their folio and billing details.</p>
             </div>
@@ -435,36 +435,36 @@ function AdminBillingTab({
 
         {/* Right Panel: Quick Actions & Summaries */}
         <div className="w-[260px] shrink-0 flex flex-col gap-6 overflow-y-auto no-scrollbar">
-          
+
           <div className="space-y-4">
             <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Quick Actions</h3>
             <div className="space-y-2">
-              <button onClick={()=>setAddChargeOpen(true)} className="w-full flex items-center gap-3 p-3 bg-[#1E3932] text-white rounded-lg hover:bg-[#142b22] transition-colors text-xs font-bold shadow-sm">
-                <Plus className="w-4 h-4"/> Add Charge
+              <button onClick={() => setAddChargeOpen(true)} className="w-full flex items-center gap-3 p-3 bg-[#1E3932] text-white rounded-lg hover:bg-[#142b22] transition-colors text-xs font-bold shadow-sm">
+                <Plus className="w-4 h-4" /> Add Charge
               </button>
-              <button onClick={()=>setAddPayOpen(o=>!o)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> Add Payment
-              </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg> Refund
+              <button onClick={() => setAddPayOpen(o => !o)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg> Add Payment
               </button>
               <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Add Deposit
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg> Refund
               </button>
               <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg> Discount / Adjustment
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg> Add Deposit
               </button>
               <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <X className="w-4 h-4"/> Void Transaction
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20V10M18 20V4M6 20v-4" /></svg> Discount / Adjustment
+              </button>
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+                <X className="w-4 h-4" /> Void Transaction
               </button>
               <button onClick={sendFolioEmail} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Email Folio
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg> Email Folio
               </button>
               <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg> Print Folio
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><path d="M6 14h12v8H6z" /></svg> Print Folio
               </button>
               <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Download PDF
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg> Download PDF
               </button>
             </div>
           </div>
@@ -497,45 +497,45 @@ function AdminBillingTab({
 
         </div>
       </div>
-      
+
       {addChargeOpen && (
         <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <h3 className="text-lg font-bold mb-4">Add Charge</h3>
             <div className="space-y-4">
-              <select value={fcType} onChange={e=>setFcType(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
+              <select value={fcType} onChange={e => setFcType(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
                 <option value="Room Charge">Room Charge</option>
                 <option value="Food & Beverage">Food & Beverage</option>
                 <option value="Mini Bar">Mini Bar</option>
                 <option value="Laundry">Laundry</option>
               </select>
-              <input type="text" placeholder="Description" value={fcDesc} onChange={e=>setFcDesc(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+              <input type="text" placeholder="Description" value={fcDesc} onChange={e => setFcDesc(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
               <div className="flex gap-4">
-                <input type="number" placeholder="Qty" value={fcQty} onChange={e=>setFcQty(e.target.value)} className="w-20 border rounded-lg p-2 text-sm" />
-                <input type="number" placeholder="Price" value={fcPrice} onChange={e=>setFcPrice(e.target.value)} className="flex-1 border rounded-lg p-2 text-sm" />
+                <input type="number" placeholder="Qty" value={fcQty} onChange={e => setFcQty(e.target.value)} className="w-20 border rounded-lg p-2 text-sm" />
+                <input type="number" placeholder="Price" value={fcPrice} onChange={e => setFcPrice(e.target.value)} className="flex-1 border rounded-lg p-2 text-sm" />
               </div>
               <div className="flex gap-3 pt-4">
-                <button onClick={()=>setAddChargeOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
-                <button onClick={handleAddCharge} disabled={fcSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fcSaving?'Saving...':'Post Charge'}</button>
+                <button onClick={() => setAddChargeOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddCharge} disabled={fcSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fcSaving ? 'Saving...' : 'Post Charge'}</button>
               </div>
             </div>
           </div>
         </div>
       )}
-      
+
       {addPayOpen && (
         <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
             <h3 className="text-lg font-bold mb-4">Post Payment</h3>
             <div className="space-y-4">
-              <select value={fpMethod} onChange={e=>setFpMethod(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
-                {['Cash','Credit Card','Debit Card','GCash','Maya','Bank Transfer'].map(m=><option key={m}>{m}</option>)}
+              <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
+                {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Maya', 'Bank Transfer'].map(m => <option key={m}>{m}</option>)}
               </select>
-              <input type="number" placeholder="Amount (₱)" value={fpAmount} onChange={e=>setFpAmount(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
-              <input type="text" placeholder="Reference No. (Optional)" value={fpRef} onChange={e=>setFpRef(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+              <input type="number" placeholder="Amount (₱)" value={fpAmount} onChange={e => setFpAmount(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+              <input type="text" placeholder="Reference No. (Optional)" value={fpRef} onChange={e => setFpRef(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
               <div className="flex gap-3 pt-4">
-                <button onClick={()=>setAddPayOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
-                <button onClick={handleAddPayment} disabled={fpSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving?'Saving...':'Post Payment'}</button>
+                <button onClick={() => setAddPayOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddPayment} disabled={fpSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving ? 'Saving...' : 'Post Payment'}</button>
               </div>
             </div>
           </div>
@@ -1018,7 +1018,7 @@ export default function RestaurantApp() {
               },
               {
                 id: 'guests', label: 'Guests', tabId: 'guests', act: () => { setAdminTab('guests'); setCurrentPage('admin'); },
-                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path strokeLinecap="round" strokeLinejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                icon: <svg style={{ width: 20, height: 20 }} fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path strokeLinecap="round" strokeLinejoin="round" d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
               },
               {
                 id: 'rooms', label: 'Rooms', tabId: 'rooms', act: () => { setAdminTab('rooms'); setCurrentPage('admin'); },
@@ -1152,55 +1152,55 @@ export default function RestaurantApp() {
           </a>
         )}
 
-      {showPromoPopup && latestPromo && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPromoPopup(false)}></div>
-          
-          <div className="relative w-full max-w-3xl z-10 animate-in fade-in zoom-in duration-300 flex flex-row h-auto min-h-[250px] drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity">
-            {/* Close Button */}
-            <button
-              onClick={() => setShowPromoPopup(false)}
-              className="absolute -top-4 -right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg text-black/60 hover:text-black transition-colors z-30 border border-gray-100"
-            >
-              &#10005;
-            </button>
+        {showPromoPopup && latestPromo && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPromoPopup(false)}></div>
 
-            {/* Left Stub */}
-            <div 
-              className="w-[28%] h-auto relative flex items-center justify-center border-r-[3px] border-dashed border-white/40"
-              style={{
-                background: `
+            <div className="relative w-full max-w-3xl z-10 animate-in fade-in zoom-in duration-300 flex flex-row h-auto min-h-[250px] drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity">
+              {/* Close Button */}
+              <button
+                onClick={() => setShowPromoPopup(false)}
+                className="absolute -top-4 -right-4 w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-lg text-black/60 hover:text-black transition-colors z-30 border border-gray-100"
+              >
+                &#10005;
+              </button>
+
+              {/* Left Stub */}
+              <div
+                className="w-[28%] h-auto relative flex items-center justify-center border-r-[3px] border-dashed border-white/40"
+                style={{
+                  background: `
                   radial-gradient(circle at 100% 0px, transparent 16px, #00754A 17px) top left / 100% 50% no-repeat,
                   radial-gradient(circle at 100% 100%, transparent 16px, #00754A 17px) bottom left / 100% 50% no-repeat
                 `
-              }}
-            >
-              <div className="flex items-center justify-center h-full w-full relative overflow-hidden">
-                <span className="text-white text-[12px] font-bold tracking-[0.4em] uppercase transform -rotate-90 absolute left-6 whitespace-nowrap">Discount Coupon</span>
-                
-                <div className="absolute right-6 w-10 h-[65%] opacity-90" 
-                      style={{ backgroundImage: 'repeating-linear-gradient(to bottom, white, white 2px, transparent 2px, transparent 6px, white 6px, white 8px, transparent 8px, transparent 12px, white 12px, white 16px)' }}>
+                }}
+              >
+                <div className="flex items-center justify-center h-full w-full relative overflow-hidden">
+                  <span className="text-white text-[12px] font-bold tracking-[0.4em] uppercase transform -rotate-90 absolute left-6 whitespace-nowrap">Discount Coupon</span>
+
+                  <div className="absolute right-6 w-10 h-[65%] opacity-90"
+                    style={{ backgroundImage: 'repeating-linear-gradient(to bottom, white, white 2px, transparent 2px, transparent 6px, white 6px, white 8px, transparent 8px, transparent 12px, white 12px, white 16px)' }}>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Right Main Content */}
-            <div 
-              className="w-[72%] h-auto relative p-3 md:p-4"
-              style={{
-                background: `
+              {/* Right Main Content */}
+              <div
+                className="w-[72%] h-auto relative p-3 md:p-4"
+                style={{
+                  background: `
                   radial-gradient(circle at 0px 0px, transparent 16px, #00754A 17px) top left / 100% 50% no-repeat,
                   radial-gradient(circle at 0px 100%, transparent 16px, #00754A 17px) bottom left / 100% 50% no-repeat
                 `
-              }}
-            >
-              {/* Inner White Box */}
-              <div className="bg-white w-full h-full rounded-xl p-6 md:p-8 flex flex-col justify-between relative">
+                }}
+              >
+                {/* Inner White Box */}
+                <div className="bg-white w-full h-full rounded-xl p-6 md:p-8 flex flex-col justify-between relative">
 
-                <div className="flex justify-between items-start mt-2">
-                  <div className="flex flex-col">
+                  <div className="flex justify-between items-start mt-2">
+                    <div className="flex flex-col">
                       <span className="text-sm font-bold text-gray-800 tracking-[0.2em] uppercase">Special Offer</span>
-                      
+
                       {latestPromo.prices && latestPromo.prices.length > 0 ? (
                         <>
                           <span className="text-6xl md:text-7xl font-black text-gray-800 mt-2 leading-none tracking-tighter">
@@ -1211,58 +1211,58 @@ export default function RestaurantApp() {
                       ) : (
                         <span className="text-5xl md:text-6xl font-black text-gray-800 mt-2 leading-none uppercase">{latestPromo.name}</span>
                       )}
-                  </div>
+                    </div>
 
-                  <div className="flex flex-col items-center mt-2 mr-2">
+                    <div className="flex flex-col items-center mt-2 mr-2">
                       <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Promo Code :</span>
                       <div className="border-[3px] border-gray-800 px-6 py-2 rounded-sm cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={() => {
-                              setShowPromoPopup(false);
-                              sessionStorage.setItem('northomes_promo', latestPromo.code);
-                              window.scrollTo(0, 0);
-                              setCurrentPage('booking');
-                          }}
+                        onClick={() => {
+                          setShowPromoPopup(false);
+                          sessionStorage.setItem('northomes_promo', latestPromo.code);
+                          window.scrollTo(0, 0);
+                          setCurrentPage('booking');
+                        }}
                       >
                         <span className="text-2xl font-bold tracking-widest text-gray-800">{latestPromo.code}</span>
                       </div>
                       <span className="text-[9px] text-gray-400 mt-2 font-bold uppercase tracking-wider cursor-pointer hover:text-gray-600">Click to Apply</span>
-                  </div>
-                </div>
-
-                <div className="border-t-[3px] border-gray-800 mt-6 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="text-xs text-gray-500 font-medium w-full md:w-[65%]">
-                    <p className="mb-3">{latestPromo.description}</p>
-                    {/* Promo rates list inline */}
-                    <div className="flex flex-wrap gap-x-4 gap-y-2">
-                      {latestPromo.prices && latestPromo.prices.map(price => (
-                        <span key={price.room_type_id} className="text-[11px] font-bold text-gray-700 flex items-center gap-1">
-                          {price.room_type_name}: 
-                          {price.original_price && (
-                            <span className="text-gray-400 line-through">₱{price.original_price}</span>
-                          )}
-                          <span className="text-[#00754A]">₱{price.price_per_night}</span>
-                        </span>
-                      ))}
                     </div>
                   </div>
-                  
-                  <button 
-                    onClick={() => {
+
+                  <div className="border-t-[3px] border-gray-800 mt-6 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="text-xs text-gray-500 font-medium w-full md:w-[65%]">
+                      <p className="mb-3">{latestPromo.description}</p>
+                      {/* Promo rates list inline */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-2">
+                        {latestPromo.prices && latestPromo.prices.map(price => (
+                          <span key={price.room_type_id} className="text-[11px] font-bold text-gray-700 flex items-center gap-1">
+                            {price.room_type_name}:
+                            {price.original_price && (
+                              <span className="text-gray-400 line-through">₱{price.original_price}</span>
+                            )}
+                            <span className="text-[#00754A]">₱{price.price_per_night}</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
                         setShowPromoPopup(false);
                         sessionStorage.setItem('northomes_promo', latestPromo.code);
                         window.scrollTo(0, 0);
                         setCurrentPage('booking');
-                    }}
-                    className="w-full md:w-auto bg-gray-800 text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors rounded-sm whitespace-nowrap"
-                  >
-                    Book Now
-                  </button>
+                      }}
+                      className="w-full md:w-auto bg-gray-800 text-white px-8 py-3 text-xs font-bold uppercase tracking-widest hover:bg-gray-900 transition-colors rounded-sm whitespace-nowrap"
+                    >
+                      Book Now
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </CartContext.Provider>
   );
@@ -1340,6 +1340,31 @@ function AppointmentForm({ onSuccess }) {
   const [depositRef, setDepositRef] = useState('');
   const [depositAmount, setDepositAmount] = useState('');
   const [depositNotes, setDepositNotes] = useState('');
+  const [paymentOptions, setPaymentOptions] = useState({});
+
+  // Fetch payment options from settings
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/hotel-settings`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.settings.payment_options) {
+          try { setPaymentOptions(JSON.parse(data.settings.payment_options)); } catch { }
+        }
+      })
+      .catch(() => { });
+  }, []);
+
+  // Derive payment instructions for selected method
+  const getPaymentInstructions = (method) => {
+    const key = method === 'GCash' ? 'gcash' : method === 'PayMaya' ? 'paymaya' : method === 'Bank Transfer' ? 'bank' : method === 'PayPal' ? 'paypal' : method === 'Credit Card' ? 'credit_card' : 'others';
+    const p = paymentOptions;
+    if (key === 'gcash') return { name: p.gcash_name, number: p.gcash_number, qr: p.gcash_qr, extra: p.gcash_instructions };
+    if (key === 'paymaya') return { name: p.paymaya_name, number: p.paymaya_number, qr: p.paymaya_qr, extra: p.paymaya_instructions };
+    if (key === 'bank') return { bank: p.bank_name, name: p.bank_account_name, number: p.bank_account_number, branch: p.bank_branch, extra: p.bank_instructions };
+    if (key === 'paypal') return { email: p.paypal_email, link: p.paypal_link, extra: p.paypal_instructions };
+    if (key === 'credit_card') return { extra: p.credit_card_instructions };
+    return { label: p.others_label, extra: p.others_instructions };
+  };
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -1455,10 +1480,10 @@ function AppointmentForm({ onSuccess }) {
         await fetch(`${API_BASE_URL}/api/folio/${data.reservation.id}/payment`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             payment_method: depositMethod,
             amount: parseFloat(depositAmount),
-            reference: depositRef.trim() || 'Online Deposit' 
+            reference: depositRef.trim() || 'Online Deposit'
           }),
         });
 
@@ -1565,13 +1590,13 @@ function AppointmentForm({ onSuccess }) {
                 <div>
                   <label className={labelCls}>Adults</label>
                   <select name="adults" value={formData.adults} onChange={handleChange} required className={inputCls}>
-                    {[1,2,3,4,5,6].map(n => <option key={n} value={String(n)}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>)}
+                    {[1, 2, 3, 4, 5, 6].map(n => <option key={n} value={String(n)}>{n} {n === 1 ? 'Adult' : 'Adults'}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className={labelCls}>Children <span className="normal-case font-normal text-gray-400">(under 12)</span></label>
                   <select name="children" value={formData.children} onChange={handleChange} className={inputCls}>
-                    {[0,1,2,3,4,5].map(n => <option key={n} value={String(n)}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>)}
+                    {[0, 1, 2, 3, 4, 5].map(n => <option key={n} value={String(n)}>{n === 0 ? 'No children' : `${n} ${n === 1 ? 'Child' : 'Children'}`}</option>)}
                   </select>
                 </div>
               </div>
@@ -1794,9 +1819,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          payment_method: method, 
-          amount: amount, 
+        body: JSON.stringify({
+          payment_method: method,
+          amount: amount,
           reference: ref,
           date: overrideDate,
           time: overrideTime,
@@ -1907,7 +1932,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     if (!res) return;
     const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
     const fmtCurrency = (n) => `₱${parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    
+
     // Parse name parts using robust parser
     const parsedName = parseFullName(res.full_name);
     const { last, first, mi } = parsedName;
@@ -1938,7 +1963,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
     const payMethod = (res.payment_method || '').toLowerCase();
     const source = (res.source || '').toLowerCase();
-    
+
     const isCash = payMethod.includes('cash') || source.includes('cash') ? 'checked' : '';
     const isBank = payMethod.includes('bank') || payMethod.includes('transfer') ? 'checked' : '';
     const isGcash = payMethod.includes('gcash') ? 'checked' : '';
@@ -4307,7 +4332,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                         {field.key.endsWith('_qr') && pmValues[field.key] && (
                                           <div className="mt-2">
                                             <p className="text-xs text-black/40 mb-1">Preview:</p>
-                                            <img src={pmValues[field.key]} alt="QR Preview" className="w-28 h-28 object-contain border border-black/10 rounded-lg p-1 bg-white" onError={e => e.target.style.display='none'} />
+                                            <img src={pmValues[field.key]} alt="QR Preview" className="w-28 h-28 object-contain border border-black/10 rounded-lg p-1 bg-white" onError={e => e.target.style.display = 'none'} />
                                           </div>
                                         )}
                                       </div>
@@ -4899,301 +4924,301 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 }
 
 function ManagerDailyReportUI({ data, date }) {
- if (!data || !data.kpi) return null;
- return (
- <div className="bg-[#f8f9fa] text-[#333333] font-sans print:bg-white pb-12">
- <div className="grid grid-cols-4 gap-4 mb-6">
- <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
- <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-4 shrink-0">
- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
- </div>
- <div className="min-w-0">
- <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">Occupancy</div>
- <div className=" font-black text-gray-800 truncate">{data.kpi?.occupancy}%</div>
- <div className=" font-medium text-gray-500 mt-1 truncate">{data.kpi?.occupiedRooms} / {data.kpi?.totalRooms} Rooms</div>
- </div>
- </div>
- <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
- <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-4 shrink-0">
- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01"/></svg>
- </div>
- <div className="min-w-0">
- <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">ADR</div>
- <div className=" font-black text-gray-800 truncate">₱{data.kpi?.adr?.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
- <div className=" font-medium text-gray-500 mt-1 truncate">Average Daily Rate</div>
- </div>
- </div>
- <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
- <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-4 shrink-0">
- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
- </div>
- <div className="min-w-0">
- <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">REVPAR</div>
- <div className=" font-black text-gray-800 truncate">₱{data.kpi?.revpar?.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
- <div className=" font-medium text-gray-500 mt-1 truncate">Rev. per Available Rm</div>
- </div>
- </div>
- <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
- <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mr-4 shrink-0">
- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 18V6"/></svg>
- </div>
- <div className="min-w-0">
- <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">TOTAL REVENUE</div>
- <div className=" font-black text-gray-800 truncate">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
- <div className=" font-medium text-gray-500 mt-1 truncate">Room + Other Revenue</div>
- </div>
- </div>
- </div>
- 
- <div className="grid grid-cols-3 gap-6 mb-6">
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM STATISTICS</h3>
- <div className="space-y-4 font-medium">
- <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.roomStatistics?.totalRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Available Rooms</span><span className="font-bold text-blue-600">{data.roomStatistics?.availableRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Occupied Rooms</span><span className="font-bold text-green-600">{data.roomStatistics?.occupiedRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-orange-500">{data.roomStatistics?.outOfOrderRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Due Out</span><span className="font-bold text-red-600">{data.roomStatistics?.dueOut}</span></div>
- <div className="pt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Occupancy %</span><span className="font-black text-gray-900">{data.roomStatistics?.occupancyPercentage}%</span></div>
- </div>
- </div>
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ARRIVALS & DEPARTURES</h3>
- <div className="grid grid-cols-2 gap-4 mb-4">
- <div className="flex items-center">
- <div className="w-10 h-10 rounded-full bg-green-50 text-green-700 flex items-center justify-center mr-3">
- <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
- </div>
- <div>
- <div className=" font-bold text-gray-400 uppercase tracking-widest">ARRIVALS</div>
- <div className=" font-black text-gray-800">{data.arrivalsDepartures?.arrivals}</div>
- </div>
- </div>
- <div className="flex items-center">
- <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mr-3">
- <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
- </div>
- <div>
- <div className=" font-bold text-gray-400 uppercase tracking-widest">DEPARTURES</div>
- <div className=" font-black text-gray-800">{data.arrivalsDepartures?.departures}</div>
- </div>
- </div>
- </div>
- <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-6">
- <div className="flex justify-between"><span className="text-gray-500">Walk-in</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.walkIn}</span></div>
- <div className="flex justify-between"><span className="text-gray-500">On Time</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.onTime}</span></div>
- <div className="flex justify-between"><span className="text-gray-500">Reservations</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.reservations}</span></div>
- <div className="flex justify-between"><span className="text-gray-500">Late Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.lateCheckout}</span></div>
- <div className="flex justify-between"><span className="text-gray-500">VIP Arrivals</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.vipArrivals}</span></div>
- <div className="flex justify-between"><span className="text-gray-500">Early Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.earlyCheckout}</span></div>
- </div>
- </div>
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">GUESTS IN HOUSE</h3>
- <div className=" font-black text-gray-800 mb-8 mt-2">{data.guestsInHouse?.total}</div>
- <div className="space-y-4 font-medium mt-auto">
- <div className="flex justify-between items-center"><span className="text-gray-500">Adults</span><span className="font-bold text-gray-800">{data.guestsInHouse?.adults}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Children</span><span className="font-bold text-gray-800">{data.guestsInHouse?.children}</span></div>
- <div className="pt-4 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">No. of Rooms</span><span className="font-black text-gray-900">{data.guestsInHouse?.noOfRooms}</span></div>
- </div>
- </div>
- </div>
+  if (!data || !data.kpi) return null;
+  return (
+    <div className="bg-[#f8f9fa] text-[#333333] font-sans print:bg-white pb-12">
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">Occupancy</div>
+            <div className=" font-black text-gray-800 truncate">{data.kpi?.occupancy}%</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">{data.kpi?.occupiedRooms} / {data.kpi?.totalRooms} Rooms</div>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">ADR</div>
+            <div className=" font-black text-gray-800 truncate">₱{data.kpi?.adr?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">Average Daily Rate</div>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">REVPAR</div>
+            <div className=" font-black text-gray-800 truncate">₱{data.kpi?.revpar?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">Rev. per Available Rm</div>
+          </div>
+        </div>
+        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 18V6" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">TOTAL REVENUE</div>
+            <div className=" font-black text-gray-800 truncate">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">Room + Other Revenue</div>
+          </div>
+        </div>
+      </div>
 
- <div className="grid grid-cols-[3fr_2fr] gap-6 mb-6">
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE SUMMARY (TODAY)</h3>
- <table className="w-full text-left ">
- <thead>
- <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
- <th className="pb-3 w-1/2">DEPARTMENT</th>
- <th className="pb-3 text-right">REVENUE (₱)</th>
- <th className="pb-3 text-right">% OF TOTAL</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-gray-50">
- {data.revenueSummary?.map((item, i) => (
- <tr key={i} className="hover:bg-gray-50">
- <td className="py-3 font-medium text-gray-600">{item.department}</td>
- <td className="py-3 text-right font-medium text-gray-800">{item.revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
- <td className="py-3 text-right font-bold text-gray-500">{item.pct}%</td>
- </tr>
- ))}
- <tr className="bg-gray-50/50">
- <td className="py-3 font-bold text-green-700">TOTAL REVENUE</td>
- <td className="py-3 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
- <td className="py-3 text-right font-bold text-green-700">100%</td>
- </tr>
- </tbody>
- </table>
- </div>
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE BREAKDOWN</h3>
- <div className="flex-1 flex items-center justify-between gap-8 mt-4">
- <div className="relative w-40 h-40 shrink-0">
- <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
- {(() => {
- let currentOffset = 0;
- return data.revenueSummary?.map((item, i) => {
- const val = parseFloat(item.pct);
- const dasharray = `${val} ${100 - val}`;
- const offset = currentOffset;
- currentOffset -= val;
- return (
- <circle
- key={i}
- cx="50" cy="50" r="15.91549430918954"
- fill="transparent"
- stroke={item.color}
- strokeWidth="8"
- strokeDasharray={dasharray}
- strokeDashoffset={offset}
- />
- );
- });
- })()}
- <circle cx="50" cy="50" r="11" fill="white" />
- </svg>
- <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
- <span className=" font-black text-gray-800">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, {maximumFractionDigits: 0})}</span>
- <span className=" font-medium text-gray-500">Total Revenue</span>
- </div>
- </div>
- <div className="flex-1 space-y-3 font-medium text-gray-600">
- {data.revenueSummary?.map((item, i) => (
- <div key={i} className="flex items-center justify-between">
- <div className="flex items-center">
- <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: item.color }}></span>
- {item.department}
- </div>
- <span className="text-gray-500">{item.pct}%</span>
- </div>
- ))}
- </div>
- </div>
- </div>
- </div>
+      <div className="grid grid-cols-3 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM STATISTICS</h3>
+          <div className="space-y-4 font-medium">
+            <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.roomStatistics?.totalRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Available Rooms</span><span className="font-bold text-blue-600">{data.roomStatistics?.availableRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Occupied Rooms</span><span className="font-bold text-green-600">{data.roomStatistics?.occupiedRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-orange-500">{data.roomStatistics?.outOfOrderRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Due Out</span><span className="font-bold text-red-600">{data.roomStatistics?.dueOut}</span></div>
+            <div className="pt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Occupancy %</span><span className="font-black text-gray-900">{data.roomStatistics?.occupancyPercentage}%</span></div>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ARRIVALS & DEPARTURES</h3>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-green-50 text-green-700 flex items-center justify-center mr-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" /></svg>
+              </div>
+              <div>
+                <div className=" font-bold text-gray-400 uppercase tracking-widest">ARRIVALS</div>
+                <div className=" font-black text-gray-800">{data.arrivalsDepartures?.arrivals}</div>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mr-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+              </div>
+              <div>
+                <div className=" font-bold text-gray-400 uppercase tracking-widest">DEPARTURES</div>
+                <div className=" font-black text-gray-800">{data.arrivalsDepartures?.departures}</div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-6">
+            <div className="flex justify-between"><span className="text-gray-500">Walk-in</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.walkIn}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">On Time</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.onTime}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Reservations</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.reservations}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Late Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.lateCheckout}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">VIP Arrivals</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.vipArrivals}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Early Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.earlyCheckout}</span></div>
+          </div>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">GUESTS IN HOUSE</h3>
+          <div className=" font-black text-gray-800 mb-8 mt-2">{data.guestsInHouse?.total}</div>
+          <div className="space-y-4 font-medium mt-auto">
+            <div className="flex justify-between items-center"><span className="text-gray-500">Adults</span><span className="font-bold text-gray-800">{data.guestsInHouse?.adults}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Children</span><span className="font-bold text-gray-800">{data.guestsInHouse?.children}</span></div>
+            <div className="pt-4 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">No. of Rooms</span><span className="font-black text-gray-900">{data.guestsInHouse?.noOfRooms}</span></div>
+          </div>
+        </div>
+      </div>
 
- <div className="grid grid-cols-3 gap-6 mb-6">
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM TYPES PERFORMANCE</h3>
- <table className="w-full text-left ">
- <thead>
- <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
- <th className="pb-3 w-1/3">ROOM TYPE</th>
- <th className="pb-3 text-right">OCC</th>
- <th className="pb-3 text-right">AVAIL</th>
- <th className="pb-3 text-right">OCC.%</th>
- <th className="pb-3 text-right">ADR (₱)</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-gray-50">
- {data.roomTypesPerformance?.map((rt, i) => (
- <tr key={i} className="hover:bg-gray-50">
- <td className="py-2.5 font-medium text-gray-600">{rt.roomType}</td>
- <td className="py-2.5 text-right font-medium text-gray-800">{rt.occupied}</td>
- <td className="py-2.5 text-right font-medium text-gray-800">{rt.available}</td>
- <td className="py-2.5 text-right font-bold text-gray-500">{rt.occPct}%</td>
- <td className="py-2.5 text-right font-medium text-gray-800">{parseFloat(rt.adr).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
- </tr>
- ))}
- <tr className="bg-gray-50/50">
- <td className="py-2.5 font-bold text-green-700">TOTAL</td>
- <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupiedRooms}</td>
- <td className="py-2.5 text-right font-bold text-green-700">{data.roomStatistics?.availableRooms}</td>
- <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupancy}%</td>
- <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.adr?.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
- </tr>
- </tbody>
- </table>
- </div>
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">PAYMENT SUMMARY (TODAY)</h3>
- <table className="w-full text-left ">
- <thead>
- <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
- <th className="pb-3 w-1/2">PAYMENT METHOD</th>
- <th className="pb-3 text-right">AMOUNT (₱)</th>
- <th className="pb-3 text-right">%</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-gray-50">
- {data.paymentSummary?.map((ps, i) => (
- <tr key={i} className="hover:bg-gray-50">
- <td className="py-2.5 font-medium text-gray-600">{ps.method}</td>
- <td className="py-2.5 text-right font-medium text-gray-800">{ps.amount.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
- <td className="py-2.5 text-right font-bold text-gray-500">{(data.kpi?.totalRevenue ? (ps.amount / data.kpi.totalRevenue * 100) : 0).toFixed(1)}%</td>
- </tr>
- ))}
- <tr className="bg-gray-50/50">
- <td className="py-2.5 font-bold text-green-700">TOTAL PAYMENTS</td>
- <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
- <td className="py-2.5 text-right font-bold text-green-700">100%</td>
- </tr>
- </tbody>
- </table>
- </div>
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">HOUSEKEEPING SUMMARY</h3>
- <div className="space-y-4 font-medium mt-6">
- <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.housekeeping?.totalRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Clean Rooms</span><span className="font-bold text-green-700">{data.housekeeping?.cleanRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Dirty Rooms</span><span className="font-bold text-orange-500">{data.housekeeping?.dirtyRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Inspected Rooms</span><span className="font-bold text-blue-600">{data.housekeeping?.inspectedRooms}</span></div>
- <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-red-600">{data.housekeeping?.outOfOrderRooms}</span></div>
- <div className="pt-4 mt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Cleanliness %</span><span className="font-black text-green-700">{data.housekeeping?.cleanlinessPct}%</span></div>
- </div>
- </div>
- </div>
+      <div className="grid grid-cols-[3fr_2fr] gap-6 mb-6">
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE SUMMARY (TODAY)</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3 w-1/2">DEPARTMENT</th>
+                <th className="pb-3 text-right">REVENUE (₱)</th>
+                <th className="pb-3 text-right">% OF TOTAL</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.revenueSummary?.map((item, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-3 font-medium text-gray-600">{item.department}</td>
+                  <td className="py-3 text-right font-medium text-gray-800">{item.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-3 text-right font-bold text-gray-500">{item.pct}%</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50/50">
+                <td className="py-3 font-bold text-green-700">TOTAL REVENUE</td>
+                <td className="py-3 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="py-3 text-right font-bold text-green-700">100%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE BREAKDOWN</h3>
+          <div className="flex-1 flex items-center justify-between gap-8 mt-4">
+            <div className="relative w-40 h-40 shrink-0">
+              <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                {(() => {
+                  let currentOffset = 0;
+                  return data.revenueSummary?.map((item, i) => {
+                    const val = parseFloat(item.pct);
+                    const dasharray = `${val} ${100 - val}`;
+                    const offset = currentOffset;
+                    currentOffset -= val;
+                    return (
+                      <circle
+                        key={i}
+                        cx="50" cy="50" r="15.91549430918954"
+                        fill="transparent"
+                        stroke={item.color}
+                        strokeWidth="8"
+                        strokeDasharray={dasharray}
+                        strokeDashoffset={offset}
+                      />
+                    );
+                  });
+                })()}
+                <circle cx="50" cy="50" r="11" fill="white" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
+                <span className=" font-black text-gray-800">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                <span className=" font-medium text-gray-500">Total Revenue</span>
+              </div>
+            </div>
+            <div className="flex-1 space-y-3 font-medium text-gray-600">
+              {data.revenueSummary?.map((item, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: item.color }}></span>
+                    {item.department}
+                  </div>
+                  <span className="text-gray-500">{item.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
- <div className="grid grid-cols-3 gap-6">
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">TOP 5 ROOM REVENUE</h3>
- <table className="w-full text-left ">
- <thead>
- <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
- <th className="pb-3">ROOM NO.</th>
- <th className="pb-3">ROOM TYPE</th>
- <th className="pb-3 text-right">REVENUE (₱)</th>
- </tr>
- </thead>
- <tbody className="divide-y divide-gray-50">
- {data.topRooms?.map((tr, i) => (
- <tr key={i} className="hover:bg-gray-50">
- <td className="py-2.5 font-bold text-gray-800">{tr.roomNo}</td>
- <td className="py-2.5 font-medium text-gray-600">{tr.roomType}</td>
- <td className="py-2.5 text-right font-medium text-gray-800">{tr.revenue.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
- </tr>
- ))}
- </tbody>
- </table>
- </div>
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">NOTES & REMINDERS</h3>
- <ul className="space-y-4 font-medium text-gray-600">
- {data.notes?.map((n, i) => (
- <li key={i}>{n}</li>
- ))}
- </ul>
- </div>
- <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
- <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">WEATHER</h3>
- <div className="flex items-center mt-2 mb-8">
- <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ea9f2f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-6"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
- <div>
- <div className=" font-black text-gray-800">{data.weather?.temp}</div>
- <div className=" font-bold text-gray-600 mt-1">{data.weather?.condition}</div>
- </div>
- </div>
- <div className="flex justify-between items-center font-bold text-gray-500 mt-auto pt-4 border-t border-gray-100">
- <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2770c8" strokeWidth="2" className="mr-1"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> Humidity<br/><span className="text-gray-800 ml-4 ">{data.weather?.humidity}</span></div>
- <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8858a7" strokeWidth="2" className="mr-1"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg> Wind<br/><span className="text-gray-800 ml-4 ">{data.weather?.wind}</span></div>
- <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#317e3f" strokeWidth="2" className="mr-1"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg> Forecast<br/><span className="text-gray-800 ml-4 ">{data.weather?.forecast}</span></div>
- </div>
- </div>
- </div>
- <div className="mt-8 text-gray-400 italic">* This report is system generated and does not require signature.</div>
- </div>
- );
+      <div className="grid grid-cols-3 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM TYPES PERFORMANCE</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3 w-1/3">ROOM TYPE</th>
+                <th className="pb-3 text-right">OCC</th>
+                <th className="pb-3 text-right">AVAIL</th>
+                <th className="pb-3 text-right">OCC.%</th>
+                <th className="pb-3 text-right">ADR (₱)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.roomTypesPerformance?.map((rt, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-2.5 font-medium text-gray-600">{rt.roomType}</td>
+                  <td className="py-2.5 text-right font-medium text-gray-800">{rt.occupied}</td>
+                  <td className="py-2.5 text-right font-medium text-gray-800">{rt.available}</td>
+                  <td className="py-2.5 text-right font-bold text-gray-500">{rt.occPct}%</td>
+                  <td className="py-2.5 text-right font-medium text-gray-800">{parseFloat(rt.adr).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50/50">
+                <td className="py-2.5 font-bold text-green-700">TOTAL</td>
+                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupiedRooms}</td>
+                <td className="py-2.5 text-right font-bold text-green-700">{data.roomStatistics?.availableRooms}</td>
+                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupancy}%</td>
+                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.adr?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">PAYMENT SUMMARY (TODAY)</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3 w-1/2">PAYMENT METHOD</th>
+                <th className="pb-3 text-right">AMOUNT (₱)</th>
+                <th className="pb-3 text-right">%</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.paymentSummary?.map((ps, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-2.5 font-medium text-gray-600">{ps.method}</td>
+                  <td className="py-2.5 text-right font-medium text-gray-800">{ps.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-2.5 text-right font-bold text-gray-500">{(data.kpi?.totalRevenue ? (ps.amount / data.kpi.totalRevenue * 100) : 0).toFixed(1)}%</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50/50">
+                <td className="py-2.5 font-bold text-green-700">TOTAL PAYMENTS</td>
+                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="py-2.5 text-right font-bold text-green-700">100%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">HOUSEKEEPING SUMMARY</h3>
+          <div className="space-y-4 font-medium mt-6">
+            <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.housekeeping?.totalRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Clean Rooms</span><span className="font-bold text-green-700">{data.housekeeping?.cleanRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Dirty Rooms</span><span className="font-bold text-orange-500">{data.housekeeping?.dirtyRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Inspected Rooms</span><span className="font-bold text-blue-600">{data.housekeeping?.inspectedRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-red-600">{data.housekeeping?.outOfOrderRooms}</span></div>
+            <div className="pt-4 mt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Cleanliness %</span><span className="font-black text-green-700">{data.housekeeping?.cleanlinessPct}%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">TOP 5 ROOM REVENUE</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3">ROOM NO.</th>
+                <th className="pb-3">ROOM TYPE</th>
+                <th className="pb-3 text-right">REVENUE (₱)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.topRooms?.map((tr, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-2.5 font-bold text-gray-800">{tr.roomNo}</td>
+                  <td className="py-2.5 font-medium text-gray-600">{tr.roomType}</td>
+                  <td className="py-2.5 text-right font-medium text-gray-800">{tr.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">NOTES & REMINDERS</h3>
+          <ul className="space-y-4 font-medium text-gray-600">
+            {data.notes?.map((n, i) => (
+              <li key={i}>{n}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">WEATHER</h3>
+          <div className="flex items-center mt-2 mb-8">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ea9f2f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-6"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+            <div>
+              <div className=" font-black text-gray-800">{data.weather?.temp}</div>
+              <div className=" font-bold text-gray-600 mt-1">{data.weather?.condition}</div>
+            </div>
+          </div>
+          <div className="flex justify-between items-center font-bold text-gray-500 mt-auto pt-4 border-t border-gray-100">
+            <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2770c8" strokeWidth="2" className="mr-1"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" /></svg> Humidity<br /><span className="text-gray-800 ml-4 ">{data.weather?.humidity}</span></div>
+            <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8858a7" strokeWidth="2" className="mr-1"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" /></svg> Wind<br /><span className="text-gray-800 ml-4 ">{data.weather?.wind}</span></div>
+            <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#317e3f" strokeWidth="2" className="mr-1"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></svg> Forecast<br /><span className="text-gray-800 ml-4 ">{data.weather?.forecast}</span></div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-8 text-gray-400 italic">* This report is system generated and does not require signature.</div>
+    </div>
+  );
 }
 
 function ReportViewer({ report, onBack }) {
@@ -5210,7 +5235,7 @@ function ReportViewer({ report, onBack }) {
       else if (report.title === "Departure Report") endpoint = `/api/reports/front-office/departures?date=${reportDate}`;
       else if (report.title === "In-House Guest Report") endpoint = `/api/reports/front-office/in-house`;
       else if (report.title === "Room Status Report") endpoint = `/api/reports/front-office/room-status`;
-      
+
       if (endpoint) {
         const res = await fetch(`${API_BASE_URL || 'http://localhost:5000'}${endpoint}`);
         const result = await res.json();
@@ -5239,7 +5264,7 @@ function ReportViewer({ report, onBack }) {
     if (!data) return;
     let rows = [];
     let headers = [];
-    
+
     if (report.title === "Daily Manager's Report" && data.stats) {
       headers = ['Metric', 'Value'];
       rows.push(['Total Arrivals', data.stats.total_arrivals]);
@@ -5264,10 +5289,10 @@ function ReportViewer({ report, onBack }) {
 
     if (headers.length === 0) return;
 
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + headers.join(',') + '\n' 
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + headers.join(',') + '\n'
       + rows.map(e => e.map(cell => `"${cell}"`).join(",")).join("\n");
-    
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -5329,7 +5354,7 @@ function ReportViewer({ report, onBack }) {
         </table>
       );
     }
-    
+
     if (report.title === "Departure Report" && data.departures) {
       if (data.departures.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No departures scheduled for this date.</div>;
       return (
@@ -5355,7 +5380,7 @@ function ReportViewer({ report, onBack }) {
         </table>
       );
     }
-    
+
     if (report.title === "In-House Guest Report" && data.inHouse) {
       if (data.inHouse.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No guests currently in-house.</div>;
       return (
@@ -5381,7 +5406,7 @@ function ReportViewer({ report, onBack }) {
         </table>
       );
     }
-    
+
     if (report.title === "Room Status Report" && data.rooms) {
       return (
         <table className="w-full text-left border-collapse">
@@ -5416,7 +5441,7 @@ function ReportViewer({ report, onBack }) {
         <div className="px-8 py-6 border-b border-black/5 bg-white shrink-0 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-4">
             <button onClick={onBack} className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/60">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
             </button>
             <div>
               <h2 className="text-[#000000]/87 font-black text-2xl tracking-tight leading-tight">{report.title}</h2>
@@ -5428,11 +5453,11 @@ function ReportViewer({ report, onBack }) {
               <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-lg text-sm outline-none focus:border-[#00754A]" />
             )}
             <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
               <span>Print</span>
             </button>
             <button onClick={handleExportCSV} className="flex items-center gap-2 px-5 py-2.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
               <span>Export CSV</span>
             </button>
           </div>
@@ -5463,56 +5488,56 @@ function AdminReportsTab() {
       title: 'FRONT OFFICE REPORTS',
       id: 'Front Office',
       reports: [
-        { title: "Daily Manager's Report", desc: "Summary of daily hotel operations and performance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-5 5"/><path d="M18 9h-4"/><path d="M18 9v4"/></svg> },
-        { title: "Arrival Report", desc: "List of guests arriving today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg> },
-        { title: "Departure Report", desc: "List of guests departing today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M17 11h6M20 8l3 3-3 3"/></svg> },
-        { title: "In-House Guest Report", desc: "List of all in-house guests.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-3-3.87"/><path d="M9 21v-2a4 4 0 014-4h2"/><circle cx="9" cy="7" r="4"/><circle cx="16" cy="7" r="3"/></svg> },
-        { title: "Room Status Report", desc: "Current status of all rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M10 13h4"/></svg> }
+        { title: "Daily Manager's Report", desc: "Summary of daily hotel operations and performance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-5 5" /><path d="M18 9h-4" /><path d="M18 9v4" /></svg> },
+        { title: "Arrival Report", desc: "List of guests arriving today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 8v6M23 11h-6" /></svg> },
+        { title: "Departure Report", desc: "List of guests departing today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M17 11h6M20 8l3 3-3 3" /></svg> },
+        { title: "In-House Guest Report", desc: "List of all in-house guests.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-3-3.87" /><path d="M9 21v-2a4 4 0 014-4h2" /><circle cx="9" cy="7" r="4" /><circle cx="16" cy="7" r="3" /></svg> },
+        { title: "Room Status Report", desc: "Current status of all rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M10 13h4" /></svg> }
       ]
     },
     {
       title: 'FINANCIAL REPORTS',
       id: 'Financial',
       reports: [
-        { title: "Revenue Report", desc: "Summary of revenue by department.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8"/><path d="M12 18V6"/></svg> },
-        { title: "Cashier Shift Report", desc: "Summary of cashier shift transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h12"/><path d="M6 12h12"/><path d="M6 16h4"/></svg> },
-        { title: "Payment Collection Report", desc: "Summary of payments collected by method.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> },
-        { title: "Outstanding Balance Report", desc: "List of guests with outstanding balance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 12v6M17 15h6"/></svg> },
-        { title: "Guest Ledger Report", desc: "Detailed ledger of guest accounts.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> },
-        { title: "City Ledger Report", desc: "List of company accounts and balances.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><path d="M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/></svg> },
-        { title: "Trial Balance", desc: "Summary of balances for reconciliation.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> }
+        { title: "Revenue Report", desc: "Summary of revenue by department.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8" /><path d="M12 18V6" /></svg> },
+        { title: "Cashier Shift Report", desc: "Summary of cashier shift transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M6 8h12" /><path d="M6 12h12" /><path d="M6 16h4" /></svg> },
+        { title: "Payment Collection Report", desc: "Summary of payments collected by method.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg> },
+        { title: "Outstanding Balance Report", desc: "List of guests with outstanding balance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 12v6M17 15h6" /></svg> },
+        { title: "Guest Ledger Report", desc: "Detailed ledger of guest accounts.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg> },
+        { title: "City Ledger Report", desc: "List of company accounts and balances.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18" /><path d="M9 8h1" /><path d="M9 12h1" /><path d="M9 16h1" /><path d="M14 8h1" /><path d="M14 12h1" /><path d="M14 16h1" /><path d="M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" /></svg> },
+        { title: "Trial Balance", desc: "Summary of balances for reconciliation.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg> }
       ]
     },
     {
       title: 'HOUSEKEEPING REPORTS',
       id: 'Housekeeping',
       reports: [
-        { title: "Housekeeping Assignment", desc: "Rooms assigned to housekeeping staff.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg> },
-        { title: "Dirty Room Report", desc: "List of rooms to be cleaned.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 21.5l14-14M7 21v-4a2 2 0 012-2h2a2 2 0 012 2v4M12 11l5-5"/></svg> },
-        { title: "Clean Room Report", desc: "List of clean and inspected rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16M2 8h18a2 2 0 012 2v10M2 17h20M6 8v9"/></svg> },
-        { title: "Out of Order Report", desc: "Rooms that are out of order.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg> }
+        { title: "Housekeeping Assignment", desc: "Rooms assigned to housekeeping staff.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M16 13H8" /><path d="M16 17H8" /><path d="M10 9H8" /></svg> },
+        { title: "Dirty Room Report", desc: "List of rooms to be cleaned.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 21.5l14-14M7 21v-4a2 2 0 012-2h2a2 2 0 012 2v4M12 11l5-5" /></svg> },
+        { title: "Clean Room Report", desc: "List of clean and inspected rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16M2 8h18a2 2 0 012 2v10M2 17h20M6 8v9" /></svg> },
+        { title: "Out of Order Report", desc: "Rooms that are out of order.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" /></svg> }
       ]
     },
     {
       title: 'AUDIT REPORTS',
       id: 'Audit',
       reports: [
-        { title: "Night Audit Report", desc: "Summary of end-of-day audit.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg> },
-        { title: "Void Report", desc: "List of voided transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> },
-        { title: "Discount Report", desc: "Summary of discounts given.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9 15l6-6"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg> },
-        { title: "Refund Report", desc: "Summary of refunds issued.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> },
-        { title: "Deleted Charges Report", desc: "List of deleted charges.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg> },
-        { title: "Rate Override Report", desc: "List of rate overrides.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> }
+        { title: "Night Audit Report", desc: "Summary of end-of-day audit.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg> },
+        { title: "Void Report", desc: "List of voided transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg> },
+        { title: "Discount Report", desc: "Summary of discounts given.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9 15l6-6" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="15" r="1" /></svg> },
+        { title: "Refund Report", desc: "Summary of refunds issued.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg> },
+        { title: "Deleted Charges Report", desc: "List of deleted charges.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg> },
+        { title: "Rate Override Report", desc: "List of rate overrides.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg> }
       ]
     }
   ];
 
   const tabs = [
-    { id: 'All Reports', label: 'All Reports', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg> },
-    { id: 'Front Office', label: 'Front Office', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
-    { id: 'Financial', label: 'Financial', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> },
-    { id: 'Housekeeping', label: 'Housekeeping', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg> },
-    { id: 'Audit', label: 'Audit', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> }
+    { id: 'All Reports', label: 'All Reports', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /></svg> },
+    { id: 'Front Office', label: 'Front Office', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> },
+    { id: 'Financial', label: 'Financial', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> },
+    { id: 'Housekeeping', label: 'Housekeeping', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M16 13H8" /><path d="M16 17H8" /><path d="M10 9H8" /></svg> },
+    { id: 'Audit', label: 'Audit', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg> }
   ];
 
   if (selectedReport) {
@@ -5523,7 +5548,7 @@ function AdminReportsTab() {
     <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
       <div className="flex-1 flex flex-col min-h-0 w-full bg-[#f8f9fa]">
         <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden">
-          
+
           {/* Header bar */}
           <div className="px-8 py-6 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
             <div>
@@ -5532,13 +5557,13 @@ function AdminReportsTab() {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2 px-4 py-2.5 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm cursor-pointer hover:bg-gray-50 transition-colors font-medium">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/60"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/60"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
                 <span>May 28, 2025 - May 28, 2025</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-1 text-black/40"><path d="M6 9l6 6 6-6"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-1 text-black/40"><path d="M6 9l6 6 6-6" /></svg>
               </div>
               <button className="flex items-center gap-2 px-5 py-2.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
                 <span>Custom Range</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
               </button>
             </div>
           </div>
@@ -5560,13 +5585,13 @@ function AdminReportsTab() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                 </div>
                 <input type="text" placeholder="Search reports..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                   className="pl-9 pr-4 py-2.5 border border-black/10 rounded-lg text-xs w-64 outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] transition-all bg-white font-medium" />
               </div>
               <button className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/40"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/40"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
                 <span>Favorites</span>
               </button>
             </div>
@@ -5587,7 +5612,7 @@ function AdminReportsTab() {
                               {React.cloneElement(report.icon, { strokeWidth: "2" })}
                             </div>
                             <button className="text-black/20 hover:text-amber-400 transition-colors shrink-0" onClick={(e) => e.stopPropagation()}>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
                             </button>
                           </div>
                           <div className="flex-1 min-w-0 mt-2">
@@ -5597,7 +5622,7 @@ function AdminReportsTab() {
                         </div>
                         <div className="mt-auto px-6 py-3.5 border-t border-black/5 bg-white flex items-center justify-between transition-colors">
                           <span className="text-[11px] font-bold text-black/40 group-hover:text-[#00754A] transition-colors">Generate Report</span>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/30 group-hover:text-[#00754A] transition-transform group-hover:translate-x-1"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/30 group-hover:text-[#00754A] transition-transform group-hover:translate-x-1"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
                         </div>
                       </div>
                     ))}
@@ -5607,7 +5632,7 @@ function AdminReportsTab() {
             </div>
 
             <div className="mt-20 mb-8 flex items-center justify-center gap-2 text-black/40 text-xs font-medium">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
               <span>All reports can be exported to PDF, Excel, or CSV format.</span>
             </div>
           </div>
@@ -5632,7 +5657,7 @@ function AdminInboxTab() {
       });
       const data = await res.json();
       if (data.success) setMessages(data.messages || []);
-    } catch (e) {}
+    } catch (e) { }
     setLoading(false);
   };
 
@@ -5649,7 +5674,7 @@ function AdminInboxTab() {
         });
         setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: true } : m));
         setSelected(prev => ({ ...prev, is_read: true }));
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -5725,12 +5750,12 @@ function AdminInboxTab() {
                   </a>
                 </div>
               </div>
-              
+
               {/* Subject */}
               <div className="px-8 pt-8 pb-6">
                 <h2 className="text-2xl sm:text-3xl font-normal text-gray-900">{selected.subject}</h2>
               </div>
-              
+
               {/* Sender Info */}
               <div className="px-8 pb-6 flex items-start gap-4">
                 <div className="w-12 h-12 rounded-full bg-[#00754A] flex items-center justify-center flex-shrink-0 text-white shadow-sm mt-1">
@@ -5749,7 +5774,7 @@ function AdminInboxTab() {
                   <p className="text-xs text-gray-500 mt-1">to Northomes Pensionne</p>
                 </div>
               </div>
-              
+
               {/* Message Content */}
               <div className="px-8 pb-12 flex-1">
                 <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-[15px]">{selected.message}</div>
@@ -5799,7 +5824,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-3">
             <a href="https://www.facebook.com/northomespensione" target="_blank" rel="noreferrer" className="text-white/80 hover:text-white transition-colors">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z"/></svg>
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z" /></svg>
             </a>
             <a href="https://www.instagram.com/northomespensione" target="_blank" rel="noreferrer" className="text-white/80 hover:text-white transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
@@ -5864,11 +5889,10 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                       }
                     }}
-                    className={`relative font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest flex items-center gap-1 ${
-                      currentPage === item.id || (currentPage === 'home' && item.id === 'gallery') 
-                        ? 'text-[#00754A] after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-[#00754A]' 
+                    className={`relative font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest flex items-center gap-1 ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery')
+                        ? 'text-[#00754A] after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-[#00754A]'
                         : 'text-black/60 hover:text-[#000000]/87'
-                    }`}
+                      }`}
                   >
                     {item.name}
                     {item.hasSubmenu && (
@@ -6469,29 +6493,29 @@ function PromoPage({ setCurrentPage }) {
                 <div className="p-8 md:w-2/3 flex flex-col justify-center">
                   <h2 className="text-3xl font-black text-[#006241] mb-3">{promo.name}</h2>
                   <p className="text-black/60 mb-6 leading-relaxed">{promo.description || 'Enjoy special discounted rates with this promotional code.'}</p>
-                  
+
                   {promo.prices && promo.prices.length > 0 && (
                     <div className="mb-8">
                       <h4 className="text-xs font-bold text-black/40 uppercase tracking-widest mb-3">Applicable Rooms</h4>
                       <div className="flex flex-wrap gap-2">
                         {promo.prices.map((p, i) => (
-                           <div key={i} className="bg-[#f8f9fa] border border-black/5 rounded-lg px-3 py-1.5 flex items-center gap-2">
-                             <span className="text-xs font-bold text-black/70">{p.room_type_name}</span>
-                             {p.original_price && (
-                               <span className="text-xs text-black/40 line-through">₱{parseFloat(p.original_price).toLocaleString()}</span>
-                             )}
-                             <span className="text-[#CBA258] font-black text-sm">₱{parseFloat(p.price_per_night).toLocaleString()}</span>
-                           </div>
+                          <div key={i} className="bg-[#f8f9fa] border border-black/5 rounded-lg px-3 py-1.5 flex items-center gap-2">
+                            <span className="text-xs font-bold text-black/70">{p.room_type_name}</span>
+                            {p.original_price && (
+                              <span className="text-xs text-black/40 line-through">₱{parseFloat(p.original_price).toLocaleString()}</span>
+                            )}
+                            <span className="text-[#CBA258] font-black text-sm">₱{parseFloat(p.price_per_night).toLocaleString()}</span>
+                          </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  <button 
+                  <button
                     onClick={() => {
-                       sessionStorage.setItem('northomes_promo', promo.code);
-                       setCurrentPage('booking');
-                       window.scrollTo({ top: 0, behavior: 'smooth' });
+                      sessionStorage.setItem('northomes_promo', promo.code);
+                      setCurrentPage('booking');
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className="self-start px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all"
                   >
@@ -6670,7 +6694,7 @@ function HomePage({ setCurrentPage }) {
 
     fetch(`${API_BASE_URL}/api/hotel-settings`)
       .then(r => r.json())
-      .then(data => { 
+      .then(data => {
         if (data.success && data.settings) {
           setHotelSettings(data.settings);
           try {
@@ -6679,7 +6703,7 @@ function HomePage({ setCurrentPage }) {
               const mapped = parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`);
               setHeroImages(mapped);
             }
-          } catch(e) {}
+          } catch (e) { }
         }
       })
       .catch(() => { });
@@ -6712,7 +6736,7 @@ function HomePage({ setCurrentPage }) {
         aspect: aspects[i % aspects.length]
       }));
     }
-  } catch(e) {}
+  } catch (e) { }
 
   useEffect(() => {
     if (lightboxIndex === null) return;
@@ -6735,7 +6759,7 @@ function HomePage({ setCurrentPage }) {
     <div className="w-full flex flex-col bg-[#f2f0eb]">
       {/* Unified Side-by-Side Hero Section */}
       <div className="w-full relative bg-[#FAF8F5] overflow-hidden border-b border-black/5">
-        
+
         {/* Right Column: Slideshow with fade mask - pushed to full right side of window */}
         <div className="absolute inset-y-0 right-0 w-full md:w-1/2 hidden md:block z-0">
           {heroImages.map((img, idx) => (
@@ -6751,13 +6775,13 @@ function HomePage({ setCurrentPage }) {
         </div>
 
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row relative min-h-[550px] md:min-h-[620px] z-10">
-          
+
           {/* Left Column: Brand & Trust Details */}
           <div className="w-full md:w-1/2 flex flex-col justify-center px-6 py-12 md:py-20 md:pl-8 md:pr-4 z-20 space-y-5 text-left">
             <div>
               <span className="font-['Dancing_Script'] text-2.5xl md:text-3xl text-[#00754A] font-bold block mb-1">Your Home in</span>
               <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl lg:text-6xl font-black text-[#1E3932] leading-tight">Northern Cebu</h1>
-              
+
               {/* Cursive divider */}
               <div className="flex items-center gap-2 mt-3 mb-1">
                 <div className="h-[1.5px] w-12 bg-[#1E3932]/15"></div>
@@ -6807,7 +6831,7 @@ function HomePage({ setCurrentPage }) {
                 onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                 className="flex items-center justify-center gap-2.5 px-6 py-3.5 border border-[#1E3932]/30 hover:bg-black/5 text-[#1e3932] font-bold text-xs uppercase tracking-widest rounded-lg transition-all"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 View Rooms
               </button>
             </div>
@@ -6832,7 +6856,7 @@ function HomePage({ setCurrentPage }) {
       {/* Floating Horizontal Booking Bar */}
       <div className="relative -mt-12 z-30 px-6">
         <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-5 flex flex-col items-center">
-          
+
           <div className="flex flex-col md:flex-row items-center gap-4 w-full pb-4">
             {/* Check In */}
             <div className="flex-1 w-full px-4 py-2.5 border-b md:border-b-0 md:border-r border-black/5 flex items-center gap-3">
@@ -7139,12 +7163,12 @@ function HomePage({ setCurrentPage }) {
 
       {/* Lightbox Modal */}
       {lightboxIndex !== null && (
-        <div 
+        <div
           className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
           onClick={() => setLightboxIndex(null)}
         >
           {/* Close button */}
-          <button 
+          <button
             className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light p-2 transition-colors cursor-pointer"
             onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
           >
@@ -7152,21 +7176,21 @@ function HomePage({ setCurrentPage }) {
           </button>
 
           {/* Left Arrow */}
-          <button 
+          <button
             className="absolute left-6 text-white/50 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all cursor-pointer hidden md:flex items-center justify-center"
             onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length); }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
 
           {/* Image Container */}
-          <div 
+          <div
             className="relative max-h-[85vh] max-w-[85vw] flex flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <img 
-              src={galleryItems[lightboxIndex].src} 
-              alt={galleryItems[lightboxIndex].alt} 
+            <img
+              src={galleryItems[lightboxIndex].src}
+              alt={galleryItems[lightboxIndex].alt}
               className="max-h-[80vh] max-w-[80vw] object-contain rounded-lg shadow-2xl border border-white/10 select-none"
             />
             {galleryItems[lightboxIndex].alt && (
@@ -7177,22 +7201,22 @@ function HomePage({ setCurrentPage }) {
           </div>
 
           {/* Right Arrow */}
-          <button 
+          <button
             className="absolute right-6 text-white/50 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all cursor-pointer hidden md:flex items-center justify-center"
             onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % galleryItems.length); }}
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
           </button>
 
           {/* Mobile controls */}
           <div className="absolute bottom-6 flex gap-4 md:hidden">
-            <button 
+            <button
               className="text-white/70 bg-white/10 px-4 py-2 rounded-full text-xs font-bold"
               onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length); }}
             >
               Prev
             </button>
-            <button 
+            <button
               className="text-white/70 bg-white/10 px-4 py-2 rounded-full text-xs font-bold"
               onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % galleryItems.length); }}
             >
@@ -9940,19 +9964,19 @@ function GuestCheckinPage({ setCurrentPage }) {
     setCkLoading(true);
     setCkError('');
     try {
-      const payload = ckMethod === 'id' 
+      const payload = ckMethod === 'id'
         ? { method: 'id', id: ckConfId }
         : { method: 'email', email: ckEmail, lastName: ckLastName };
-      
+
       const res = await fetch(`${API_BASE_URL}/api/checkin/lookup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      
+
       if (!res.ok) throw new Error(data.error || 'Reservation not found');
-      
+
       setCkReservation(data.reservation);
       setCkStep(2);
     } catch (err) {
@@ -10282,9 +10306,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       return (
         <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center bg-white">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="2" y1="12" x2="22" y2="12"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
           </svg>
         </div>
       );
@@ -10305,7 +10329,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       .filter(r => {
         if (!arrivalSearchQuery) return true;
         const q = arrivalSearchQuery.toLowerCase();
-        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`;
+        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`;
         return (
           r.full_name?.toLowerCase().includes(q) ||
           r.email?.toLowerCase().includes(q) ||
@@ -10325,14 +10349,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       .filter(r => {
         if (inHouseFilterStatus === 'All Status') return true;
         const isDueOut = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
-    const isOverdue = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');if (inHouseFilterStatus === 'Due Out') return isDueOut;
+        const isOverdue = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA'); if (inHouseFilterStatus === 'Due Out') return isDueOut;
         if (inHouseFilterStatus === 'Checked In') return !isDueOut;
         return true;
       })
       .filter(r => {
         if (!inHouseSearchQuery) return true;
         const q = inHouseSearchQuery.toLowerCase();
-        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`;
+        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`;
         return (
           r.full_name?.toLowerCase().includes(q) ||
           r.email?.toLowerCase().includes(q) ||
@@ -10684,9 +10708,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          payment_method: method, 
-          amount: amount, 
+        body: JSON.stringify({
+          payment_method: method,
+          amount: amount,
           reference: ref,
           date: overrideDate,
           time: overrideTime,
@@ -10933,7 +10957,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     setWkPurpose(''); setWkPaymentMethod('Cash'); setWkDepositAmount('');
     setWkPayment(false); setWkSpecialReq(''); setWkNotes('');
     setWkSuccess(false); setWkResult(null); setWkError('');
-    
+
     // Reset new fields
     setWkCompany(''); setWkAddToProfile(true); setWkVipGuest(false); setWkRepeatGuest(false);
     setWkCheckInTime('14:00'); setWkCheckOutTime('12:00'); setWkAdults(2); setWkChildren(1); setWkNumRooms(1);
@@ -11364,11 +11388,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           <button
             ref={btnRef}
             onClick={() => setOpen(o => !o)}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${
-              open
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${open
                 ? 'bg-[#00754A] text-white shadow-md'
                 : 'bg-black/5 hover:bg-black/10 text-black/60 hover:text-[#000000]/87'
-            }`}
+              }`}
           >
             Actions
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
@@ -11431,11 +11454,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         {/* Checkout date */}
         <span className="text-xs text-black/60 font-mono">{fmtDate(r.check_out_date)}</span>
         {/* Status pill */}
-        <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full w-fit ${
-          isDueOut
+        <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full w-fit ${isDueOut
             ? 'bg-amber-100 text-amber-700'
             : 'bg-green-100 text-green-700'
-        }`}>
+          }`}>
           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isDueOut ? 'bg-amber-500' : 'bg-green-500'}`} />
           {isDueOut ? 'Due Out' : 'Checked In'}
         </span>
@@ -11514,16 +11536,16 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       <div>
         <h3 className="font-semibold text-gray-900 mb-1">Verify Guest Identity</h3>
         <p className="text-xs text-gray-500 mb-4">Review all guest profile details and verify against their government-issued ID.</p>
-        
+
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 mb-4">
           <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">Profile Information</h4>
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
             <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Full Name</span><span className="font-medium text-gray-900 text-sm">{r.title ? `${r.title} ` : ''}{r.full_name}</span></div>
             <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Confirmation #</span><span className="font-mono text-[#576CA8] font-bold text-sm">{r.id}</span></div>
-            
+
             <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Email</span><span className="font-medium text-gray-900 text-sm">{r.email || '-'}</span></div>
             <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Phone</span><span className="font-medium text-gray-900 text-sm">{r.phone_number || '-'}</span></div>
-            
+
             <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Date of Birth</span><span className="font-medium text-gray-900 text-sm">{r.date_of_birth ? new Date(r.date_of_birth).toLocaleDateString() : '-'}</span></div>
             <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Gender</span><span className="font-medium text-gray-900 text-sm capitalize">{r.gender || '-'}</span></div>
 
@@ -11537,22 +11559,22 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
             <div className="flex flex-col col-span-2"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Purpose of Visit</span><span className="font-medium text-gray-900 text-sm">{r.purpose_of_visit || '-'}</span></div>
           </div>
         </div>
-        
+
         <button onClick={() => wizardReservation && openGuestProfile(wizardReservation)}
           className="w-full mb-4 py-2.5 text-sm text-[#576CA8] border border-[#576CA8]/30 bg-white rounded-xl hover:bg-[#576CA8]/5 transition-colors font-semibold flex items-center justify-center gap-2">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           Complete / Edit Guest Profile
         </button>
-      <label className="flex items-start gap-3 cursor-pointer group">
-        <input type="checkbox" checked={wizardIdVerified} onChange={(e) => setWizardIdVerified(e.target.checked)}
-          className="mt-0.5 w-4 h-4 accent-[#576CA8] cursor-pointer" />
-        <span className="text-sm text-gray-700 group-hover:text-gray-900">
-          I have verified the guest&apos;s identity document and it matches the reservation.
-        </span>
-      </label>
-    </div>
-  );
-};
+        <label className="flex items-start gap-3 cursor-pointer group">
+          <input type="checkbox" checked={wizardIdVerified} onChange={(e) => setWizardIdVerified(e.target.checked)}
+            className="mt-0.5 w-4 h-4 accent-[#576CA8] cursor-pointer" />
+          <span className="text-sm text-gray-700 group-hover:text-gray-900">
+            I have verified the guest&apos;s identity document and it matches the reservation.
+          </span>
+        </label>
+      </div>
+    );
+  };
 
   const WizardStep2 = () => {
     const nights = wizardReservation ? nightsCount(wizardReservation) : 0;
@@ -11786,19 +11808,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                     <div className="flex items-center gap-3 flex-1">
                       <div className="relative w-[320px]">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                         </div>
-                        <input 
-                          type="text" 
-                          placeholder="Search guest name, email, or confirmation no." 
-                          value={arrivalSearchQuery} 
+                        <input
+                          type="text"
+                          placeholder="Search guest name, email, or confirmation no."
+                          value={arrivalSearchQuery}
                           onChange={e => setArrivalSearchQuery(e.target.value)}
-                          className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm" 
+                          className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm"
                         />
                       </div>
-                      <select 
-                        value={arrivalFilterStatus} 
-                        onChange={e => setArrivalFilterStatus(e.target.value)} 
+                      <select
+                        value={arrivalFilterStatus}
+                        onChange={e => setArrivalFilterStatus(e.target.value)}
                         className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
                       >
                         <option>All Status</option>
@@ -11806,21 +11828,21 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         <option value="pending">Pending</option>
                         <option value="cancelled">Cancelled</option>
                       </select>
-                      <select 
-                        value={arrivalFilterChannel} 
-                        onChange={e => setArrivalFilterChannel(e.target.value)} 
+                      <select
+                        value={arrivalFilterChannel}
+                        onChange={e => setArrivalFilterChannel(e.target.value)}
                         className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
                       >
                         <option>All Channels</option>
                         <option value="Direct Website">Direct Website</option>
                       </select>
                       <button className="flex items-center gap-2 border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
                         More Filters
                       </button>
                     </div>
                     <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                       Export
                     </button>
                   </div>
@@ -11855,7 +11877,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           ) : (
                             filteredArrivals.map((res) => {
                               const isSelected = selectedArrival?.id === res.id;
-                              const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(res.id).padStart(3, '0')}`;
+                              const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(res.id).padStart(3, '0')}`;
                               const getRoomRate = (roomTypeName, rateCodeCode) => {
                                 if (rateCodeCode) {
                                   const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
@@ -11878,11 +11900,11 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               const nights = nightsCount(res);
                               const totalAmt = nights * getRoomRate(res.room_type, res.rate_code);
                               const checkInDateStr = fmtDate(res.check_in_date);
-                              
+
                               // Check-in date relative hint
                               const getRelativeHint = (d) => {
                                 if (!d) return '';
-                                const diff = Math.round((new Date(d).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
+                                const diff = Math.round((new Date(d).setHours(0, 0, 0, 0) - new Date().setHours(0, 0, 0, 0)) / 86400000);
                                 if (diff === 0) return '(Today)';
                                 if (diff === 1) return '(Tomorrow)';
                                 if (diff > 1) return `(In ${diff} Days)`;
@@ -11890,18 +11912,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 return '';
                               };
                               const relativeHint = getRelativeHint(res.check_in_date);
-                              
-                              const isNoShowWarning = res.check_in_date && (res.check_in_date.slice(0,10) < today) && (res.status === 'pending' || res.status === 'confirmed');
+
+                              const isNoShowWarning = res.check_in_date && (res.check_in_date.slice(0, 10) < today) && (res.status === 'pending' || res.status === 'confirmed');
 
                               return (
-                                <tr 
-                                  key={res.id} 
+                                <tr
+                                  key={res.id}
                                   onClick={() => setSelectedArrival(isSelected ? null : res)}
-                                  className={`transition-colors cursor-pointer ${
-                                    isNoShowWarning 
-                                      ? 'bg-rose-50 hover:bg-rose-100/70 border-b border-rose-100' 
+                                  className={`transition-colors cursor-pointer ${isNoShowWarning
+                                      ? 'bg-rose-50 hover:bg-rose-100/70 border-b border-rose-100'
                                       : 'hover:bg-gray-50/50'
-                                  } ${isSelected ? (isNoShowWarning ? 'bg-rose-100' : 'bg-gray-100/50') : ''}`}
+                                    } ${isSelected ? (isNoShowWarning ? 'bg-rose-100' : 'bg-gray-100/50') : ''}`}
                                 >
                                   <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
                                     <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
@@ -11909,7 +11930,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   <td className="px-4 py-4 align-top">
                                     <div className="font-bold text-[#00754A]">{confId}</div>
                                     <div className="text-[10px] text-black/40 mt-0.5">
-                                      Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'}) : '—'}
+                                      Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}
                                     </div>
                                   </td>
                                   <td className="px-4 py-4 align-top">
@@ -11945,20 +11966,20 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                     </span>
                                   </td>
                                   <td className="px-4 py-4 align-top text-right font-bold text-black/80">
-                                    ₱{totalAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                    ₱{totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                   </td>
                                   <td className="px-5 py-4 align-top text-center relative" onClick={e => e.stopPropagation()}>
-                                    <button 
+                                    <button
                                       onClick={() => setOpenArrivalDropdown(openArrivalDropdown === res.id ? null : res.id)}
                                       className="p-1.5 border border-black/10 rounded hover:bg-gray-100 text-black/60 transition-colors bg-white shadow-sm"
                                     >
-                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg>
                                     </button>
-                                    
+
                                     {openArrivalDropdown === res.id && (
                                       <div className="absolute right-8 top-10 mt-1 w-40 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
                                         {(res.status === 'pending' || res.status === 'confirmed') && (
-                                          <button 
+                                          <button
                                             onClick={() => { openWizard(res); setOpenArrivalDropdown(null); }}
                                             className="w-full px-4 py-2 text-left text-[12px] font-medium text-emerald-600 hover:bg-emerald-50 flex items-center gap-2"
                                           >
@@ -11966,7 +11987,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                             Check In
                                           </button>
                                         )}
-                                        <button 
+                                        <button
                                           onClick={() => { openGuestProfile(res); setOpenArrivalDropdown(null); }}
                                           className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                         >
@@ -11974,7 +11995,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                           View Profile
                                         </button>
                                         {res.status !== 'cancelled' && (
-                                          <button 
+                                          <button
                                             onClick={() => { updateStatus && updateStatus(res.id, 'cancelled'); setOpenArrivalDropdown(null); }}
                                             className="w-full px-4 py-2 text-left text-[12px] font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2"
                                           >
@@ -11983,7 +12004,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                           </button>
                                         )}
                                         {isNoShowWarning && res.status !== 'no_show' && (
-                                          <button 
+                                          <button
                                             onClick={() => { updateStatus && updateStatus(res.id, 'no_show'); setOpenArrivalDropdown(null); }}
                                             className="w-full px-4 py-2 text-left text-[12px] font-medium text-orange-600 hover:bg-orange-50 flex items-center gap-2"
                                           >
@@ -12110,19 +12131,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         <div className="flex items-center gap-3 flex-1">
                           <div className="relative w-[320px]">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                             </div>
-                            <input 
-                              type="text" 
-                              placeholder="Search guest name, room #, email, or confirmation no." 
-                              value={inHouseSearchQuery} 
+                            <input
+                              type="text"
+                              placeholder="Search guest name, room #, email, or confirmation no."
+                              value={inHouseSearchQuery}
                               onChange={e => setInHouseSearchQuery(e.target.value)}
-                              className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm" 
+                              className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm"
                             />
                           </div>
-                          <select 
-                            value={inHouseFilterStatus} 
-                            onChange={e => setInHouseFilterStatus(e.target.value)} 
+                          <select
+                            value={inHouseFilterStatus}
+                            onChange={e => setInHouseFilterStatus(e.target.value)}
                             className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
                           >
                             <option>All Status</option>
@@ -12130,12 +12151,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             <option value="Due Out">Due Out</option>
                           </select>
                           <button className="flex items-center gap-2 border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
                             More Filters
                           </button>
                         </div>
                         <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                           Export
                         </button>
                       </div>
@@ -12167,11 +12188,11 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <tr><td colSpan="12" className="text-center py-8 text-black/50">No guests in-house found.</td></tr>
                               ) : (
                                 filteredInHouse.map((res) => {
-                                  const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(res.id).padStart(3, '0')}`;
+                                  const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(res.id).padStart(3, '0')}`;
                                   const nights = nightsCount(res);
                                   const isDueOut = res.check_out_date && new Date(res.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
                                   const isOverdue = res.check_out_date && new Date(res.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
-                                  
+
                                   const handleSendEmail = async (r) => {
                                     setFolioRes(r);
                                     setFolioItems([]); setFolioPayments([]); setFolioTotals({ charges: 0, payments: 0, balance: 0 });
@@ -12206,8 +12227,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   const totalAmt = nights * getRoomRate(res.room_type, res.rate_code);
 
                                   return (
-                                    <tr 
-                                      key={res.id} 
+                                    <tr
+                                      key={res.id}
                                       className="hover:bg-gray-50/50 transition-colors"
                                     >
                                       <td className="px-5 py-4" onClick={e => e.stopPropagation()}>
@@ -12216,7 +12237,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                       <td className="px-4 py-4 align-top">
                                         <div className="font-bold text-[#00754A]">{confId}</div>
                                         <div className="text-[10px] text-black/40 mt-0.5">
-                                          Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', {month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'}) : '—'}
+                                          Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}
                                         </div>
                                       </td>
                                       <td className="px-4 py-4 align-top">
@@ -12249,35 +12270,35 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                         </span>
                                       </td>
                                       <td className="px-4 py-4 align-top text-right font-bold text-black/80">
-                                        ₱{totalAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                        ₱{totalAmt.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                                       </td>
                                       <td className="px-5 py-4 align-top text-center relative" onClick={e => e.stopPropagation()}>
                                         <div className="flex items-center justify-center gap-1.5">
-                                          <button 
-                                            onClick={() => openGuestProfile(res)} 
+                                          <button
+                                            onClick={() => openGuestProfile(res)}
                                             className="p-1.5 border border-black/10 rounded-md hover:bg-gray-100 text-black/60 transition-colors bg-white shadow-sm"
                                             title="View Profile"
                                           >
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
                                           </button>
-                                          <button 
+                                          <button
                                             onClick={() => setOpenInHouseDropdown(openInHouseDropdown === res.id ? null : res.id)}
                                             className="p-1.5 border border-black/10 rounded-md hover:bg-gray-100 text-black/60 transition-colors bg-white shadow-sm"
                                           >
-                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg>
                                           </button>
                                         </div>
-                                        
+
                                         {openInHouseDropdown === res.id && (
                                           <div className="absolute right-8 top-10 mt-1 w-44 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
-                                            <button 
+                                            <button
                                               onClick={() => { openGuestProfile(res); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                             >
                                               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><circle cx="8" cy="5" r="3" /><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" /></svg>
                                               View Profile
                                             </button>
-                                            <button 
+                                            <button
                                               onClick={() => { openFolio(res); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                             >
@@ -12285,22 +12306,22 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                               Guest Folio
                                             </button>
                                             {printGuestDataSheet && (
-                                              <button 
+                                              <button
                                                 onClick={() => { printGuestDataSheet(res); setOpenInHouseDropdown(null); }}
                                                 className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                               >
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z" /></svg>
                                                 Print Data Sheet
                                               </button>
                                             )}
-                                            <button 
+                                            <button
                                               onClick={() => { openFolio(res); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                             >
                                               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="14" height="10" rx="1.5" /><path d="M1 8h14" /><path d="M5 12h2M10 12h1" /></svg>
                                               Add Payment
                                             </button>
-                                            <button 
+                                            <button
                                               onClick={() => { handleSendEmail(res); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                             >
@@ -12308,14 +12329,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                               Send Email
                                             </button>
                                             <div className="border-t border-gray-100 my-1" />
-                                            <button 
+                                            <button
                                               onClick={() => { openTransfer(res); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                             >
                                               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8h12M10 4l4 4-4 4" /></svg>
                                               Transfer Room
                                             </button>
-                                            <button 
+                                            <button
                                               onClick={() => { setCheckoutConfirmId(res.id); fetchCheckoutBalance(res.id); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2"
                                             >
@@ -12423,12 +12444,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">1</div>
                             <h3 className="text-xl font-bold text-[#1E3932]">Guest Information</h3>
                           </div>
-                          
+
                           <div className="mb-6">
                             <label className="block text-xs font-semibold text-black/60 mb-1.5">Search Existing Guest</label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                               </span>
                               <input type="text" value={wkSearchGuest} onChange={e => setWkSearchGuest(e.target.value)} placeholder="Search by name, email or phone number"
                                 className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-black/10 rounded-lg text-sm focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none transition-all" />
@@ -12461,7 +12482,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   className="flex-1 px-3 py-2.5 bg-white border border-black/10 rounded-r-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-3">
                               <div>
                                 <label className="block text-xs font-semibold text-black/60 mb-1.5">ID Type</label>
@@ -12476,7 +12497,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-3">
                               <div>
                                 <label className="block text-xs font-semibold text-black/60 mb-1.5">Nationality</label>
@@ -12504,11 +12525,11 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
-                            
+
                             <div>
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Company</label>
-                                <input type="text" value={wkCompany} onChange={e => setWkCompany(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Company</label>
+                              <input type="text" value={wkCompany} onChange={e => setWkCompany(e.target.value)}
+                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
                             </div>
                           </div>
 
@@ -12534,7 +12555,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">2</div>
                             <h3 className="text-xl font-bold text-[#1E3932]">Stay Information</h3>
                           </div>
-                          
+
                           <div className="grid grid-cols-5 gap-x-4 gap-y-5 mb-5">
                             <div className="col-span-2">
                               <label className="block text-xs font-semibold text-black/60 mb-1.5">Check-in Date *</label>
@@ -12564,29 +12585,29 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 })()}
                               </div>
                             </div>
-                            
+
                             <div>
                               <label className="block text-xs font-semibold text-black/60 mb-1.5">Adults</label>
                               <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
-                                <button onClick={() => setWkAdults(Math.max(1, wkAdults-1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
+                                <button onClick={() => setWkAdults(Math.max(1, wkAdults - 1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
                                 <input type="text" readOnly value={wkAdults} className="w-full h-9 text-center text-sm font-semibold outline-none" />
-                                <button onClick={() => setWkAdults(wkAdults+1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
+                                <button onClick={() => setWkAdults(wkAdults + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
                               </div>
                             </div>
                             <div>
                               <label className="block text-xs font-semibold text-black/60 mb-1.5">Children</label>
                               <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
-                                <button onClick={() => setWkChildren(Math.max(0, wkChildren-1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
+                                <button onClick={() => setWkChildren(Math.max(0, wkChildren - 1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
                                 <input type="text" readOnly value={wkChildren} className="w-full h-9 text-center text-sm font-semibold outline-none" />
-                                <button onClick={() => setWkChildren(wkChildren+1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
+                                <button onClick={() => setWkChildren(wkChildren + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
                               </div>
                             </div>
                             <div>
                               <label className="block text-xs font-semibold text-black/60 mb-1.5">Rooms</label>
                               <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
-                                <button onClick={() => setWkNumRooms(Math.max(1, wkNumRooms-1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
+                                <button onClick={() => setWkNumRooms(Math.max(1, wkNumRooms - 1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
                                 <input type="text" readOnly value={wkNumRooms} className="w-full h-9 text-center text-sm font-semibold outline-none" />
-                                <button onClick={() => setWkNumRooms(wkNumRooms+1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
+                                <button onClick={() => setWkNumRooms(wkNumRooms + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
                               </div>
                             </div>
                             <div>
@@ -12681,7 +12702,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   <td className="pr-2">
                                     {(() => {
                                       const rt = wkRoomTypes.find(r => r.name === wkRoomType);
-                                      return <div className="text-sm font-semibold">₱{rt ? Number(rt.price_per_night).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '0.00'}</div>;
+                                      return <div className="text-sm font-semibold">₱{rt ? Number(rt.price_per_night).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</div>;
                                     })()}
                                   </td>
                                   <td className="pr-2 flex gap-2">
@@ -12697,10 +12718,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                       const rt = wkRoomTypes.find(r => r.name === wkRoomType);
                                       const price = rt ? Number(rt.price_per_night) : 0;
                                       const disc = parseFloat(wkDiscountPct) || 0;
-                                      const net = price * (1 - disc/100);
+                                      const net = price * (1 - disc / 100);
                                       return (
                                         <>
-                                          <div className="text-sm font-bold text-[#1E3932]">₱{net.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+                                          <div className="text-sm font-bold text-[#1E3932]">₱{net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                                           <div className="w-5 h-5 rounded-full bg-[#00754A] flex items-center justify-center">
                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                           </div>
@@ -12711,14 +12732,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 </tr>
                               </tbody>
                             </table>
-                            
+
                             <div className="mt-4 pt-4 border-t border-black/10 flex justify-between items-center text-sm">
                               {(() => {
                                 const nights = (!wkCheckIn || !wkCheckOut) ? 0 : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
                                 const rt = wkRoomTypes.find(r => r.name === wkRoomType);
                                 const price = rt ? Number(rt.price_per_night) : 0;
                                 const disc = parseFloat(wkDiscountPct) || 0;
-                                const netPerNight = price * (1 - disc/100);
+                                const netPerNight = price * (1 - disc / 100);
                                 const subTotal = netPerNight * nights * wkNumRooms;
                                 const tax = subTotal * 0.12;
                                 const total = subTotal + tax;
@@ -12726,9 +12747,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   <>
                                     <div className="font-semibold text-black/60">Total Nights: <span className="text-[#1E3932]">{nights}</span></div>
                                     <div className="flex gap-6">
-                                      <div className="text-black/60">Sub Total: <span className="font-semibold text-black/80 ml-1">₱{subTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span></div>
-                                      <div className="text-black/60">Taxes & Fees: <span className="font-semibold text-black/80 ml-1">₱{tax.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span></div>
-                                      <div className="text-[#1E3932] font-bold text-base">Estimated Total: <span className="ml-1">₱{total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span></div>
+                                      <div className="text-black/60">Sub Total: <span className="font-semibold text-black/80 ml-1">₱{subTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                                      <div className="text-black/60">Taxes & Fees: <span className="font-semibold text-black/80 ml-1">₱{tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
+                                      <div className="text-[#1E3932] font-bold text-base">Estimated Total: <span className="ml-1">₱{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
                                     </div>
                                   </>
                                 );
@@ -12743,7 +12764,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">4</div>
                             <h3 className="text-xl font-bold text-[#1E3932]">Payment & Guarantee</h3>
                           </div>
-                          
+
                           <div className="grid grid-cols-2 gap-8">
                             {/* Left: Payment details */}
                             <div>
@@ -12754,27 +12775,27 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   {['Credit Card', 'Cash', 'Bank Transfer', 'Other'].map(m => <option key={m} value={m}>{m}</option>)}
                                 </select>
                               </div>
-                              
+
                               {wkPaymentMethod === 'Credit Card' && (
                                 <div className="space-y-4">
                                   <div className="flex gap-4">
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType==='Visa'} onChange={() => setWkCardType('Visa')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Visa</span>
+                                      <input type="radio" name="cardType" checked={wkCardType === 'Visa'} onChange={() => setWkCardType('Visa')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Visa</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType==='Mastercard'} onChange={() => setWkCardType('Mastercard')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Mastercard</span>
+                                      <input type="radio" name="cardType" checked={wkCardType === 'Mastercard'} onChange={() => setWkCardType('Mastercard')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Mastercard</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType==='Amex'} onChange={() => setWkCardType('Amex')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Amex</span>
+                                      <input type="radio" name="cardType" checked={wkCardType === 'Amex'} onChange={() => setWkCardType('Amex')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Amex</span>
                                     </label>
                                   </div>
-                                  
+
                                   <div>
                                     <label className="block text-xs font-semibold text-black/60 mb-1.5">Card Number</label>
                                     <input type="text" value={wkCardNumberFull} onChange={e => setWkCardNumberFull(e.target.value)} placeholder="0000 0000 0000 0000"
                                       className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                   </div>
-                                  
+
                                   <div className="flex gap-4">
                                     <div className="w-1/2">
                                       <label className="block text-xs font-semibold text-black/60 mb-1.5">Expiry Date</label>
@@ -12787,7 +12808,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                         className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                     </div>
                                   </div>
-                                  
+
                                   <div>
                                     <label className="block text-xs font-semibold text-black/60 mb-1.5">Cardholder Name</label>
                                     <input type="text" value={wkCardholder} onChange={e => setWkCardholder(e.target.value)} placeholder="Juan dela Cruz"
@@ -12796,7 +12817,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 </div>
                               )}
                             </div>
-                            
+
                             {/* Right: Guarantee */}
                             <div>
                               <div className="mb-4">
@@ -12823,7 +12844,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Error message */}
                         {wkError && (
                           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm text-red-700 text-sm font-medium mb-4">
@@ -12835,19 +12856,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                       {/* RIGHT SIDEBAR */}
                       <div className="w-[340px] xl:w-[380px] flex-shrink-0 flex flex-col gap-5 sticky top-0 pb-4 max-h-full overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-                        
+
                         {/* Status tag */}
                         <div className="flex justify-end mb-1">
                           <span className="bg-[#1E3932]/10 text-[#1E3932] font-bold text-[11px] px-3 py-1.5 rounded-full uppercase tracking-wider">Walk-in Reservation</span>
                         </div>
-                        
+
                         {/* Reservation Summary */}
                         <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex-shrink-0">
                           <div className="bg-[#1E3932] text-white p-4">
                             <h3 className="font-bold text-lg mb-1">Reservation Summary</h3>
                             <p className="text-white/70 text-xs">Review details before confirming</p>
                           </div>
-                          
+
                           <div className="p-5">
                             <div className="flex gap-4 pb-4 border-b border-black/5">
                               <div className="w-12 h-12 rounded-full bg-[#f8f9fa] border border-black/10 flex items-center justify-center flex-shrink-0 text-[#1E3932]">
@@ -12858,15 +12879,15 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <div className="font-bold text-[#1E3932] leading-tight text-lg">{(wkFirstName || wkLastName) ? `${wkFirstName} ${wkLastName}` : 'Pending'}</div>
                               </div>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-y-4 gap-x-2 py-4 border-b border-black/5">
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-in</div>
-                                <div className="font-semibold text-sm">{wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'}</div>
+                                <div className="font-semibold text-sm">{wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
                               </div>
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-out</div>
-                                <div className="font-semibold text-sm">{wkCheckOut ? new Date(wkCheckOut).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}) : '-'}</div>
+                                <div className="font-semibold text-sm">{wkCheckOut ? new Date(wkCheckOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
                               </div>
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Nights</div>
@@ -12889,30 +12910,30 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <div className="font-semibold text-sm text-[#00754A]">{wkRateCode || 'Standard Rate'}</div>
                               </div>
                             </div>
-                            
+
                             <div className="pt-4 space-y-2">
                               {(() => {
                                 const nights = (!wkCheckIn || !wkCheckOut) ? 0 : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
                                 const rt = wkRoomTypes.find(r => r.name === wkRoomType);
                                 const price = rt ? Number(rt.price_per_night) : 0;
                                 const disc = parseFloat(wkDiscountPct) || 0;
-                                const netPerNight = price * (1 - disc/100);
+                                const netPerNight = price * (1 - disc / 100);
                                 const subTotal = netPerNight * nights * wkNumRooms;
-                                const tax = subTotal * 0.12;
+                                const tax = subTotal * 0.0;
                                 const total = subTotal + tax;
                                 return (
                                   <>
                                     <div className="flex justify-between text-sm">
                                       <span className="text-black/60">Sub Total</span>
-                                      <span className="font-semibold">₱{subTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                                      <span className="font-semibold">₱{subTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                      <span className="text-black/60">Taxes & Fees (12%)</span>
-                                      <span className="font-semibold">₱{tax.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                                      <span className="text-black/60">Taxes & Fees </span>
+                                      <span className="font-semibold">₱{tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                     <div className="flex justify-between text-lg font-bold pt-2 border-t border-black/5 mt-1 text-[#1E3932]">
                                       <span>Estimated Total</span>
-                                      <span>₱{total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</span>
+                                      <span>₱{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
                                   </>
                                 );
@@ -12920,17 +12941,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             </div>
                           </div>
                         </div>
-                        
+
                         {/* Room Availability */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex flex-col flex-shrink-0" style={{maxHeight: '300px'}}>
+                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex flex-col flex-shrink-0" style={{ maxHeight: '300px' }}>
                           <div className="p-4 border-b border-black/5 flex justify-between items-center bg-[#f8f9fa]">
                             <h3 className="font-bold text-[#1E3932]">Room Availability</h3>
                             <div className="text-xs font-semibold text-black/50 bg-white px-2 py-1 rounded shadow-sm border border-black/5">
-                              {wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '-'}
-                              {wkCheckOut && wkCheckOut !== wkCheckIn ? ` - ${new Date(wkCheckOut).toLocaleDateString('en-US', {month:'short', day:'numeric'})}` : ''}
+                              {wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-'}
+                              {wkCheckOut && wkCheckOut !== wkCheckIn ? ` - ${new Date(wkCheckOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}
                             </div>
                           </div>
-                          
+
                           <div className="overflow-y-auto p-4 flex-1">
                             <table className="w-full text-left text-sm">
                               <thead>
@@ -12945,7 +12966,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   const avail = rt.available !== undefined ? rt.available : rt.total_rooms;
                                   const selected = rt.name === wkRoomType;
                                   return (
-                                    <tr key={rt.id} className={selected ? 'bg-[#00754A]/5' : ''} onClick={() => setWkRoomType(rt.name)} style={{cursor: 'pointer'}}>
+                                    <tr key={rt.id} className={selected ? 'bg-[#00754A]/5' : ''} onClick={() => setWkRoomType(rt.name)} style={{ cursor: 'pointer' }}>
                                       <td className="py-2.5 font-medium flex items-center gap-2">
                                         {rt.name}
                                         {selected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
@@ -12983,7 +13004,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             {!wkSubmitting && <div className="absolute inset-0 bg-white/20 hover:opacity-100 opacity-0 transition-opacity"></div>}
                           </button>
                         </div>
-                        
+
                       </div>
                     </>
                   )}
@@ -13056,8 +13077,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         </div>
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Bed Config / Notes</label>
-                          <select 
-                            value={isOthersBedConfig ? 'others' : newRoomNotes} 
+                          <select
+                            value={isOthersBedConfig ? 'others' : newRoomNotes}
                             onChange={e => {
                               const val = e.target.value;
                               if (val === 'others') {
@@ -13078,12 +13099,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             <option value="others">others</option>
                           </select>
                           {isOthersBedConfig && (
-                            <input 
-                              type="text" 
-                              value={newRoomNotes} 
+                            <input
+                              type="text"
+                              value={newRoomNotes}
                               onChange={e => setNewRoomNotes(e.target.value)}
                               placeholder="specify custom config..."
-                              className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]" 
+                              className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]"
                             />
                           )}
                         </div>
@@ -13518,8 +13539,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 </div>
                                 <div>
                                   <label className="block text-xs font-semibold text-black/60 uppercase tracking-wider mb-1.5">Bed Config / Notes</label>
-                                  <select 
-                                    value={editIsOthersBed ? 'others' : editRoomNotes} 
+                                  <select
+                                    value={editIsOthersBed ? 'others' : editRoomNotes}
                                     onChange={e => {
                                       const val = e.target.value;
                                       if (val === 'others') {
@@ -13540,12 +13561,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                     <option value="others">others</option>
                                   </select>
                                   {editIsOthersBed && (
-                                    <input 
-                                      type="text" 
-                                      value={editRoomNotes} 
+                                    <input
+                                      type="text"
+                                      value={editRoomNotes}
                                       onChange={e => setEditRoomNotes(e.target.value)}
                                       placeholder="specify custom config..."
-                                      className="w-full px-3 py-2.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]" 
+                                      className="w-full px-3 py-2.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]"
                                     />
                                   )}
                                 </div>
@@ -13656,49 +13677,49 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         )}
                       </div>
                       <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-6 sm:p-8 flex-1">
-                      {wizardSuccess ? (
-                        <WizardSuccessCard />
-                      ) : (
-                        <>
-                          <WizardStepBar />
-                          {wizardStep === 1 && <WizardStep1 />}
-                          {wizardStep === 2 && <WizardStep2 />}
-                          {wizardStep === 3 && <WizardStep3 />}
-                          {wizardStep === 4 && <WizardStep4 />}
-                          {wizardError && (
-                            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium">
-                              {wizardError}
+                        {wizardSuccess ? (
+                          <WizardSuccessCard />
+                        ) : (
+                          <>
+                            <WizardStepBar />
+                            {wizardStep === 1 && <WizardStep1 />}
+                            {wizardStep === 2 && <WizardStep2 />}
+                            {wizardStep === 3 && <WizardStep3 />}
+                            {wizardStep === 4 && <WizardStep4 />}
+                            {wizardError && (
+                              <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium">
+                                {wizardError}
+                              </div>
+                            )}
+                            <div className="flex gap-3 mt-4">
+                              {wizardStep > 1 && (
+                                <button
+                                  onClick={() => { setWizardStep(s => s - 1); setWizardError(''); }}
+                                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
+                                >
+                                  Back
+                                </button>
+                              )}
+                              {wizardStep < 4 ? (
+                                <button
+                                  onClick={() => { setWizardStep(s => s + 1); setWizardError(''); }}
+                                  disabled={wizardStep === 1 && !wizardIdVerified}
+                                  className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
+                                >
+                                  Next
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={submitCheckin}
+                                  disabled={!wizardPayment || wizardSubmitting}
+                                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-full transition-colors"
+                                >
+                                  {wizardSubmitting ? 'Processing...' : 'Complete Check-In'}
+                                </button>
+                              )}
                             </div>
-                          )}
-                          <div className="flex gap-3 mt-4">
-                            {wizardStep > 1 && (
-                              <button
-                                onClick={() => { setWizardStep(s => s - 1); setWizardError(''); }}
-                                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
-                              >
-                                Back
-                              </button>
-                            )}
-                            {wizardStep < 4 ? (
-                              <button
-                                onClick={() => { setWizardStep(s => s + 1); setWizardError(''); }}
-                                disabled={wizardStep === 1 && !wizardIdVerified}
-                                className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
-                              >
-                                Next
-                              </button>
-                            ) : (
-                              <button
-                                onClick={submitCheckin}
-                                disabled={!wizardPayment || wizardSubmitting}
-                                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-full transition-colors"
-                              >
-                                {wizardSubmitting ? 'Processing...' : 'Complete Check-In'}
-                              </button>
-                            )}
-                          </div>
-                        </>
-                      )}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -14190,19 +14211,19 @@ function FolioModal({
 }) {
   const [addChargeOpen, setAddChargeOpen] = React.useState(false);
   const [chargeType, setChargeType] = React.useState('Room Charge');
-  const [chargeDate, setChargeDate] = React.useState(new Date().toISOString().slice(0,10));
-  const [chargeTime, setChargeTime] = React.useState(new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}));
+  const [chargeDate, setChargeDate] = React.useState(new Date().toISOString().slice(0, 10));
+  const [chargeTime, setChargeTime] = React.useState(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
   const [chargeDesc, setChargeDesc] = React.useState('');
   const [chargeQty, setChargeQty] = React.useState(1);
   const [chargeRate, setChargeRate] = React.useState('');
   const [chargeRef, setChargeRef] = React.useState('');
   const [chargeDept, setChargeDept] = React.useState('Front Office');
   const [chargeNotes, setChargeNotes] = React.useState('');
-  
+
   const [addPayOpen, setAddPayOpen] = React.useState(false);
   const [payMethod, setPayMethod] = React.useState('Cash');
-  const [payDate, setPayDate] = React.useState(new Date().toISOString().slice(0,10));
-  const [payTime, setPayTime] = React.useState(new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}));
+  const [payDate, setPayDate] = React.useState(new Date().toISOString().slice(0, 10));
+  const [payTime, setPayTime] = React.useState(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
   const [payAmount, setPayAmount] = React.useState('');
   const [payRef, setPayRef] = React.useState('');
   const [payNotes, setPayNotes] = React.useState('');
@@ -14221,32 +14242,32 @@ function FolioModal({
   if (!folioOpen || !folioRes) return null;
 
   const nights = nightsCount(folioRes);
-  const fmtA = (n) => `₱${parseFloat(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
   const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
 
-  const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
   const ledger = [
-    ...folioItems.map(i=>({...i,type:'charge',timestamp:new Date(i.created_at||Date.now()).getTime()})),
-    ...folioPayments.map(p=>({...p,type:'payment',timestamp:new Date(p.posted_at||Date.now()).getTime()}))
-  ].sort((a,b)=>a.timestamp-b.timestamp);
-  let runBal=0;
-  const ledgerWithBalance = ledger.map(e=>{
-    if(!e.voided){ if(e.type==='charge') runBal+=parseFloat(e.amount); else runBal-=parseFloat(e.amount); }
-    return{...e,currentBalance:runBal};
+    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: new Date(i.created_at || Date.now()).getTime() })),
+    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: new Date(p.posted_at || Date.now()).getTime() }))
+  ].sort((a, b) => a.timestamp - b.timestamp);
+  let runBal = 0;
+  const ledgerWithBalance = ledger.map(e => {
+    if (!e.voided) { if (e.type === 'charge') runBal += parseFloat(e.amount); else runBal -= parseFloat(e.amount); }
+    return { ...e, currentBalance: runBal };
   });
 
   const chargeTypes = [
-    { id:'Room Charge', label:'Room Charge', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg> },
-    { id:'Food & Beverage', label:'Food & Bev', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3"/></svg> },
-    { id:'Mini Bar', label:'Mini Bar', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 22V12L3 6h18l-5 6v10"/><path d="M8 22h8"/></svg> },
-    { id:'Laundry', label:'Laundry', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="20" height="18" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M6 7h.01"/></svg> },
-    { id:'Transportation', label:'Transport', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
-    { id:'Telephone', label:'Telephone', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .82h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg> },
-    { id:'Miscellaneous', label:'Miscellaneous', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg> },
-    { id:'Tax / VAT', label:'Tax / VAT', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> },
-    { id:'Other', label:'Other', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg> },
+    { id: 'Room Charge', label: 'Room Charge', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" /></svg> },
+    { id: 'Food & Beverage', label: 'Food & Bev', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" /></svg> },
+    { id: 'Mini Bar', label: 'Mini Bar', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M8 22V12L3 6h18l-5 6v10" /><path d="M8 22h8" /></svg> },
+    { id: 'Laundry', label: 'Laundry', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="20" height="18" rx="2" /><circle cx="12" cy="13" r="4" /><path d="M6 7h.01" /></svg> },
+    { id: 'Transportation', label: 'Transport', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" rx="2" /><path d="M16 8h4l3 3v5h-7V8z" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg> },
+    { id: 'Telephone', label: 'Telephone', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .82h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" /></svg> },
+    { id: 'Miscellaneous', label: 'Miscellaneous', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6M12 18v-6M9 15h6" /></svg> },
+    { id: 'Tax / VAT', label: 'Tax / VAT', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg> },
+    { id: 'Other', label: 'Other', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><path d="M8 12h8M12 8v8" /></svg> },
   ];
 
   const handleAddCharge = () => {
@@ -14261,39 +14282,39 @@ function FolioModal({
   };
 
   return ReactDOM.createPortal(
-    <div className="fixed top-0 right-0 bottom-0 z-[100] flex" style={{left: '120px', background:'#ffffff'}}>
+    <div className="fixed top-0 right-0 bottom-0 z-[100] flex" style={{ left: '120px', background: '#ffffff' }}>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* Top Bar */}
-        <div className="flex items-center justify-between px-6 py-3" style={{borderBottom:'1px solid rgba(0,0,0,0.09)',background:'#fff'}}>
-          <button onClick={()=>setFolioOpen(false)}
+        <div className="flex items-center justify-between px-6 py-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.09)', background: '#fff' }}>
+          <button onClick={() => setFolioOpen(false)}
             className="flex items-center gap-2 text-sm font-medium text-black hover:text-black transition-colors">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <path d="M10 12L6 8l4-4"/>
+              <path d="M10 12L6 8l4-4" />
             </svg>
             Back to Guests
           </button>
           <div className="flex items-center gap-2">
             <button onClick={printFolio}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-lg text-black hover:bg-black/5 transition-colors">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6V2h8v4M4 12H3a1.5 1.5 0 01-1.5-1.5v-3A1.5 1.5 0 013 6h10a1.5 1.5 0 011.5 1.5v3A1.5 1.5 0 0113 12h-1M4 10h8v4H4z"/></svg>
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6V2h8v4M4 12H3a1.5 1.5 0 01-1.5-1.5v-3A1.5 1.5 0 013 6h10a1.5 1.5 0 011.5 1.5v3A1.5 1.5 0 0113 12h-1M4 10h8v4H4z" /></svg>
               Print
             </button>
             <button onClick={sendFolioEmail} disabled={folioEmailSending}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-lg text-black hover:bg-black/5 transition-colors disabled:opacity-40">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M1 4l7 5 7-5"/></svg>
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5" /><path d="M1 4l7 5 7-5" /></svg>
               {folioEmailSending ? 'Sending…' : 'Email Folio'}
             </button>
           </div>
         </div>
 
         {/* Guest Header */}
-        <div className="px-8 pt-5 pb-0" style={{background:'#fff',borderBottom:'1px solid rgba(0,0,0,0.07)'}}>
+        <div className="px-8 pt-5 pb-0" style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
           <div className="flex items-center gap-4 mb-4">
             <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
-              style={{background:'linear-gradient(135deg,#1E3932,#00754A)'}}>
+              style={{ background: 'linear-gradient(135deg,#1E3932,#00754A)' }}>
               {initials}
             </div>
             <div className="flex items-center gap-3">
@@ -14306,28 +14327,28 @@ function FolioModal({
 
           <div className="flex items-center gap-6 mb-5">
             {[
-              {label:`Room ${folioRes.room_number||'—'}`, sub: folioRes.room_type_name||folioRes.room_type},
-              {label:'Check-In', sub: fmtDate(folioRes.check_in_date)},
-              {label:'Check-Out', sub: fmtDate(folioRes.check_out_date)},
-              {label:'Adults', sub: String(folioRes.number_of_guests||1)},
-              {label:'Nights', sub: String(nights)},
-              {label:'Reservation #', sub: `NHP-${String(folioRes.id).padStart(10,'0')}`},
-            ].map((item,i,arr)=>(
+              { label: `Room ${folioRes.room_number || '—'}`, sub: folioRes.room_type_name || folioRes.room_type },
+              { label: 'Check-In', sub: fmtDate(folioRes.check_in_date) },
+              { label: 'Check-Out', sub: fmtDate(folioRes.check_out_date) },
+              { label: 'Adults', sub: String(folioRes.number_of_guests || 1) },
+              { label: 'Nights', sub: String(nights) },
+              { label: 'Reservation #', sub: `NHP-${String(folioRes.id).padStart(10, '0')}` },
+            ].map((item, i, arr) => (
               <React.Fragment key={item.label}>
                 <div>
                   <div className="text-[10px] font-semibold text-black uppercase tracking-wide">{item.label}</div>
                   <div className="text-xs text-black mt-0.5 font-medium">{item.sub}</div>
                 </div>
-                {i < arr.length-1 && <div className="w-px h-7 bg-black/10 flex-shrink-0"/>}
+                {i < arr.length - 1 && <div className="w-px h-7 bg-black/10 flex-shrink-0" />}
               </React.Fragment>
             ))}
           </div>
 
           {/* Tab nav */}
           <div className="flex items-end gap-1">
-            {['Profile','Stay Details','Folio','Payments','Documents','Notes'].map(tab=>(
+            {['Profile', 'Stay Details', 'Folio', 'Payments', 'Documents', 'Notes'].map(tab => (
               <button key={tab}
-                className={`px-4 py-2 text-sm border-b-2 transition-colors ${tab==='Folio'?'border-[#00754A] text-[#00754A] font-semibold':'border-transparent text-black hover:text-black'}`}>
+                className={`px-4 py-2 text-sm border-b-2 transition-colors ${tab === 'Folio' ? 'border-[#00754A] text-[#00754A] font-semibold' : 'border-transparent text-black hover:text-black'}`}>
                 {tab}
               </button>
             ))}
@@ -14335,10 +14356,10 @@ function FolioModal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 flex overflow-hidden" style={{background:'#f7f8fa'}}>
+        <div className="flex-1 flex overflow-hidden" style={{ background: '#f7f8fa' }}>
 
           {/* Left: Summary + Quick Actions */}
-          <div className="w-56 flex-shrink-0 p-4 space-y-3 overflow-y-auto" style={{borderRight:'1px solid rgba(0,0,0,0.08)'}}>
+          <div className="w-56 flex-shrink-0 p-4 space-y-3 overflow-y-auto" style={{ borderRight: '1px solid rgba(0,0,0,0.08)' }}>
 
             <div className="bg-white rounded-xl border border-black/8 p-4">
               <div className="text-[10px] font-bold text-black uppercase tracking-widest mb-3">Folio Summary</div>
@@ -14362,12 +14383,12 @@ function FolioModal({
               <div className="text-[10px] font-bold text-black uppercase tracking-widest mb-2.5">Quick Actions</div>
               <div className="space-y-0.5">
                 {[
-                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>, label:'Add Charge', fn:()=>{setAddChargeOpen(true); setAddPayOpen(false);}},
-                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="3" width="10" height="7" rx="1"/><path d="M1 6h10"/></svg>, label:'Add Payment', fn:()=>{setAddPayOpen(true); setAddChargeOpen(false);}},
-                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="2" width="10" height="8" rx="1"/><path d="M1 4l5 3.5L11 4"/></svg>, label:'Email Folio', fn:sendFolioEmail},
-                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 4V2h6v2M3 8H2a1 1 0 01-1-1V5a1 1 0 011-1h8a1 1 0 011 1v2a1 1 0 01-1 1H9M3 7h6v3H3z"/></svg>, label:'Print Folio', fn:printFolio},
-                  {icon:<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 1v7M3 5l3 3 3-3M1 10h10"/></svg>, label:'Download Folio (PDF)', fn:printFolio},
-                ].map(a=>(
+                  { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" /></svg>, label: 'Add Charge', fn: () => { setAddChargeOpen(true); setAddPayOpen(false); } },
+                  { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="3" width="10" height="7" rx="1" /><path d="M1 6h10" /></svg>, label: 'Add Payment', fn: () => { setAddPayOpen(true); setAddChargeOpen(false); } },
+                  { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="2" width="10" height="8" rx="1" /><path d="M1 4l5 3.5L11 4" /></svg>, label: 'Email Folio', fn: sendFolioEmail },
+                  { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 4V2h6v2M3 8H2a1 1 0 01-1-1V5a1 1 0 011-1h8a1 1 0 011 1v2a1 1 0 01-1 1H9M3 7h6v3H3z" /></svg>, label: 'Print Folio', fn: printFolio },
+                  { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 1v7M3 5l3 3 3-3M1 10h10" /></svg>, label: 'Download Folio (PDF)', fn: printFolio },
+                ].map(a => (
                   <button key={a.label} onClick={a.fn}
                     className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-black hover:bg-black/[0.04] transition-colors text-left">
                     <span className="text-[#00754A]">{a.icon}</span>
@@ -14382,32 +14403,32 @@ function FolioModal({
 
           {/* Right: Transactions table */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3" style={{background:'#fff',borderBottom:'1px solid rgba(0,0,0,0.08)'}}>
+            <div className="flex items-center justify-between px-5 py-3" style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
               <span className="text-sm font-bold text-black">Folio Transactions</span>
               <div className="flex gap-2">
-                <button onClick={()=>setAddChargeOpen(true)}
+                <button onClick={() => setAddChargeOpen(true)}
                   className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-lg transition-colors">
-                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" /></svg>
                   Add Charge
                 </button>
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto" style={{scrollbarWidth:'thin'}}>
+            <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
               {folioLoading ? (
                 <div className="flex flex-col items-center justify-center py-24 text-black">
-                  <div className="w-7 h-7 border-2 border-black/10 border-t-[#00754A] rounded-full animate-spin mb-3"/>
+                  <div className="w-7 h-7 border-2 border-black/10 border-t-[#00754A] rounded-full animate-spin mb-3" />
                   <span className="text-xs">Loading folio…</span>
                 </div>
               ) : ledgerWithBalance.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-black">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-3 opacity-40"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h3"/></svg>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-3 opacity-40"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 9h6M9 12h6M9 15h3" /></svg>
                   <div className="text-sm font-semibold">No Transactions</div>
                   <div className="text-xs mt-1 opacity-70">Add a charge to get started</div>
                 </div>
               ) : (
                 <table className="w-full text-left border-collapse">
-                  <thead className="sticky top-0 z-10" style={{background:'#f9f9f9',borderBottom:'1px solid rgba(0,0,0,0.08)'}}>
+                  <thead className="sticky top-0 z-10" style={{ background: '#f9f9f9', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
                     <tr className="text-[10px] font-bold text-black uppercase tracking-widest">
                       <th className="px-5 py-3 font-bold">Date</th>
                       <th className="px-3 py-3 font-bold">Time</th>
@@ -14416,45 +14437,45 @@ function FolioModal({
                       <th className="px-3 py-3 text-right font-bold">Debit (₱)</th>
                       <th className="px-3 py-3 text-right font-bold">Credit (₱)</th>
                       <th className="px-3 py-3 text-right font-bold">Balance (₱)</th>
-                      <th className="px-5 py-3"/>
+                      <th className="px-5 py-3" />
                     </tr>
                   </thead>
                   <tbody>
-                    {ledgerWithBalance.map((entry)=>{
-                      const isCharge = entry.type==='charge';
+                    {ledgerWithBalance.map((entry) => {
+                      const isCharge = entry.type === 'charge';
                       const isVoid = entry.voided;
                       const ts = new Date(entry.timestamp);
                       const isLastActive = !isVoid && Math.abs(entry.currentBalance - folioTotals.balance) < 0.001;
                       return (
                         <tr key={`${entry.type}-${entry.id}`}
-                          className={`group transition-colors ${isVoid?'opacity-40':''} ${isLastActive&&folioTotals.balance>0?'bg-amber-50/60 hover:bg-amber-50':'hover:bg-black/[0.015]'}`}
-                          style={{borderBottom:'1px solid rgba(0,0,0,0.05)'}}>
+                          className={`group transition-colors ${isVoid ? 'opacity-40' : ''} ${isLastActive && folioTotals.balance > 0 ? 'bg-amber-50/60 hover:bg-amber-50' : 'hover:bg-black/[0.015]'}`}
+                          style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                           <td className="px-5 py-3 text-xs text-black font-medium whitespace-nowrap">
-                            {ts.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+                            {ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </td>
                           <td className="px-3 py-3 text-xs text-black font-mono whitespace-nowrap">
-                            {ts.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+                            {ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </td>
                           <td className="px-3 py-3">
                             <div className="flex items-center gap-2">
-                              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isCharge?'bg-blue-400':'bg-emerald-500'}`}/>
-                              <span className="text-xs text-black">{entry.description||entry.charge_type||entry.payment_method}</span>
+                              <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isCharge ? 'bg-blue-400' : 'bg-emerald-500'}`} />
+                              <span className="text-xs text-black">{entry.description || entry.charge_type || entry.payment_method}</span>
                             </div>
-                            {isVoid&&<div className="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-0.5 ml-3.5">Voided</div>}
+                            {isVoid && <div className="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-0.5 ml-3.5">Voided</div>}
                           </td>
-                          <td className="px-3 py-3 text-center text-xs text-black">{entry.quantity||'—'}</td>
+                          <td className="px-3 py-3 text-center text-xs text-black">{entry.quantity || '—'}</td>
                           <td className="px-3 py-3 text-right text-xs font-mono text-black">
-                            {isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}
+                            {isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}
                           </td>
                           <td className="px-3 py-3 text-right text-xs font-mono text-black">
-                            {!isCharge ? parseFloat(entry.amount||0).toLocaleString('en-PH',{minimumFractionDigits:2}) : '—'}
+                            {!isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}
                           </td>
-                          <td className={`px-3 py-3 text-right text-xs font-mono font-bold ${entry.currentBalance>0?'text-black':'text-[#00754A]'} ${isLastActive&&folioTotals.balance>0?'text-amber-700':''}`}>
-                            {parseFloat(entry.currentBalance||0).toLocaleString('en-PH',{minimumFractionDigits:2})}
+                          <td className={`px-3 py-3 text-right text-xs font-mono font-bold ${entry.currentBalance > 0 ? 'text-black' : 'text-[#00754A]'} ${isLastActive && folioTotals.balance > 0 ? 'text-amber-700' : ''}`}>
+                            {parseFloat(entry.currentBalance || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                           </td>
                           <td className="px-5 py-3 text-right">
-                            {!isVoid&&(
-                              <button onClick={()=>isCharge?voidCharge(entry.id):voidPayment(entry.id)}
+                            {!isVoid && (
+                              <button onClick={() => isCharge ? voidCharge(entry.id) : voidPayment(entry.id)}
                                 className="text-[9px] font-bold uppercase tracking-widest text-black hover:text-red-500 transition-all opacity-0 group-hover:opacity-100">
                                 Void
                               </button>
@@ -14469,15 +14490,15 @@ function FolioModal({
             </div>
 
             {/* Bottom totals bar */}
-            <div className="flex items-center gap-8 px-6 py-4" style={{background:'#fff',borderTop:'1px solid rgba(0,0,0,0.08)'}}>
+            <div className="flex items-center gap-8 px-6 py-4" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
               {[
-                {label:'TOTAL CHARGES', value:fmtA(folioTotals.charges), color:'text-black'},
-                {label:'TOTAL PAYMENTS', value:fmtA(folioTotals.payments), color:'text-black'},
-                {label:'OUTSTANDING BALANCE', value:fmtA(folioTotals.balance), color:'text-[#00754A]'},
-              ].map(s=>(
+                { label: 'TOTAL CHARGES', value: fmtA(folioTotals.charges), color: 'text-black' },
+                { label: 'TOTAL PAYMENTS', value: fmtA(folioTotals.payments), color: 'text-black' },
+                { label: 'OUTSTANDING BALANCE', value: fmtA(folioTotals.balance), color: 'text-[#00754A]' },
+              ].map(s => (
                 <div key={s.label} className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-black/[0.05] flex items-center justify-center">
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
                   </div>
                   <div>
                     <div className="text-[9px] font-bold text-black uppercase tracking-widest">{s.label}</div>
@@ -14495,13 +14516,13 @@ function FolioModal({
 
       {/* Add Charge Slide Panel */}
       {addChargeOpen && (
-        <div className="w-80 flex-shrink-0 flex flex-col" style={{background:'#fff',borderLeft:'1px solid rgba(0,0,0,0.10)',boxShadow:'-6px 0 24px rgba(0,0,0,0.07)'}}>
-          <div className="flex items-center justify-between px-5 py-4" style={{borderBottom:'1px solid rgba(0,0,0,0.08)'}}>
+        <div className="w-80 flex-shrink-0 flex flex-col" style={{ background: '#fff', borderLeft: '1px solid rgba(0,0,0,0.10)', boxShadow: '-6px 0 24px rgba(0,0,0,0.07)' }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
             <span className="font-bold text-black">Add Charge</span>
-            <button onClick={()=>setAddChargeOpen(false)} className="text-black hover:text-black text-xl leading-none transition-colors">×</button>
+            <button onClick={() => setAddChargeOpen(false)} className="text-black hover:text-black text-xl leading-none transition-colors">×</button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{scrollbarWidth:'thin'}}>
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{ scrollbarWidth: 'thin' }}>
 
             <div>
               <div className="flex items-center gap-2 mb-3">
@@ -14509,9 +14530,9 @@ function FolioModal({
                 <span className="text-xs font-bold text-black">Select Charge Type</span>
               </div>
               <div className="grid grid-cols-3 gap-1.5">
-                {chargeTypes.map(ct=>(
-                  <button key={ct.id} onClick={()=>{setChargeType(ct.id); setChargeDesc(ct.id==='Room Charge'?`Room Charge - ${folioRes.room_type_name||folioRes.room_type}`:ct.label);}}
-                    className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border text-center transition-all ${chargeType===ct.id?'border-[#00754A] bg-[#00754A]/5 text-[#00754A]':'border-black/10 text-black hover:border-black/20'}`}>
+                {chargeTypes.map(ct => (
+                  <button key={ct.id} onClick={() => { setChargeType(ct.id); setChargeDesc(ct.id === 'Room Charge' ? `Room Charge - ${folioRes.room_type_name || folioRes.room_type}` : ct.label); }}
+                    className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border text-center transition-all ${chargeType === ct.id ? 'border-[#00754A] bg-[#00754A]/5 text-[#00754A]' : 'border-black/10 text-black hover:border-black/20'}`}>
                     {ct.icon}
                     <span className="text-[9px] font-semibold leading-tight">{ct.label}</span>
                   </button>
@@ -14528,55 +14549,55 @@ function FolioModal({
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Date</label>
-                    <input type="date" value={chargeDate} onChange={e=>setChargeDate(e.target.value)}
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                    <input type="date" value={chargeDate} onChange={e => setChargeDate(e.target.value)}
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Time</label>
-                    <input type="time" value={chargeTime} onChange={e=>setChargeTime(e.target.value)}
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                    <input type="time" value={chargeTime} onChange={e => setChargeTime(e.target.value)}
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-black mb-1">Description</label>
-                  <input type="text" value={chargeDesc} onChange={e=>setChargeDesc(e.target.value)} placeholder={`e.g. ${chargeType}`}
-                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                  <input type="text" value={chargeDesc} onChange={e => setChargeDesc(e.target.value)} placeholder={`e.g. ${chargeType}`}
+                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Quantity</label>
-                    <input type="number" min="1" value={chargeQty} onChange={e=>setChargeQty(e.target.value)}
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono"/>
+                    <input type="number" min="1" value={chargeQty} onChange={e => setChargeQty(e.target.value)}
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Rate (₱)</label>
-                    <input type="number" min="0" step="0.01" value={chargeRate} onChange={e=>setChargeRate(e.target.value)} placeholder="0.00"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono"/>
+                    <input type="number" min="0" step="0.01" value={chargeRate} onChange={e => setChargeRate(e.target.value)} placeholder="0.00"
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Amount (₱)</label>
                     <input type="text" readOnly placeholder="0.00"
-                      value={chargeRate&&chargeQty ? (parseFloat(chargeRate||0)*parseFloat(chargeQty||1)).toFixed(2) : ''}
-                      className="w-full text-xs border border-black/10 rounded-lg px-2.5 py-1.5 bg-black/[0.025] text-black font-mono cursor-default"/>
+                      value={chargeRate && chargeQty ? (parseFloat(chargeRate || 0) * parseFloat(chargeQty || 1)).toFixed(2) : ''}
+                      className="w-full text-xs border border-black/10 rounded-lg px-2.5 py-1.5 bg-black/[0.025] text-black font-mono cursor-default" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-black mb-1">Reference (Optional)</label>
-                  <input type="text" value={chargeRef} onChange={e=>setChargeRef(e.target.value)} placeholder="e.g. Invoice #, Remarks, etc."
-                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                  <input type="text" value={chargeRef} onChange={e => setChargeRef(e.target.value)} placeholder="e.g. Invoice #, Remarks, etc."
+                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Department</label>
-                    <select value={chargeDept} onChange={e=>setChargeDept(e.target.value)}
+                    <select value={chargeDept} onChange={e => setChargeDept(e.target.value)}
                       className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white text-black">
-                      {['Front Office','Housekeeping','Restaurant','Bar','Spa','Maintenance','Accounting'].map(d=><option key={d}>{d}</option>)}
+                      {['Front Office', 'Housekeeping', 'Restaurant', 'Bar', 'Spa', 'Maintenance', 'Accounting'].map(d => <option key={d}>{d}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Notes (Optional)</label>
-                    <input type="text" value={chargeNotes} onChange={e=>setChargeNotes(e.target.value)} placeholder="e.g. Room charge for Jul 4"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                    <input type="text" value={chargeNotes} onChange={e => setChargeNotes(e.target.value)} placeholder="e.g. Room charge for Jul 4"
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                 </div>
               </div>
@@ -14589,21 +14610,21 @@ function FolioModal({
               </div>
               <label className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-black/[0.02]">
                 <span className="w-4 h-4 rounded-full border-2 border-[#00754A] flex items-center justify-center flex-shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]"/>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />
                 </span>
                 <span className="text-xs text-black">Guest Folio (Outstanding Balance {fmtA(folioTotals.balance)})</span>
               </label>
             </div>
           </div>
 
-          <div className="px-5 py-4 flex gap-2" style={{borderTop:'1px solid rgba(0,0,0,0.08)'}}>
-            <button onClick={()=>setAddChargeOpen(false)}
+          <div className="px-5 py-4 flex gap-2" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+            <button onClick={() => setAddChargeOpen(false)}
               className="flex-1 py-2 rounded-lg border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
               Cancel
             </button>
-            <button onClick={handleAddCharge} disabled={fcSaving||!chargeRate}
+            <button onClick={handleAddCharge} disabled={fcSaving || !chargeRate}
               className="flex-1 py-2 rounded-lg bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
-              {fcSaving?'Saving…':'Add Charge'}
+              {fcSaving ? 'Saving…' : 'Add Charge'}
             </button>
           </div>
         </div>
@@ -14611,23 +14632,23 @@ function FolioModal({
 
       {/* Record Payment Slide Panel */}
       {addPayOpen && (() => {
-          const payMethods = [
-    { id: 'Cash', label: 'Cash', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg> },
-    { id: 'Credit Card', label: 'Credit Card', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><path d="M6 15h2M10 15h4"/></svg> },
-    { id: 'Debit Card', label: 'Debit Card', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="17" cy="14" r="1.5"/></svg> },
-    { id: 'GCash', label: 'GCash', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M12 13v5"/></svg> },
-    { id: 'Maya', label: 'PayMaya', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 8h6M9 12h6M9 16h6"/></svg> },
-    { id: 'Bank Transfer', label: 'Bank Transfer', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M2 11l10-9 10 9"/></svg> },
-    { id: 'Check', label: 'Check / Other', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 11l2 2 4-4"/></svg> },
-  ];
+        const payMethods = [
+          { id: 'Cash', label: 'Cash', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2" /><circle cx="12" cy="12" r="3" /><path d="M6 12h.01M18 12h.01" /></svg> },
+          { id: 'Credit Card', label: 'Credit Card', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /><path d="M6 15h2M10 15h4" /></svg> },
+          { id: 'Debit Card', label: 'Debit Card', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /><circle cx="17" cy="14" r="1.5" /></svg> },
+          { id: 'GCash', label: 'GCash', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="5" y="2" width="14" height="20" rx="2" /><circle cx="12" cy="10" r="3" /><path d="M12 13v5" /></svg> },
+          { id: 'Maya', label: 'PayMaya', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 8h6M9 12h6M9 16h6" /></svg> },
+          { id: 'Bank Transfer', label: 'Bank Transfer', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 22h18M6 18v-7M10 18v-7M14 18v-7M18 18v-7M2 11l10-9 10 9" /></svg> },
+          { id: 'Check', label: 'Check / Other', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 11l2 2 4-4" /></svg> },
+        ];
         return (
-          <div className="w-80 flex-shrink-0 flex flex-col" style={{background:'#fff',borderLeft:'1px solid rgba(0,0,0,0.10)',boxShadow:'-6px 0 24px rgba(0,0,0,0.07)'}}>
-            <div className="flex items-center justify-between px-5 py-4" style={{borderBottom:'1px solid rgba(0,0,0,0.08)'}}>
+          <div className="w-80 flex-shrink-0 flex flex-col" style={{ background: '#fff', borderLeft: '1px solid rgba(0,0,0,0.10)', boxShadow: '-6px 0 24px rgba(0,0,0,0.07)' }}>
+            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
               <span className="font-bold text-black">Record Payment</span>
-              <button onClick={()=>setAddPayOpen(false)} className="text-black hover:text-black text-xl leading-none transition-colors">×</button>
+              <button onClick={() => setAddPayOpen(false)} className="text-black hover:text-black text-xl leading-none transition-colors">×</button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{scrollbarWidth:'thin'}}>
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{ scrollbarWidth: 'thin' }}>
 
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -14635,9 +14656,9 @@ function FolioModal({
                   <span className="text-xs font-bold text-black">Select Payment Method</span>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
-                  {payMethods.map(pm=>(
-                    <button key={pm.id} onClick={()=>setPayMethod(pm.id)}
-                      className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border text-center transition-all ${payMethod===pm.id?'border-[#00754A] bg-[#00754A]/5 text-[#00754A]':'border-black/10 text-black hover:border-black/20'}`}>
+                  {payMethods.map(pm => (
+                    <button key={pm.id} onClick={() => setPayMethod(pm.id)}
+                      className={`flex flex-col items-center gap-1.5 p-2.5 rounded-xl border text-center transition-all ${payMethod === pm.id ? 'border-[#00754A] bg-[#00754A]/5 text-[#00754A]' : 'border-black/10 text-black hover:border-black/20'}`}>
                       {pm.icon}
                       <span className="text-[9px] font-semibold leading-tight">{pm.label}</span>
                     </button>
@@ -14654,29 +14675,29 @@ function FolioModal({
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <label className="block text-[10px] font-semibold text-black mb-1">Date</label>
-                      <input type="date" value={payDate} onChange={e=>setPayDate(e.target.value)}
-                        className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                      <input type="date" value={payDate} onChange={e => setPayDate(e.target.value)}
+                        className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-black mb-1">Time</label>
-                      <input type="time" value={payTime} onChange={e=>setPayTime(e.target.value)}
-                        className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                      <input type="time" value={payTime} onChange={e => setPayTime(e.target.value)}
+                        className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Amount (₱)</label>
-                    <input type="number" min="0" step="0.01" value={payAmount} onChange={e=>setPayAmount(e.target.value)} placeholder="0.00"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono"/>
+                    <input type="number" min="0" step="0.01" value={payAmount} onChange={e => setPayAmount(e.target.value)} placeholder="0.00"
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Reference No. (Optional)</label>
-                    <input type="text" value={payRef} onChange={e=>setPayRef(e.target.value)} placeholder="e.g. Receipt #, Trans ID, etc."
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                    <input type="text" value={payRef} onChange={e => setPayRef(e.target.value)} placeholder="e.g. Receipt #, Trans ID, etc."
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Notes (Optional)</label>
-                    <input type="text" value={payNotes} onChange={e=>setPayNotes(e.target.value)} placeholder="e.g. GCash payment by guest"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white"/>
+                    <input type="text" value={payNotes} onChange={e => setPayNotes(e.target.value)} placeholder="e.g. GCash payment by guest"
+                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                 </div>
               </div>
@@ -14688,21 +14709,21 @@ function FolioModal({
                 </div>
                 <label className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-black/[0.02]">
                   <span className="w-4 h-4 rounded-full border-2 border-[#00754A] flex items-center justify-center flex-shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]"/>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />
                   </span>
                   <span className="text-xs text-black">Guest Folio (Outstanding Balance {fmtA(folioTotals.balance)})</span>
                 </label>
               </div>
             </div>
 
-            <div className="px-5 py-4 flex gap-2" style={{borderTop:'1px solid rgba(0,0,0,0.08)'}}>
-              <button onClick={()=>setAddPayOpen(false)}
+            <div className="px-5 py-4 flex gap-2" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+              <button onClick={() => setAddPayOpen(false)}
                 className="flex-1 py-2 rounded-lg border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
                 Cancel
               </button>
-              <button onClick={handleAddPayment} disabled={fpSaving||!payAmount}
+              <button onClick={handleAddPayment} disabled={fpSaving || !payAmount}
                 className="flex-1 py-2 rounded-lg bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
-                {fpSaving?'Saving…':'Post Payment'}
+                {fpSaving ? 'Saving…' : 'Post Payment'}
               </button>
             </div>
           </div>
