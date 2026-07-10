@@ -66,7 +66,7 @@ const headerTarget = `      {/* Top Pre-header Bar */}
                 { name: 'Accommodations', id: 'accommodations', hasSubmenu: true },
                 { name: 'Dining', id: 'menu' },
                 { name: 'Gallery', id: 'gallery' },
-                { name: 'Monthly Promo', id: 'promo' },
+                { name: ' Promos', id: 'promo' },
               ].map((item) => (
                 <div key={item.id} className="relative group">
                   <button
@@ -183,7 +183,7 @@ const headerReplacement = `      {/* Top Pre-header Bar */}
                 { name: 'Accommodations', id: 'accommodations', hasSubmenu: true },
                 { name: 'Dining', id: 'menu' },
                 { name: 'Gallery', id: 'gallery' },
-                { name: 'Monthly Promo', id: 'promo' },
+                { name: ' Promos', id: 'promo' },
                 { name: 'Contact', id: 'contact' },
               ].map((item) => (
                 <div key={item.id} className="relative group">

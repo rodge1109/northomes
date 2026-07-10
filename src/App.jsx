@@ -8,6 +8,7 @@ import AdminOnlineReservationsTab from './AdminOnlineReservationsTab';
 import AdminGuestsTab from './AdminGuestsTab';
 import AdminDashboardTab from './AdminDashboardTab';
 import CorporateSettingsTab from './CorporateSettingsTab';
+import PaymentOptionsTab from './PaymentOptionsTab';
 import ContactMapSection from './components/common/ContactMapSection';
 
 
@@ -1330,6 +1331,7 @@ function AppointmentForm({ onSuccess }) {
   const [formData, setFormData] = useState(emptyForm);
   const [promoCodeInput, setPromoCodeInput] = useState(sessionStorage.getItem('northomes_promo') || '');
   const [appliedPromo, setAppliedPromo] = useState(null);
+  const [availablePromo, setAvailablePromo] = useState(null);
   const [promoMessage, setPromoMessage] = useState({ type: '', text: '' });
   const [isVerifyingPromo, setIsVerifyingPromo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -1352,7 +1354,33 @@ function AppointmentForm({ onSuccess }) {
         }
       })
       .catch(() => { });
+
+    // Fetch active promos
+    fetch(`${API_BASE_URL}/api/promos`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.promos && data.promos.length > 0) {
+          setAvailablePromo(data.promos[0].code);
+        }
+      })
+      .catch(() => { });
   }, []);
+
+  // Auto-fill promo code if eligible
+  useEffect(() => {
+    if (formData.checkInDate && availablePromo) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkInDate = new Date(formData.checkInDate);
+      checkInDate.setHours(0, 0, 0, 0);
+      const diffDays = (checkInDate.getTime() - today.getTime()) / (1000 * 3600 * 24);
+      if (diffDays >= 1 && !promoCodeInput) {
+        setPromoCodeInput(availablePromo);
+      } else if (diffDays < 1 && promoCodeInput === availablePromo) {
+        setPromoCodeInput('');
+      }
+    }
+  }, [formData.checkInDate, availablePromo]);
 
   // Derive payment instructions for selected method
   const getPaymentInstructions = (method) => {
@@ -1360,7 +1388,9 @@ function AppointmentForm({ onSuccess }) {
     const p = paymentOptions;
     if (key === 'gcash') return { name: p.gcash_name, number: p.gcash_number, qr: p.gcash_qr, extra: p.gcash_instructions };
     if (key === 'paymaya') return { name: p.paymaya_name, number: p.paymaya_number, qr: p.paymaya_qr, extra: p.paymaya_instructions };
-    if (key === 'bank') return { bank: p.bank_name, name: p.bank_account_name, number: p.bank_account_number, branch: p.bank_branch, extra: p.bank_instructions };
+    if (key === 'bank') return {
+      bank: p.bank_name, name: p.bank_account_name, number: p.bank_account_number, branch: p.bank_branch, swift: p.bank_swift, extra: p.bank_instructions
+    };
     if (key === 'paypal') return { email: p.paypal_email, link: p.paypal_link, extra: p.paypal_instructions };
     if (key === 'credit_card') return { extra: p.credit_card_instructions };
     return { label: p.others_label, extra: p.others_instructions };
@@ -1389,6 +1419,19 @@ function AppointmentForm({ onSuccess }) {
 
   const validatePromoCode = async () => {
     if (!promoCodeInput.trim() || !formData.roomType) return;
+
+    if (formData.checkInDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const checkInDate = new Date(formData.checkInDate);
+      checkInDate.setHours(0, 0, 0, 0);
+      const diffDays = (checkInDate.getTime() - today.getTime()) / (1000 * 3600 * 24);
+      if (diffDays < 1) {
+        setPromoMessage({ type: 'error', text: 'Promos require booking at least 1 day before check-in.' });
+        return;
+      }
+    }
+
     setIsVerifyingPromo(true);
     setPromoMessage({ type: '', text: '' });
     try {
@@ -1499,6 +1542,30 @@ function AppointmentForm({ onSuccess }) {
     }
   };
 
+  const handleProceedToStep2 = (e) => {
+    e.preventDefault();
+    if (appliedPromo) {
+      if (formData.checkInDate) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const checkInDate = new Date(formData.checkInDate);
+        checkInDate.setHours(0, 0, 0, 0);
+        const diffDays = (checkInDate.getTime() - today.getTime()) / (1000 * 3600 * 24);
+        if (diffDays < 1) {
+          alert('Promos require booking at least 1 day before check-in. Please change your dates or remove the promo.');
+          return;
+        }
+      }
+      setDepositAmount(String(totalPrice));
+    } else {
+      if (!depositAmount || parseFloat(depositAmount) === 0) {
+        setDepositAmount(String(Math.ceil(totalPrice * 0.5)));
+      }
+    }
+    setStep(2);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const inputCls = "w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[#000000]/87 placeholder-white/40 text-sm";
   const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
 
@@ -1509,7 +1576,7 @@ function AppointmentForm({ onSuccess }) {
       </div>
       <div className="pt-4">
         {step === 1 ? (
-          <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+          <form className="space-y-6" onSubmit={handleProceedToStep2}>
 
             {/* Stay Details */}
             <div>
@@ -1612,6 +1679,9 @@ function AppointmentForm({ onSuccess }) {
             {/* Promo Code */}
             <div>
               <label className={labelCls}>Promo Code <span className="normal-case font-normal text-gray-400">(optional)</span></label>
+              <div className="bg-[#00754A]/5 border border-[#00754A]/20 rounded-lg p-3 mb-3 text-xs text-[#00754A]">
+                <strong>Promo Policy:</strong> To avail promos, bookings must be made at least 1 day prior to check-in, and full payment is required upon booking.
+              </div>
               <div className="flex gap-3">
                 <div className="flex-1">
                   <input type="text" value={promoCodeInput} onChange={(e) => setPromoCodeInput(e.target.value)}
@@ -1668,10 +1738,51 @@ function AppointmentForm({ onSuccess }) {
                 </button>
               ))}
             </div>
+            {depositMethod && (
+              <div className="bg-blue-50/50 p-4 border border-blue-100 rounded-xl space-y-3">
+                <h5 className="font-bold text-sm text-blue-900">Payment Instructions</h5>
+                {(() => {
+                  const inst = getPaymentInstructions(depositMethod);
+                  if (depositMethod === 'GCash') return (
+                    <div className="text-sm text-blue-800 space-y-1">
+                      <p><strong>Name:</strong> {inst.name}</p>
+                      <p><strong>Number:</strong> {inst.number}</p>
+                      <p className="text-xs text-blue-700 mt-2 italic">{inst.extra}</p>
+                    </div>
+                  );
+                  if (depositMethod === 'PayMaya') return (
+                    <div className="text-sm text-blue-800 space-y-1">
+                      <p><strong>Name:</strong> {inst.name}</p>
+                      <p><strong>Number:</strong> {inst.number}</p>
+                      <p className="text-xs text-blue-700 mt-2 italic">{inst.extra}</p>
+                    </div>
+                  );
+                  if (depositMethod === 'Bank Transfer') return (
+                    <div className="text-sm text-blue-800 space-y-4">
+                      <div className="space-y-1">
+                        <p><strong>Bank:</strong> {inst.bank}</p>
+                        <p><strong>Account Name:</strong> {inst.name}</p>
+                        <p><strong>Account Number:</strong> {inst.number}</p>
+                        {inst.swift && <p><strong>SWIFT Code:</strong> {inst.swift}</p>}
+                        <p className="text-xs text-blue-700 mt-1 italic">{inst.extra}</p>
+                      </div>
+                    </div>
+                  );
+                  if (depositMethod === 'Others') return (
+                    <div className="text-sm text-blue-800 space-y-1">
+                      <p><strong>{inst.label}</strong></p>
+                      <p className="text-xs text-blue-700 mt-2 italic">{inst.extra}</p>
+                    </div>
+                  );
+                  return <div className="text-sm text-blue-800">Please follow the standard procedure for {depositMethod}.</div>;
+                })()}
+              </div>
+            )}
             <div>
               <label className={labelCls}>Deposit Amount (₱)</label>
-              <input type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} min="1" required placeholder="Enter deposit amount" className={inputCls} />
-              {totalPrice > 0 && (
+              <input type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} min={appliedPromo ? totalPrice : 1} max={totalPrice} readOnly={!!appliedPromo} required placeholder="Enter deposit amount" className={inputCls} />
+              {appliedPromo && <p className="text-xs text-[#00754A] mt-1 font-semibold">Promos require full payment upon booking.</p>}
+              {totalPrice > 0 && !appliedPromo && (
                 <div className="flex gap-2 mt-2">
                   <button type="button" onClick={() => setDepositAmount(String(Math.ceil(totalPrice * 0.5)))} className="text-[10px] font-bold text-[#00754A] border border-[#00754A]/30 rounded-full px-3 py-1 hover:bg-[#00754A]/5 transition-colors">50% — ₱{Math.ceil(totalPrice * 0.5).toLocaleString()}</button>
                   <button type="button" onClick={() => setDepositAmount(String(totalPrice))} className="text-[10px] font-bold text-[#00754A] border border-[#00754A]/30 rounded-full px-3 py-1 hover:bg-[#00754A]/5 transition-colors">Full — ₱{totalPrice.toLocaleString()}</button>
@@ -4176,176 +4287,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   )}
 
                   {/* ── Payment Options ── */}
-                  {settingsSubTab === 'payment-options' && (() => {
-                    const paymentMethods = [
-                      {
-                        id: 'gcash', label: 'GCash', icon: '📱', color: '#0070BA',
-                        fields: [
-                          { key: 'gcash_enabled', label: 'Enable GCash', type: 'toggle' },
-                          { key: 'gcash_name', label: 'Account Name', placeholder: 'e.g. Juan dela Cruz', type: 'text' },
-                          { key: 'gcash_number', label: 'GCash Number', placeholder: 'e.g. 09XX XXX XXXX', type: 'text' },
-                          { key: 'gcash_qr', label: 'QR Code Image URL', placeholder: 'https://... or upload path', type: 'text' },
-                          { key: 'gcash_instructions', label: 'Additional Instructions', placeholder: 'e.g. Send screenshot of payment to front desk', type: 'textarea' },
-                        ]
-                      },
-                      {
-                        id: 'paymaya', label: 'PayMaya / Maya', icon: '💳', color: '#36B37E',
-                        fields: [
-                          { key: 'paymaya_enabled', label: 'Enable PayMaya', type: 'toggle' },
-                          { key: 'paymaya_name', label: 'Account Name', placeholder: 'e.g. Juan dela Cruz', type: 'text' },
-                          { key: 'paymaya_number', label: 'Maya Number', placeholder: 'e.g. 09XX XXX XXXX', type: 'text' },
-                          { key: 'paymaya_qr', label: 'QR Code Image URL', placeholder: 'https://... or upload path', type: 'text' },
-                          { key: 'paymaya_instructions', label: 'Additional Instructions', placeholder: 'e.g. Send receipt via email', type: 'textarea' },
-                        ]
-                      },
-                      {
-                        id: 'bank', label: 'Bank Transfer', icon: '🏦', color: '#1E3A5F',
-                        fields: [
-                          { key: 'bank_enabled', label: 'Enable Bank Transfer', type: 'toggle' },
-                          { key: 'bank_name', label: 'Bank Name', placeholder: 'e.g. BDO, BPI, UnionBank', type: 'text' },
-                          { key: 'bank_account_name', label: 'Account Name', placeholder: 'e.g. NorHomes Hotel Inc.', type: 'text' },
-                          { key: 'bank_account_number', label: 'Account Number', placeholder: 'e.g. 0012 3456 7890', type: 'text' },
-                          { key: 'bank_branch', label: 'Branch (optional)', placeholder: 'e.g. Makati Main Branch', type: 'text' },
-                          { key: 'bank_instructions', label: 'Additional Instructions', placeholder: 'e.g. Email proof of payment to reservations@...', type: 'textarea' },
-                        ]
-                      },
-                      {
-                        id: 'paypal', label: 'PayPal', icon: '🅿️', color: '#003087',
-                        fields: [
-                          { key: 'paypal_enabled', label: 'Enable PayPal', type: 'toggle' },
-                          { key: 'paypal_email', label: 'PayPal Email', placeholder: 'e.g. payments@northomes.com', type: 'email' },
-                          { key: 'paypal_link', label: 'PayPal.me Link (optional)', placeholder: 'e.g. https://paypal.me/northomes', type: 'text' },
-                          { key: 'paypal_instructions', label: 'Additional Instructions', placeholder: 'e.g. Use "Goods & Services" and include your name', type: 'textarea' },
-                        ]
-                      },
-                      {
-                        id: 'credit_card', label: 'Credit Card', icon: '💳', color: '#7B2D8B',
-                        fields: [
-                          { key: 'credit_card_enabled', label: 'Enable Credit Card', type: 'toggle' },
-                          { key: 'credit_card_instructions', label: 'Instructions', placeholder: 'e.g. Credit card will be charged at the front desk upon check-in. We accept Visa, Mastercard, and JCB.', type: 'textarea' },
-                        ]
-                      },
-                      {
-                        id: 'others', label: 'Others / Cash on Arrival', icon: '💰', color: '#8B6914',
-                        fields: [
-                          { key: 'others_enabled', label: 'Enable Others/Cash', type: 'toggle' },
-                          { key: 'others_label', label: 'Display Label', placeholder: 'e.g. Cash on Arrival', type: 'text' },
-                          { key: 'others_instructions', label: 'Instructions', placeholder: 'e.g. Full payment due upon check-in. Accepted currencies: PHP.', type: 'textarea' },
-                        ]
-                      },
-                    ];
-
-                    const [pmSaving, setPmSaving] = useState(false);
-                    const [pmMsg, setPmMsg] = useState('');
-                    const [pmExpanded, setPmExpanded] = useState('gcash');
-                    const [pmValues, setPmValues] = useState(() => {
-                      try {
-                        return JSON.parse(hotelSettings.payment_options || '{}');
-                      } catch { return {}; }
-                    });
-
-                    const handlePmChange = (key, value) => setPmValues(prev => ({ ...prev, [key]: value }));
-
-                    const savePm = async () => {
-                      setPmSaving(true);
-                      try {
-                        const r = await fetch(`${API_BASE_URL}/api/hotel-settings`, {
-                          method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ settings: { payment_options: JSON.stringify(pmValues) } }),
-                        });
-                        const d = await r.json();
-                        setPmMsg(d.success ? '✓ Payment options saved!' : '✗ ' + d.message);
-                        if (d.success) {
-                          setHotelSettings(prev => ({ ...prev, payment_options: JSON.stringify(pmValues) }));
-                          setTimeout(() => setPmMsg(''), 3000);
-                        }
-                      } catch { setPmMsg('✗ Network error'); }
-                      finally { setPmSaving(false); }
-                    };
-
-                    return (
-                      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Payment Options</h3>
-                            <p className="text-black/50 text-xs mt-1">Configure each payment method guests can use when booking online. Instructions will appear on Step 2 of the booking form.</p>
-                          </div>
-                          <button onClick={savePm} disabled={pmSaving}
-                            className="px-5 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full text-xs font-black uppercase tracking-widest disabled:opacity-50 flex items-center gap-2">
-                            {pmSaving ? 'Saving...' : '💾 Save All'}
-                          </button>
-                        </div>
-                        {pmMsg && <p className={`text-xs font-bold px-3 py-2 rounded-lg ${pmMsg.startsWith('✓') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>{pmMsg}</p>}
-
-                        {paymentMethods.map(pm => (
-                          <div key={pm.id} className="bg-white border border-black/8 rounded-2xl overflow-hidden">
-                            {/* Accordion Header */}
-                            <button type="button"
-                              onClick={() => setPmExpanded(pmExpanded === pm.id ? null : pm.id)}
-                              className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors">
-                              <div className="flex items-center gap-3">
-                                <span className="text-2xl">{pm.icon}</span>
-                                <div className="text-left">
-                                  <p className="font-bold text-sm text-black/90">{pm.label}</p>
-                                  <p className="text-xs text-black/40">
-                                    {pmValues[`${pm.id}_enabled`] === 'true' || pmValues[`${pm.id}_enabled`] === true
-                                      ? '✓ Enabled' : 'Disabled'}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-3">
-                                <span className={`w-2 h-2 rounded-full ${pmValues[`${pm.id}_enabled`] === 'true' || pmValues[`${pm.id}_enabled`] === true ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                                <svg className={`w-4 h-4 text-black/40 transition-transform ${pmExpanded === pm.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                              </div>
-                            </button>
-
-                            {/* Accordion Body */}
-                            {pmExpanded === pm.id && (
-                              <div className="px-5 pb-5 border-t border-black/5 pt-4 space-y-4">
-                                {pm.fields.map(field => (
-                                  <div key={field.key}>
-                                    {field.type === 'toggle' ? (
-                                      <label className="flex items-center justify-between cursor-pointer">
-                                        <span className="text-sm font-semibold text-black/70">{field.label}</span>
-                                        <button type="button"
-                                          onClick={() => handlePmChange(field.key, String(!(pmValues[field.key] === 'true' || pmValues[field.key] === true)))}
-                                          className={`relative w-11 h-6 rounded-full transition-colors ${pmValues[field.key] === 'true' || pmValues[field.key] === true ? 'bg-[#00754A]' : 'bg-gray-200'}`}>
-                                          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${pmValues[field.key] === 'true' || pmValues[field.key] === true ? 'translate-x-5' : 'translate-x-0'}`}></span>
-                                        </button>
-                                      </label>
-                                    ) : field.type === 'textarea' ? (
-                                      <div>
-                                        <label className="block text-xs font-semibold text-black/50 uppercase tracking-wide mb-1">{field.label}</label>
-                                        <textarea rows={3} value={pmValues[field.key] || ''} onChange={e => handlePmChange(field.key, e.target.value)}
-                                          placeholder={field.placeholder}
-                                          className="w-full px-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 resize-none bg-gray-50" />
-                                      </div>
-                                    ) : (
-                                      <div>
-                                        <label className="block text-xs font-semibold text-black/50 uppercase tracking-wide mb-1">{field.label}</label>
-                                        <input type={field.type} value={pmValues[field.key] || ''} onChange={e => handlePmChange(field.key, e.target.value)}
-                                          placeholder={field.placeholder}
-                                          className="w-full px-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 bg-gray-50" />
-                                        {field.key.endsWith('_qr') && pmValues[field.key] && (
-                                          <div className="mt-2">
-                                            <p className="text-xs text-black/40 mb-1">Preview:</p>
-                                            <img src={pmValues[field.key]} alt="QR Preview" className="w-28 h-28 object-contain border border-black/10 rounded-lg p-1 bg-white" onError={e => e.target.style.display = 'none'} />
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })()}
+                  {settingsSubTab === 'payment-options' && <PaymentOptionsTab hotelSettings={hotelSettings} setHotelSettings={setHotelSettings} />}
 
                   {/* ── Staff & Permissions ── */}
                   {settingsSubTab === 'staff' && (
@@ -5867,7 +5809,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
                 { name: 'Accommodations', id: 'accommodations', hasSubmenu: true },
                 { name: 'Dining', id: 'menu' },
                 { name: 'Gallery', id: 'gallery' },
-                { name: 'Monthly Promo', id: 'promo' },
+                { name: ' Promos', id: 'promo' },
                 { name: 'Contact', id: 'contact' },
               ].map((item) => (
                 <div key={item.id} className="relative group">
@@ -5890,8 +5832,8 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
                       }
                     }}
                     className={`relative font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest flex items-center gap-1 ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery')
-                        ? 'text-[#00754A] after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-[#00754A]'
-                        : 'text-black/60 hover:text-[#000000]/87'
+                      ? 'text-[#00754A] after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-[#00754A]'
+                      : 'text-black/60 hover:text-[#000000]/87'
                       }`}
                   >
                     {item.name}
@@ -5944,7 +5886,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
               { name: 'Accommodations', id: 'accommodations' },
               { name: 'Dining', id: 'menu' },
               { name: 'Gallery', id: 'gallery' },
-              { name: 'Monthly Promo', id: 'promo' },
+              { name: ' Promos', id: 'promo' },
               { name: 'Contact', id: 'contact' },
             ].map((item) => (
               <button
@@ -6446,84 +6388,128 @@ function PromoPage({ setCurrentPage }) {
       });
   }, []);
 
-  return (
-    <div className="min-h-screen bg-[#f2f0eb] pb-24">
-      {/* Header */}
-      <div className="relative pt-32 pb-20 px-4 flex items-center justify-center min-h-[40vh]">
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/assets/images/gallery/lobby.jpg"
-            alt="Promotions Background"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-[#1E3932]/80 mix-blend-multiply"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-[#f2f0eb] via-transparent to-transparent"></div>
-        </div>
-        <div className="relative z-10 text-center max-w-4xl mx-auto mt-12">
-          <h1 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-6 drop-shadow-lg">
-            Exclusive <span className="text-[#CBA258]">Offers</span>
-          </h1>
-          <p className="text-white/90 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed drop-shadow">
-            Discover our latest promotions and seasonal rates. Book directly with us using these codes for the best value.
-          </p>
-        </div>
-      </div>
+  // Assuming only one active promo to match the design.
+  const promo = promos[0];
 
-      <div className="max-w-5xl mx-auto px-4 -mt-10 relative z-20">
+  return (
+    <div className="min-h-screen bg-[#FDFCF5] pb-24 pt-32 px-4 font-sans">
+      <div className="max-w-4xl mx-auto">
         {loading ? (
           <div className="text-center py-20">
-            <div className="inline-block w-10 h-10 border-4 border-[#00754A] border-t-transparent rounded-full animate-spin"></div>
+            <div className="inline-block w-10 h-10 border-4 border-[#16392F] border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : promos.length === 0 ? (
-          <div className="bg-white rounded-3xl p-16 text-center shadow-xl border border-black/5">
+        ) : !promo ? (
+          <div className="bg-white rounded-3xl p-16 text-center shadow-xl border border-[#D5C294]">
             <h3 className="text-2xl font-bold text-black/40 mb-4">No active promotions right now.</h3>
             <p className="text-black/50">Check back later for exciting new offers!</p>
           </div>
         ) : (
-          <div className="space-y-8">
-            {promos.map(promo => (
-              <div key={promo.code} className="bg-white rounded-3xl overflow-hidden shadow-xl border border-black/5 flex flex-col md:flex-row group hover:shadow-2xl transition-all duration-300">
-                <div className="bg-[#1E3932] p-8 md:w-1/3 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-                  <h3 className="text-[#CBA258] font-black tracking-widest uppercase text-sm mb-2 relative z-10">Use Code</h3>
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-6 py-3 relative z-10">
-                    <span className="text-3xl font-black text-white tracking-widest">{promo.code}</span>
-                  </div>
+          <div className="bg-white rounded-[2rem] p-8 md:p-14 shadow-2xl border border-[#EBE3CD] relative">
+            
+            {/* Header */}
+            <div className="text-center mb-10">
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="h-px bg-[#D5C294] flex-1 max-w-[60px]"></div>
+                <div className="w-10 h-10 rounded-full border border-[#D5C294] flex items-center justify-center text-[#A98C51]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-45"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
                 </div>
-                <div className="p-8 md:w-2/3 flex flex-col justify-center">
-                  <h2 className="text-3xl font-black text-[#006241] mb-3">{promo.name}</h2>
-                  <p className="text-black/60 mb-6 leading-relaxed">{promo.description || 'Enjoy special discounted rates with this promotional code.'}</p>
+                <div className="h-px bg-[#D5C294] flex-1 max-w-[60px]"></div>
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl font-bold text-[#16392F] mb-2 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>{promo.name}</h1>
+              <p className="text-gray-500 text-lg md:text-xl mb-8">{promo.description || 'Seasonal Promo Rate'}</p>
+              
+              <div className="inline-flex items-center justify-center bg-[#FDFCF5] border border-dashed border-[#D5C294] rounded-lg px-8 py-3">
+                <span className="text-gray-500 font-semibold tracking-wider mr-4 uppercase text-sm">Use Promo Code:</span>
+                <span className="text-3xl font-bold text-[#A98C51]">{promo.code}</span>
+              </div>
+            </div>
 
-                  {promo.prices && promo.prices.length > 0 && (
-                    <div className="mb-8">
-                      <h4 className="text-xs font-bold text-black/40 uppercase tracking-widest mb-3">Applicable Rooms</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {promo.prices.map((p, i) => (
-                          <div key={i} className="bg-[#f8f9fa] border border-black/5 rounded-lg px-3 py-1.5 flex items-center gap-2">
-                            <span className="text-xs font-bold text-black/70">{p.room_type_name}</span>
-                            {p.original_price && (
-                              <span className="text-xs text-black/40 line-through">₱{parseFloat(p.original_price).toLocaleString()}</span>
-                            )}
-                            <span className="text-[#CBA258] font-black text-sm">₱{parseFloat(p.price_per_night).toLocaleString()}</span>
-                          </div>
-                        ))}
-                      </div>
+            {/* Applicable Rooms */}
+            {promo.prices && promo.prices.length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="text-[#A98C51]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+                  </div>
+                  <h3 className="text-sm font-bold text-[#16392F] tracking-widest uppercase">Applicable Rooms</h3>
+                  <div className="h-px bg-[#EBE3CD] flex-1 ml-4"></div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {promo.prices.map((p, i) => (
+                    <div key={i} className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+                      <h4 className="font-bold text-gray-800 mb-2">{p.room_type_name}</h4>
+                      {p.original_price && (
+                        <p className="text-gray-400 line-through text-sm mb-1">₱{parseFloat(p.original_price).toLocaleString()}</p>
+                      )}
+                      <p className="text-3xl font-bold text-[#CBA258]">₱{parseFloat(p.price_per_night).toLocaleString()}</p>
                     </div>
-                  )}
-
-                  <button
-                    onClick={() => {
-                      sessionStorage.setItem('northomes_promo', promo.code);
-                      setCurrentPage('booking');
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="self-start px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all"
-                  >
-                    Book with this Promo
-                  </button>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Book Button */}
+            <div className="text-center mb-16 relative z-10">
+              <button
+                onClick={() => {
+                  sessionStorage.setItem('northomes_promo', promo.code);
+                  setCurrentPage('booking');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center justify-center gap-3 w-full md:w-auto px-12 py-4 bg-gradient-to-r from-[#B4965A] to-[#A2834A] hover:from-[#A2834A] hover:to-[#8E723B] text-white rounded-full font-bold text-sm md:text-base uppercase tracking-widest shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Book with this promo
+              </button>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div>
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <div className="h-px bg-[#EBE3CD] flex-1"></div>
+                <div className="text-[#D5C294]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <div className="h-px bg-[#EBE3CD] flex-1"></div>
+              </div>
+
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-bold text-[#16392F] mb-1">Book Early and Save More</h3>
+                <p className="text-gray-500 text-sm">Promo terms and conditions:</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-10">
+                {[
+                  "Book at least 1 day before your check-in date to enjoy discounted rates.",
+                  "Valid for direct bookings made through the Northomes Pensione website, official Facebook page, or by calling the property directly.",
+                  "Full payment is required to confirm your reservation.",
+                  "Promo rates are subject to room availability.",
+                  "Promo rates cannot be combined with other discounts or special offers, including Senior Citizen and PWD discounts.",
+                  "No refunds for cancellations.",
+                  "Reservations cancelled 3 days or more before check-in may be rebooked once, subject to room availability and the applicable promo rate at the time of rebooking.",
+                  "Cancellations made less than 3 days before check-in, no-shows, or early departures are not eligible for rebooking or refund.",
+                  "Reservations are non-transferable.",
+                  "Northomes Pensione reserves the right to modify or discontinue this promotion without prior notice."
+                ].map((term, i) => (
+                  <div key={i} className="flex gap-3 items-start">
+                    <div className="mt-0.5 text-[#CBA258] flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed font-medium">{term}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-lg p-4 flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
+                <div className="text-[#CBA258]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+                <p className="text-xs text-gray-700 font-medium">For inquiries or reservations, visit our website, message us on Facebook, or call us directly.</p>
+              </div>
+            </div>
+            
           </div>
         )}
       </div>
@@ -11389,8 +11375,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
             ref={btnRef}
             onClick={() => setOpen(o => !o)}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all ${open
-                ? 'bg-[#00754A] text-white shadow-md'
-                : 'bg-black/5 hover:bg-black/10 text-black/60 hover:text-[#000000]/87'
+              ? 'bg-[#00754A] text-white shadow-md'
+              : 'bg-black/5 hover:bg-black/10 text-black/60 hover:text-[#000000]/87'
               }`}
           >
             Actions
@@ -11455,8 +11441,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         <span className="text-xs text-black/60 font-mono">{fmtDate(r.check_out_date)}</span>
         {/* Status pill */}
         <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full w-fit ${isDueOut
-            ? 'bg-amber-100 text-amber-700'
-            : 'bg-green-100 text-green-700'
+          ? 'bg-amber-100 text-amber-700'
+          : 'bg-green-100 text-green-700'
           }`}>
           <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isDueOut ? 'bg-amber-500' : 'bg-green-500'}`} />
           {isDueOut ? 'Due Out' : 'Checked In'}
@@ -11920,8 +11906,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   key={res.id}
                                   onClick={() => setSelectedArrival(isSelected ? null : res)}
                                   className={`transition-colors cursor-pointer ${isNoShowWarning
-                                      ? 'bg-rose-50 hover:bg-rose-100/70 border-b border-rose-100'
-                                      : 'hover:bg-gray-50/50'
+                                    ? 'bg-rose-50 hover:bg-rose-100/70 border-b border-rose-100'
+                                    : 'hover:bg-gray-50/50'
                                     } ${isSelected ? (isNoShowWarning ? 'bg-rose-100' : 'bg-gray-100/50') : ''}`}
                                 >
                                   <td className="px-5 py-4" onClick={e => e.stopPropagation()}>

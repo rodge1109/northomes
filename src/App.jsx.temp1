@@ -4465,7 +4465,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
                 { name: 'Accommodations', id: 'accommodations', hasSubmenu: true },
                 { name: 'Dining', id: 'menu' },
                 { name: 'Gallery', id: 'gallery' },
-                { name: 'Monthly Promo', id: 'promo' },
+                { name: ' Promos', id: 'promo' },
               ].map((item) => (
                 <div key={item.id} className="relative group">
                   <button
@@ -4529,7 +4529,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
               { name: 'Accommodations', id: 'accommodations' },
               { name: 'Dining', id: 'menu' },
               { name: 'Gallery', id: 'gallery' },
-              { name: 'Monthly Promo', id: 'promo' },
+              { name: ' Promos', id: 'promo' },
               { name: 'Contact', id: 'contact' },
             ].map((item) => (
               <button
