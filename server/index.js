@@ -1679,7 +1679,7 @@ app.post('/api/folio/:reservationId/payment', async (req, res) => {
     
     const result = await pool.query(
       `INSERT INTO hotel_folio_payments (reservation_id, payment_method, amount, reference, posted_at, notes)
-       VALUES ($1, $2, $3, $4, COALESCE($5, CURRENT_TIMESTAMP), $6) RETURNING *`,
+       VALUES ($1, $2, $3, $4, COALESCE($5::timestamp, CURRENT_TIMESTAMP), $6) RETURNING *`,
       [reservationId, payment_method, parseFloat(amount), reference || '', customPostedAt, notes || '']
     );
     res.json({ success: true, payment: result.rows[0] });

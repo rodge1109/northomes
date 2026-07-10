@@ -14212,7 +14212,7 @@ function FolioModal({
   const [addChargeOpen, setAddChargeOpen] = React.useState(false);
   const [chargeType, setChargeType] = React.useState('Room Charge');
   const [chargeDate, setChargeDate] = React.useState(new Date().toISOString().slice(0, 10));
-  const [chargeTime, setChargeTime] = React.useState(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
+  const [chargeTime, setChargeTime] = React.useState(String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0'));
   const [chargeDesc, setChargeDesc] = React.useState('');
   const [chargeQty, setChargeQty] = React.useState(1);
   const [chargeRate, setChargeRate] = React.useState('');
@@ -14223,7 +14223,7 @@ function FolioModal({
   const [addPayOpen, setAddPayOpen] = React.useState(false);
   const [payMethod, setPayMethod] = React.useState('Cash');
   const [payDate, setPayDate] = React.useState(new Date().toISOString().slice(0, 10));
-  const [payTime, setPayTime] = React.useState(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
+  const [payTime, setPayTime] = React.useState(String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0'));
   const [payAmount, setPayAmount] = React.useState('');
   const [payRef, setPayRef] = React.useState('');
   const [payNotes, setPayNotes] = React.useState('');
