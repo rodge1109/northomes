@@ -1076,13 +1076,15 @@ export default function RestaurantApp() {
 
       <div className={`min-h-screen pb-16 md:pb-0 print:!ml-0 ${showAdminSidebar ? 'ml-[150px]' : 'ml-0'}`} style={{ position: 'relative', zIndex: 1 }}>
         {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
-          <Header
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            setAccommodationFilter={setAccommodationFilter}
-          />
+          <div className={currentPage === 'booking' ? 'hidden sm:block' : ''}>
+            <Header
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              setAccommodationFilter={setAccommodationFilter}
+            />
+          </div>
         )}
         {currentPage === 'home' && (
           <HomePage
@@ -1476,11 +1478,11 @@ function AppointmentForm({ onSuccess }) {
   const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
 
   return (
-    <div className="rounded-2xl border border-black/5 overflow-hidden bg-white">
-      <div className="px-6 py-5 bg-gray-50 border-b border-black/5">
+    <div className="bg-white">
+      <div className="pb-4 border-b border-black/5 mb-2">
         <h3 className="text-[#000000]/87 font-bold text-lg">{step === 1 ? 'Step 1: Reservation Details' : 'Step 2: Deposit Payment'}</h3>
       </div>
-      <div className="p-6">
+      <div className="pt-4">
         {step === 1 ? (
           <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
 
@@ -1533,21 +1535,21 @@ function AppointmentForm({ onSuccess }) {
             {/* Guest Info */}
             <div>
               <p className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-3">Guest Information</p>
-              <div className="grid grid-cols-12 gap-3 mb-3">
-                <div className="col-span-3">
+              <div className="grid grid-cols-4 gap-3 mb-3">
+                <div>
                   <label className={labelCls}>Title</label>
                   <select name="title" value={formData.title} onChange={handleChange} className={inputCls}>
                     <option>Mr.</option><option>Mrs.</option><option>Ms.</option><option>Dr.</option><option>Prof.</option>
                   </select>
                 </div>
-                <div className="col-span-4">
+                <div className="col-span-3">
                   <label className={labelCls}>First Name</label>
-                  <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First" required className={inputCls} />
+                  <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First name" required className={inputCls} />
                 </div>
-                <div className="col-span-5">
-                  <label className={labelCls}>Last Name</label>
-                  <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last" required className={inputCls} />
-                </div>
+              </div>
+              <div className="mb-3">
+                <label className={labelCls}>Last Name</label>
+                <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last name" required className={inputCls} />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 <div>
@@ -3437,6 +3439,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       { id: 'reservations', label: 'Reservations' },
                       { id: 'availability', label: 'Availability' },
                       { id: 'notifications', label: 'Notifications' },
+                      { id: 'payment-options', label: 'Payment Options' },
                       { id: 'about-us', label: 'About Us' },
                       { id: 'staff', label: 'Staff & Permissions' },
                       { id: 'corporate', label: 'Corporate Accounts' },
@@ -4146,6 +4149,178 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </div>
                     </div>
                   )}
+
+                  {/* ── Payment Options ── */}
+                  {settingsSubTab === 'payment-options' && (() => {
+                    const paymentMethods = [
+                      {
+                        id: 'gcash', label: 'GCash', icon: '📱', color: '#0070BA',
+                        fields: [
+                          { key: 'gcash_enabled', label: 'Enable GCash', type: 'toggle' },
+                          { key: 'gcash_name', label: 'Account Name', placeholder: 'e.g. Juan dela Cruz', type: 'text' },
+                          { key: 'gcash_number', label: 'GCash Number', placeholder: 'e.g. 09XX XXX XXXX', type: 'text' },
+                          { key: 'gcash_qr', label: 'QR Code Image URL', placeholder: 'https://... or upload path', type: 'text' },
+                          { key: 'gcash_instructions', label: 'Additional Instructions', placeholder: 'e.g. Send screenshot of payment to front desk', type: 'textarea' },
+                        ]
+                      },
+                      {
+                        id: 'paymaya', label: 'PayMaya / Maya', icon: '💳', color: '#36B37E',
+                        fields: [
+                          { key: 'paymaya_enabled', label: 'Enable PayMaya', type: 'toggle' },
+                          { key: 'paymaya_name', label: 'Account Name', placeholder: 'e.g. Juan dela Cruz', type: 'text' },
+                          { key: 'paymaya_number', label: 'Maya Number', placeholder: 'e.g. 09XX XXX XXXX', type: 'text' },
+                          { key: 'paymaya_qr', label: 'QR Code Image URL', placeholder: 'https://... or upload path', type: 'text' },
+                          { key: 'paymaya_instructions', label: 'Additional Instructions', placeholder: 'e.g. Send receipt via email', type: 'textarea' },
+                        ]
+                      },
+                      {
+                        id: 'bank', label: 'Bank Transfer', icon: '🏦', color: '#1E3A5F',
+                        fields: [
+                          { key: 'bank_enabled', label: 'Enable Bank Transfer', type: 'toggle' },
+                          { key: 'bank_name', label: 'Bank Name', placeholder: 'e.g. BDO, BPI, UnionBank', type: 'text' },
+                          { key: 'bank_account_name', label: 'Account Name', placeholder: 'e.g. NorHomes Hotel Inc.', type: 'text' },
+                          { key: 'bank_account_number', label: 'Account Number', placeholder: 'e.g. 0012 3456 7890', type: 'text' },
+                          { key: 'bank_branch', label: 'Branch (optional)', placeholder: 'e.g. Makati Main Branch', type: 'text' },
+                          { key: 'bank_instructions', label: 'Additional Instructions', placeholder: 'e.g. Email proof of payment to reservations@...', type: 'textarea' },
+                        ]
+                      },
+                      {
+                        id: 'paypal', label: 'PayPal', icon: '🅿️', color: '#003087',
+                        fields: [
+                          { key: 'paypal_enabled', label: 'Enable PayPal', type: 'toggle' },
+                          { key: 'paypal_email', label: 'PayPal Email', placeholder: 'e.g. payments@northomes.com', type: 'email' },
+                          { key: 'paypal_link', label: 'PayPal.me Link (optional)', placeholder: 'e.g. https://paypal.me/northomes', type: 'text' },
+                          { key: 'paypal_instructions', label: 'Additional Instructions', placeholder: 'e.g. Use "Goods & Services" and include your name', type: 'textarea' },
+                        ]
+                      },
+                      {
+                        id: 'credit_card', label: 'Credit Card', icon: '💳', color: '#7B2D8B',
+                        fields: [
+                          { key: 'credit_card_enabled', label: 'Enable Credit Card', type: 'toggle' },
+                          { key: 'credit_card_instructions', label: 'Instructions', placeholder: 'e.g. Credit card will be charged at the front desk upon check-in. We accept Visa, Mastercard, and JCB.', type: 'textarea' },
+                        ]
+                      },
+                      {
+                        id: 'others', label: 'Others / Cash on Arrival', icon: '💰', color: '#8B6914',
+                        fields: [
+                          { key: 'others_enabled', label: 'Enable Others/Cash', type: 'toggle' },
+                          { key: 'others_label', label: 'Display Label', placeholder: 'e.g. Cash on Arrival', type: 'text' },
+                          { key: 'others_instructions', label: 'Instructions', placeholder: 'e.g. Full payment due upon check-in. Accepted currencies: PHP.', type: 'textarea' },
+                        ]
+                      },
+                    ];
+
+                    const [pmSaving, setPmSaving] = useState(false);
+                    const [pmMsg, setPmMsg] = useState('');
+                    const [pmExpanded, setPmExpanded] = useState('gcash');
+                    const [pmValues, setPmValues] = useState(() => {
+                      try {
+                        return JSON.parse(hotelSettings.payment_options || '{}');
+                      } catch { return {}; }
+                    });
+
+                    const handlePmChange = (key, value) => setPmValues(prev => ({ ...prev, [key]: value }));
+
+                    const savePm = async () => {
+                      setPmSaving(true);
+                      try {
+                        const r = await fetch(`${API_BASE_URL}/api/hotel-settings`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ settings: { payment_options: JSON.stringify(pmValues) } }),
+                        });
+                        const d = await r.json();
+                        setPmMsg(d.success ? '✓ Payment options saved!' : '✗ ' + d.message);
+                        if (d.success) {
+                          setHotelSettings(prev => ({ ...prev, payment_options: JSON.stringify(pmValues) }));
+                          setTimeout(() => setPmMsg(''), 3000);
+                        }
+                      } catch { setPmMsg('✗ Network error'); }
+                      finally { setPmSaving(false); }
+                    };
+
+                    return (
+                      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Payment Options</h3>
+                            <p className="text-black/50 text-xs mt-1">Configure each payment method guests can use when booking online. Instructions will appear on Step 2 of the booking form.</p>
+                          </div>
+                          <button onClick={savePm} disabled={pmSaving}
+                            className="px-5 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full text-xs font-black uppercase tracking-widest disabled:opacity-50 flex items-center gap-2">
+                            {pmSaving ? 'Saving...' : '💾 Save All'}
+                          </button>
+                        </div>
+                        {pmMsg && <p className={`text-xs font-bold px-3 py-2 rounded-lg ${pmMsg.startsWith('✓') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>{pmMsg}</p>}
+
+                        {paymentMethods.map(pm => (
+                          <div key={pm.id} className="bg-white border border-black/8 rounded-2xl overflow-hidden">
+                            {/* Accordion Header */}
+                            <button type="button"
+                              onClick={() => setPmExpanded(pmExpanded === pm.id ? null : pm.id)}
+                              className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors">
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">{pm.icon}</span>
+                                <div className="text-left">
+                                  <p className="font-bold text-sm text-black/90">{pm.label}</p>
+                                  <p className="text-xs text-black/40">
+                                    {pmValues[`${pm.id}_enabled`] === 'true' || pmValues[`${pm.id}_enabled`] === true
+                                      ? '✓ Enabled' : 'Disabled'}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className={`w-2 h-2 rounded-full ${pmValues[`${pm.id}_enabled`] === 'true' || pmValues[`${pm.id}_enabled`] === true ? 'bg-green-500' : 'bg-gray-300'}`}></span>
+                                <svg className={`w-4 h-4 text-black/40 transition-transform ${pmExpanded === pm.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </div>
+                            </button>
+
+                            {/* Accordion Body */}
+                            {pmExpanded === pm.id && (
+                              <div className="px-5 pb-5 border-t border-black/5 pt-4 space-y-4">
+                                {pm.fields.map(field => (
+                                  <div key={field.key}>
+                                    {field.type === 'toggle' ? (
+                                      <label className="flex items-center justify-between cursor-pointer">
+                                        <span className="text-sm font-semibold text-black/70">{field.label}</span>
+                                        <button type="button"
+                                          onClick={() => handlePmChange(field.key, String(!(pmValues[field.key] === 'true' || pmValues[field.key] === true)))}
+                                          className={`relative w-11 h-6 rounded-full transition-colors ${pmValues[field.key] === 'true' || pmValues[field.key] === true ? 'bg-[#00754A]' : 'bg-gray-200'}`}>
+                                          <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${pmValues[field.key] === 'true' || pmValues[field.key] === true ? 'translate-x-5' : 'translate-x-0'}`}></span>
+                                        </button>
+                                      </label>
+                                    ) : field.type === 'textarea' ? (
+                                      <div>
+                                        <label className="block text-xs font-semibold text-black/50 uppercase tracking-wide mb-1">{field.label}</label>
+                                        <textarea rows={3} value={pmValues[field.key] || ''} onChange={e => handlePmChange(field.key, e.target.value)}
+                                          placeholder={field.placeholder}
+                                          className="w-full px-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 resize-none bg-gray-50" />
+                                      </div>
+                                    ) : (
+                                      <div>
+                                        <label className="block text-xs font-semibold text-black/50 uppercase tracking-wide mb-1">{field.label}</label>
+                                        <input type={field.type} value={pmValues[field.key] || ''} onChange={e => handlePmChange(field.key, e.target.value)}
+                                          placeholder={field.placeholder}
+                                          className="w-full px-3 py-2.5 rounded-lg border border-black/10 text-sm focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 bg-gray-50" />
+                                        {field.key.endsWith('_qr') && pmValues[field.key] && (
+                                          <div className="mt-2">
+                                            <p className="text-xs text-black/40 mb-1">Preview:</p>
+                                            <img src={pmValues[field.key]} alt="QR Preview" className="w-28 h-28 object-contain border border-black/10 rounded-lg p-1 bg-white" onError={e => e.target.style.display='none'} />
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
 
                   {/* ── Staff & Permissions ── */}
                   {settingsSubTab === 'staff' && (
@@ -6407,15 +6582,15 @@ function BookingPage({ setCurrentPage }) {
 
   if (bookingResult) {
     return (
-      <div className="min-h-screen bg-[#f2f0eb] py-16 px-4 flex items-center justify-center">
-        <div className="max-w-2xl w-full mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-12 text-center">
+      <div className="min-h-screen bg-white">
+        <div className="max-w-2xl mx-auto px-4 pt-16 pb-16 text-center">
           <div className="w-24 h-24 bg-[#00754A]/10 rounded-full flex items-center justify-center mx-auto mb-8">
             <Check className="w-12 h-12 text-[#00754A]" />
           </div>
           <h2 className="text-4xl font-black text-[#006241] tracking-tight mb-4">Reservation Confirmed!</h2>
           <p className="text-xl text-black/80 font-medium mb-8">{bookingResult.message || 'Your booking has been successfully created.'}</p>
 
-          <div className="bg-[#f2f0eb] p-6 rounded-2xl mb-10 text-left space-y-4 max-w-md mx-auto border border-black/5">
+          <div className="bg-[#f8f9fa] p-6 rounded-2xl mb-10 text-left space-y-4 max-w-md mx-auto">
             <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-center">Next Steps</h4>
             <p className="text-sm text-black/70 flex items-start gap-3">
               <span className="text-lg">📧</span> We have sent a confirmation email to the address you provided.
@@ -6445,15 +6620,31 @@ function BookingPage({ setCurrentPage }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f2f0eb] py-16 px-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-8 relative">
+    <div className="min-h-screen bg-white">
+      {/* Mobile-only slim top bar */}
+      <div className="sm:hidden sticky top-0 z-50 bg-white border-b border-black/5 flex items-center justify-between px-4 py-3">
         <button
           onClick={() => setCurrentPage('accommodations')}
-          className="absolute top-6 right-6 text-black/40 hover:text-black/80 transition-colors bg-[#f2f0eb] rounded-full p-2"
+          className="flex items-center gap-2 text-black/60 hover:text-black/90 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-sm font-semibold">Back</span>
+        </button>
+        <span className="text-sm font-black text-[#006241] tracking-tight">Complete Reservation</span>
+        <div className="w-16" />{/* spacer to center the title */}
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 pb-16 pt-4 sm:pt-8 relative">
+        {/* Desktop close button */}
+        <button
+          onClick={() => setCurrentPage('accommodations')}
+          className="hidden sm:flex absolute top-4 right-4 text-black/40 hover:text-black/80 transition-colors bg-gray-100 rounded-full p-2 z-10"
         >
           <X className="w-5 h-5" />
         </button>
-        <h2 className="text-3xl font-bold text-[#006241] text-center mb-8 tracking-tight">Complete Your Reservation</h2>
+        <h2 className="hidden sm:block text-3xl font-bold text-[#006241] text-center mb-8 tracking-tight">Complete Your Reservation</h2>
         <AppointmentForm onSuccess={(data) => setBookingResult(data)} />
       </div>
     </div>
