@@ -13402,9 +13402,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                     {/* ── Selected reservation strip ── */}
                     {tcSelectedRes && (() => {
                       const r = tcSelectedRes;
-                      const effStatus = (r.status === 'checked_in' && r.check_out_date && r.check_out_date.slice(0, 10) === today) ? 'due_out' : r.status;
+                      // Use toLocalDate to convert UTC timestamps to local (PHT) dates for display
+                      const ciLocal = toLocalDate(r.check_in_date);
+                      const coLocal = toLocalDate(r.check_out_date);
+                      const effStatus = (r.status === 'checked_in' && r.check_out_date && coLocal === today) ? 'due_out' : r.status;
                       const clr = TC[effStatus] || TC.confirmed;
-                      const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
+                      const nights = Math.round((new Date(coLocal + 'T00:00:00') - new Date(ciLocal + 'T00:00:00')) / 86400000);
                       return (
                         <div className="mb-3 px-3 py-2 rounded border flex items-center justify-between gap-3"
                           style={{ background: clr.bg, borderColor: 'rgba(255,255,255,0.15)' }}>
@@ -13412,9 +13415,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             <span className="text-xs font-bold" style={{ color: clr.text }}>{r.full_name}</span>
                             <span className="text-[11px] font-mono" style={{ color: clr.text, opacity: 0.8 }}>Rm {r.room_number}</span>
                             <span className="text-[11px]" style={{ color: clr.text, opacity: 0.75 }}>
-                              {new Date(r.check_in_date.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              {new Date(ciLocal + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               {' → '}
-                              {new Date(r.check_out_date.slice(0, 10) + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                              {new Date(coLocal + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                               {' · '}{nights}n
                             </span>
                             {r.rate_code && <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(0,0,0,0.2)', color: clr.text }}>{r.rate_code}</span>}
