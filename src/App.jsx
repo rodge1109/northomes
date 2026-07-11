@@ -154,9 +154,14 @@ function AdminBillingTab({
   const nights = folioRes ? nightsCount(folioRes) : 0;
 
   const ledger = [
-    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: new Date(i.created_at || Date.now()).getTime() })),
-    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: new Date(p.posted_at || Date.now()).getTime() }))
-  ].sort((a, b) => a.timestamp - b.timestamp);
+    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: i.posted_at ? new Date(i.posted_at).getTime() : null })),
+    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: p.posted_at ? new Date(p.posted_at).getTime() : null }))
+  ].sort((a, b) => {
+    if (a.timestamp !== null && b.timestamp !== null) return a.timestamp - b.timestamp;
+    if (a.timestamp !== null) return -1;
+    if (b.timestamp !== null) return 1;
+    return (a.id || 0) - (b.id || 0);
+  });
 
   let runBal = 0;
   const ledgerWithBalance = ledger.map(e => {
@@ -384,11 +389,10 @@ function AdminBillingTab({
                         <tr><td colSpan="7" className="px-6 py-8 text-center text-black/40 italic">No transactions found</td></tr>
                       ) : ledgerWithBalance.map((entry) => {
                         const isCharge = entry.type === 'charge';
-                        const ts = new Date(entry.timestamp);
                         return (
                           <tr key={entry.id} className="hover:bg-black/[0.02]">
-                            <td className="px-6 py-3 font-medium">{ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
-                            <td className="px-3 py-3 text-black/60">{ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                            <td className="px-6 py-3 font-medium">{entry.timestamp ? new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+                            <td className="px-3 py-3 text-black/60">{entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
                             <td className="px-3 py-3">{entry.description || entry.charge_type || entry.payment_method}</td>
                             <td className="px-3 py-3 text-black/60">{entry.charge_type || 'Payment'}</td>
                             <td className="px-3 py-3 text-right font-mono">{isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}</td>
@@ -10742,10 +10746,11 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         }),
       });
       const data = await res.json();
-      if (data.success) { fetchFolio(folioRes.id); setFpAmount(''); setFpRef(''); }
+      if (data.success) { fetchFolio(folioRes.id); setFpAmount(''); setFpRef(''); setFpSaving(false); return true; }
       else setFpError(data.message || 'Failed');
     } catch (e) { setFpError('Server error'); }
     setFpSaving(false);
+    return false;
   };
 
   const voidCharge = async (itemId) => {
@@ -14295,9 +14300,15 @@ function FolioModal({
   const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
   const ledger = [
-    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: new Date(i.created_at || Date.now()).getTime() })),
-    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: new Date(p.posted_at || Date.now()).getTime() }))
-  ].sort((a, b) => a.timestamp - b.timestamp);
+    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: i.posted_at ? new Date(i.posted_at).getTime() : null })),
+    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: p.posted_at ? new Date(p.posted_at).getTime() : null }))
+  ].sort((a, b) => {
+    // Sort by timestamp if both exist, otherwise by id
+    if (a.timestamp !== null && b.timestamp !== null) return a.timestamp - b.timestamp;
+    if (a.timestamp !== null) return -1;
+    if (b.timestamp !== null) return 1;
+    return (a.id || 0) - (b.id || 0);
+  });
   let runBal = 0;
   const ledgerWithBalance = ledger.map(e => {
     if (!e.voided) { if (e.type === 'charge') runBal += parseFloat(e.amount); else runBal -= parseFloat(e.amount); }
@@ -14322,9 +14333,9 @@ function FolioModal({
     setChargeDesc(''); setChargeRate(''); setChargeQty(1); setChargeRef(''); setChargeNotes('');
   };
 
-  const handleAddPayment = () => {
-    addPayment(payMethod, payAmount, payRef, payDate, payTime, payNotes);
-    setAddPayOpen(false);
+  const handleAddPayment = async () => {
+    const ok = await addPayment(payMethod, payAmount, payRef, payDate, payTime, payNotes);
+    if (ok !== false) setAddPayOpen(false);
   };
 
   return ReactDOM.createPortal(
@@ -14497,10 +14508,10 @@ function FolioModal({
                           className={`group transition-colors ${isVoid ? 'opacity-40' : ''} ${isLastActive && folioTotals.balance > 0 ? 'bg-amber-50/60 hover:bg-amber-50' : 'hover:bg-black/[0.015]'}`}
                           style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                           <td className="px-5 py-3 text-xs text-black font-medium whitespace-nowrap">
-                            {ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            {entry.timestamp ? new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
                           </td>
                           <td className="px-3 py-3 text-xs text-black font-mono whitespace-nowrap">
-                            {ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
                           </td>
                           <td className="px-3 py-3">
                             <div className="flex items-center gap-2">
@@ -14762,15 +14773,20 @@ function FolioModal({
               </div>
             </div>
 
-            <div className="px-5 py-4 flex gap-2" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
-              <button onClick={() => setAddPayOpen(false)}
-                className="flex-1 py-2 rounded-lg border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
-                Cancel
-              </button>
-              <button onClick={handleAddPayment} disabled={fpSaving || !payAmount}
-                className="flex-1 py-2 rounded-lg bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
-                {fpSaving ? 'Saving…' : 'Post Payment'}
-              </button>
+            <div className="px-5 py-4 flex flex-col gap-2" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+              {fpError && (
+                <div className="text-xs text-red-500 font-medium bg-red-50 border border-red-200 rounded-lg px-3 py-2">{fpError}</div>
+              )}
+              <div className="flex gap-2">
+                <button onClick={() => setAddPayOpen(false)}
+                  className="flex-1 py-2 rounded-lg border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+                  Cancel
+                </button>
+                <button onClick={handleAddPayment} disabled={fpSaving || !payAmount}
+                  className="flex-1 py-2 rounded-lg bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
+                  {fpSaving ? 'Saving…' : 'Post Payment'}
+                </button>
+              </div>
             </div>
           </div>
         );
