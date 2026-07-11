@@ -353,6 +353,13 @@ const initFolioTables = async () => {
       voided         BOOLEAN NOT NULL DEFAULT false
     )
   `);
+  // Migrations: add columns that may be missing in existing Supabase tables
+  await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS voided BOOLEAN NOT NULL DEFAULT false`);
+  await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS reference TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS voided BOOLEAN NOT NULL DEFAULT false`);
+  await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS void_reason TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`);
   console.log('Folio tables ready.');
 };
 initFolioTables().catch(err => console.error('Folio table init failed:', err));
