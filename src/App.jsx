@@ -1493,8 +1493,23 @@ function AppointmentForm({ onSuccess }) {
     });
   };
 
+  const minDeposit = appliedPromo ? totalPrice : Math.ceil(totalPrice * 0.5);
+  const depositOk = !totalPrice || parseFloat(depositAmount) >= minDeposit;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Enforce minimum deposit rule
+    if (totalPrice > 0 && !depositOk) {
+      setSubmitStatus({
+        type: 'error',
+        message: appliedPromo
+          ? `Full payment of ₱${totalPrice.toLocaleString()} is required when using a promo code.`
+          : `A minimum deposit of ₱${minDeposit.toLocaleString()} (50%) is required to confirm your reservation.`
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus({ type: '', message: '' });
 
@@ -1780,8 +1795,21 @@ function AppointmentForm({ onSuccess }) {
             )}
             <div>
               <label className={labelCls}>Deposit Amount (₱)</label>
-              <input type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} min={appliedPromo ? totalPrice : 1} max={totalPrice} readOnly={!!appliedPromo} required placeholder="Enter deposit amount" className={inputCls} />
-              {appliedPromo && <p className="text-xs text-[#00754A] mt-1 font-semibold">Promos require full payment upon booking.</p>}
+              <input
+                type="number"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+                min={minDeposit}
+                max={totalPrice}
+                readOnly={!!appliedPromo}
+                required
+                placeholder="Enter deposit amount"
+                className={`${inputCls} ${!depositOk && depositAmount ? 'border-red-400 ring-2 ring-red-100' : ''}`}
+              />
+              {appliedPromo && <p className="text-xs text-[#00754A] mt-1 font-semibold">⚠️ Full payment of ₱{totalPrice.toLocaleString()} is required when using a promo.</p>}
+              {!appliedPromo && !depositOk && depositAmount && (
+                <p className="text-xs text-red-500 mt-1 font-semibold">Minimum deposit is 50% — ₱{minDeposit.toLocaleString()}</p>
+              )}
               {totalPrice > 0 && !appliedPromo && (
                 <div className="flex gap-2 mt-2">
                   <button type="button" onClick={() => setDepositAmount(String(Math.ceil(totalPrice * 0.5)))} className="text-[10px] font-bold text-[#00754A] border border-[#00754A]/30 rounded-full px-3 py-1 hover:bg-[#00754A]/5 transition-colors">50% — ₱{Math.ceil(totalPrice * 0.5).toLocaleString()}</button>
@@ -1803,7 +1831,7 @@ function AppointmentForm({ onSuccess }) {
             {submitStatus.message && <p className="text-sm text-red-500">{submitStatus.message}</p>}
             <div className="flex gap-3">
               <button type="button" onClick={() => { setStep(1); setSubmitStatus({ type: '', message: '' }); }} className="px-6 py-3 rounded-full border border-black/15 text-black/60 font-bold text-sm hover:bg-black/5 transition-all">← Back</button>
-              <button type="submit" disabled={isSubmitting} className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+              <button type="submit" disabled={isSubmitting || !depositOk} className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2">
                 {isSubmitting ? 'Processing...' : 'Confirm & Pay Deposit'}
               </button>
             </div>
@@ -2411,6 +2439,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   const [editRoomFiles, setEditRoomFiles] = useState([]);
   // Rate Codes admin state
   const [adminRateCodes, setAdminRateCodes] = useState([]);
+  const [adminPromos, setAdminPromos] = useState([]);
   const [adminRoomTypesForRates, setAdminRoomTypesForRates] = useState([]);
   const [rcLoading, setRcLoading] = useState(false);
   const [rcNewForm, setRcNewForm] = useState({ code: '', name: '', description: '' });
@@ -2975,6 +3004,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const rtData = await rtRes.json();
       if (rcData.rateCodes) setAdminRateCodes(rcData.rateCodes);
       if (rtData.roomTypes) setAdminRoomTypesForRates(rtData.roomTypes);
+      // Also fetch promos so reservation totals can use promo prices
+      try {
+        const promoRes = await fetch(`${API_BASE_URL}/api/promos`);
+        const promoData = await promoRes.json();
+        if (promoData.success) setAdminPromos(promoData.promos || []);
+      } catch(e) { /* ignore */ }
     } catch (e) { console.error(e); }
     setRcLoading(false);
   }, []);
@@ -3279,7 +3314,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
 
         {/* ==================== RESERVATIONS TAB ==================== */}
-        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} openWizard={handleOpenWizard} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} />}
+        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} openWizard={handleOpenWizard} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
         {/* ==================== GUESTS TAB ==================== */}
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}

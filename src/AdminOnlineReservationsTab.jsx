@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openWizard, roomTypes = [], rateCodes = [] }) {
+export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openWizard, roomTypes = [], rateCodes = [], promos = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterChannel, setFilterChannel] = useState('All Channels');
@@ -85,6 +85,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
           total: (() => {
             const nights = getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date);
             const getRoomRate = (roomTypeName, rateCodeCode) => {
+              // 1. Check rate codes (e.g. corp rates)
               if (rateCodeCode) {
                 const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
                 if (matchedRc && matchedRc.prices) {
@@ -93,9 +94,19 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                     return parseFloat(priceObj.price_per_night);
                   }
                 }
+                // 2. Check promos (e.g. promo code like 'PRM')
+                const matchedPromo = promos.find(p => p.code === rateCodeCode);
+                if (matchedPromo && matchedPromo.prices) {
+                  const priceObj = matchedPromo.prices.find(p => p.room_type_name === roomTypeName);
+                  if (priceObj && priceObj.price_per_night) {
+                    return parseFloat(priceObj.price_per_night);
+                  }
+                }
               }
+              // 3. Fall back to standard room type price
               const matched = roomTypes.find(rt => rt.name === roomTypeName);
               if (matched) return parseFloat(matched.price_per_night);
+              // 4. Last-resort hardcoded fallbacks
               const type = (roomTypeName || '').toLowerCase();
               if (type.includes('presidential')) return 25000;
               if (type.includes('suite')) return 9000;
@@ -107,7 +118,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
           })()
         };
       });
-  }, [reservations, searchQuery, filterStatus, filterChannel]);
+  }, [reservations, searchQuery, filterStatus, filterChannel, roomTypes, rateCodes, promos]);
 
   const statsDerived = useMemo(() => {
     const total = displayReservations.length;

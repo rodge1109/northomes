@@ -2215,8 +2215,8 @@ const autoPostRoomCharge = async (reservationId, client = null) => {
     const isEnabled = settingRes.rows[0]?.value === 'true';
     if (!isEnabled) return;
 
-    // 2. Fetch reservation
-    const resResult = await db.query("SELECT id, room_type, check_in_date, check_out_date FROM hotel_reservations WHERE id = $1", [reservationId]);
+    // 2. Fetch reservation (including rate_code for promo lookup)
+    const resResult = await db.query("SELECT id, room_type, check_in_date, check_out_date, rate_code FROM hotel_reservations WHERE id = $1", [reservationId]);
     if (resResult.rows.length === 0) return;
 
     const r = resResult.rows[0];
@@ -2224,12 +2224,32 @@ const autoPostRoomCharge = async (reservationId, client = null) => {
     const checkOut = new Date(r.check_out_date);
     const nights = Math.max(1, Math.round((checkOut - checkIn) / 86400000));
 
-    // 3. Fetch price per night for the room type
-    const rtResult = await db.query("SELECT price_per_night FROM hotel_room_types WHERE name = $1", [r.room_type]);
-    const price = rtResult.rows.length > 0 ? parseFloat(rtResult.rows[0].price_per_night) : 3500; // fallback to 3500
+    // 3. Determine price: check rate_code/promo first, then fall back to standard room rate
+    let price = null;
+    if (r.rate_code) {
+      // Look for a price in hotel_rate_code_prices matching this rate code + room type
+      const rcPriceRes = await db.query(
+        `SELECT rcp.price_per_night
+         FROM hotel_rate_code_prices rcp
+         JOIN hotel_rate_codes rc ON rcp.rate_code_id = rc.id
+         JOIN hotel_room_types rt ON rcp.room_type_id = rt.id
+         WHERE rc.code = $1 AND rt.name = $2`,
+        [r.rate_code.toUpperCase().trim(), r.room_type]
+      );
+      if (rcPriceRes.rows.length > 0) {
+        price = parseFloat(rcPriceRes.rows[0].price_per_night);
+        console.log(`Using rate code '${r.rate_code}' price for reservation ${reservationId}: ${price}`);
+      }
+    }
+    if (price === null) {
+      // Fall back to standard room type price
+      const rtResult = await db.query("SELECT price_per_night FROM hotel_room_types WHERE name = $1", [r.room_type]);
+      price = rtResult.rows.length > 0 ? parseFloat(rtResult.rows[0].price_per_night) : 3500;
+    }
 
     const amount = nights * price;
-    const desc = `Room Charge (${nights} night${nights > 1 ? 's' : ''} @ ₱${price.toLocaleString()}/night)`;
+    const promoLabel = r.rate_code ? ` [${r.rate_code}]` : '';
+    const desc = `Room Charge${promoLabel} (${nights} night${nights > 1 ? 's' : ''} @ ₱${price.toLocaleString()}/night)`;
 
     // 4. Check if a room charge has already been posted to prevent duplicates
     const duplicateRes = await db.query(
@@ -2263,6 +2283,20 @@ app.post('/api/reservations/:id/checkin', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
     if (['checked_in', 'checked_out'].includes(existing.rows[0].status))
       return res.status(409).json({ success: false, message: `Guest is already ${existing.rows[0].status.replace('_', ' ')}.` });
+
+    // Block early check-in: guest cannot check in before their check-in date
+    const reservation = existing.rows[0];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const checkInDate = new Date(reservation.check_in_date);
+    checkInDate.setHours(0, 0, 0, 0);
+    if (today < checkInDate) {
+      const checkInStr = checkInDate.toISOString().slice(0, 10);
+      return res.status(400).json({
+        success: false,
+        message: `Early check-in is not allowed. This reservation is scheduled for check-in on ${checkInStr}. Please wait until check-in date.`
+      });
+    }
     // Check for room-level date conflict (exclude this reservation)
     if (roomNumber) {
       const res_ = existing.rows[0];
