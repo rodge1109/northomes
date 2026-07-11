@@ -12447,6 +12447,13 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                               Transfer Room
                                             </button>
                                             <button
+                                              onClick={() => { openExtend(res); setOpenInHouseDropdown(null); }}
+                                              className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                            >
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M1 6h14"/><path d="M11 9v4M9 11h4"/><path d="M4 4V2M12 4V2"/></svg>
+                                              Extend Stay
+                                            </button>
+                                            <button
                                               onClick={() => { setCheckoutConfirmId(res.id); fetchCheckoutBalance(res.id); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2"
                                             >
