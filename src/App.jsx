@@ -10935,6 +10935,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         if (data.warning) setExtendConflict(data.warning);
         fetchInHouse();
         fetchArrivals(arrivalDate);
+        fetchTapeChart(tcFrom); // keep tape chart in sync
         if (!data.warning) setTimeout(() => setExtendGuest(null), 1500);
       } else {
         setExtendError(data.message || 'Extension failed.');
