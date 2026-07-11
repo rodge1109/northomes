@@ -3186,13 +3186,16 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       if (activeTab === 'calendar') fetchCalendarData();
       if (activeTab === 'reports') fetchReports();
       if (activeTab === 'rooms') fetchAdminRoomTypes();
+      // Fetch room types & rate codes for any tab that displays pricing
+      if (['reservations', 'frontdesk', 'rooms', 'settings'].includes(activeTab)) {
+        fetchAdminRoomTypes();
+        fetchAdminRateCodes();
+      }
       if (activeTab === 'settings') {
         fetchBlockedDates();
         fetchDoctors();
         fetchServices();
         fetchHotelSettings();
-        fetchAdminRoomTypes();
-        fetchAdminRateCodes();
         fetchStaff();
       }
     }
@@ -3320,7 +3323,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
-        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} />}
+        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
@@ -10258,7 +10261,7 @@ function GuestCheckinPage({ setCurrentPage }) {
   );
 }
 
-function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, roomTypes = [], rateCodes = [] }) {
+function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, roomTypes = [], rateCodes = [], promos = [] }) {
   const today = new Date().toISOString().split('T')[0];
   const [fdView, setFdView] = React.useState('arrivals');
 
@@ -11900,6 +11903,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               const isSelected = selectedArrival?.id === res.id;
                               const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(res.id).padStart(3, '0')}`;
                               const getRoomRate = (roomTypeName, rateCodeCode) => {
+                                // 1. Check rate codes
                                 if (rateCodeCode) {
                                   const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
                                   if (matchedRc && matchedRc.prices) {
@@ -11908,9 +11912,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                       return parseFloat(priceObj.price_per_night);
                                     }
                                   }
+                                  // 2. Check promos
+                                  const matchedPromo = promos.find(p => p.code === rateCodeCode);
+                                  if (matchedPromo && matchedPromo.prices) {
+                                    const priceObj = matchedPromo.prices.find(p => p.room_type_name === roomTypeName);
+                                    if (priceObj && priceObj.price_per_night) {
+                                      return parseFloat(priceObj.price_per_night);
+                                    }
+                                  }
                                 }
+                                // 3. Standard room type price from DB
                                 const matched = roomTypes.find(rt => rt.name === roomTypeName);
                                 if (matched) return parseFloat(matched.price_per_night);
+                                // 4. Last-resort hardcoded fallbacks
                                 const type = (roomTypeName || '').toLowerCase();
                                 if (type.includes('presidential')) return 25000;
                                 if (type.includes('suite')) return 9000;
@@ -12227,6 +12241,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   };
 
                                   const getRoomRate = (roomTypeName, rateCodeCode) => {
+                                    // 1. Check rate codes
                                     if (rateCodeCode) {
                                       const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
                                       if (matchedRc && matchedRc.prices) {
@@ -12235,15 +12250,25 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                           return parseFloat(priceObj.price_per_night);
                                         }
                                       }
+                                      // 2. Check promos
+                                      const matchedPromo = promos.find(p => p.code === rateCodeCode);
+                                      if (matchedPromo && matchedPromo.prices) {
+                                        const priceObj = matchedPromo.prices.find(p => p.room_type_name === roomTypeName);
+                                        if (priceObj && priceObj.price_per_night) {
+                                          return parseFloat(priceObj.price_per_night);
+                                        }
+                                      }
                                     }
+                                    // 3. Standard room type price from DB
                                     const matched = roomTypes.find(rt => rt.name === roomTypeName);
                                     if (matched) return parseFloat(matched.price_per_night);
+                                    // 4. Last-resort hardcoded fallbacks
                                     const type = (roomTypeName || '').toLowerCase();
                                     if (type.includes('presidential')) return 25000;
                                     if (type.includes('suite')) return 9000;
                                     if (type.includes('family')) return 6500;
                                     if (type.includes('deluxe')) return 4500;
-                                    return 2500; // Standard Room and fallback
+                                    return 2500;
                                   };
                                   const totalAmt = nights * getRoomRate(res.room_type, res.rate_code);
 
