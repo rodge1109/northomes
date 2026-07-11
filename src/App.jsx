@@ -10310,6 +10310,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
   const [transferError, setTransferError] = React.useState('');
   const [transferSuccess, setTransferSuccess] = React.useState('');
 
+  // Extend stay state
+  const [extendGuest, setExtendGuest] = React.useState(null);
+  const [extendNewDate, setExtendNewDate] = React.useState('');
+  const [extendSubmitting, setExtendSubmitting] = React.useState(false);
+  const [extendError, setExtendError] = React.useState('');
+  const [extendConflict, setExtendConflict] = React.useState('');
+  const [extendSuccess, setExtendSuccess] = React.useState('');
+
   // Status update state
   const [statusUpdating, setStatusUpdating] = React.useState(null);
 
@@ -10899,6 +10907,44 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     setTransferSubmitting(false);
   };
 
+  const openExtend = (r) => {
+    setExtendGuest(r);
+    // Pre-fill new date = day after current checkout
+    const nextDay = new Date(r.check_out_date);
+    nextDay.setDate(nextDay.getDate() + 1);
+    setExtendNewDate(nextDay.toISOString().slice(0, 10));
+    setExtendError('');
+    setExtendConflict('');
+    setExtendSuccess('');
+  };
+
+  const submitExtend = async () => {
+    if (!extendGuest || !extendNewDate) return;
+    setExtendSubmitting(true);
+    setExtendError('');
+    setExtendConflict('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${extendGuest.id}/extend`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ new_checkout_date: extendNewDate }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setExtendSuccess('Stay extended successfully.');
+        if (data.warning) setExtendConflict(data.warning);
+        fetchInHouse();
+        fetchArrivals(arrivalDate);
+        if (!data.warning) setTimeout(() => setExtendGuest(null), 1500);
+      } else {
+        setExtendError(data.message || 'Extension failed.');
+      }
+    } catch (e) {
+      setExtendError('Network error — is the server running?');
+    }
+    setExtendSubmitting(false);
+  };
+
   const updateStatus = async (id, status) => {
     setStatusUpdating(id);
     try {
@@ -11374,6 +11420,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           </svg>
         ),
         action: () => { openTransfer(r); setDropOpen(false); },
+        color: 'text-[#000000]/80',
+      },
+      {
+        label: 'Extend Stay',
+        icon: (
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="1" y="2" width="14" height="13" rx="1.5" />
+            <path d="M1 6h14" />
+            <path d="M11 9v4M9 11h4" />
+            <path d="M4 4V2M12 4V2" />
+          </svg>
+        ),
+        action: () => { openExtend(r); setDropOpen(false); },
         color: 'text-[#000000]/80',
       },
       {
@@ -13849,6 +13908,116 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           </div>
         </div>
       </div>
+      {/* ── Extend Stay Modal ── */}
+      {extendGuest && (() => {
+        const currentCheckout = new Date(extendGuest.check_out_date);
+        const newCheckout = extendNewDate ? new Date(extendNewDate) : null;
+        const additionalNights = newCheckout
+          ? Math.round((newCheckout - currentCheckout) / 86400000)
+          : 0;
+        const fmtD = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        // min date = day after current checkout
+        const minDate = (() => { const d = new Date(currentCheckout); d.setDate(d.getDate() + 1); return d.toISOString().slice(0,10); })();
+
+        return (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => !extendSubmitting && setExtendGuest(null)}>
+            <div className="bg-white rounded-2xl border border-black/10 shadow-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-black/5" style={{ background: 'linear-gradient(135deg,#f0fdf8 0%,#f8fffe 100%)' }}>
+                <div>
+                  <div className="text-[#00754A] font-bold text-base tracking-tight flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M1 6h14"/><path d="M11 9v4M9 11h4"/><path d="M4 4V2M12 4V2"/>
+                    </svg>
+                    Extend Stay
+                  </div>
+                  <div className="text-xs text-black/50 mt-0.5">{extendGuest.full_name} · Room {extendGuest.room_number}</div>
+                </div>
+                <button onClick={() => setExtendGuest(null)} className="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:bg-black/10 hover:text-black transition-colors">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="px-6 py-5 flex flex-col gap-4">
+                {/* Current checkout */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] border border-black/5">
+                  <span className="text-xs font-medium text-black/50">Current Check-Out</span>
+                  <span className="text-sm font-bold text-black">{fmtD(extendGuest.check_out_date)}</span>
+                </div>
+
+                {/* New date picker */}
+                <div>
+                  <label className="block text-xs font-semibold text-black/60 mb-1.5">New Check-Out Date</label>
+                  <input
+                    type="date"
+                    min={minDate}
+                    value={extendNewDate}
+                    onChange={e => { setExtendNewDate(e.target.value); setExtendError(''); setExtendConflict(''); setExtendSuccess(''); }}
+                    className="w-full border border-black/15 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00754A]/40 focus:border-[#00754A]"
+                  />
+                </div>
+
+                {/* Additional nights badge */}
+                {additionalNights > 0 && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-[#f0fdf8] border border-[#00754A]/20">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2"><path d="M12 2v10l4 4"/><circle cx="12" cy="12" r="10"/></svg>
+                    <span className="text-xs font-semibold text-[#00754A]">+{additionalNights} additional night{additionalNights !== 1 ? 's' : ''}</span>
+                    <span className="text-xs text-black/40 ml-auto">Remember to post charges manually</span>
+                  </div>
+                )}
+
+                {/* Conflict warning */}
+                {extendConflict && (
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <span className="text-xs text-amber-800 font-medium leading-relaxed">{extendConflict}</span>
+                  </div>
+                )}
+
+                {/* Error */}
+                {extendError && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    <span className="text-xs text-red-700 font-medium">{extendError}</span>
+                  </div>
+                )}
+
+                {/* Success */}
+                {extendSuccess && (
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-[#f0fdf8] border border-[#00754A]/30">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    <span className="text-xs text-[#00754A] font-semibold">{extendSuccess}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 border-t border-black/5 flex gap-2.5">
+                <button
+                  onClick={() => setExtendGuest(null)}
+                  disabled={extendSubmitting}
+                  className="flex-1 py-2.5 rounded-xl border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors disabled:opacity-40"
+                >
+                  {extendSuccess && extendConflict ? 'Close' : 'Cancel'}
+                </button>
+                {!(extendSuccess && !extendConflict) && (
+                  <button
+                    onClick={submitExtend}
+                    disabled={extendSubmitting || !extendNewDate || additionalNights <= 0}
+                    className="flex-1 py-2.5 rounded-xl bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40"
+                  >
+                    {extendSubmitting ? 'Extending…' : extendConflict ? 'Extend Anyway' : 'Confirm Extension'}
+                  </button>
+                )}
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ── Transfer Modal ── */}
       {transferGuest && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>

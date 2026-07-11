@@ -2401,6 +2401,54 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
   }
 });
 
+// PATCH /api/reservations/:id/extend — extend a guest's stay
+app.patch('/api/reservations/:id/extend', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { new_checkout_date } = req.body;
+    if (!new_checkout_date) return res.status(400).json({ success: false, message: 'new_checkout_date is required.' });
+
+    const existing = await pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [id]);
+    if (existing.rows.length === 0) return res.status(404).json({ success: false, message: 'Reservation not found.' });
+
+    const resv = existing.rows[0];
+    const currentCheckout = new Date(resv.check_out_date);
+    const newCheckout = new Date(new_checkout_date);
+
+    if (newCheckout <= currentCheckout) {
+      return res.status(400).json({ success: false, message: 'New check-out date must be after the current check-out date.' });
+    }
+
+    // Soft conflict check — same room, overlapping dates (excluding this reservation)
+    let warning = null;
+    if (resv.room_number) {
+      const conflict = await pool.query(
+        `SELECT id, full_name, check_in_date FROM hotel_reservations
+         WHERE room_number = $1 AND id != $2
+           AND status NOT IN ('cancelled', 'checked_out', 'no_show')
+           AND check_in_date < $3 AND check_out_date > $4`,
+        [resv.room_number, id, new_checkout_date, resv.check_out_date]
+      );
+      if (conflict.rows.length > 0) {
+        const c = conflict.rows[0];
+        const ciDate = new Date(c.check_in_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        warning = `Room ${resv.room_number} has an incoming reservation for ${c.full_name} arriving ${ciDate}. Please verify before confirming.`;
+      }
+    }
+
+    // Update check-out date
+    const result = await pool.query(
+      `UPDATE hotel_reservations SET check_out_date = $1 WHERE id = $2 RETURNING *`,
+      [new_checkout_date, id]
+    );
+
+    res.json({ success: true, reservation: result.rows[0], warning });
+  } catch (err) {
+    console.error('Extend stay error:', err);
+    res.status(500).json({ success: false, message: 'Failed to extend stay.' });
+  }
+});
+
 // GET /api/corporate-accounts
 app.get('/api/corporate-accounts', async (req, res) => {
   try {
