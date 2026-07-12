@@ -12164,6 +12164,55 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 {r.rate_code && <><span>·</span><span className="font-mono font-bold text-sky-300 bg-sky-500/15 px-1.5 py-0.5 rounded">{r.rate_code}</span></>}
                                 <span className="font-mono text-black/60">#{r.id}</span>
                               </div>
+                              {/* Extra Details Grid */}
+                              <div className="mt-3 grid grid-cols-3 gap-x-4 gap-y-2">
+                                {/* Deposited Amount */}
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Deposited Amount</span>
+                                  <span className="text-xs font-bold text-[#00754A]">
+                                    {r.deposit_amount != null && r.deposit_amount !== '' && r.deposit_amount !== 0
+                                      ? `₱${parseFloat(r.deposit_amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`
+                                      : <span className="text-black/30 font-normal italic">—</span>}
+                                  </span>
+                                </div>
+                                {/* Total Amount */}
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Total Amount</span>
+                                  <span className="text-xs font-semibold text-black/70">
+                                    {r.total_amount != null && r.total_amount !== ''
+                                      ? `₱${parseFloat(r.total_amount).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`
+                                      : (() => { const n = nightsCount(r); const rate = (() => { if (r.rate_code) { const rc = (typeof rateCodes !== 'undefined' ? rateCodes : []).find(x => x.code === r.rate_code); if (rc?.prices) { const p = rc.prices.find(p => p.room_type_name === (r.room_type_name || r.room_type)); if (p?.price_per_night) return parseFloat(p.price_per_night); } } const rt = (typeof roomTypes !== 'undefined' ? roomTypes : []).find(x => x.name === (r.room_type_name || r.room_type)); return rt ? parseFloat(rt.price_per_night) : 0; })(); return rate > 0 ? `₱${(n * rate).toLocaleString('en-PH', { minimumFractionDigits: 2 })}` : <span className="text-black/30 font-normal italic">—</span>; })()}
+                                  </span>
+                                </div>
+                                {/* Payment Method */}
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Payment Method</span>
+                                  <span className="text-xs font-semibold text-black/70">
+                                    {r.payment_method || <span className="text-black/30 font-normal italic">—</span>}
+                                  </span>
+                                </div>
+                                {/* Confirmation No. */}
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Confirmation No.</span>
+                                  <span className="text-xs font-mono font-bold text-[#00754A]">
+                                    {`ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3,'0')}`}
+                                  </span>
+                                </div>
+                                {/* Email */}
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Email</span>
+                                  <span className="text-xs text-black/60 truncate max-w-[140px]">
+                                    {r.email || <span className="text-black/30 font-normal italic">—</span>}
+                                  </span>
+                                </div>
+                                {/* Phone */}
+                                <div className="flex flex-col">
+                                  <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Phone</span>
+                                  <span className="text-xs text-black/60">
+                                    {r.phone_number || r.phone || <span className="text-black/30 font-normal italic">—</span>}
+                                  </span>
+                                </div>
+                              </div>
                               {r.special_requests && (
                                 <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-lg px-2.5 py-1.5 italic">
                                   "{r.special_requests}"
