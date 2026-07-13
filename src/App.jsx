@@ -5234,6 +5234,7 @@ function ReportViewer({ report, onBack }) {
       else if (report.title === "In-House Guest Report") endpoint = `/api/reports/front-office/in-house`;
       else if (report.title === "Room Status Report") endpoint = `/api/reports/front-office/room-status`;
       else if (report.title === "Cashier Shift Report") endpoint = `/api/reports/shift?date=${reportDate}&staff=${encodeURIComponent(shiftStaff)}`;
+      else if (report.title === "Revenue Report") endpoint = `/api/reports/revenue?date=${reportDate}`;
 
       if (endpoint) {
         const res = await fetch(`${API_BASE_URL || 'http://localhost:5000'}${endpoint}`);
@@ -5559,6 +5560,88 @@ function ReportViewer({ report, onBack }) {
             <div className="text-center w-[200px]">
               <div className="border-b border-black mb-1"></div>
               <div className="text-[10px] uppercase font-bold text-black">Received By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (report.title === "Revenue Report" && data.items) {
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Revenue Report (By Department)</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+          
+          {/* Revenue Summary Table */}
+          <div className="mb-8 w-[60%] mx-auto">
+            <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Revenue Summary</h3>
+            <table className="w-full text-left border-collapse">
+              <tbody>
+                {data.summary.map((s, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black uppercase">{s.department}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(s.total).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Recognized Revenue:</td>
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Itemized Charges Table */}
+          <h3 className="font-bold uppercase mb-2 text-[12px]">Itemized Charges</h3>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Time</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Department</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Description</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.items.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">No revenue recognized for this date.</td>
+                </tr>
+              ) : (
+                data.items.map((item, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(item.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase font-bold text-black">{item.charge_type}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left text-black">{item.description} {item.quantity > 1 ? `(x${item.quantity})` : ''}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{item.guest_name} {item.room_number ? `(${item.room_number})` : ''}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(item.amount).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
             </div>
           </div>
         </div>

@@ -5332,6 +5332,45 @@ app.get('/api/reports/shift', async (req, res) => {
   }
 });
 
+// GET /api/reports/revenue — fetch revenue report
+app.get('/api/reports/revenue', async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date) return res.status(400).json({ success: false, message: 'Date required.' });
+
+    // 1. Get detailed items
+    const itemsResult = await pool.query(`
+      SELECT i.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_items i
+      LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
+      WHERE DATE(i.posted_at) = $1 AND i.voided = false
+      ORDER BY i.charge_type ASC, i.posted_at ASC
+    `, [date]);
+
+    // 2. Get summary by department (charge_type)
+    const summaryResult = await pool.query(`
+      SELECT charge_type as department, COALESCE(SUM(amount), 0) as total
+      FROM hotel_folio_items
+      WHERE DATE(posted_at) = $1 AND voided = false
+      GROUP BY charge_type
+      ORDER BY total DESC
+    `, [date]);
+
+    // 3. Grand total
+    const grandTotal = summaryResult.rows.reduce((acc, row) => acc + parseFloat(row.total), 0);
+
+    res.json({
+      success: true,
+      items: itemsResult.rows,
+      summary: summaryResult.rows,
+      grandTotal
+    });
+  } catch (err) {
+    console.error('Revenue report error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch revenue report.' });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
