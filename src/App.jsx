@@ -5314,80 +5314,119 @@ function ReportViewer({ report, onBack }) {
     if (report.title === "Arrival Report" && data.arrivals) {
       if (data.arrivals.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No arrivals scheduled for this date.</div>;
       return (
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-black/10 bg-gray-50/50">
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest Name</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room Type</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room #</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Dates</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-black/5">
-            {data.arrivals.map((a, i) => (
-              <tr key={i} className="hover:bg-gray-50/50">
-                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{a.full_name}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{a.room_type}</td>
-                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{a.room_number || '-'}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{a.check_in_date} to {a.check_out_date}</td>
-                <td className="px-6 py-4 text-right"><span className="px-2.5 py-1 bg-blue-50 text-blue-600 border border-blue-100 rounded-md text-[10px] font-bold uppercase tracking-wider">{a.status}</span></td>
+        <div className="text-black text-[11px] font-sans">
+          <div className="text-center mb-6">
+            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
+            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            <div className="border-b-2 border-black/80 my-3"></div>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">Arrival Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+          </div>
+          
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Dates</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.arrivals.map((a, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black">{a.full_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{a.room_type}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{a.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{a.check_in_date} to {a.check_out_date}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">{a.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       );
     }
 
     if (report.title === "Departure Report" && data.departures) {
       if (data.departures.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No departures scheduled for this date.</div>;
       return (
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-black/10 bg-gray-50/50">
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest Name</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room Type</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room #</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-black/5">
-            {data.departures.map((d, i) => (
-              <tr key={i} className="hover:bg-gray-50/50">
-                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{d.full_name}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{d.room_type}</td>
-                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{d.room_number || '-'}</td>
-                <td className="px-6 py-4 text-right"><span className="px-2.5 py-1 bg-amber-50 text-amber-600 border border-amber-100 rounded-md text-[10px] font-bold uppercase tracking-wider">{d.status.replace('_', ' ')}</span></td>
+        <div className="text-black text-[11px] font-sans">
+          <div className="text-center mb-6">
+            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
+            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            <div className="border-b-2 border-black/80 my-3"></div>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">Departure Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+          </div>
+          
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.departures.map((d, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black">{d.full_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{d.room_type}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{d.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">{d.status.replace('_', ' ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       );
     }
 
     if (report.title === "In-House Guest Report" && data.inHouse) {
       if (data.inHouse.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No guests currently in-house.</div>;
       return (
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-black/10 bg-gray-50/50">
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest Name</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room #</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Departure</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Balance</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-black/5">
-            {data.inHouse.map((h, i) => (
-              <tr key={i} className="hover:bg-gray-50/50">
-                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{h.full_name}</td>
-                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{h.room_number || '-'}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-black/60">{h.check_out_date}</td>
-                <td className={`px-6 py-4 text-[13px] font-bold text-right ${h.balance > 0 ? 'text-red-600' : 'text-emerald-600'}`}>₱{Number(h.balance).toLocaleString()}</td>
+        <div className="text-black text-[11px] font-sans">
+          <div className="text-center mb-6">
+            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
+            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            <div className="border-b-2 border-black/80 my-3"></div>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">In-House Guest Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+          </div>
+          
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Departure</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black text-right">Balance</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.inHouse.map((h, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black">{h.full_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{h.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{h.check_out_date}</td>
+                  <td className={`border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold ${h.balance > 0 ? 'text-red-700' : 'text-green-700'}`}>₱{Number(h.balance).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       );
     }
 
@@ -5464,12 +5503,8 @@ function ReportViewer({ report, onBack }) {
             <div className="max-w-[1400px] mx-auto print:max-w-[1400px] print:mx-auto w-full">
               <ManagerDailyReportUI data={data} date={reportDate} />
             </div>
-          ) : report.title === "Room Status Report" && data ? (
-            <div className="max-w-[794px] min-h-[1123px] mx-auto bg-white shadow-sm border border-black/10 print:shadow-none print:border-none print:p-0 w-full p-12">
-              {renderTable()}
-            </div>
           ) : (
-            <div className="max-w-[1200px] mx-auto border border-black/10 rounded-xl overflow-hidden bg-white shadow-sm print:shadow-none print:border-none">
+            <div className="max-w-[794px] min-h-[1123px] mx-auto bg-white shadow-sm border border-black/10 print:shadow-none print:border-none print:p-0 w-full p-12">
               {renderTable()}
             </div>
           )}
