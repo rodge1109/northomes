@@ -5279,6 +5279,59 @@ app.post('/api/admin/night-audit', async (req, res) => {
   }
 });
 
+// GET /api/reports/shift — fetch shift report
+app.get('/api/reports/shift', async (req, res) => {
+  try {
+    const { date, staff } = req.query;
+    if (!date) return res.status(400).json({ success: false, message: 'Date required.' });
+
+    let query = `
+      SELECT p.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_payments p
+      LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
+      WHERE DATE(p.posted_at) = $1 AND p.voided = false
+    `;
+    const params = [date];
+
+    if (staff && staff !== 'All Staff') {
+      params.push(staff);
+      query += ` AND p.cashier_name = $2`;
+    }
+
+    query += ` ORDER BY p.posted_at ASC`;
+
+    const result = await pool.query(query, params);
+
+    // Compute totals
+    let total_cash = 0;
+    let total_online = 0;
+    let total_card = 0;
+    
+    for (const p of result.rows) {
+      const amt = parseFloat(p.amount) || 0;
+      const method = (p.payment_method || '').toLowerCase();
+      if (method.includes('cash') && !method.includes('gcash')) total_cash += amt;
+      else if (method.includes('card') || method.includes('credit') || method.includes('debit')) total_card += amt;
+      else total_online += amt; // gcash, maya, bank transfer, etc.
+    }
+
+    res.json({
+      success: true,
+      payments: result.rows,
+      summary: {
+        total_cash,
+        total_online,
+        total_card,
+        total_collected: total_cash + total_online + total_card
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Failed to fetch shift report.' });
+  }
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
