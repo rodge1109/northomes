@@ -2490,6 +2490,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         setIsLoggedIn(true);
         setUserPermissions(data.permissions || []);
         localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
+        if (data.username) localStorage.setItem('adminUser', data.username);
         window.dispatchEvent(new Event('authChanged'));
         fetchReservations();
       } else {
@@ -2522,6 +2523,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         setIsLoggedIn(true);
         setUserPermissions(data.permissions || []);
         localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
+        if (data.username) localStorage.setItem('adminUser', data.username);
         window.dispatchEvent(new Event('authChanged'));
         fetchReservations();
       } else {
@@ -5210,6 +5212,17 @@ function ReportViewer({ report, onBack }) {
   const [data, setData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
   const [reportDate, setReportDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [shiftStaff, setShiftStaff] = React.useState('All Staff');
+  const [staffList, setStaffList] = React.useState([]);
+
+  React.useEffect(() => {
+    if (report.title === "Cashier Shift Report") {
+      fetch(`${API_BASE_URL || 'http://localhost:5000'}/api/staff`)
+        .then(res => res.json())
+        .then(data => { if (data.success) setStaffList(data.staff || []); })
+        .catch(console.error);
+    }
+  }, [report.title]);
 
   const fetchReportData = React.useCallback(async () => {
     setLoading(true);
@@ -5220,6 +5233,7 @@ function ReportViewer({ report, onBack }) {
       else if (report.title === "Departure Report") endpoint = `/api/reports/front-office/departures?date=${reportDate}`;
       else if (report.title === "In-House Guest Report") endpoint = `/api/reports/front-office/in-house`;
       else if (report.title === "Room Status Report") endpoint = `/api/reports/front-office/room-status`;
+      else if (report.title === "Cashier Shift Report") endpoint = `/api/reports/shift?date=${reportDate}&staff=${encodeURIComponent(shiftStaff)}`;
 
       if (endpoint) {
         const res = await fetch(`${API_BASE_URL || 'http://localhost:5000'}${endpoint}`);
@@ -5235,7 +5249,7 @@ function ReportViewer({ report, onBack }) {
       console.error("Failed to fetch report:", e);
     }
     setLoading(false);
-  }, [report, reportDate]);
+  }, [report, reportDate, shiftStaff]);
 
   React.useEffect(() => {
     fetchReportData();
@@ -5477,6 +5491,80 @@ function ReportViewer({ report, onBack }) {
       );
     }
 
+    if (report.title === "Cashier Shift Report" && data.payments) {
+      if (data.payments.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No payments collected for this date/staff.</div>;
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <div>
+                <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">End of Shift / Cashier Report</h2>
+                <div className="font-bold text-black/60 text-xs mt-1">CASHIER: {shiftStaff.toUpperCase()}</div>
+              </div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+          
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Time</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Method / Ref</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.payments.map((p, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(p.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left font-bold text-black">{p.guest_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{p.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">{p.payment_method} {p.reference ? `(${p.reference})` : ''}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(p.amount).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-black">Total Cash Collected:</td>
+                <td className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_cash).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-black">Total GCash/Online:</td>
+                <td className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_online).toLocaleString()}</td>
+              </tr>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-black">Total Card:</td>
+                <td className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_card).toLocaleString()}</td>
+              </tr>
+              <tr className="bg-[#f0f0f0]">
+                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Shift Collection:</td>
+                <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.summary.total_collected).toLocaleString()}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Received By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return <div className="p-8 text-center text-black/40 font-medium">Report format not yet implemented.</div>;
   };
 
@@ -5494,7 +5582,14 @@ function ReportViewer({ report, onBack }) {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {['Arrival Report', 'Departure Report', "Daily Manager's Report"].includes(report.title) && (
+            {report.title === "Cashier Shift Report" && (
+              <select value={shiftStaff} onChange={e => setShiftStaff(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-lg text-sm outline-none focus:border-[#00754A]">
+                <option value="All Staff">All Staff</option>
+                {staffList.map(s => <option key={s.id} value={s.username}>{s.full_name || s.username}</option>)}
+                <option value="admin">admin</option>
+              </select>
+            )}
+            {report.title !== "Room Status Report" && report.title !== "In-House Guest Report" && (
               <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-lg text-sm outline-none focus:border-[#00754A]" />
             )}
             <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
@@ -10811,7 +10906,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           reference: ref,
           date: overrideDate,
           time: overrideTime,
-          notes: overrideNotes
+          notes: overrideNotes,
+          cashier_name: localStorage.getItem('adminUser') || 'admin'
         }),
       });
       const data = await res.json();

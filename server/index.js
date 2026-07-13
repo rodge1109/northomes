@@ -357,6 +357,7 @@ const initFolioTables = async () => {
   await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT ''`);
   await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS voided BOOLEAN NOT NULL DEFAULT false`);
   await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS reference TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS cashier_name TEXT DEFAULT ''`);
   await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS voided BOOLEAN NOT NULL DEFAULT false`);
   await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS void_reason TEXT DEFAULT ''`);
   await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`);
@@ -1675,7 +1676,7 @@ app.post('/api/folio/:reservationId/charge', async (req, res) => {
 app.post('/api/folio/:reservationId/payment', async (req, res) => {
   try {
     const { reservationId } = req.params;
-    const { payment_method, amount, reference, date, time, notes } = req.body;
+    const { payment_method, amount, reference, date, time, notes, cashier_name } = req.body;
     if (!payment_method || !amount)
       return res.status(400).json({ success: false, message: 'payment_method and amount are required.' });
     
@@ -1685,9 +1686,9 @@ app.post('/api/folio/:reservationId/payment', async (req, res) => {
     }
     
     const result = await pool.query(
-      `INSERT INTO hotel_folio_payments (reservation_id, payment_method, amount, reference, posted_at, notes)
-       VALUES ($1, $2, $3, $4, COALESCE($5::timestamp, CURRENT_TIMESTAMP), $6) RETURNING *`,
-      [reservationId, payment_method, parseFloat(amount), reference || '', customPostedAt, notes || '']
+      `INSERT INTO hotel_folio_payments (reservation_id, payment_method, amount, reference, posted_at, notes, cashier_name)
+       VALUES ($1, $2, $3, $4, COALESCE($5::timestamp, CURRENT_TIMESTAMP), $6, $7) RETURNING *`,
+      [reservationId, payment_method, parseFloat(amount), reference || '', customPostedAt, notes || '', cashier_name || '']
     );
     res.json({ success: true, payment: result.rows[0] });
   } catch (err) {
@@ -3174,7 +3175,8 @@ app.post('/api/admin/login', async (req, res) => {
           success: true,
           message: 'Login successful',
           token,
-          permissions
+          permissions,
+          username
         });
       }
     }
@@ -3198,7 +3200,7 @@ app.get('/api/admin/verify', (req, res) => {
 
   if (token && sessions.has(token)) {
     const sessionData = sessions.get(token);
-    res.json({ success: true, valid: true, permissions: sessionData.permissions || [] });
+    res.json({ success: true, valid: true, permissions: sessionData.permissions || [], username: sessionData.username || 'admin' });
   } else {
     res.status(401).json({ success: false, valid: false });
   }
