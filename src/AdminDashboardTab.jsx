@@ -85,7 +85,8 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
     const totalRooms = rooms.length || 15; // fallback to 15 if not loaded yet
     const outOfOrder = rooms.filter(r => r.hk_status === 'out_of_order' || !r.active).length;
     const available = totalRooms - inHouse - outOfOrder;
-    const occupancyPct = totalRooms > 0 ? ((inHouse / totalRooms) * 100).toFixed(1) : "0.0";
+    const sellableRooms = totalRooms - outOfOrder;
+    const occupancyPct = sellableRooms > 0 ? ((inHouse / sellableRooms) * 100).toFixed(1) : "0.0";
     
     // Sort recent reservations
     const recent = [...reservations]

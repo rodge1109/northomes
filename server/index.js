@@ -4076,9 +4076,10 @@ app.get('/api/reports/front-office/manager', async (req, res) => {
     const s = statsResult.rows[0];
     const totalRooms = parseInt(s.total_rooms) || 120;
     const occupiedRooms = parseInt(s.occupied_rooms) || 0;
-    const availableRooms = totalRooms - occupiedRooms;
     const outOfOrderRooms = parseInt(s.out_of_order_rooms) || 0;
-    const occPercentage = totalRooms > 0 ? ((occupiedRooms / totalRooms) * 100).toFixed(1) : '0.0';
+    const availableRooms = totalRooms - occupiedRooms - outOfOrderRooms;
+    const sellableRooms = totalRooms - outOfOrderRooms;
+    const occPercentage = sellableRooms > 0 ? ((occupiedRooms / sellableRooms) * 100).toFixed(1) : '0.0';
     const roomRevenue = parseFloat(s.total_room_revenue) || 0;
     
     // MOCK DATA for missing systems to exactly match the requested UI

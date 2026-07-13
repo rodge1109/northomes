@@ -5393,26 +5393,39 @@ function ReportViewer({ report, onBack }) {
 
     if (report.title === "Room Status Report" && data.rooms) {
       return (
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-black/10 bg-gray-50/50">
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Room Number</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Occupancy</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Cleanliness</th>
-              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Guest</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-black/5">
-            {data.rooms.map((r, i) => (
-              <tr key={i} className="hover:bg-gray-50/50">
-                <td className="px-6 py-4 text-[13px] font-bold text-black/80">{r.room_number}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-black/60 uppercase">{r.occupancy_status}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-black/60 uppercase">{r.cleanliness}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-black/80">{r.guest_name || '-'}</td>
+        <div className="text-black text-[11px] font-sans">
+          <div className="text-center mb-6">
+            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
+            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            <div className="border-b-2 border-black/80 my-3"></div>
+            <div className="flex justify-between items-center mb-2">
+              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">Room Status Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+          </div>
+          
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room Number</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Occupancy</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Cleanliness</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.rooms.map((r, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{r.room_number}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">{r.occupancy_status}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">{r.cleanliness}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{r.guest_name || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       );
     }
 
@@ -5450,6 +5463,10 @@ function ReportViewer({ report, onBack }) {
           {report.title === "Daily Manager's Report" && data ? (
             <div className="max-w-[1400px] mx-auto print:max-w-[1400px] print:mx-auto w-full">
               <ManagerDailyReportUI data={data} date={reportDate} />
+            </div>
+          ) : report.title === "Room Status Report" && data ? (
+            <div className="max-w-[794px] min-h-[1123px] mx-auto bg-white shadow-sm border border-black/10 print:shadow-none print:border-none print:p-0 w-full p-12">
+              {renderTable()}
             </div>
           ) : (
             <div className="max-w-[1200px] mx-auto border border-black/10 rounded-xl overflow-hidden bg-white shadow-sm print:shadow-none print:border-none">
