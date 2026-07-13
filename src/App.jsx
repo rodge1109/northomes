@@ -2117,12 +2117,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     win.document.write(`<!DOCTYPE html><html><head><title>Guest Data Sheet — ${res.full_name}</title>
       <style>
         body { font-family: Arial, sans-serif; max-width: 750px; margin: 20px auto; padding: 0 10px; color: #222; font-size: 11px; line-height: 1.3; }
-        .header { text-align: center; margin-bottom: 12px; }
-        .header h1 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
-        .header p { margin: 2px 0; font-size: 9px; color: #555; }
+        .header { text-align: center; margin-bottom: 16px; background-color: #1E3932; color: white; padding: 24px; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: white; }
+        .header p { margin: 4px 0 0 0; font-size: 10px; color: rgba(255,255,255,0.8); font-weight: 500; }
         .divider { border-bottom: 2px solid #222; margin: 8px 0; }
-        .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .title-row h2 { margin: 0; font-size: 13px; font-weight: bold; text-transform: uppercase; }
+        .title-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding: 0 4px; }
+        .title-row h2 { margin: 0; font-size: 14px; font-weight: bold; text-transform: uppercase; }
         .doc-no { font-weight: bold; font-size: 11px; color: #b91c1c; }
         
         .section-title { font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 12px 0 6px 0; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
@@ -2150,7 +2150,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         .footer-row { display: flex; justify-content: space-between; margin-top: 20px; font-size: 10px; }
         
         @media print {
-          body { margin: 10px; }
+          body { margin: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .header { border-radius: 0; }
           button { display: none; }
         }
       </style></head><body>
@@ -5315,15 +5316,17 @@ function ReportViewer({ report, onBack }) {
       if (data.arrivals.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No arrivals scheduled for this date.</div>;
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="text-center mb-6">
-            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
-            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
-            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
-            <div className="border-b-2 border-black/80 my-3"></div>
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">Arrival Report</h2>
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Arrival Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
           
           <table className="w-full text-left border-collapse mt-4">
@@ -5356,15 +5359,17 @@ function ReportViewer({ report, onBack }) {
       if (data.departures.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No departures scheduled for this date.</div>;
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="text-center mb-6">
-            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
-            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
-            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
-            <div className="border-b-2 border-black/80 my-3"></div>
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">Departure Report</h2>
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Departure Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
           
           <table className="w-full text-left border-collapse mt-4">
@@ -5395,15 +5400,17 @@ function ReportViewer({ report, onBack }) {
       if (data.inHouse.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No guests currently in-house.</div>;
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="text-center mb-6">
-            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
-            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
-            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
-            <div className="border-b-2 border-black/80 my-3"></div>
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">In-House Guest Report</h2>
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">In-House Guest Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
           
           <table className="w-full text-left border-collapse mt-4">
@@ -5433,15 +5440,17 @@ function ReportViewer({ report, onBack }) {
     if (report.title === "Room Status Report" && data.rooms) {
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="text-center mb-6">
-            <h1 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Northomes Pensione</h1>
-            <p className="m-0 text-[10px] text-gray-600 mt-1">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
-            <p className="m-0 text-[10px] text-gray-600">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
-            <div className="border-b-2 border-black/80 my-3"></div>
-            <div className="flex justify-between items-center mb-2">
-              <h2 className="m-0 text-sm font-bold uppercase tracking-wider text-black">Room Status Report</h2>
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Room Status Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
           
           <table className="w-full text-left border-collapse mt-4">
