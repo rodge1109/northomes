@@ -2155,9 +2155,26 @@ app.get('/api/rooms', async (req, res) => {
         AND res.status IN ('checked_in','pending','confirmed')
         AND res.check_out_date >= CURRENT_DATE
       WHERE r.active = true
-      ORDER BY r.floor ASC, r.room_number ASC
+      ORDER BY r.floor ASC, r.room_number ASC,
+        CASE
+          WHEN res.status = 'checked_in' AND res.check_out_date::date = CURRENT_DATE THEN 1
+          WHEN res.status = 'checked_in' THEN 2
+          WHEN res.status IN ('pending','confirmed') AND res.check_in_date::date = CURRENT_DATE THEN 3
+          ELSE 4
+        END ASC
     `);
-    res.json({ success: true, rooms: result.rows });
+    
+    // Deduplicate rooms in case multiple reservations matched the join
+    const uniqueRooms = [];
+    const seen = new Set();
+    for (const row of result.rows) {
+      if (!seen.has(row.room_number)) {
+        seen.add(row.room_number);
+        uniqueRooms.push(row);
+      }
+    }
+    
+    res.json({ success: true, rooms: uniqueRooms });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Failed to fetch rooms.' });
