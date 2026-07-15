@@ -3576,7 +3576,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 'bg-white shadow-sm text-black/60'
                             }`}
                         >
-                          {res.full_name.split(' ')[0]}
+                          {res.full_name}
                         </div>
                       ))}
                       {dayReservations.length > 3 && (
@@ -4910,7 +4910,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
   );
 }
 
-function ManagerDailyReportUI({ data, date }) {
+function ManagerDailyReportUI({ data, fromDate, toDate }) {
   if (!data || !data.kpi) return null;
   return (
     <div className="bg-[#f8f9fa] text-[#333333] font-sans print:bg-white pb-12">
@@ -5208,10 +5208,11 @@ function ManagerDailyReportUI({ data, date }) {
   );
 }
 
-function ReportViewer({ report, onBack }) {
+function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
   const [data, setData] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
-  const [reportDate, setReportDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [fromDate, setFromDate] = React.useState(initialFromDate || new Date().toISOString().split('T')[0]);
+  const [toDate, setToDate] = React.useState(initialToDate || new Date().toISOString().split('T')[0]);
   const [shiftStaff, setShiftStaff] = React.useState('All Staff');
   const [staffList, setStaffList] = React.useState([]);
 
@@ -5228,13 +5229,28 @@ function ReportViewer({ report, onBack }) {
     setLoading(true);
     try {
       let endpoint = '';
-      if (report.title === "Daily Manager's Report") endpoint = `/api/reports/front-office/manager?date=${reportDate}`;
-      else if (report.title === "Arrival Report") endpoint = `/api/reports/front-office/arrivals?date=${reportDate}`;
-      else if (report.title === "Departure Report") endpoint = `/api/reports/front-office/departures?date=${reportDate}`;
+      if (report.title === "Daily Manager's Report") endpoint = `/api/reports/front-office/manager?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Arrival Report") endpoint = `/api/reports/front-office/arrivals?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Departure Report") endpoint = `/api/reports/front-office/departures?startDate=${fromDate}&endDate=${toDate}`;
       else if (report.title === "In-House Guest Report") endpoint = `/api/reports/front-office/in-house`;
       else if (report.title === "Room Status Report") endpoint = `/api/reports/front-office/room-status`;
-      else if (report.title === "Cashier Shift Report") endpoint = `/api/reports/shift?date=${reportDate}&staff=${encodeURIComponent(shiftStaff)}`;
-      else if (report.title === "Revenue Report") endpoint = `/api/reports/revenue?date=${reportDate}`;
+      else if (report.title === "Cashier Shift Report") endpoint = `/api/reports/shift?startDate=${fromDate}&endDate=${toDate}&staff=${encodeURIComponent(shiftStaff)}`;
+      else if (report.title === "Revenue Report") endpoint = `/api/reports/revenue?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Payment Collection Report") endpoint = `/api/reports/payments?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Guest Ledger Report") endpoint = `/api/reports/guest-ledger?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Outstanding Balance Report") endpoint = `/api/reports/financial/outstanding-balance`;
+      // Housekeeping
+      else if (report.title === "Housekeeping Assignment") endpoint = `/api/reports/housekeeping/assignment`;
+      else if (report.title === "Dirty Room Report") endpoint = `/api/reports/housekeeping/dirty`;
+      else if (report.title === "Clean Room Report") endpoint = `/api/reports/housekeeping/clean`;
+      else if (report.title === "Out of Order Report") endpoint = `/api/reports/housekeeping/ooo`;
+      // Audit
+      else if (report.title === "Night Audit Report") endpoint = `/api/reports/audit/night-audit?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Void Report") endpoint = `/api/reports/audit/voids?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Discount Report") endpoint = `/api/reports/audit/discounts?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Refund Report") endpoint = `/api/reports/audit/refunds?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Deleted Charges Report") endpoint = `/api/reports/audit/deleted-charges?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Rate Override Report") endpoint = `/api/reports/audit/rate-overrides?startDate=${fromDate}&endDate=${toDate}`;
 
       if (endpoint) {
         const res = await fetch(`${API_BASE_URL || 'http://localhost:5000'}${endpoint}`);
@@ -5250,7 +5266,7 @@ function ReportViewer({ report, onBack }) {
       console.error("Failed to fetch report:", e);
     }
     setLoading(false);
-  }, [report, reportDate, shiftStaff]);
+  }, [report, fromDate, toDate, shiftStaff]);
 
   React.useEffect(() => {
     fetchReportData();
@@ -5285,6 +5301,55 @@ function ReportViewer({ report, onBack }) {
     } else if (report.title === "Room Status Report" && data.rooms) {
       headers = ['Room Number', 'Room Type', 'Occupancy', 'Cleanliness', 'Guest'];
       rows = data.rooms.map(r => [r.room_number, r.room_type, r.occupancy_status, r.cleanliness, r.guest_name || '-']);
+    } else if (report.title === "Payment Collection Report" && data.payments) {
+      headers = ['Date', 'Payment Method', 'Amount', 'Reference', 'Guest Name', 'Room #', 'Cashier'];
+      rows = data.payments.map(p => [
+        new Date(p.posted_at).toLocaleString(),
+        p.payment_method,
+        p.amount,
+        p.reference_number || '-',
+        p.guest_name || '-',
+        p.room_number || '-',
+        p.cashier_name || '-'
+      ]);
+    } else if (report.title === "Guest Ledger Report" && data.ledger) {
+      headers = ['Guest Name', 'Room #', 'Check-in', 'Check-out', 'Status', 'Total Charges', 'Total Payments', 'Balance'];
+      rows = data.ledger.map(l => [
+        l.full_name, l.room_number || '-', l.check_in_date, l.check_out_date, l.status, l.total_charges, l.total_payments, l.balance
+      ]);
+      rows.push([]);
+      rows.push(['', '', '', '', 'TOTAL', data.summary.totalCharges, data.summary.totalPayments, data.summary.totalBalance]);
+    } else if (report.title === "Outstanding Balance Report" && data.outstanding) {
+      headers = ['Guest Name', 'Room #', 'Check-in', 'Check-out', 'Status', 'Total Charges', 'Total Payments', 'Balance'];
+      rows = data.outstanding.map(l => [
+        l.full_name, l.room_number || '-', l.check_in_date, l.check_out_date, l.status, l.total_charges, l.total_payments, l.balance
+      ]);
+    } else if (["Housekeeping Assignment", "Dirty Room Report", "Clean Room Report", "Out of Order Report"].includes(report.title) && data.rooms) {
+      headers = ['Room Number', 'Room Type', 'Cleanliness', 'Guest', 'Check-out Date', 'Notes'];
+      rows = data.rooms.map(r => [
+        r.room_number, r.room_type, r.cleanliness, r.guest_name || '-', r.check_out_date ? new Date(r.check_out_date).toLocaleDateString() : '-', r.notes || '-'
+      ]);
+    } else if (report.title === "Night Audit Report" && data.logs) {
+      headers = ['Audit Date', 'Run By', 'Total Charges Posted'];
+      rows = data.logs.map(l => [new Date(l.audit_date).toLocaleDateString(), l.run_by, l.total_charges_posted]);
+      rows.push([]);
+      rows.push(['Total Posted (Period)', data.stats.total_posted]);
+      rows.push(['Total Collected (Period)', data.stats.total_collected]);
+    } else if (report.title === "Void Report" && data.voids) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+      rows = data.voids.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
+    } else if (report.title === "Discount Report" && data.discounts) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+      rows = data.discounts.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
+    } else if (report.title === "Refund Report" && data.refunds) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+      rows = data.refunds.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
+    } else if (report.title === "Deleted Charges Report" && data.deleted) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Department', 'Description', 'Amount', 'Void Reason'];
+      rows = data.deleted.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, d.amount, d.void_reason || '-']);
+    } else if (report.title === "Rate Override Report" && data.overrides) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+      rows = data.overrides.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
     }
 
     if (headers.length === 0) return;
@@ -5296,7 +5361,7 @@ function ReportViewer({ report, onBack }) {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${report.title.replace(/\s+/g, '_')}_${reportDate}.csv`);
+    link.setAttribute("download", `${report.title.replace(/\s+/g, '_')}_${fromDate}_to_${toDate}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -5339,7 +5404,7 @@ function ReportViewer({ report, onBack }) {
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
               <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Arrival Report</h2>
-              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
@@ -5382,7 +5447,7 @@ function ReportViewer({ report, onBack }) {
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
               <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Departure Report</h2>
-              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
@@ -5423,7 +5488,7 @@ function ReportViewer({ report, onBack }) {
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
               <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">In-House Guest Report</h2>
-              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
@@ -5507,7 +5572,7 @@ function ReportViewer({ report, onBack }) {
                 <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">End of Shift / Cashier Report</h2>
                 <div className="font-bold text-black/60 text-xs mt-1">CASHIER: {shiftStaff.toUpperCase()}</div>
               </div>
-              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
@@ -5577,7 +5642,7 @@ function ReportViewer({ report, onBack }) {
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
               <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Revenue Report (By Department)</h2>
-              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(reportDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
@@ -5648,6 +5713,274 @@ function ReportViewer({ report, onBack }) {
       );
     }
 
+    if (report.title === "Payment Collection Report" && data.payments) {
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Payment Collection Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+          
+          {/* Payment Summary Table */}
+          <div className="mb-8 w-[60%] mx-auto">
+            <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Collection Summary</h3>
+            <table className="w-full text-left border-collapse">
+              <tbody>
+                {data.summary.map((s, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black uppercase">{s.payment_method}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(s.total).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected:</td>
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Itemized Payments Table */}
+          <h3 className="font-bold uppercase mb-2 text-[12px]">Itemized Payments</h3>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Date & Time</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Payment Method</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Reference #</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Cashier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.payments.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">No payments collected for this date range.</td>
+                </tr>
+              ) : (
+                data.payments.map((p, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">
+                      {new Date(p.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} {new Date(p.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{p.guest_name || 'Walk-in'} {p.room_number ? `(${p.room_number})` : ''}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left uppercase font-bold text-black">{p.payment_method}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left text-black">{p.reference_number || '-'}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(p.amount).toLocaleString()}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{p.cashier_name || '-'}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+          
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (report.title === "Guest Ledger Report" && data.ledger) {
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Guest Ledger Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+          
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Check-in</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Check-out</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Status</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Charges</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Payments</th>
+                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.ledger.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">No guest ledger data found for this date range.</td>
+                </tr>
+              ) : (
+                data.ledger.map((l, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left uppercase font-bold text-black">{l.full_name}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{l.room_number || '-'}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(l.check_in_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(l.check_out_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black uppercase">{l.status.replace('_', ' ')}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right text-black">₱{Number(l.total_charges).toLocaleString()}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right text-black">₱{Number(l.total_payments).toLocaleString()}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-[#b91c1c]">₱{Number(l.balance).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {data.ledger.length > 0 && (
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td colSpan="5" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total:</td>
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalCharges).toLocaleString()}</td>
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalPayments).toLocaleString()}</td>
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-[#b91c1c]">₱{Number(data.summary.totalBalance).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+          
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const isHousekeeping = ["Housekeeping Assignment", "Dirty Room Report", "Clean Room Report", "Out of Order Report"].includes(report.title);
+    const isAuditItem = ["Void Report", "Discount Report", "Refund Report", "Deleted Charges Report", "Rate Override Report"].includes(report.title);
+
+    if ((isHousekeeping && data.rooms) || (report.title === "Night Audit Report" && data.logs) || (isAuditItem && (data.voids || data.discounts || data.refunds || data.deleted || data.overrides)) || (report.title === "Outstanding Balance Report" && data.outstanding)) {
+      let columns = [];
+      let rowsData = [];
+      let emptyMsg = "No data found.";
+      
+      if (isHousekeeping) {
+        columns = ['Room Number', 'Room Type', 'Cleanliness', 'Guest', 'Check-out Date', 'Notes'];
+        rowsData = data.rooms.map(r => [
+          r.room_number, r.room_type, r.cleanliness.replace('_', ' ').toUpperCase(), r.guest_name || '-', r.check_out_date ? new Date(r.check_out_date).toLocaleDateString() : '-', r.notes || '-'
+        ]);
+        emptyMsg = "No rooms match this report.";
+      } else if (report.title === "Outstanding Balance Report") {
+        columns = ['Guest Name', 'Room #', 'Check-in', 'Check-out', 'Status', 'Charges', 'Payments', 'Balance'];
+        rowsData = data.outstanding.map(l => [
+          l.full_name, l.room_number || '-', new Date(l.check_in_date).toLocaleDateString(), new Date(l.check_out_date).toLocaleDateString(), l.status.replace('_', ' '), `₱${Number(l.total_charges).toLocaleString()}`, `₱${Number(l.total_payments).toLocaleString()}`, `₱${Number(l.balance).toLocaleString()}`
+        ]);
+        emptyMsg = "No guests have an outstanding balance.";
+      } else if (report.title === "Night Audit Report") {
+        columns = ['Audit Date', 'Run By', 'Total Charges Posted'];
+        rowsData = data.logs.map(l => [new Date(l.audit_date).toLocaleDateString(), l.run_by, `₱${Number(l.total_charges_posted).toLocaleString()}`]);
+        emptyMsg = "No night audits found for this date range.";
+      } else if (report.title === "Void Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+        rowsData = data.voids.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
+      } else if (report.title === "Discount Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+        rowsData = data.discounts.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
+      } else if (report.title === "Refund Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+        rowsData = data.refunds.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
+      } else if (report.title === "Deleted Charges Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Department', 'Description', 'Amount', 'Void Reason'];
+        rowsData = data.deleted.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, `₱${Number(d.amount).toLocaleString()}`, d.void_reason || '-']);
+      } else if (report.title === "Rate Override Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+        rowsData = data.overrides.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
+      }
+
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-6">
+            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">{report.title}</h2>
+              {!isHousekeeping && <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>}
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+          
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                {columns.map((col, i) => (
+                  <th key={i} className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rowsData.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">{emptyMsg}</td>
+                </tr>
+              ) : (
+                rowsData.map((row, i) => (
+                  <tr key={i}>
+                    {row.map((cell, j) => (
+                      <td key={j} className="border border-[#222] px-3 py-1.5 text-[11px] text-left text-black font-medium">{cell}</td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {report.title === "Night Audit Report" && data.stats && (
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td colSpan="2" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Posted (Period):</td>
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_posted).toLocaleString()}</td>
+                </tr>
+                <tr className="bg-[#f0f0f0]">
+                  <td colSpan="2" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected (Period):</td>
+                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_collected).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+          
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return <div className="p-8 text-center text-black/40 font-medium">Report format not yet implemented.</div>;
   };
 
@@ -5673,7 +6006,16 @@ function ReportViewer({ report, onBack }) {
               </select>
             )}
             {report.title !== "Room Status Report" && report.title !== "In-House Guest Report" && (
-              <input type="date" value={reportDate} onChange={e => setReportDate(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-lg text-sm outline-none focus:border-[#00754A]" />
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg focus-within:border-[#00754A] transition-colors">
+                  <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
+                  <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="text-sm outline-none bg-transparent cursor-pointer font-medium" />
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg focus-within:border-[#00754A] transition-colors">
+                  <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
+                  <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="text-sm outline-none bg-transparent cursor-pointer font-medium" />
+                </div>
+              </div>
             )}
             <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
@@ -5688,7 +6030,7 @@ function ReportViewer({ report, onBack }) {
         <div className="flex-1 overflow-y-auto p-8 bg-[#f8f9fa] print:block print:overflow-visible print:p-0 print:bg-white w-full">
           {report.title === "Daily Manager's Report" && data ? (
             <div className="max-w-[1400px] mx-auto print:max-w-[1400px] print:mx-auto w-full">
-              <ManagerDailyReportUI data={data} date={reportDate} />
+              <ManagerDailyReportUI data={data} fromDate={fromDate} toDate={toDate} />
             </div>
           ) : (
             <div className="max-w-[794px] min-h-[1123px] mx-auto bg-white shadow-sm border border-black/10 print:shadow-none print:border-none print:p-0 w-full p-12">
@@ -5705,6 +6047,8 @@ function AdminReportsTab() {
   const [reportsSubTab, setReportsSubTab] = React.useState('All Reports');
   const [searchQuery, setSearchQuery] = React.useState('');
   const [selectedReport, setSelectedReport] = React.useState(null);
+  const [fromDate, setFromDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [toDate, setToDate] = React.useState(new Date().toISOString().split('T')[0]);
 
   const reportCategories = [
     {
@@ -5727,8 +6071,6 @@ function AdminReportsTab() {
         { title: "Payment Collection Report", desc: "Summary of payments collected by method.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg> },
         { title: "Outstanding Balance Report", desc: "List of guests with outstanding balance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 12v6M17 15h6" /></svg> },
         { title: "Guest Ledger Report", desc: "Detailed ledger of guest accounts.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg> },
-        { title: "City Ledger Report", desc: "List of company accounts and balances.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18" /><path d="M9 8h1" /><path d="M9 12h1" /><path d="M9 16h1" /><path d="M14 8h1" /><path d="M14 12h1" /><path d="M14 16h1" /><path d="M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16" /></svg> },
-        { title: "Trial Balance", desc: "Summary of balances for reconciliation.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg> }
       ]
     },
     {
@@ -5764,7 +6106,7 @@ function AdminReportsTab() {
   ];
 
   if (selectedReport) {
-    return <ReportViewer report={selectedReport} onBack={() => setSelectedReport(null)} />;
+    return <ReportViewer report={selectedReport} onBack={() => setSelectedReport(null)} initialFromDate={fromDate} initialToDate={toDate} />;
   }
 
   return (
@@ -5779,15 +6121,14 @@ function AdminReportsTab() {
               <p className="text-black/60 text-[13px] mt-1 font-medium">View and generate hotel reports</p>
             </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-4 py-2.5 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm cursor-pointer hover:bg-gray-50 transition-colors font-medium">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/60"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                <span>May 28, 2025 - May 28, 2025</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-1 text-black/40"><path d="M6 9l6 6 6-6" /></svg>
+              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
+                <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="outline-none bg-transparent cursor-pointer font-medium" />
               </div>
-              <button className="flex items-center gap-2 px-5 py-2.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
-                <span>Custom Range</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-              </button>
+              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
+                <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="outline-none bg-transparent cursor-pointer font-medium" />
+              </div>
             </div>
           </div>
 
@@ -11438,7 +11779,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         </div>
         <div>
           {isActive && r.guest_name && (
-            <div className="text-black/60 text-[10px] truncate mb-1">{r.guest_name.split(' ')[0]}</div>
+            <div className="text-black/60 text-[10px] truncate mb-1">{r.guest_name}</div>
           )}
           <div className="flex items-center gap-1">
             <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />

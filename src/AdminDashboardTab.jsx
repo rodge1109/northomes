@@ -8,6 +8,7 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
   const [rooms, setRooms] = useState([]);
   const [isAuditRunning, setIsAuditRunning] = useState(false);
   const [auditMessage, setAuditMessage] = useState('Night audit process not yet completed.');
+  const [analytics, setAnalytics] = useState(null);
   
   const handleNightAudit = async () => {
     if (!window.confirm("Are you sure you want to run the Night Audit? This will post room charges to all currently checked-in guests and log the completion.")) return;
@@ -35,6 +36,13 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
         if (data.rooms) setRooms(data.rooms);
       })
       .catch(err => console.error("Error fetching rooms for dashboard:", err));
+
+    fetch(`${API_BASE_URL || 'http://localhost:5000'}/api/reports/dashboard-analytics`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setAnalytics(data);
+      })
+      .catch(err => console.error("Error fetching analytics for dashboard:", err));
   }, []);
 
   const fmtCurrency = (n) => `₱${(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -155,6 +163,13 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
         color: sourceColors[label] || defaultColor
       }));
 
+    // Real analytics data
+    const revTotal = analytics?.revenue?.total ?? totalRevenue;
+    const revRoom = analytics?.revenue?.room ?? (totalRevenue * 0.7);
+    const revFb = analytics?.revenue?.fb ?? (totalRevenue * 0.17);
+    const revOther = analytics?.revenue?.other ?? (totalRevenue * 0.07);
+    const revTaxes = analytics?.revenue?.taxes ?? (totalRevenue * 0.06);
+
     return {
       inHouse,
       arrivals,
@@ -163,7 +178,11 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
       outOfOrder,
       occupancyPct,
       totalRooms,
-      totalRevenue,
+      totalRevenue: revTotal,
+      revRoom,
+      revFb,
+      revOther,
+      revTaxes,
       recent,
       hkDirty: rooms.filter(r => r.hk_status === 'dirty').length,
       hkClean: rooms.filter(r => r.hk_status === 'clean').length,
@@ -175,7 +194,19 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
     };
   }, [reservations, rooms]);
 
-  const { inHouse, arrivals, departures, available, outOfOrder, occupancyPct, totalRooms, totalRevenue, recent, totalReservations } = derivedStats;
+  const { inHouse, arrivals, departures, available, outOfOrder, occupancyPct, totalRooms, totalRevenue, revRoom, revFb, revOther, revTaxes, recent, totalReservations } = derivedStats;
+
+  const pctRoom = totalRevenue > 0 ? (revRoom / totalRevenue * 100).toFixed(1) : '0.0';
+  const pctFb = totalRevenue > 0 ? (revFb / totalRevenue * 100).toFixed(1) : '0.0';
+  const pctOther = totalRevenue > 0 ? (revOther / totalRevenue * 100).toFixed(1) : '0.0';
+  const pctTaxes = totalRevenue > 0 ? (revTaxes / totalRevenue * 100).toFixed(1) : '0.0';
+
+  const pickup = analytics?.pickup || {
+    tomorrow: { arrivals: 0, revenue: 0 },
+    day3: { arrivals: 0, revenue: 0 },
+    day4: { arrivals: 0, revenue: 0 },
+    total7Days: { arrivals: 0, revenue: 0 }
+  };
 
   // Format date for header
   const headerDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -319,19 +350,19 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
               <div className="space-y-3 flex-1 text-[12px]">
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span><span className="font-medium text-black/80">Room Revenue</span></div>
-                  <span className="font-bold text-black/90">{fmtCurrency(totalRevenue * 0.7)}</span>
+                  <span className="font-bold text-black/90">{fmtCurrency(revRoom)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span><span className="font-medium text-black/80">F&B Revenue</span></div>
-                  <span className="font-bold text-black/90">{fmtCurrency(totalRevenue * 0.17)}</span>
+                  <span className="font-bold text-black/90">{fmtCurrency(revFb)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-orange-400"></span><span className="font-medium text-black/80">Other Revenue</span></div>
-                  <span className="font-bold text-black/90">{fmtCurrency(totalRevenue * 0.07)}</span>
+                  <span className="font-bold text-black/90">{fmtCurrency(revOther)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-red-400"></span><span className="font-medium text-black/80">Taxes & Fees</span></div>
-                  <span className="font-bold text-black/90">{fmtCurrency(totalRevenue * 0.06)}</span>
+                  <span className="font-bold text-black/90">{fmtCurrency(revTaxes)}</span>
                 </div>
                 
                 <div className="flex justify-between items-center pt-3 border-t border-black/5 mt-3">
@@ -366,30 +397,43 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
                 
                 {/* Bars & Lines Area */}
                 <div className="absolute left-10 right-10 top-2 bottom-6 border-b border-black/10 flex items-end justify-between px-4">
-                  {[60, 80, 75, 75, 65, 80, Math.min(100, occupancyPct)].map((h, i) => (
-                    <div key={i} className="w-6 bg-[#A7F3D0] rounded-t-sm" style={{ height: `${h}%` }}></div>
+                  {(analytics?.historical || Array(7).fill({ occupancy: 0 })).map((h, i) => (
+                    <div key={i} className="w-6 bg-[#A7F3D0] rounded-t-sm transition-all duration-500" style={{ height: `${h.occupancy}%` }}></div>
                   ))}
                   
                   {/* SVG Lines */}
-                  <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-                    <polyline points="20,40 100,20 180,30 260,25 340,45 420,20 500,30" fill="none" stroke="#3B82F6" strokeWidth="2"></polyline>
-                    <polyline points="20,60 100,45 180,55 260,55 340,75 420,55 500,55" fill="none" stroke="#A855F7" strokeWidth="2"></polyline>
-                    
-                    {/* Points */}
-                    {[
-                      [20,40], [100,20], [180,30], [260,25], [340,45], [420,20], [500,30]
-                    ].map((p,i) => <circle key={`b-${i}`} cx={p[0]} cy={p[1]} r="3" fill="#3B82F6" stroke="#fff" strokeWidth="1.5" />)}
-                    
-                    {[
-                      [20,60], [100,45], [180,55], [260,55], [340,75], [420,55], [500,55]
-                    ].map((p,i) => <circle key={`p-${i}`} cx={p[0]} cy={p[1]} r="3" fill="#A855F7" stroke="#fff" strokeWidth="1.5" />)}
-                  </svg>
+                  {analytics?.historical && (
+                    <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
+                      {(() => {
+                        const maxRev = 6000;
+                        const w = 480; // approximate viewbox width
+                        const h = 130; // approximate viewbox height
+                        const step = w / 6;
+                        
+                        // Scale function for Revenue (0 to 6000 maps to h to 0)
+                        const getRevY = (val) => Math.max(0, h - (Math.min(val, maxRev) / maxRev) * h) + 20;
+                        
+                        const adrPoints = analytics.historical.map((d, i) => `${20 + i*step},${getRevY(d.adr)}`).join(' ');
+                        const revparPoints = analytics.historical.map((d, i) => `${20 + i*step},${getRevY(d.revpar)}`).join(' ');
+                        
+                        return (
+                          <>
+                            <polyline points={adrPoints} fill="none" stroke="#3B82F6" strokeWidth="2"></polyline>
+                            <polyline points={revparPoints} fill="none" stroke="#A855F7" strokeWidth="2"></polyline>
+                            
+                            {analytics.historical.map((d, i) => <circle key={`adr-${i}`} cx={20 + i*step} cy={getRevY(d.adr)} r="3" fill="#3B82F6" stroke="#fff" strokeWidth="1.5" />)}
+                            {analytics.historical.map((d, i) => <circle key={`rev-${i}`} cx={20 + i*step} cy={getRevY(d.revpar)} r="3" fill="#A855F7" stroke="#fff" strokeWidth="1.5" />)}
+                          </>
+                        );
+                      })()}
+                    </svg>
+                  )}
                 </div>
                 
                 {/* X Axis Labels */}
                 <div className="absolute left-10 right-10 bottom-0 h-6 flex items-end justify-between px-1">
-                  {['Day -6', 'Day -5', 'Day -4', 'Day -3', 'Day -2', 'Day -1', 'Today'].map(d => (
-                    <span key={d} className="text-[10px] text-black/60 font-medium whitespace-nowrap">{d}</span>
+                  {(analytics?.historical || Array(7).fill({ label: '-' })).map((d, i) => (
+                    <span key={i} className="text-[10px] text-black/60 font-medium whitespace-nowrap">{d.label}</span>
                   ))}
                 </div>
               </div>
@@ -412,23 +456,23 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-black/5">
                   <span className="font-medium text-black/80">Tomorrow</span>
-                  <span className="text-black/60 w-8 text-center">9</span>
-                  <span className="font-bold text-black/90 w-20 text-right">₱11,680.00</span>
+                  <span className="text-black/60 w-8 text-center">{pickup.tomorrow.arrivals}</span>
+                  <span className="font-bold text-black/90 w-20 text-right">{fmtCurrency(pickup.tomorrow.revenue)}</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-black/5">
                   <span className="font-medium text-black/80">Day 3</span>
-                  <span className="text-black/60 w-8 text-center">14</span>
-                  <span className="font-bold text-black/90 w-20 text-right">₱18,760.00</span>
+                  <span className="text-black/60 w-8 text-center">{pickup.day3.arrivals}</span>
+                  <span className="font-bold text-black/90 w-20 text-right">{fmtCurrency(pickup.day3.revenue)}</span>
                 </div>
                 <div className="flex justify-between items-center py-2.5 border-b border-black/5">
                   <span className="font-medium text-black/80">Day 4</span>
-                  <span className="text-black/60 w-8 text-center">11</span>
-                  <span className="font-bold text-black/90 w-20 text-right">₱14,520.00</span>
+                  <span className="text-black/60 w-8 text-center">{pickup.day4.arrivals}</span>
+                  <span className="font-bold text-black/90 w-20 text-right">{fmtCurrency(pickup.day4.revenue)}</span>
                 </div>
                 <div className="flex justify-between items-center py-3 mt-1">
                   <span className="font-bold text-[#005530]">Total (Next 7 Days)</span>
-                  <span className="font-bold text-[#005530] w-8 text-center text-[13px]">{68 + arrivals}</span>
-                  <span className="font-bold text-[#005530] w-20 text-right text-[13px]">{fmtCurrency(87200 + arrivals * 3500)}</span>
+                  <span className="font-bold text-[#005530] w-8 text-center text-[13px]">{pickup.total7Days.arrivals}</span>
+                  <span className="font-bold text-[#005530] w-20 text-right text-[13px]">{fmtCurrency(pickup.total7Days.revenue)}</span>
                 </div>
               </div>
             </div>
@@ -546,40 +590,40 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
                   <div className="text-emerald-600"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 4v16"></path><path d="M2 8h18a2 2 0 0 1 2 2v10"></path><path d="M2 17h20"></path><path d="M6 8v9"></path></svg></div>
                   <span className="font-medium text-black/80 w-24">Room Revenue</span>
                   <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '70.5%' }}></div>
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${pctRoom}%` }}></div>
                   </div>
-                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(totalRevenue * 0.7)}</span>
-                  <span className="font-medium text-black/50 w-8 text-right">70.5%</span>
+                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(revRoom)}</span>
+                  <span className="font-medium text-black/50 w-8 text-right">{pctRoom}%</span>
                 </div>
                 {/* F&B */}
                 <div className="flex items-center gap-3 text-[11px]">
                   <div className="text-blue-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
                   <span className="font-medium text-black/80 w-24">F&B Revenue</span>
                   <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: '16.9%' }}></div>
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pctFb}%` }}></div>
                   </div>
-                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(totalRevenue * 0.17)}</span>
-                  <span className="font-medium text-black/50 w-8 text-right">16.9%</span>
+                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(revFb)}</span>
+                  <span className="font-medium text-black/50 w-8 text-right">{pctFb}%</span>
                 </div>
                 {/* Other Rev */}
                 <div className="flex items-center gap-3 text-[11px]">
                   <div className="text-amber-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
                   <span className="font-medium text-black/80 w-24">Other Revenue</span>
                   <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-amber-500 rounded-full" style={{ width: '7.1%' }}></div>
+                    <div className="h-full bg-amber-500 rounded-full" style={{ width: `${pctOther}%` }}></div>
                   </div>
-                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(totalRevenue * 0.07)}</span>
-                  <span className="font-medium text-black/50 w-8 text-right">7.1%</span>
+                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(revOther)}</span>
+                  <span className="font-medium text-black/50 w-8 text-right">{pctOther}%</span>
                 </div>
                 {/* Taxes */}
                 <div className="flex items-center gap-3 text-[11px]">
                   <div className="text-purple-500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="15" x2="15.01" y2="15"></line></svg></div>
                   <span className="font-medium text-black/80 w-24">Taxes & Fees</span>
                   <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-purple-500 rounded-full" style={{ width: '6.3%' }}></div>
+                    <div className="h-full bg-purple-500 rounded-full" style={{ width: `${pctTaxes}%` }}></div>
                   </div>
-                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(totalRevenue * 0.06)}</span>
-                  <span className="font-medium text-black/50 w-8 text-right">6.3%</span>
+                  <span className="font-bold text-black/90 w-16 text-right">{fmtCurrency(revTaxes)}</span>
+                  <span className="font-medium text-black/50 w-8 text-right">{pctTaxes}%</span>
                 </div>
               </div>
             </div>

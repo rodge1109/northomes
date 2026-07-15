@@ -4041,14 +4041,15 @@ app.get('/api/reports/stats', async (req, res) => {
 
 app.get('/api/reports/front-office/manager', async (req, res) => {
   try {
-    const { date } = req.query;
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
     
     // Get actual stats for the specific day
     const statsResult = await pool.query(`
       SELECT 
-        (SELECT COUNT(*) FROM hotel_reservations WHERE check_in_date = $1 AND status != 'cancelled') as total_arrivals,
-        (SELECT COUNT(*) FROM hotel_reservations WHERE check_out_date = $1 AND status != 'cancelled') as total_departures,
+        (SELECT COUNT(*) FROM hotel_reservations WHERE check_in_date BETWEEN $1 AND $2 AND status != 'cancelled') as total_arrivals,
+        (SELECT COUNT(*) FROM hotel_reservations WHERE check_out_date BETWEEN $1 AND $2 AND status != 'cancelled') as total_departures,
         (SELECT COUNT(*) FROM hotel_reservations WHERE status = 'checked_in') as total_in_house,
         (SELECT COUNT(*) FROM hotel_rooms) as total_rooms,
         (SELECT COUNT(*) FROM hotel_rooms r WHERE EXISTS (SELECT 1 FROM hotel_reservations res WHERE res.room_number = r.room_number AND res.status = 'checked_in')) as occupied_rooms,
@@ -4058,7 +4059,7 @@ app.get('/api/reports/front-office/manager', async (req, res) => {
         (SELECT COUNT(*) FROM hotel_rooms WHERE hk_status = 'inspected') as inspected_rooms,
         (SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_items f JOIN hotel_reservations r ON f.reservation_id = r.id WHERE r.status = 'checked_in' AND f.charge_type = 'Room Rate') as total_room_revenue,
         (SELECT COALESCE(SUM(number_of_guests), 0) FROM hotel_reservations WHERE status = 'checked_in') as total_guests
-    `, [targetDate]);
+    `, [start, end]);
 
     // Room type performance stats
     const roomTypeStats = await pool.query(`
@@ -4088,9 +4089,9 @@ app.get('/api/reports/front-office/manager', async (req, res) => {
     const paymentStats = await pool.query(`
       SELECT payment_method, COALESCE(SUM(amount), 0) as amount
       FROM hotel_folio_payments
-      WHERE DATE(posted_at) = $1
+      WHERE DATE(posted_at) BETWEEN $1 AND $2
       GROUP BY payment_method
-    `, [targetDate]);
+    `, [start, end]);
 
     const s = statsResult.rows[0];
     const totalRooms = parseInt(s.total_rooms) || 120;
@@ -4205,14 +4206,15 @@ app.get('/api/reports/front-office/manager', async (req, res) => {
 
 app.get('/api/reports/front-office/arrivals', async (req, res) => {
   try {
-    const { date } = req.query;
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
     const arrivals = await pool.query(`
       SELECT id, full_name, room_type, room_number, check_in_date, check_out_date, status, number_of_guests, special_requests
       FROM hotel_reservations 
-      WHERE check_in_date = $1 AND status IN ('confirmed', 'checked_in')
+      WHERE check_in_date BETWEEN $1 AND $2 AND status IN ('confirmed', 'checked_in')
       ORDER BY full_name ASC
-    `, [targetDate]);
+    `, [start, end]);
     res.json({ success: true, arrivals: arrivals.rows });
   } catch (error) {
     console.error('Arrivals report error:', error);
@@ -4222,14 +4224,15 @@ app.get('/api/reports/front-office/arrivals', async (req, res) => {
 
 app.get('/api/reports/front-office/departures', async (req, res) => {
   try {
-    const { date } = req.query;
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
     const departures = await pool.query(`
       SELECT id, full_name, room_type, room_number, check_in_date, check_out_date, status, number_of_guests
       FROM hotel_reservations 
-      WHERE check_out_date = $1 AND status IN ('checked_in', 'checked_out')
+      WHERE check_out_date BETWEEN $1 AND $2 AND status IN ('checked_in', 'checked_out')
       ORDER BY full_name ASC
-    `, [targetDate]);
+    `, [start, end]);
     res.json({ success: true, departures: departures.rows });
   } catch (error) {
     console.error('Departures report error:', error);
@@ -5282,20 +5285,21 @@ app.post('/api/admin/night-audit', async (req, res) => {
 // GET /api/reports/shift — fetch shift report
 app.get('/api/reports/shift', async (req, res) => {
   try {
-    const { date, staff } = req.query;
-    if (!date) return res.status(400).json({ success: false, message: 'Date required.' });
+    const { startDate, endDate, staff } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
 
     let query = `
       SELECT p.*, r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
-      WHERE DATE(p.posted_at) = $1 AND p.voided = false
+      WHERE DATE(p.posted_at) BETWEEN $1 AND $2 AND p.voided = false
     `;
-    const params = [date];
+    const params = [start, end];
 
     if (staff && staff !== 'All Staff') {
       params.push(staff);
-      query += ` AND p.cashier_name = $2`;
+      query += ` AND p.cashier_name = $3`;
     }
 
     query += ` ORDER BY p.posted_at ASC`;
@@ -5335,26 +5339,27 @@ app.get('/api/reports/shift', async (req, res) => {
 // GET /api/reports/revenue — fetch revenue report
 app.get('/api/reports/revenue', async (req, res) => {
   try {
-    const { date } = req.query;
-    if (!date) return res.status(400).json({ success: false, message: 'Date required.' });
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
 
     // 1. Get detailed items
     const itemsResult = await pool.query(`
       SELECT i.*, r.full_name as guest_name, r.room_number
       FROM hotel_folio_items i
       LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
-      WHERE DATE(i.posted_at) = $1 AND i.voided = false
+      WHERE DATE(i.posted_at) BETWEEN $1 AND $2 AND i.voided = false
       ORDER BY i.charge_type ASC, i.posted_at ASC
-    `, [date]);
+    `, [start, end]);
 
     // 2. Get summary by department (charge_type)
     const summaryResult = await pool.query(`
       SELECT charge_type as department, COALESCE(SUM(amount), 0) as total
       FROM hotel_folio_items
-      WHERE DATE(posted_at) = $1 AND voided = false
+      WHERE DATE(posted_at) BETWEEN $1 AND $2 AND voided = false
       GROUP BY charge_type
       ORDER BY total DESC
-    `, [date]);
+    `, [start, end]);
 
     // 3. Grand total
     const grandTotal = summaryResult.rows.reduce((acc, row) => acc + parseFloat(row.total), 0);
@@ -5368,6 +5373,447 @@ app.get('/api/reports/revenue', async (req, res) => {
   } catch (err) {
     console.error('Revenue report error:', err);
     res.status(500).json({ success: false, message: 'Failed to fetch revenue report.' });
+  }
+});
+
+// GET /api/reports/payments — fetch payment collection report
+app.get('/api/reports/payments', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+
+    const paymentsResult = await pool.query(`
+      SELECT p.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_payments p
+      LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
+      WHERE DATE(p.posted_at) BETWEEN $1 AND $2 AND p.voided = false
+      ORDER BY p.payment_method ASC, p.posted_at ASC
+    `, [start, end]);
+
+    const summaryResult = await pool.query(`
+      SELECT payment_method, COALESCE(SUM(amount), 0) as total
+      FROM hotel_folio_payments
+      WHERE DATE(posted_at) BETWEEN $1 AND $2 AND voided = false
+      GROUP BY payment_method
+      ORDER BY total DESC
+    `, [start, end]);
+
+    const grandTotal = summaryResult.rows.reduce((acc, row) => acc + parseFloat(row.total), 0);
+
+    res.json({
+      success: true,
+      payments: paymentsResult.rows,
+      summary: summaryResult.rows,
+      grandTotal
+    });
+  } catch (err) {
+    console.error('Payment collection report error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch payment collection report.' });
+  }
+});
+
+// GET /api/reports/guest-ledger — fetch guest ledger report
+app.get('/api/reports/guest-ledger', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+
+    const ledger = await pool.query(`
+      SELECT r.id, r.full_name, r.room_number, r.check_in_date, r.check_out_date, r.status,
+             (SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_items WHERE reservation_id = r.id) as total_charges,
+             (SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_payments WHERE reservation_id = r.id AND voided = false) as total_payments,
+             ((SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_items WHERE reservation_id = r.id) - 
+              (SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_payments WHERE reservation_id = r.id AND voided = false)) as balance
+      FROM hotel_reservations r
+      WHERE (r.check_in_date <= $2 AND r.check_out_date >= $1) AND r.status NOT IN ('cancelled', 'no_show')
+      ORDER BY r.full_name ASC
+    `, [start, end]);
+
+    const summary = {
+      totalCharges: ledger.rows.reduce((sum, r) => sum + parseFloat(r.total_charges), 0),
+      totalPayments: ledger.rows.reduce((sum, r) => sum + parseFloat(r.total_payments), 0),
+      totalBalance: ledger.rows.reduce((sum, r) => sum + parseFloat(r.balance), 0),
+    };
+
+    res.json({ success: true, ledger: ledger.rows, summary });
+  } catch (err) {
+    console.error('Guest ledger error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch guest ledger' });
+  }
+});
+
+// ==================== HOUSEKEEPING REPORTS ====================
+
+app.get('/api/reports/housekeeping/assignment', async (req, res) => {
+  try {
+    const rooms = await pool.query(`
+      SELECT r.room_number, r.room_type, r.hk_status as cleanliness,
+             (SELECT full_name FROM hotel_reservations WHERE room_number = r.room_number AND status = 'checked_in' LIMIT 1) as guest_name,
+             (SELECT check_out_date FROM hotel_reservations WHERE room_number = r.room_number AND status = 'checked_in' LIMIT 1) as check_out_date
+      FROM hotel_rooms r
+      ORDER BY r.room_number ASC
+    `);
+    res.json({ success: true, rooms: rooms.rows });
+  } catch (error) {
+    console.error('Housekeeping assignment error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch assignment' });
+  }
+});
+
+app.get('/api/reports/housekeeping/dirty', async (req, res) => {
+  try {
+    const rooms = await pool.query(`
+      SELECT r.room_number, r.room_type, r.hk_status as cleanliness,
+             (SELECT full_name FROM hotel_reservations WHERE room_number = r.room_number AND status = 'checked_in' LIMIT 1) as guest_name
+      FROM hotel_rooms r
+      WHERE r.hk_status = 'dirty'
+      ORDER BY r.room_number ASC
+    `);
+    res.json({ success: true, rooms: rooms.rows });
+  } catch (error) {
+    console.error('Dirty room error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch dirty rooms' });
+  }
+});
+
+app.get('/api/reports/housekeeping/clean', async (req, res) => {
+  try {
+    const rooms = await pool.query(`
+      SELECT r.room_number, r.room_type, r.hk_status as cleanliness,
+             (SELECT full_name FROM hotel_reservations WHERE room_number = r.room_number AND status = 'checked_in' LIMIT 1) as guest_name
+      FROM hotel_rooms r
+      WHERE r.hk_status IN ('clean', 'inspected')
+      ORDER BY r.room_number ASC
+    `);
+    res.json({ success: true, rooms: rooms.rows });
+  } catch (error) {
+    console.error('Clean room error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch clean rooms' });
+  }
+});
+
+app.get('/api/reports/housekeeping/ooo', async (req, res) => {
+  try {
+    const rooms = await pool.query(`
+      SELECT r.room_number, r.room_type, r.hk_status as cleanliness, r.notes
+      FROM hotel_rooms r
+      WHERE r.hk_status = 'out_of_order'
+      ORDER BY r.room_number ASC
+    `);
+    res.json({ success: true, rooms: rooms.rows });
+  } catch (error) {
+    console.error('OOO room error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch OOO rooms' });
+  }
+});
+
+// ==================== AUDIT REPORTS ====================
+
+app.get('/api/reports/audit/night-audit', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+    
+    // We can fetch from hotel_night_audit_logs or just compute standard audit stats
+    const logsResult = await pool.query(`
+      SELECT * FROM hotel_night_audit_logs
+      WHERE audit_date BETWEEN $1 AND $2
+      ORDER BY audit_date DESC
+    `, [start, end]);
+
+    const revenueResult = await pool.query(`
+      SELECT COALESCE(SUM(amount), 0) as total_posted
+      FROM hotel_folio_items
+      WHERE DATE(posted_at) BETWEEN $1 AND $2 AND voided = false
+    `, [start, end]);
+    
+    const paymentsResult = await pool.query(`
+      SELECT COALESCE(SUM(amount), 0) as total_collected
+      FROM hotel_folio_payments
+      WHERE DATE(posted_at) BETWEEN $1 AND $2 AND voided = false
+    `, [start, end]);
+
+    res.json({ 
+      success: true, 
+      logs: logsResult.rows, 
+      stats: {
+        total_posted: revenueResult.rows[0].total_posted,
+        total_collected: paymentsResult.rows[0].total_collected
+      }
+    });
+  } catch (error) {
+    console.error('Night audit error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch night audit report' });
+  }
+});
+
+app.get('/api/reports/audit/voids', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+    
+    const voids = await pool.query(`
+      SELECT p.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_payments p
+      LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
+      WHERE DATE(p.posted_at) BETWEEN $1 AND $2 AND p.voided = true
+      ORDER BY p.posted_at ASC
+    `, [start, end]);
+    
+    res.json({ success: true, voids: voids.rows });
+  } catch (error) {
+    console.error('Voids error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch void report' });
+  }
+});
+
+app.get('/api/reports/audit/discounts', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+    
+    const discounts = await pool.query(`
+      SELECT i.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_items i
+      LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
+      WHERE DATE(i.posted_at) BETWEEN $1 AND $2 
+        AND i.voided = false 
+        AND (i.charge_type ILIKE '%Discount%' OR i.amount < 0)
+      ORDER BY i.posted_at ASC
+    `, [start, end]);
+    
+    res.json({ success: true, discounts: discounts.rows });
+  } catch (error) {
+    console.error('Discounts error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch discount report' });
+  }
+});
+
+app.get('/api/reports/audit/refunds', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+    
+    const refunds = await pool.query(`
+      SELECT p.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_payments p
+      LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
+      WHERE DATE(p.posted_at) BETWEEN $1 AND $2 
+        AND p.voided = false 
+        AND p.amount < 0
+      ORDER BY p.posted_at ASC
+    `, [start, end]);
+    
+    res.json({ success: true, refunds: refunds.rows });
+  } catch (error) {
+    console.error('Refunds error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch refund report' });
+  }
+});
+
+app.get('/api/reports/audit/deleted-charges', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+    
+    const deleted = await pool.query(`
+      SELECT i.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_items i
+      LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
+      WHERE DATE(i.posted_at) BETWEEN $1 AND $2 AND i.voided = true
+      ORDER BY i.posted_at ASC
+    `, [start, end]);
+    
+    res.json({ success: true, deleted: deleted.rows });
+  } catch (error) {
+    console.error('Deleted charges error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch deleted charges report' });
+  }
+});
+
+app.get('/api/reports/audit/deleted-charges', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+    
+    const deleted = await pool.query(`
+      SELECT i.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_items i
+      LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
+      WHERE DATE(i.posted_at) BETWEEN $1 AND $2 AND i.voided = true
+      ORDER BY i.posted_at ASC
+    `, [start, end]);
+    
+    res.json({ success: true, deleted: deleted.rows });
+  } catch (error) {
+    console.error('Deleted charges error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch deleted charges report' });
+  }
+});
+
+app.get('/api/reports/financial/outstanding-balance', async (req, res) => {
+  try {
+    const ledger = await pool.query(`
+      WITH balances AS (
+        SELECT r.id, r.full_name, r.room_number, r.check_in_date, r.check_out_date, r.status,
+             (SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_items WHERE reservation_id = r.id AND voided = false) as total_charges,
+             (SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_payments WHERE reservation_id = r.id AND voided = false) as total_payments
+        FROM hotel_reservations r
+        WHERE r.status NOT IN ('cancelled', 'no_show')
+      )
+      SELECT *, (total_charges - total_payments) as balance
+      FROM balances
+      WHERE (total_charges - total_payments) > 0
+      ORDER BY full_name ASC
+    `);
+    res.json({ success: true, outstanding: ledger.rows });
+  } catch (err) {
+    console.error('Outstanding balance error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch outstanding balance report' });
+  }
+});
+
+app.get('/api/reports/audit/rate-overrides', async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const start = startDate || new Date().toISOString().split('T')[0];
+    const end = endDate || start;
+    
+    // For now, return items with override in description or empty if none.
+    const overrides = await pool.query(`
+      SELECT i.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_items i
+      LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
+      WHERE DATE(i.posted_at) BETWEEN $1 AND $2 
+        AND i.voided = false 
+        AND i.description ILIKE '%override%'
+      ORDER BY i.posted_at ASC
+    `, [start, end]);
+    
+    res.json({ success: true, overrides: overrides.rows });
+  } catch (error) {
+    console.error('Rate overrides error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch rate override report' });
+  }
+});
+
+app.get('/api/reports/dashboard-analytics', async (req, res) => {
+  try {
+    const today = new Date();
+    // Use local time offset for current date
+    const todayStr = new Date(today.getTime() - (today.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+
+    // 1. Total sellable rooms
+    const roomsCountRes = await pool.query(`SELECT COUNT(*) as count FROM hotel_rooms WHERE active = true AND hk_status != 'out_of_order'`);
+    const sellableRooms = parseInt(roomsCountRes.rows[0].count) || 15;
+
+    // 2. Today's Revenue Categories
+    const revenueRes = await pool.query(`
+      SELECT charge_type, SUM(amount) as total
+      FROM hotel_folio_items
+      WHERE DATE(posted_at) = $1 AND voided = false
+      GROUP BY charge_type
+    `, [todayStr]);
+    
+    let roomRevenue = 0;
+    let fbRevenue = 0;
+    let taxesFees = 0;
+    let otherRevenue = 0;
+
+    revenueRes.rows.forEach(r => {
+      const amt = parseFloat(r.total);
+      if (r.charge_type === 'Room Charge') roomRevenue += amt;
+      else if (r.charge_type === 'F&B' || r.charge_type === 'Restaurant') fbRevenue += amt;
+      else if (r.charge_type === 'Taxes & Fees' || r.charge_type === 'Tax') taxesFees += amt;
+      else otherRevenue += amt;
+    });
+    const totalTodayRevenue = roomRevenue + fbRevenue + taxesFees + otherRevenue;
+
+    // 3. Pickup Summary (Future Arrivals & Estimated Revenue)
+    const pickupRes = await pool.query(`
+      SELECT DATE(check_in_date) as arr_date, COUNT(*) as arrivals, SUM(
+        CASE 
+          WHEN room_type ILIKE '%presidential%' THEN 25000
+          WHEN room_type ILIKE '%suite%' THEN 9000
+          WHEN room_type ILIKE '%family%' THEN 6500
+          WHEN room_type ILIKE '%deluxe%' THEN 4500
+          ELSE 2500
+        END
+      ) as est_revenue
+      FROM hotel_reservations 
+      WHERE status IN ('pending', 'confirmed') 
+        AND check_in_date >= $1 
+        AND check_in_date <= CAST($1 AS DATE) + INTERVAL '7 days'
+      GROUP BY DATE(check_in_date)
+    `, [todayStr]);
+
+    const pickup = { tomorrow: { arrivals: 0, revenue: 0 }, day3: { arrivals: 0, revenue: 0 }, day4: { arrivals: 0, revenue: 0 }, total7Days: { arrivals: 0, revenue: 0 } };
+    pickupRes.rows.forEach(r => {
+      const arrDate = new Date(r.arr_date).toISOString().split('T')[0];
+      const arrs = parseInt(r.arrivals);
+      const rev = parseFloat(r.est_revenue);
+      pickup.total7Days.arrivals += arrs;
+      pickup.total7Days.revenue += rev;
+      
+      const diffDays = Math.floor((new Date(r.arr_date) - new Date(todayStr)) / (1000 * 60 * 60 * 24));
+      if (diffDays === 1) { pickup.tomorrow.arrivals += arrs; pickup.tomorrow.revenue += rev; }
+      if (diffDays === 2) { pickup.day3.arrivals += arrs; pickup.day3.revenue += rev; }
+      if (diffDays === 3) { pickup.day4.arrivals += arrs; pickup.day4.revenue += rev; }
+    });
+
+    // 4. Occupancy vs ADR vs RevPAR (Last 7 Days)
+    const historicalStats = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today.getTime() - (i * 24 * 60 * 60 * 1000));
+      const targetDate = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      
+      // Get occupied rooms for that day
+      const occRes = await pool.query(`
+        SELECT COUNT(*) as occ FROM hotel_reservations
+        WHERE status IN ('checked_in', 'completed')
+          AND check_in_date <= $1 AND (check_out_date > $1 OR check_out_date IS NULL)
+      `, [targetDate]);
+      const occCount = parseInt(occRes.rows[0].occ);
+      
+      // Get room revenue for that day
+      const revRes = await pool.query(`
+        SELECT SUM(amount) as rev FROM hotel_folio_items
+        WHERE DATE(posted_at) = $1 AND charge_type = 'Room Charge' AND voided = false
+      `, [targetDate]);
+      const dayRev = parseFloat(revRes.rows[0].rev) || 0;
+      
+      const occupancyPct = sellableRooms > 0 ? (occCount / sellableRooms) * 100 : 0;
+      const adr = occCount > 0 ? (dayRev / occCount) : 0;
+      const revpar = sellableRooms > 0 ? (dayRev / sellableRooms) : 0;
+      
+      historicalStats.push({
+        date: targetDate,
+        label: i === 0 ? 'Today' : `Day -${i}`,
+        occupancy: Math.min(100, Math.round(occupancyPct)),
+        adr: Math.round(adr),
+        revpar: Math.round(revpar)
+      });
+    }
+
+    res.json({
+      success: true,
+      revenue: {
+        room: roomRevenue, fb: fbRevenue, taxes: taxesFees, other: otherRevenue, total: totalTodayRevenue
+      },
+      pickup,
+      historical: historicalStats
+    });
+  } catch (error) {
+    console.error('Dashboard analytics error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch dashboard analytics' });
   }
 });
 
