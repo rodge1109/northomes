@@ -5294,6 +5294,7 @@ app.get('/api/reports/shift', async (req, res) => {
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
       WHERE DATE(p.posted_at) BETWEEN $1 AND $2 AND p.voided = false
+        AND (r.status IS NULL OR r.status != 'pending')
     `;
     const params = [start, end];
 
@@ -5427,7 +5428,7 @@ app.get('/api/reports/guest-ledger', async (req, res) => {
              ((SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_items WHERE reservation_id = r.id) - 
               (SELECT COALESCE(SUM(amount), 0) FROM hotel_folio_payments WHERE reservation_id = r.id AND voided = false)) as balance
       FROM hotel_reservations r
-      WHERE (r.check_in_date <= $2 AND r.check_out_date >= $1) AND r.status NOT IN ('cancelled', 'no_show')
+      WHERE (r.check_in_date <= $2 AND r.check_out_date >= $1) AND r.status NOT IN ('cancelled', 'no_show', 'pending')
       ORDER BY r.full_name ASC
     `, [start, end]);
 
