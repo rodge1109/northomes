@@ -14888,7 +14888,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       )}
 
       {/* ── Guest Profile Modal ── */}
-      <GuestProfileModal />
+      {GuestProfileModal()}
 
       {/* ── Folio Modal ── */}
       <FolioModal
