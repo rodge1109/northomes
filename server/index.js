@@ -216,8 +216,25 @@ const sendHotelConfirmationEmail = async (reservation) => {
   } catch (err) { console.error('Error fetching settings', err); }
 
   const subject = settings.email_booking_subject || 'Booking Confirmation - Northomes Pensionne';
-  const rawBody = settings.email_booking_body || `<h2 style="color: #00754A;">Booking Confirmed!</h2><p>Dear <strong>{{full_name}}</strong>,</p><p>Your reservation has been successfully confirmed.</p>`;
   
+  const defaultBody = `<h2 style="color: #00754A;">Booking Confirmed!</h2>
+<p>Dear <strong>{{full_name}}</strong>,</p>
+<p>Your reservation has been successfully confirmed. Below are your booking details:</p>
+<ul style="background: #ffffff; padding: 15px 30px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+  <li><strong>Room Type:</strong> {{room_type}}</li>
+  <li><strong>Check-in:</strong> {{check_in_date}}</li>
+  <li><strong>Check-out:</strong> {{check_out_date}}</li>
+  <li><strong>Guests:</strong> {{number_of_guests}}</li>
+  <li><strong>Reference ID:</strong> {{id}}</li>
+</ul>
+<h3 style="color: #c92a2a; margin-top: 30px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">CANCELLATION POLICY</h3>
+<p style="font-size: 14px; color: #555;">
+  <strong>Standard Cancellation:</strong> Cancellations made 48 hours or more before the check-in date will be processed without any penalty.<br><br>
+  <strong>Late Cancellation:</strong> Cancellations made within 48 hours of your check-in date will be charged a cancellation fee equivalent to the first night's stay.<br><br>
+  <strong>No-Show:</strong> Failure to arrive on the scheduled check-in date will result in a no-show charge equivalent to the full amount of the reservation.
+</p>`;
+
+  const rawBody = settings.email_booking_body || defaultBody;
   const body = rawBody
     .replace(/\{\{full_name\}\}/g, reservation.full_name || '')
     .replace(/\{\{room_type\}\}/g, reservation.room_type || '')
