@@ -1158,10 +1158,10 @@ export default function RestaurantApp() {
         )}
 
         {showPromoPopup && latestPromo && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overflow-hidden">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPromoPopup(false)}></div>
 
-            <div className="relative w-full max-w-3xl z-10 animate-in fade-in zoom-in duration-300 flex flex-row h-auto min-h-[250px] drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity">
+            <div className="relative w-[700px] min-w-[700px] shrink-0 md:min-w-0 md:w-full max-w-[700px] md:max-w-3xl scale-[0.5] sm:scale-75 md:scale-100 origin-center z-10 animate-in fade-in zoom-in duration-300 flex flex-row h-auto min-h-[250px] drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity">
               {/* Close Button */}
               <button
                 onClick={() => setShowPromoPopup(false)}
