@@ -3016,7 +3016,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         const promoRes = await fetch(`${API_BASE_URL}/api/promos`);
         const promoData = await promoRes.json();
         if (promoData.success) setAdminPromos(promoData.promos || []);
-      } catch(e) { /* ignore */ }
+      } catch (e) { /* ignore */ }
     } catch (e) { console.error(e); }
     setRcLoading(false);
   }, []);
@@ -5408,7 +5408,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
@@ -5451,7 +5451,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
@@ -5492,7 +5492,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
@@ -5532,7 +5532,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
@@ -5576,7 +5576,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
@@ -5646,7 +5646,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           {/* Revenue Summary Table */}
           <div className="mb-8 w-[60%] mx-auto">
             <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Revenue Summary</h3>
@@ -5728,7 +5728,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           {/* Payment Summary Table */}
           <div className="mb-8 w-[60%] mx-auto">
             <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Collection Summary</h3>
@@ -5784,7 +5784,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               )}
             </tbody>
           </table>
-          
+
           <div className="mt-16 flex justify-between px-12">
             <div className="text-center w-[200px]">
               <div className="border-b border-black mb-1"></div>
@@ -5814,7 +5814,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#f0f0f0]">
@@ -5859,7 +5859,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               </tfoot>
             )}
           </table>
-          
+
           <div className="mt-16 flex justify-between px-12">
             <div className="text-center w-[200px]">
               <div className="border-b border-black mb-1"></div>
@@ -5881,7 +5881,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
       let columns = [];
       let rowsData = [];
       let emptyMsg = "No data found.";
-      
+
       if (isHousekeeping) {
         columns = ['Room Number', 'Room Type', 'Cleanliness', 'Guest', 'Check-out Date', 'Notes'];
         rowsData = data.rooms.map(r => [
@@ -5929,7 +5929,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
-          
+
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#f0f0f0]">
@@ -5966,7 +5966,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               </tfoot>
             )}
           </table>
-          
+
           <div className="mt-16 flex justify-between px-12">
             <div className="text-center w-[200px]">
               <div className="border-b border-black mb-1"></div>
@@ -7027,7 +7027,7 @@ function PromoPage({ setCurrentPage }) {
           </div>
         ) : (
           <div className="bg-white rounded-[2rem] p-8 md:p-14 shadow-2xl border border-[#EBE3CD] relative">
-            
+
             {/* Header */}
             <div className="text-center mb-10">
               <div className="flex items-center justify-center gap-4 mb-4">
@@ -7037,10 +7037,10 @@ function PromoPage({ setCurrentPage }) {
                 </div>
                 <div className="h-px bg-[#D5C294] flex-1 max-w-[60px]"></div>
               </div>
-              
+
               <h1 className="text-5xl md:text-6xl font-bold text-[#16392F] mb-2 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>{promo.name}</h1>
               <p className="text-gray-500 text-lg md:text-xl mb-8">{promo.description || 'Seasonal Promo Rate'}</p>
-              
+
               <div className="inline-flex items-center justify-center bg-[#FDFCF5] border border-dashed border-[#D5C294] rounded-lg px-8 py-3">
                 <span className="text-gray-500 font-semibold tracking-wider mr-4 uppercase text-sm">Use Promo Code:</span>
                 <span className="text-3xl font-bold text-[#A98C51]">{promo.code}</span>
@@ -7052,7 +7052,7 @@ function PromoPage({ setCurrentPage }) {
               <div className="mb-12">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-[#A98C51]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></svg>
                   </div>
                   <h3 className="text-sm font-bold text-[#16392F] tracking-widest uppercase">Applicable Rooms</h3>
                   <div className="h-px bg-[#EBE3CD] flex-1 ml-4"></div>
@@ -7131,7 +7131,7 @@ function PromoPage({ setCurrentPage }) {
                 <p className="text-xs text-gray-700 font-medium">For inquiries or reservations, visit our website, message us on Facebook, or call us directly.</p>
               </div>
             </div>
-            
+
           </div>
         )}
       </div>
@@ -7755,10 +7755,12 @@ function HomePage({ setCurrentPage }) {
             </div>
 
             {/* Footer Bottom */}
-            <div className="border-t border-white/10 pt-8 mt-4 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="border-t border-white/10 pt-4 mt- flex flex-col md:flex-row items-center justify-between leading-tight gap-2">
               <p className="text-white/50 text-xs font-medium tracking-wide">
                 © {new Date().getFullYear()} Northomes Pensionne. All rights reserved.
+                <br></br><a href="https://www.rogertonacao.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-1">Website by www.rogertonacao.com</a>
               </p>
+
               <div className="flex items-center space-x-6 text-xs font-medium text-white/50">
                 <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
                 <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
@@ -12776,7 +12778,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <div className="flex flex-col">
                                   <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Confirmation No.</span>
                                   <span className="text-xs font-mono font-bold text-[#00754A]">
-                                    {`ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3,'0')}`}
+                                    {`ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`}
                                   </span>
                                 </div>
                                 {/* Email */}
@@ -13082,7 +13084,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                               onClick={() => { openExtend(res); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                             >
-                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M1 6h14"/><path d="M11 9v4M9 11h4"/><path d="M4 4V2M12 4V2"/></svg>
+                                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="2" width="14" height="13" rx="1.5" /><path d="M1 6h14" /><path d="M11 9v4M9 11h4" /><path d="M4 4V2M12 4V2" /></svg>
                                               Extend Stay
                                             </button>
                                             <button
@@ -14559,7 +14561,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           : 0;
         const fmtD = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         // min date = day after current checkout
-        const minDate = (() => { const d = new Date(currentCheckout); d.setDate(d.getDate() + 1); return d.toISOString().slice(0,10); })();
+        const minDate = (() => { const d = new Date(currentCheckout); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
 
         return (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => !extendSubmitting && setExtendGuest(null)}>
@@ -14570,14 +14572,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 <div>
                   <div className="text-[#00754A] font-bold text-base tracking-tight flex items-center gap-2">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="1" y="2" width="14" height="13" rx="1.5"/><path d="M1 6h14"/><path d="M11 9v4M9 11h4"/><path d="M4 4V2M12 4V2"/>
+                      <rect x="1" y="2" width="14" height="13" rx="1.5" /><path d="M1 6h14" /><path d="M11 9v4M9 11h4" /><path d="M4 4V2M12 4V2" />
                     </svg>
                     Extend Stay
                   </div>
                   <div className="text-xs text-black/50 mt-0.5">{extendGuest.full_name} · Room {extendGuest.room_number}</div>
                 </div>
                 <button onClick={() => setExtendGuest(null)} className="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:bg-black/10 hover:text-black transition-colors">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12" /></svg>
                 </button>
               </div>
 
@@ -14604,7 +14606,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 {/* Additional nights badge */}
                 {additionalNights > 0 && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-[#f0fdf8] border border-[#00754A]/20">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2"><path d="M12 2v10l4 4"/><circle cx="12" cy="12" r="10"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2"><path d="M12 2v10l4 4" /><circle cx="12" cy="12" r="10" /></svg>
                     <span className="text-xs font-semibold text-[#00754A]">+{additionalNights} additional night{additionalNights !== 1 ? 's' : ''}</span>
                     <span className="text-xs text-black/40 ml-auto">Remember to post charges manually</span>
                   </div>
@@ -14613,7 +14615,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 {/* Conflict warning */}
                 {extendConflict && (
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-amber-50 border border-amber-200">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" className="flex-shrink-0 mt-0.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
                     <span className="text-xs text-amber-800 font-medium leading-relaxed">{extendConflict}</span>
                   </div>
                 )}
@@ -14621,7 +14623,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 {/* Error */}
                 {extendError && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" /></svg>
                     <span className="text-xs text-red-700 font-medium">{extendError}</span>
                   </div>
                 )}
@@ -14629,7 +14631,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 {/* Success */}
                 {extendSuccess && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-[#f0fdf8] border border-[#00754A]/30">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
                     <span className="text-xs text-[#00754A] font-semibold">{extendSuccess}</span>
                   </div>
                 )}
