@@ -393,7 +393,7 @@ function AdminBillingTab({
                           <tr key={entry.id} className="hover:bg-black/[0.02]">
                             <td className="px-6 py-3 font-medium">{entry.timestamp ? new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
                             <td className="px-3 py-3 text-black/60">{entry.timestamp ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
-                            <td className="px-3 py-3">{entry.description || entry.charge_type || entry.payment_method}</td>
+                            <td className="px-3 py-3">{entry.type === 'payment' ? (entry.notes ? `${entry.payment_method} - ${entry.notes}` : entry.payment_method) : (entry.description || entry.charge_type)}</td>
                             <td className="px-3 py-3 text-black/60">{entry.charge_type || 'Payment'}</td>
                             <td className="px-3 py-3 text-right font-mono">{isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}</td>
                             <td className="px-3 py-3 text-right font-mono">{!isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}</td>
@@ -15457,7 +15457,7 @@ function FolioModal({
                           <td className="px-3 py-3">
                             <div className="flex items-center gap-2">
                               <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${isCharge ? 'bg-blue-400' : 'bg-emerald-500'}`} />
-                              <span className="text-xs text-black">{entry.description || entry.charge_type || entry.payment_method}</span>
+                              <span className="text-xs text-black">{entry.type === 'payment' ? (entry.notes ? `${entry.payment_method} - ${entry.notes}` : entry.payment_method) : (entry.description || entry.charge_type)}</span>
                             </div>
                             {isVoid && <div className="text-[9px] font-bold text-red-500 uppercase tracking-widest mt-0.5 ml-3.5">Voided</div>}
                           </td>

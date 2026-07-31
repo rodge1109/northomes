@@ -315,8 +315,8 @@ initStaffTable().catch(err => console.error('Failed to init staff table:', err))
 const initFrontDeskColumns = async () => {
   const migrations = [
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS room_number TEXT`,
-    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMP`,
-    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_out_at TIMESTAMP`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMPTZ`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_out_at TIMESTAMPTZ`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS id_verified BOOLEAN DEFAULT false`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS payment_collected BOOLEAN DEFAULT false`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS front_desk_notes TEXT DEFAULT ''`,
@@ -353,7 +353,7 @@ const initFolioTables = async () => {
       quantity       INTEGER NOT NULL DEFAULT 1,
       unit_price     NUMERIC(10,2) NOT NULL DEFAULT 0,
       amount         NUMERIC(10,2) NOT NULL,
-      posted_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      posted_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
       voided         BOOLEAN NOT NULL DEFAULT false,
       void_reason    TEXT DEFAULT ''
     )
@@ -365,7 +365,7 @@ const initFolioTables = async () => {
       payment_method TEXT NOT NULL,
       amount         NUMERIC(10,2) NOT NULL,
       reference      TEXT DEFAULT '',
-      posted_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      posted_at      TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
       notes          TEXT DEFAULT '',
       voided         BOOLEAN NOT NULL DEFAULT false
     )
@@ -377,7 +377,31 @@ const initFolioTables = async () => {
   await pool.query(`ALTER TABLE hotel_folio_payments ADD COLUMN IF NOT EXISTS cashier_name TEXT DEFAULT ''`);
   await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS voided BOOLEAN NOT NULL DEFAULT false`);
   await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS void_reason TEXT DEFAULT ''`);
-  await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP`);
+  await pool.query(`ALTER TABLE hotel_folio_items ADD COLUMN IF NOT EXISTS posted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP`);
+  
+  // Safe migration to TIMESTAMPTZ if they were previously created as TIMESTAMP
+  await pool.query(`
+    DO $$
+    BEGIN
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'hotel_folio_items' 
+              AND column_name = 'posted_at' 
+              AND data_type = 'timestamp without time zone'
+        ) THEN
+            ALTER TABLE hotel_folio_items ALTER COLUMN posted_at TYPE TIMESTAMPTZ USING posted_at AT TIME ZONE 'Asia/Manila';
+        END IF;
+        IF EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'hotel_folio_payments' 
+              AND column_name = 'posted_at' 
+              AND data_type = 'timestamp without time zone'
+        ) THEN
+            ALTER TABLE hotel_folio_payments ALTER COLUMN posted_at TYPE TIMESTAMPTZ USING posted_at AT TIME ZONE 'Asia/Manila';
+        END IF;
+    END $$;
+  `);
+
   console.log('Folio tables ready.');
 };
 initFolioTables().catch(err => console.error('Folio table init failed:', err));
@@ -395,7 +419,7 @@ const initNightAuditTable = async () => {
 initNightAuditTable().catch(err => console.error('Night audit table init failed:', err));
 
 const initGuestCheckinColumn = async () => {
-  await pool.query(`ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_arrived_at TIMESTAMP`);
+  await pool.query(`ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_arrived_at TIMESTAMPTZ`);
   console.log('Guest arrived column ready.');
 };
 initGuestCheckinColumn().catch(err => console.error('Guest checkin column migration failed:', err));
