@@ -259,10 +259,10 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
 
     return (
       <div className="flex flex-col">
-        <label className="text-[11px] font-bold text-black/60 mb-1.5">
+        <label className="text-[11px] font-bold text-black/60 mb-1">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
-        <input type={type} name={name} value={value} onChange={handleChange} placeholder={`Enter ${label.toLowerCase()}`} required={required} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+        <input type={type} name={name} value={value} onChange={handleChange} placeholder={`Enter ${label.toLowerCase()}`} required={required} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
       </div>
     );
   };
@@ -283,7 +283,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
               {!isNewAccount && (
                 <button 
                   onClick={() => setIsEditing(false)} 
-                  className="px-5 py-2 border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
+                  className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
                 >
                   Cancel
                 </button>
@@ -291,7 +291,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
               {isNewAccount && (
                 <button 
                   onClick={onBack} 
-                  className="px-5 py-2 border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
+                  className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
                 >
                   Cancel
                 </button>
@@ -299,7 +299,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
               <button 
                 onClick={handleSave} 
                 disabled={saving} 
-                className="px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] disabled:bg-[#005530]/50 rounded-lg text-[13px] font-bold shadow-sm transition-colors"
+                className="px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] disabled:bg-[#005530]/50 rounded-md text-[13px] font-bold shadow-sm transition-colors"
               >
                 {saving ? 'Saving...' : 'Save Account'}
               </button>
@@ -308,7 +308,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
             <>
               <button 
                 onClick={handleDelete} 
-                className="px-5 py-2 border border-red-200 bg-red-50 text-red-700 rounded-lg text-[13px] font-bold hover:bg-red-100 shadow-sm transition-colors"
+                className="px-5 py-2 border border-red-200 bg-red-50 text-red-700 rounded-md text-[13px] font-bold hover:bg-red-100 shadow-sm transition-colors"
               >
                 Delete
               </button>
@@ -316,14 +316,14 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                 <>
                   <button 
                     onClick={() => setIsSigning(true)}
-                    className={`flex items-center gap-2 px-5 py-2 border ${signatureData ? 'border-[#005530] bg-[#005530]/5 text-[#005530]' : 'border-black/10 bg-white text-black/80 hover:bg-gray-50'} rounded-lg text-[13px] font-bold shadow-sm transition-colors`}
+                    className={`flex items-center gap-2 px-5 py-2 border ${signatureData ? 'border-[#005530] bg-[#005530]/5 text-[#005530]' : 'border-black/10 bg-white text-black/80 hover:bg-gray-50'} rounded-md text-[13px] font-bold shadow-sm transition-colors`}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M14 6l-8 8-4 4 4-4 8-8 4 4"/></svg>
                     {signatureData ? 'Signature Saved' : 'Sign Invoice'}
                   </button>
                   <button 
                     onClick={printInvoice}
-                  className="flex items-center gap-2 px-5 py-2 border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors bg-white"
+                  className="flex items-center gap-2 px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors bg-white"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
                   Print Invoice
@@ -332,7 +332,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
               )}
               <button 
                 onClick={() => setIsEditing(true)} 
-                className="px-5 py-2 border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
+                className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
               >
                 Edit Account
               </button>
@@ -342,7 +342,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
       </div>
 
       {/* Main Content Scrollable Area */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-4">
         <div className="max-w-[1500px] mx-auto space-y-6">
 
           {error && (
@@ -359,28 +359,28 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
             </div>
           )}
           
-          <div className="flex gap-6">
+          <div className="flex gap-3">
             
             {/* Left Column (Main Info & Form) */}
             <div className="flex-1 space-y-6">
               
               {/* Top Identity Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 relative">
-                <div className="flex items-center gap-4">
+              <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 relative">
+                <div className="flex items-center gap-2">
                   <div className={`w-[72px] h-[72px] rounded-full flex items-center justify-center font-black text-[24px] ${getInitialsColor(formData.company_name)}`}>
                     {initials}
                   </div>
                   <div>
                     <div className="flex flex-col">
                       <h1 className="text-[26px] font-black tracking-tight text-black/90">{formData.company_name || 'New Company'}</h1>
-                      <span className="text-sm font-bold text-black/50">{formData.account_number || 'No Account Number'}</span>
+                      <span className="text-[12px] font-bold text-black/50">{formData.account_number || 'No Account Number'}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Horizontal Tabs */}
-              <div className="border-b border-black/10 flex items-center gap-8 text-[13px] font-bold text-black/50 px-2 mt-4">
+              <div className="border-b border-black/10 flex items-center gap-2 text-[13px] font-bold text-black/50 px-2 mt-4">
                 {['Profile'].map(tab => (
                   <div 
                     key={tab}
@@ -396,13 +396,13 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
               {activeTab === 'Profile' && (
                 <div className="space-y-6">
                   {/* 1. COMPANY INFORMATION */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+                  <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight border-b border-black/5 pb-2 uppercase">Company Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {renderField('Company Name', 'company_name', 'text', true)}
                       {renderField('Account Number', 'account_number', 'text', true)}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       {renderField('Contact Person', 'contact_person', 'text')}
                       {renderField('Email Address', 'contact_email', 'email')}
                       {renderField('Phone Number', 'contact_phone', 'tel')}
@@ -410,9 +410,9 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                   </div>
 
                   {/* 2. FINANCIAL INFORMATION */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+                  <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight border-b border-black/5 pb-2 uppercase">Financial Terms</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                       {renderField('Credit Limit (₱)', 'credit_limit', 'number')}
                     </div>
                   </div>
@@ -426,11 +426,11 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
               <div className="w-[450px] shrink-0 space-y-6">
                 
                 {/* Account Summary */}
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-5 py-4 border-b border-black/5">
                     <h3 className="text-[14px] font-black text-black/90 tracking-tight">Financial Summary</h3>
                   </div>
-                  <div className="p-5 space-y-3 bg-[#f8f9fa]">
+                  <div className="p-3 space-y-3 bg-[#f8f9fa]">
                     <div className="flex items-center justify-between text-[13px]">
                       <span className="text-black/60 font-medium">Credit Limit</span>
                       <span className="font-bold text-black/90">{fmtCurrency(account.credit_limit)}</span>
@@ -451,15 +451,15 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                 </div>
 
                 {/* Ledger History */}
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 flex flex-col h-[500px]">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 flex flex-col h-[500px]">
                   <div className="px-5 py-4 border-b border-black/5 flex items-center justify-between shrink-0">
                     <h3 className="text-[14px] font-black text-black/90 tracking-tight">Corporate Ledger</h3>
                   </div>
                   <div className="flex-1 overflow-y-auto">
                     {loadingLedger ? (
-                      <div className="p-8 text-center text-black/40 font-medium text-sm">Loading ledger...</div>
+                      <div className="p-4 text-center text-black/40 font-medium text-[12px]">Loading ledger...</div>
                     ) : ledger.length === 0 ? (
-                      <div className="p-8 text-center text-black/40 font-medium text-sm">No ledger entries recorded yet.</div>
+                      <div className="p-4 text-center text-black/40 font-medium text-[12px]">No ledger entries recorded yet.</div>
                     ) : (
                       <table className="w-full text-[12px] text-left text-black/80">
                         <thead className="bg-gray-50 text-[10px] font-bold text-black/40 uppercase sticky top-0 border-b border-black/5 shadow-sm">

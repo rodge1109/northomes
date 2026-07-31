@@ -168,7 +168,7 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
           <button 
             type="button"
             onClick={onBack}
-            className="px-5 py-2 border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
+            className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
           >
             Cancel
           </button>
@@ -176,7 +176,7 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
             type="button"
             onClick={handleSubmit}
             disabled={saving}
-            className="flex items-center gap-2 px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] disabled:bg-[#005530]/50 rounded-lg text-[13px] font-bold shadow-sm transition-colors"
+            className="flex items-center gap-2 px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] disabled:bg-[#005530]/50 rounded-md text-[13px] font-bold shadow-sm transition-colors"
           >
             {saving ? 'Saving...' : guest ? 'Update Profile' : 'Save Profile'}
           </button>
@@ -184,7 +184,7 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
       </div>
 
       {/* Form Content Area */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-4">
         <div className="max-w-[1200px] mx-auto space-y-6">
           
           {error && (
@@ -204,13 +204,13 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
           <form onSubmit={handleSubmit} className="space-y-6">
             
             {/* 1. PERSONAL INFORMATION */}
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+            <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
               <h2 className="text-[14px] font-black text-black/80 tracking-wider uppercase border-b border-black/5 pb-2">Personal Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Title</label>
-                  <select name="title" value={formData.title} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Title</label>
+                  <select name="title" value={formData.title} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="">Select</option>
                     <option value="Mr.">Mr.</option>
                     <option value="Ms.">Ms.</option>
@@ -221,25 +221,25 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">First Name <span className="text-red-500">*</span></label>
-                  <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} placeholder="Enter first name" required className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">First Name <span className="text-red-500">*</span></label>
+                  <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} placeholder="Enter first name" required className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Middle Name</label>
-                  <input type="text" name="middle_name" value={formData.middle_name} onChange={handleChange} placeholder="Enter middle name" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Middle Name</label>
+                  <input type="text" name="middle_name" value={formData.middle_name} onChange={handleChange} placeholder="Enter middle name" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Last Name <span className="text-red-500">*</span></label>
-                  <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Enter last name" required className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Last Name <span className="text-red-500">*</span></label>
+                  <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Enter last name" required className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Gender</label>
-                  <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Gender</label>
+                  <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="">Select</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -248,13 +248,13 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Date of Birth</label>
-                  <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Date of Birth</label>
+                  <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Nationality</label>
-                  <select name="nationality" value={formData.nationality} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Nationality</label>
+                  <select name="nationality" value={formData.nationality} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="Filipino">Filipino</option>
                     <option value="American">American</option>
                     <option value="British">British</option>
@@ -267,8 +267,8 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">ID Type</label>
-                  <select name="id_type" value={formData.id_type} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">ID Type</label>
+                  <select name="id_type" value={formData.id_type} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="">Select</option>
                     <option value="Passport">Passport</option>
                     <option value="Driver's License">Driver's License</option>
@@ -280,20 +280,20 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">ID / Passport No.</label>
-                  <input type="text" name="id_number" value={formData.id_number} onChange={handleChange} placeholder="Enter ID or passport number" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">ID / Passport No.</label>
+                  <input type="text" name="id_number" value={formData.id_number} onChange={handleChange} placeholder="Enter ID or passport number" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Expiry Date</label>
-                  <input type="date" name="expiry_date" value={formData.expiry_date} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Expiry Date</label>
+                  <input type="date" name="expiry_date" value={formData.expiry_date} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Issuing Country</label>
-                  <select name="issuing_country" value={formData.issuing_country} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Issuing Country</label>
+                  <select name="issuing_country" value={formData.issuing_country} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="Philippines">Philippines</option>
                     <option value="United States">United States</option>
                     <option value="United Kingdom">United Kingdom</option>
@@ -307,61 +307,61 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
             </div>
 
             {/* 2. CONTACT INFORMATION */}
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+            <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
               <h2 className="text-[14px] font-black text-black/80 tracking-wider uppercase border-b border-black/5 pb-2">Contact Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Mobile Number</label>
-                  <div className="flex shadow-sm rounded-lg border border-black/10 focus-within:border-[#005530] focus-within:ring-1 focus-within:ring-[#005530] overflow-hidden bg-white">
-                    <span className="bg-gray-50 border-r border-black/10 px-3 py-2 text-[13px] font-medium text-black/60 select-none flex items-center gap-1">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Mobile Number</label>
+                  <div className="flex shadow-sm rounded-md border border-black/10 focus-within:border-[#005530] focus-within:ring-1 focus-within:ring-[#005530] overflow-hidden bg-white">
+                    <span className="bg-gray-50 border-r border-black/10 px-2 py-1.5 text-[13px] font-medium text-black/60 select-none flex items-center gap-1">
                       🇵🇭 +63
                     </span>
-                    <input type="tel" name="phone_number" value={formData.phone_number} onChange={handleChange} placeholder="Enter mobile number" className="w-full px-3 py-2 text-[13px] outline-none bg-transparent font-medium text-black/80 placeholder-black/30" />
+                    <input type="tel" name="phone_number" value={formData.phone_number} onChange={handleChange} placeholder="Enter mobile number" className="w-full px-2 py-1.5 text-[13px] outline-none bg-transparent font-medium text-black/80 placeholder-black/30" />
                   </div>
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Telephone</label>
-                  <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="Enter telephone number" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Telephone</label>
+                  <input type="tel" name="telephone" value={formData.telephone} onChange={handleChange} placeholder="Enter telephone number" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Email Address</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Enter email address" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Email Address</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Enter email address" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <div className="flex flex-col md:col-span-1">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Address Line 1</label>
-                  <input type="text" name="address_line_1" value={formData.address_line_1} onChange={handleChange} placeholder="Enter address" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Address Line 1</label>
+                  <input type="text" name="address_line_1" value={formData.address_line_1} onChange={handleChange} placeholder="Enter address" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 <div className="flex flex-col md:col-span-2">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Address Line 2 (Optional)</label>
-                  <input type="text" name="address_line_2" value={formData.address_line_2} onChange={handleChange} placeholder="Enter address (optional)" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Address Line 2 (Optional)</label>
+                  <input type="text" name="address_line_2" value={formData.address_line_2} onChange={handleChange} placeholder="Enter address (optional)" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">City</label>
-                  <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="Enter city" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">City</label>
+                  <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="Enter city" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Province / State</label>
-                  <input type="text" name="province_state" value={formData.province_state} onChange={handleChange} placeholder="Enter province / state" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Province / State</label>
+                  <input type="text" name="province_state" value={formData.province_state} onChange={handleChange} placeholder="Enter province / state" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">ZIP / Postal Code</label>
-                  <input type="text" name="zip_postal_code" value={formData.zip_postal_code} onChange={handleChange} placeholder="Enter zip / postal code" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">ZIP / Postal Code</label>
+                  <input type="text" name="zip_postal_code" value={formData.zip_postal_code} onChange={handleChange} placeholder="Enter zip / postal code" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Country</label>
-                  <select name="country" value={formData.country} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Country</label>
+                  <select name="country" value={formData.country} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="Philippines">Philippines</option>
                     <option value="United States">United States</option>
                     <option value="United Kingdom">United Kingdom</option>
@@ -374,13 +374,13 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
             </div>
 
             {/* 3. STAY PREFERENCES */}
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+            <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
               <h2 className="text-[14px] font-black text-black/80 tracking-wider uppercase border-b border-black/5 pb-2">Stay Preferences</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Preferred Room Type</label>
-                  <select name="preferred_room_type" value={formData.preferred_room_type} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Preferred Room Type</label>
+                  <select name="preferred_room_type" value={formData.preferred_room_type} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="">Select</option>
                     <option value="Standard Room">Standard Room</option>
                     <option value="Deluxe Room">Deluxe Room</option>
@@ -391,8 +391,8 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Preferred Floor</label>
-                  <select name="preferred_floor" value={formData.preferred_floor} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Preferred Floor</label>
+                  <select name="preferred_floor" value={formData.preferred_floor} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="">Select</option>
                     <option value="Floor 1">Floor 1</option>
                     <option value="Floor 2">Floor 2</option>
@@ -403,8 +403,8 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Bed Type</label>
-                  <select name="bed_type" value={formData.bed_type} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Bed Type</label>
+                  <select name="bed_type" value={formData.bed_type} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="">Select</option>
                     <option value="Queen Bed">Queen Bed</option>
                     <option value="King Bed">King Bed</option>
@@ -414,18 +414,18 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Smoking Preference</label>
-                  <select name="smoking_preference" value={formData.smoking_preference} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Smoking Preference</label>
+                  <select name="smoking_preference" value={formData.smoking_preference} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="Non-Smoking">Non-Smoking</option>
                     <option value="Smoking">Smoking</option>
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Pillow Type</label>
-                  <select name="pillow_type" value={formData.pillow_type} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Pillow Type</label>
+                  <select name="pillow_type" value={formData.pillow_type} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="">Select</option>
                     <option value="Feather">Feather</option>
                     <option value="Foam">Foam</option>
@@ -435,8 +435,8 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Language</label>
-                  <select name="language" value={formData.language} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Language</label>
+                  <select name="language" value={formData.language} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="English">English</option>
                     <option value="Tagalog">Tagalog</option>
                     <option value="Spanish">Spanish</option>
@@ -447,20 +447,20 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col md:col-span-2">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Special Requests / Notes</label>
-                  <input type="text" name="special_requests_notes" value={formData.special_requests_notes} onChange={handleChange} placeholder="Enter special requests or notes" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Special Requests / Notes</label>
+                  <input type="text" name="special_requests_notes" value={formData.special_requests_notes} onChange={handleChange} placeholder="Enter special requests or notes" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
               </div>
             </div>
 
             {/* 4. ADDITIONAL INFORMATION (Optional) */}
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+            <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
               <h2 className="text-[14px] font-black text-black/80 tracking-wider uppercase border-b border-black/5 pb-2">Additional Information (Optional)</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">VIP Status</label>
-                  <select name="vip_status" value={formData.vip_status} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">VIP Status</label>
+                  <select name="vip_status" value={formData.vip_status} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="Standard">Standard</option>
                     <option value="VIP">VIP</option>
                     <option value="Blacklisted">Blacklisted</option>
@@ -468,8 +468,8 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Source</label>
-                  <select name="source" value={formData.source} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Source</label>
+                  <select name="source" value={formData.source} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="Walk-In">Walk-In</option>
                     <option value="Direct Website">Direct Website</option>
                     <option value="Booking.com">Booking.com</option>
@@ -480,8 +480,8 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Market Segment</label>
-                  <select name="market_segment" value={formData.market_segment} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Market Segment</label>
+                  <select name="market_segment" value={formData.market_segment} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
                     <option value="Leisure">Leisure</option>
                     <option value="Corporate">Corporate</option>
                     <option value="Government">Government</option>
@@ -490,27 +490,27 @@ export default function NewGuestProfileForm({ onBack, onSave, guest }) {
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Referred By</label>
-                  <input type="text" name="referred_by" value={formData.referred_by} onChange={handleChange} placeholder="Enter name or company (optional)" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Referred By</label>
+                  <input type="text" name="referred_by" value={formData.referred_by} onChange={handleChange} placeholder="Enter name or company (optional)" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                 <div className="flex flex-col col-span-1">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Purpose of Visit</label>
-                  <input type="text" name="purpose_of_visit" value={formData.purpose_of_visit} onChange={handleChange} placeholder="e.g. Vacation, Business" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Purpose of Visit</label>
+                  <input type="text" name="purpose_of_visit" value={formData.purpose_of_visit} onChange={handleChange} placeholder="e.g. Vacation, Business" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Tags</label>
-                  <input type="text" name="tags" value={formData.tags} onChange={handleChange} placeholder="Add tags (e.g., VIP, Repeat Guest, Birthday)" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Tags</label>
+                  <input type="text" name="tags" value={formData.tags} onChange={handleChange} placeholder="Add tags (e.g., VIP, Repeat Guest, Birthday)" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="text-[11px] font-bold text-black/60 mb-1.5">Notes</label>
-                  <textarea name="notes" value={formData.notes} onChange={handleChange} placeholder="Add notes about the guest (optional)" rows="2" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm resize-none"></textarea>
+                  <label className="text-[11px] font-bold text-black/60 mb-1">Notes</label>
+                  <textarea name="notes" value={formData.notes} onChange={handleChange} placeholder="Add notes about the guest (optional)" rows="2" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm resize-none"></textarea>
                 </div>
               </div>
             </div>

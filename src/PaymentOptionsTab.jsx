@@ -63,10 +63,10 @@ export default function PaymentOptionsTab({ hotelSettings, setHotelSettings }) {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8">
-        <div className="mb-8 border-b border-black/5 pb-6 flex justify-between items-end">
+      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4">
+        <div className="mb-4 border-b border-black/5 pb-6 flex justify-between items-end">
           <div>
-            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Payment Options</h3>
+            <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Payment Options</h3>
             <p className="text-black/60 text-xs mt-1">Configure the payment methods available to guests during online booking.</p>
           </div>
           <button
@@ -80,18 +80,18 @@ export default function PaymentOptionsTab({ hotelSettings, setHotelSettings }) {
         </div>
 
         {message && (
-          <div className={`mb-6 flex items-center gap-2 p-4 rounded-xl text-sm font-bold ${message.includes('success') ? 'bg-[#00754A]/10 text-[#00754A]' : 'bg-red-500/10 text-red-600'}`}>
+          <div className={`mb-3 flex items-center gap-2 p-4 rounded-xl text-[12px] font-bold ${message.includes('success') ? 'bg-[#00754A]/10 text-[#00754A]' : 'bg-red-500/10 text-red-600'}`}>
             {message.includes('success') ? <Check size={18} /> : <AlertCircle size={18} />}
             {message}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           
           {/* GCash Settings */}
-          <div className={`border rounded-2xl p-6 transition-colors ${options.gcash_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
+          <div className={`border rounded-xl p-4 transition-colors ${options.gcash_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-bold text-[#111] flex items-center gap-2">
+              <h4 className="text-[12px] font-bold text-[#111] flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${options.gcash_enabled ? 'bg-[#00754A]' : 'bg-black/20'}`}></div>
                 GCash
               </h4>
@@ -103,25 +103,25 @@ export default function PaymentOptionsTab({ hotelSettings, setHotelSettings }) {
             {options.gcash_enabled && (
               <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Account Name</label>
-                  <input type="text" value={options.gcash_name} onChange={(e) => handleChange('gcash_name', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" placeholder="e.g. Juan dela Cruz" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Account Name</label>
+                  <input type="text" value={options.gcash_name} onChange={(e) => handleChange('gcash_name', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" placeholder="e.g. Juan dela Cruz" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">GCash Number</label>
-                  <input type="text" value={options.gcash_number} onChange={(e) => handleChange('gcash_number', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" placeholder="e.g. 0912 345 6789" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">GCash Number</label>
+                  <input type="text" value={options.gcash_number} onChange={(e) => handleChange('gcash_number', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" placeholder="e.g. 0912 345 6789" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Instructions for Guest</label>
-                  <textarea value={options.gcash_instructions} onChange={(e) => handleChange('gcash_instructions', e.target.value)} rows={3} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none resize-none" placeholder="Instructions..." />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Instructions for Guest</label>
+                  <textarea value={options.gcash_instructions} onChange={(e) => handleChange('gcash_instructions', e.target.value)} rows={3} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none resize-none" placeholder="Instructions..." />
                 </div>
               </div>
             )}
           </div>
 
           {/* PayMaya Settings */}
-          <div className={`border rounded-2xl p-6 transition-colors ${options.paymaya_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
+          <div className={`border rounded-xl p-4 transition-colors ${options.paymaya_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-bold text-[#111] flex items-center gap-2">
+              <h4 className="text-[12px] font-bold text-[#111] flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${options.paymaya_enabled ? 'bg-[#00754A]' : 'bg-black/20'}`}></div>
                 Maya (PayMaya)
               </h4>
@@ -133,25 +133,25 @@ export default function PaymentOptionsTab({ hotelSettings, setHotelSettings }) {
             {options.paymaya_enabled && (
               <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Account Name</label>
-                  <input type="text" value={options.paymaya_name} onChange={(e) => handleChange('paymaya_name', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" placeholder="e.g. Juan dela Cruz" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Account Name</label>
+                  <input type="text" value={options.paymaya_name} onChange={(e) => handleChange('paymaya_name', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" placeholder="e.g. Juan dela Cruz" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Maya Number</label>
-                  <input type="text" value={options.paymaya_number} onChange={(e) => handleChange('paymaya_number', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" placeholder="e.g. 0912 345 6789" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Maya Number</label>
+                  <input type="text" value={options.paymaya_number} onChange={(e) => handleChange('paymaya_number', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" placeholder="e.g. 0912 345 6789" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Instructions for Guest</label>
-                  <textarea value={options.paymaya_instructions} onChange={(e) => handleChange('paymaya_instructions', e.target.value)} rows={3} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none resize-none" placeholder="Instructions..." />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Instructions for Guest</label>
+                  <textarea value={options.paymaya_instructions} onChange={(e) => handleChange('paymaya_instructions', e.target.value)} rows={3} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none resize-none" placeholder="Instructions..." />
                 </div>
               </div>
             )}
           </div>
 
           {/* Bank Transfer Settings */}
-          <div className={`border rounded-2xl p-6 transition-colors ${options.bank_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
+          <div className={`border rounded-xl p-4 transition-colors ${options.bank_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-bold text-[#111] flex items-center gap-2">
+              <h4 className="text-[12px] font-bold text-[#111] flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${options.bank_enabled ? 'bg-[#00754A]' : 'bg-black/20'}`}></div>
                 Bank Transfer
               </h4>
@@ -163,33 +163,33 @@ export default function PaymentOptionsTab({ hotelSettings, setHotelSettings }) {
             {options.bank_enabled && (
               <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Bank Name</label>
-                  <input type="text" value={options.bank_name} onChange={(e) => handleChange('bank_name', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" placeholder="e.g. BDO, BPI" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Bank Name</label>
+                  <input type="text" value={options.bank_name} onChange={(e) => handleChange('bank_name', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" placeholder="e.g. BDO, BPI" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Account Name</label>
-                  <input type="text" value={options.bank_account_name} onChange={(e) => handleChange('bank_account_name', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Account Name</label>
+                  <input type="text" value={options.bank_account_name} onChange={(e) => handleChange('bank_account_name', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Account Number</label>
-                  <input type="text" value={options.bank_account_number} onChange={(e) => handleChange('bank_account_number', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Account Number</label>
+                  <input type="text" value={options.bank_account_number} onChange={(e) => handleChange('bank_account_number', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">SWIFT Code</label>
-                  <input type="text" value={options.bank_swift} onChange={(e) => handleChange('bank_swift', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">SWIFT Code</label>
+                  <input type="text" value={options.bank_swift} onChange={(e) => handleChange('bank_swift', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Instructions</label>
-                  <textarea value={options.bank_instructions} onChange={(e) => handleChange('bank_instructions', e.target.value)} rows={2} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none resize-none" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Instructions</label>
+                  <textarea value={options.bank_instructions} onChange={(e) => handleChange('bank_instructions', e.target.value)} rows={2} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none resize-none" />
                 </div>
               </div>
             )}
           </div>
 
           {/* Others / Cash Settings */}
-          <div className={`border rounded-2xl p-6 transition-colors ${options.others_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
+          <div className={`border rounded-xl p-4 transition-colors ${options.others_enabled ? 'border-[#00754A]/30 bg-white/50' : 'border-black/5 bg-black/[0.02]'}`}>
             <div className="flex items-center justify-between mb-4">
-              <h4 className="text-sm font-bold text-[#111] flex items-center gap-2">
+              <h4 className="text-[12px] font-bold text-[#111] flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${options.others_enabled ? 'bg-[#00754A]' : 'bg-black/20'}`}></div>
                 Other Options (e.g. Cash)
               </h4>
@@ -201,12 +201,12 @@ export default function PaymentOptionsTab({ hotelSettings, setHotelSettings }) {
             {options.others_enabled && (
               <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2">
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Option Label</label>
-                  <input type="text" value={options.others_label} onChange={(e) => handleChange('others_label', e.target.value)} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none" placeholder="e.g. Cash on Arrival" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Option Label</label>
+                  <input type="text" value={options.others_label} onChange={(e) => handleChange('others_label', e.target.value)} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none" placeholder="e.g. Cash on Arrival" />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1.5">Instructions</label>
-                  <textarea value={options.others_instructions} onChange={(e) => handleChange('others_instructions', e.target.value)} rows={3} className="w-full px-4 py-2.5 bg-white border border-black/10 rounded-xl text-sm focus:border-[#00754A] outline-none resize-none" />
+                  <label className="block text-[10px] font-bold text-black/50 uppercase tracking-widest mb-1">Instructions</label>
+                  <textarea value={options.others_instructions} onChange={(e) => handleChange('others_instructions', e.target.value)} rows={3} className="w-full px-4 py-1.5 bg-white border border-black/10 rounded-xl text-[12px] font-medium focus:border-[#00754A] outline-none resize-none" />
                 </div>
               </div>
             )}

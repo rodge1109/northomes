@@ -255,13 +255,13 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
           <h2 className="text-[#000000]/87 font-black text-[24px] tracking-tight leading-tight">Guests</h2>
           <p className="text-black/60 text-[13px] mt-1 font-medium">View and manage guest profiles and stay history.</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
             <input type="text" placeholder="Search guest name, email, phone, ID..." 
-              className="pl-9 pr-8 py-2.5 border border-black/10 rounded-xl text-[13px] w-[300px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm" />
+              className="pl-9 pr-8 py-1.5 border border-black/10 rounded-xl text-[13px] w-[300px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm" />
             <div className="absolute inset-y-0 right-0 pr-2 flex items-center">
               <span className="text-[10px] font-bold text-black/30 border border-black/10 rounded px-1.5 py-0.5">/</span>
             </div>
@@ -270,7 +270,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
           <button 
             type="button"
             onClick={() => setCreatingProfile(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-lg text-[13px] font-bold shadow-sm transition-colors shrink-0 animate-fade-in"
+            className="flex items-center gap-2 px-4 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-md text-[13px] font-bold shadow-sm transition-colors shrink-0 animate-fade-in"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             New Guest Profile
@@ -281,7 +281,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-emerald-500 rounded-full border border-white"></span>
           </div>
 
-          <div className="flex items-center gap-2 pl-2 border-l border-black/10 cursor-pointer hover:bg-gray-50 p-1.5 rounded-lg transition-colors">
+          <div className="flex items-center gap-2 pl-2 border-l border-black/10 cursor-pointer hover:bg-gray-50 p-1.5 rounded-md transition-colors">
             <img src="https://ui-avatars.com/api/?name=Maria+Santos&background=0D8ABC&color=fff" className="w-8 h-8 rounded-full" alt="User" />
             <div className="hidden md:block">
               <div className="text-[11px] font-bold text-black/80 leading-tight">Maria Santos</div>
@@ -296,12 +296,12 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
       <div className="flex-1 flex overflow-hidden">
         
         {/* Main Content (Left) */}
-        <div className={`flex-1 overflow-y-auto p-8 transition-all duration-300 ${selectedGuest ? 'pr-[380px]' : ''}`}>
+        <div className={`flex-1 overflow-y-auto p-4 transition-all duration-300 ${selectedGuest ? 'pr-[380px]' : ''}`}>
           <div className="max-w-[1500px] mx-auto space-y-6">
 
             {/* Top Stat Cards */}
-            <div className="grid grid-cols-5 gap-4">
-              <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm flex items-start justify-between">
+            <div className="grid grid-cols-5 gap-2">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-start justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">TOTAL GUESTS</h4>
                   <div className="text-[32px] text-[#005530] font-black leading-none mb-1 tracking-tight">{statsDerived.total}</div>
@@ -311,7 +311,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm flex items-start justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-start justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">IN-HOUSE GUESTS</h4>
                   <div className="text-[32px] text-blue-600 font-black leading-none mb-1 tracking-tight">{statsDerived.inHouse}</div>
@@ -321,7 +321,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="4" rx="1" ry="1"></rect><line x1="12" y1="8" x2="12" y2="21"></line><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"></path><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"></path></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm flex items-start justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-start justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">EXPECTED ARRIVALS</h4>
                   <div className="text-[32px] text-purple-600 font-black leading-none mb-1 tracking-tight">{statsDerived.expected}</div>
@@ -331,7 +331,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9333EA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm flex items-start justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-start justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">REPEAT GUESTS</h4>
                   <div className="text-[32px] text-orange-500 font-black leading-none mb-1 tracking-tight">{statsDerived.repeat}</div>
@@ -341,7 +341,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.6 5.6"/></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm flex items-start justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-start justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-2">VIP GUESTS</h4>
                   <div className="text-[32px] text-amber-500 font-black leading-none mb-1 tracking-tight">{statsDerived.vip}</div>
@@ -354,23 +354,23 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
             </div>
 
             {/* Filter Toolbar */}
-            <div className="flex items-center justify-between gap-4 py-2">
+            <div className="flex items-center justify-between gap-2 py-2">
               <div className="flex items-center gap-3">
                 <div className="relative w-[300px]">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                   </div>
                   <input type="text" placeholder="Search guest name, email, phone, or ID..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                    className="pl-9 pr-4 py-2 bg-white border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] font-medium text-black/80 placeholder-black/40 shadow-sm" />
+                    className="pl-9 pr-4 py-2 bg-white border border-black/10 rounded-md text-[13px] w-full outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] font-medium text-black/80 placeholder-black/40 shadow-sm" />
                 </div>
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="bg-white border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium shadow-sm pr-8 min-w-[120px]">
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="bg-white border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium shadow-sm pr-8 min-w-[120px]">
                   <option>All Status</option>
                   <option value="In-House">In-House</option>
                   <option value="Confirmed">Confirmed</option>
                   <option value="Checked-Out">Checked-Out</option>
                   <option value="Cancelled">Cancelled</option>
                 </select>
-                <select value={filterNationality} onChange={e => setFilterNationality(e.target.value)} className="bg-white border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium shadow-sm pr-8 min-w-[150px]">
+                <select value={filterNationality} onChange={e => setFilterNationality(e.target.value)} className="bg-white border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium shadow-sm pr-8 min-w-[150px]">
                   <option>All Nationalities</option>
                   <option value="Filipino">Filipino</option>
                   <option value="Singaporean">Singaporean</option>
@@ -378,20 +378,20 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                   <option value="Korean">Korean</option>
                   <option value="American">American</option>
                 </select>
-                <select value={filterSource} onChange={e => setFilterSource(e.target.value)} className="bg-white border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium shadow-sm pr-8 min-w-[130px]">
+                <select value={filterSource} onChange={e => setFilterSource(e.target.value)} className="bg-white border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium shadow-sm pr-8 min-w-[130px]">
                   <option>All Sources</option>
                 </select>
-                <button className="flex items-center gap-2 bg-white border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 shadow-sm">
+                <button className="flex items-center gap-2 bg-white border border-black/10 rounded-md text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 shadow-sm">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                   More Filters
                 </button>
               </div>
               <div className="flex items-center gap-3">
-                <button className="flex items-center gap-2 px-4 py-2 bg-white border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50 shadow-sm">
+                <button className="flex items-center gap-2 px-4 py-2 bg-white border border-black/10 rounded-md text-[13px] font-medium text-black/80 hover:bg-gray-50 shadow-sm">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Export
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-lg text-[13px] font-bold shadow-sm transition-colors">
+                <button className="flex items-center gap-2 px-4 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-md text-[13px] font-bold shadow-sm transition-colors">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                   Add New Guest
                 </button>
@@ -399,7 +399,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
             </div>
 
             {/* Guests Data Grid */}
-            <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-[12px]">
                   <thead>
@@ -484,7 +484,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                 <div className="text-black/50 font-medium">
                   Showing 1 to {displayGuests.length} of {statsDerived.total} entries
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <div className="flex gap-1">
                     <button className="w-8 h-8 flex items-center justify-center rounded border border-black/10 text-black/40 hover:bg-gray-50">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -498,7 +498,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
                     </button>
                   </div>
-                  <select className="border border-black/10 rounded-lg px-2 py-1.5 outline-none text-black/80 font-medium bg-white">
+                  <select className="border border-black/10 rounded-md px-2 py-1.5 outline-none text-black/80 font-medium bg-white">
                     <option>10 per page</option>
                   </select>
                 </div>
@@ -514,12 +514,12 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
             <div className="flex flex-col h-full bg-[#f8f9fa]">
               
               {/* Profile Header */}
-              <div className="p-6 bg-white border-b border-black/5 relative shrink-0">
-                <button onClick={() => setSelectedGuest(null)} className="absolute top-4 right-4 p-1.5 text-black/40 hover:text-black/80 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="p-4 bg-white border-b border-black/5 relative shrink-0">
+                <button onClick={() => setSelectedGuest(null)} className="absolute top-4 right-4 p-1.5 text-black/40 hover:text-black/80 rounded-md hover:bg-gray-100 transition-colors">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
                 
-                <div className="flex items-center gap-4 mt-2">
+                <div className="flex items-center gap-2 mt-2">
                   <div className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-[20px] shrink-0 ${getInitialsColor(selectedGuest.name)}`}>
                     {selectedGuest.initials}
                   </div>
@@ -536,7 +536,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
               </div>
 
               {/* Profile Details Scrollable Content */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-8">
+              <div className="flex-1 overflow-y-auto p-4 space-y-8">
                 
                 {/* Contact & Identity */}
                 <div className="space-y-4">
@@ -627,7 +627,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                       <span className="font-bold text-black/90">{fmtDate(selectedGuest.lastStayDate)}</span>
                     </div>
                   </div>
-                  <button onClick={() => setViewingProfile(true)} className="w-full mt-4 py-2 bg-white border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors tracking-tight">
+                  <button onClick={() => setViewingProfile(true)} className="w-full mt-4 py-2 bg-white border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors tracking-tight">
                     View Full Profile
                   </button>
                 </div>
@@ -636,22 +636,22 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                 <div>
                   <h4 className="text-[13px] font-black text-black/90 mb-3 border-b border-black/5 pb-2">Quick Actions</h4>
                   <div className="grid grid-cols-2 gap-2">
-                    <button className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm">
+                    <button className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                       New Reservation
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm">
+                    <button className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                       Add Note
                     </button>
-                    <button className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm col-span-2">
+                    <button className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm col-span-2">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-7.6 4.7c0-.2.2-.4.4-.4"/></svg>
                       Send Message
                     </button>
                     {selectedGuest.stays && selectedGuest.stays.length > 0 && printGuestDataSheet && (
                       <button 
                         onClick={() => printGuestDataSheet(selectedGuest.stays[0])}
-                        className="flex items-center gap-2 px-3 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-lg text-[12px] font-bold transition-colors shadow-sm col-span-2 justify-center"
+                        className="flex items-center gap-2 px-2 py-1.5 bg-[#005530] text-white hover:bg-[#004420] rounded-md text-[12px] font-bold transition-colors shadow-sm col-span-2 justify-center"
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
                         Print Guest Data Sheet

@@ -135,25 +135,25 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
 
     return (
       <div className="flex flex-col">
-        <label className="text-[11px] font-bold text-black/60 mb-1.5">
+        <label className="text-[11px] font-bold text-black/60 mb-1">
           {label} {required && <span className="text-red-500">*</span>}
         </label>
         {options ? (
-          <select name={name} value={value} onChange={handleChange} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
+          <select name={name} value={value} onChange={handleChange} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 shadow-sm">
             <option value="">Select</option>
             {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
           </select>
         ) : type === 'textarea' ? (
-          <textarea name={name} value={value} onChange={handleChange} placeholder={`Enter ${label.toLowerCase()}`} rows="2" className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm resize-none"></textarea>
+          <textarea name={name} value={value} onChange={handleChange} placeholder={`Enter ${label.toLowerCase()}`} rows="2" className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm resize-none"></textarea>
         ) : name === 'phone_number' ? (
-          <div className="flex shadow-sm rounded-lg border border-black/10 focus-within:border-[#005530] focus-within:ring-1 focus-within:ring-[#005530] overflow-hidden bg-white">
-            <span className="bg-gray-50 border-r border-black/10 px-3 py-2 text-[13px] font-medium text-black/60 select-none flex items-center gap-1">
+          <div className="flex shadow-sm rounded-md border border-black/10 focus-within:border-[#005530] focus-within:ring-1 focus-within:ring-[#005530] overflow-hidden bg-white">
+            <span className="bg-gray-50 border-r border-black/10 px-2 py-1.5 text-[13px] font-medium text-black/60 select-none flex items-center gap-1">
               🇵🇭 +63
             </span>
-            <input type="tel" name="phone_number" value={value} onChange={handleChange} placeholder="Enter mobile number" className="w-full px-3 py-2 text-[13px] outline-none bg-transparent font-medium text-black/80 placeholder-black/30" />
+            <input type="tel" name="phone_number" value={value} onChange={handleChange} placeholder="Enter mobile number" className="w-full px-2 py-1.5 text-[13px] outline-none bg-transparent font-medium text-black/80 placeholder-black/30" />
           </div>
         ) : (
-          <input type={type} name={name} value={value} onChange={handleChange} placeholder={`Enter ${label.toLowerCase()}`} required={required} className="w-full px-3 py-2 border border-black/10 rounded-lg text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
+          <input type={type} name={name} value={value} onChange={handleChange} placeholder={`Enter ${label.toLowerCase()}`} required={required} className="w-full px-2 py-1.5 border border-black/10 rounded-md text-[13px] outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] bg-white font-medium text-black/80 placeholder-black/30 shadow-sm" />
         )}
       </div>
     );
@@ -174,14 +174,14 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
             <>
               <button 
                 onClick={() => setIsEditing(false)} 
-                className="px-5 py-2 border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
+                className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleSave} 
                 disabled={saving} 
-                className="px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] disabled:bg-[#005530]/50 rounded-lg text-[13px] font-bold shadow-sm transition-colors"
+                className="px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] disabled:bg-[#005530]/50 rounded-md text-[13px] font-bold shadow-sm transition-colors"
               >
                 {saving ? 'Saving...' : 'Save Profile'}
               </button>
@@ -190,20 +190,20 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
             <>
               <button 
                 onClick={() => setIsEditing(true)} 
-                className="px-5 py-2 border border-black/10 rounded-lg text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
+                className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
               >
                 Edit Profile
               </button>
               {guest.stays && guest.stays.length > 0 && printGuestDataSheet && (
                 <button 
                   onClick={() => printGuestDataSheet(guest.stays[0])}
-                  className="flex items-center gap-2 px-5 py-2 border border-black/10 text-black/80 hover:bg-gray-50 rounded-lg text-[13px] font-bold shadow-sm transition-colors bg-white"
+                  className="flex items-center gap-2 px-5 py-2 border border-black/10 text-black/80 hover:bg-gray-50 rounded-md text-[13px] font-bold shadow-sm transition-colors bg-white"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
                   Print Data Sheet
                 </button>
               )}
-              <button className="flex items-center gap-2 px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-lg text-[13px] font-bold shadow-sm transition-colors">
+              <button className="flex items-center gap-2 px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-md text-[13px] font-bold shadow-sm transition-colors">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 New Reservation
               </button>
@@ -213,7 +213,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
       </div>
 
       {/* Main Content Scrollable Area */}
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-4">
         <div className="max-w-[1500px] mx-auto space-y-6">
 
           {error && (
@@ -230,14 +230,14 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
             </div>
           )}
           
-          <div className="flex gap-6">
+          <div className="flex gap-3">
             
             {/* Left Column (Main Info & Form) */}
             <div className="flex-1 space-y-6">
               
               {/* Top Identity Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 relative">
-                <div className="flex items-center gap-4">
+              <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 relative">
+                <div className="flex items-center gap-2">
                   <div className={`w-[72px] h-[72px] rounded-full flex items-center justify-center font-black text-[24px] ${getInitialsColor(guest.name)}`}>
                     {guest.initials}
                   </div>
@@ -252,7 +252,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
               </div>
 
               {/* Horizontal Tabs */}
-              <div className="border-b border-black/10 flex items-center gap-8 text-[13px] font-bold text-black/50 px-2 mt-4">
+              <div className="border-b border-black/10 flex items-center gap-2 text-[13px] font-bold text-black/50 px-2 mt-4">
                 {['Profile', 'Stay History', 'Reservations', 'Documents', 'Notes'].map(tab => (
                   <div 
                     key={tab}
@@ -268,21 +268,21 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
               {activeTab === 'Profile' && (
                 <div className="space-y-6">
                   {/* 1. PERSONAL INFORMATION */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+                  <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight border-b border-black/5 pb-2 uppercase">Personal Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                       {renderField('Title', 'title', 'text', ["Mr.", "Ms.", "Mrs.", "Dr.", "Prof."])}
                       {renderField('First Name', 'first_name', 'text', null, true)}
                       {renderField('Middle Name', 'middle_name', 'text')}
                       {renderField('Last Name', 'last_name', 'text', null, true)}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                       {renderField('Gender', 'gender', 'text', ["Male", "Female", "Other"])}
                       {renderField('Date of Birth', 'date_of_birth', 'date')}
                       {renderField('Nationality', 'nationality', 'text', ["Filipino", "American", "British", "Canadian", "Australian", "Japanese", "German", "Korean"])}
                       {renderField('ID Type', 'id_type', 'text', ["Passport", "Driver's License", "National ID", "SSS / GSIS UMID", "PRC ID", "Company ID"])}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       {renderField('ID / Passport No.', 'id_number')}
                       {renderField('Expiry Date', 'expiry_date', 'date')}
                       {renderField('Issuing Country', 'issuing_country', 'text', ["Philippines", "United States", "United Kingdom", "Canada", "Australia", "Japan", "South Korea"])}
@@ -290,18 +290,18 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                   </div>
 
                   {/* 2. CONTACT INFORMATION */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+                  <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight border-b border-black/5 pb-2 uppercase">Contact Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       {renderField('Mobile Number', 'phone_number')}
                       {renderField('Telephone', 'telephone')}
                       {renderField('Email Address', 'email')}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       <div className="md:col-span-1">{renderField('Address Line 1', 'address_line_1')}</div>
                       <div className="md:col-span-2">{renderField('Address Line 2 (Optional)', 'address_line_2')}</div>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                       {renderField('City', 'city')}
                       {renderField('Province / State', 'province_state')}
                       {renderField('ZIP / Postal Code', 'zip_postal_code')}
@@ -310,15 +310,15 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                   </div>
 
                   {/* 3. STAY PREFERENCES */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+                  <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight border-b border-black/5 pb-2 uppercase">Stay Preferences</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                       {renderField('Preferred Room Type', 'preferred_room_type', 'text', ["Standard Room", "Deluxe Room", "Suite", "Family Room", "Presidential Suite"])}
                       {renderField('Preferred Floor', 'preferred_floor', 'text', ["Floor 1", "Floor 2", "Floor 3", "Floor 4", "Floor 5"])}
                       {renderField('Bed Type', 'bed_type', 'text', ["Queen Bed", "King Bed", "Double Bed", "Single Bed"])}
                       {renderField('Smoking Preference', 'smoking_preference', 'text', ["Non-Smoking", "Smoking"])}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                       {renderField('Pillow Type', 'pillow_type', 'text', ["Feather", "Foam", "Latex", "Memory Foam"])}
                       {renderField('Language', 'language', 'text', ["English", "Tagalog", "Spanish", "Japanese", "Korean", "Mandarin"])}
                       <div className="md:col-span-2">{renderField('Special Requests / Notes', 'special_requests_notes')}</div>
@@ -326,15 +326,15 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                   </div>
 
                   {/* 4. ADDITIONAL INFORMATION */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-6 space-y-5">
+                  <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4 space-y-5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight border-b border-black/5 pb-2 uppercase">Additional Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                       {renderField('VIP Status', 'vip_status', 'text', ["Standard", "VIP", "Blacklisted"])}
                       {renderField('Source', 'source', 'text', ["Walk-In", "Direct Website", "Booking.com", "Agoda", "Expedia", "Airbnb"])}
                       {renderField('Market Segment', 'market_segment', 'text', ["Leisure", "Corporate", "Government", "Groups"])}
                       {renderField('Referred By', 'referred_by')}
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                       {renderField('Purpose of Visit', 'purpose_of_visit')}
                       <div className="md:col-span-3">{renderField('Tags', 'tags')}</div>
                     </div>
@@ -346,7 +346,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
               )}
 
               {activeTab === 'Stay History' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-6 py-4 border-b border-black/5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight uppercase">Stay History</h3>
                   </div>
@@ -401,7 +401,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
               )}
 
               {activeTab === 'Reservations' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-6 py-4 border-b border-black/5">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight uppercase">Linked Reservations</h3>
                   </div>
@@ -443,7 +443,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
               )}
 
               {activeTab === 'Documents' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-6 py-4 border-b border-black/5 flex items-center justify-between">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight uppercase">Uploaded Documents</h3>
                     <button className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1">
@@ -451,7 +451,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                       Add Document
                     </button>
                   </div>
-                  <div className="p-6">
+                  <div className="p-4">
                     <div className="flex items-center gap-3 p-3 border border-black/10 rounded-xl max-w-md bg-gray-50/50">
                       <div className="w-10 h-10 border border-[#EF5350] bg-[#FFEBEE] rounded flex items-center justify-center shrink-0">
                         <span className="text-[10px] font-black text-[#EF5350]">PDF</span>
@@ -469,7 +469,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
               )}
 
               {activeTab === 'Notes' && (
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-6 py-4 border-b border-black/5 flex items-center justify-between">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight uppercase">Internal Notes</h3>
                     <button className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1">
@@ -477,7 +477,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                       Add Note
                     </button>
                   </div>
-                  <div className="p-6 space-y-4">
+                  <div className="p-4 space-y-4">
                     <div className="bg-[#FFF8E1] border border-[#FFECB3] rounded-xl p-3 relative">
                       <p className="text-[12px] font-medium text-black/80 pr-6">Prefers rooms away from elevator.</p>
                       <p className="text-[10px] text-black/40 mt-1 font-medium">May 10, 2025 10:15 AM by Maria Santos</p>
@@ -496,11 +496,11 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
               <div className="w-[360px] shrink-0 space-y-6">
                 
                 {/* Account Summary */}
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-5 py-4 border-b border-black/5">
                     <h3 className="text-[14px] font-black text-black/90 tracking-tight">Account Summary</h3>
                   </div>
-                  <div className="p-5 space-y-3">
+                  <div className="p-3 space-y-3">
                     <div className="flex items-center justify-between text-[13px]">
                       <span className="text-black/60 font-medium">Total Stays</span>
                       <span className="font-bold text-black/90">{guest.totalStays}</span>
@@ -527,7 +527,7 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                 </div>
 
                 {/* Stay History Summary (Last 5) */}
-                <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-5 py-4 border-b border-black/5 flex items-center justify-between">
                     <h3 className="text-[14px] font-black text-black/90 tracking-tight">Recent Stay History</h3>
                   </div>

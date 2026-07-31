@@ -58,23 +58,23 @@ export default function CorporateSettingsTab() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8">
+      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4">
         
-        <div className="mb-8 flex items-center justify-between flex-wrap gap-4">
+        <div className="mb-4 flex items-center justify-between flex-wrap gap-2">
           <div>
-            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Corporate Accounts</h3>
+            <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Corporate Accounts</h3>
             <p className="text-black/60 text-xs mt-1">Manage B2B partners, view ledgers, and set credit limits.</p>
           </div>
           <button
             onClick={() => setIsCreatingNew(true)}
-            className="flex items-center gap-2 bg-[#00754A] hover:bg-[#006241] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm transition-all hover:-translate-y-0.5"
+            className="flex items-center gap-2 bg-[#00754A] hover:bg-[#006241] text-white px-5 py-1.5 rounded-xl text-[12px] font-bold shadow-sm transition-all hover:-translate-y-0.5"
           >
             <Plus size={16} strokeWidth={3} />
             New Corporate Account
           </button>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-3">
           <div className="relative max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-black/30" size={16} />
             <input 
@@ -82,30 +82,30 @@ export default function CorporateSettingsTab() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search companies or account numbers..." 
-              className="w-full pl-11 pr-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-black/80 text-sm focus:border-[#00754A]/50 outline-none transition-all placeholder:text-black/30 font-medium"
+              className="w-full pl-11 pr-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-black/80 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all placeholder:text-black/30 font-medium"
             />
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-black/40 text-sm font-medium">Loading corporate accounts...</div>
+          <div className="text-center py-12 text-black/40 text-[12px] font-medium">Loading corporate accounts...</div>
         ) : filteredAccounts.length === 0 ? (
-          <div className="text-center py-16 bg-white/50 border border-black/5 rounded-2xl">
+          <div className="text-center py-16 bg-white/50 border border-black/5 rounded-xl">
             <Building className="mx-auto text-black/20 mb-3" size={32} />
-            <p className="text-black/60 font-medium text-sm">No corporate accounts found.</p>
+            <p className="text-black/60 font-medium text-[12px]">No corporate accounts found.</p>
             {search && <p className="text-black/40 text-xs mt-1">Try adjusting your search terms.</p>}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {filteredAccounts.map(account => {
               const initials = account.company_name ? account.company_name.substring(0, 2).toUpperCase() : 'CO';
               return (
                 <div 
                   key={account.id} 
                   onClick={() => setSelectedAccount(account)}
-                  className="bg-white border border-black/5 rounded-2xl p-5 hover:border-[#00754A]/30 hover:shadow-md transition-all cursor-pointer group"
+                  className="bg-white border border-black/5 rounded-xl p-3 hover:border-[#00754A]/30 hover:shadow-md transition-all cursor-pointer group"
                 >
-                  <div className="flex items-center gap-4 mb-4">
+                  <div className="flex items-center gap-2 mb-4">
                     <div className="w-12 h-12 rounded-full bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center font-black text-[15px] shrink-0">
                       {initials}
                     </div>

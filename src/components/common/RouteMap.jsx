@@ -49,7 +49,7 @@ export default function RouteMap({ userLocation }) {
 
   if (!userLocation) {
     return (
-      <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-2xl border border-black/10">
+      <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-xl border border-black/10">
         <p className="text-black/50 font-medium">Please allow location access to view the route.</p>
       </div>
     );
@@ -60,7 +60,7 @@ export default function RouteMap({ userLocation }) {
   const centerLng = (userLocation[1] + hotelLocation[1]) / 2;
 
   return (
-    <div className="w-full h-[400px] rounded-2xl overflow-hidden border border-black/10 shadow-sm relative z-0">
+    <div className="w-full h-[400px] rounded-xl overflow-hidden border border-black/10 shadow-sm relative z-0">
       <MapContainer 
         center={[centerLat, centerLng]} 
         zoom={10} 

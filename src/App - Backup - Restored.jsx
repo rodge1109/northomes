@@ -624,14 +624,14 @@ export default function RestaurantApp() {
               onClick={() => setCurrentPage('checkin')}
               className={`flex flex-col items-center px-4 py-1 ${currentPage === 'checkin' ? 'text-[#576CA8]' : 'text-[#302B27]'}`}
             >
-              <span className="text-xl leading-none">🏨</span>
+              <span className="text-[16px] leading-none">🏨</span>
               <span className="text-xs font-medium mt-0.5">Check In</span>
             </button>
             <button
               onClick={() => setCurrentPage('frontdesk')}
               className={`flex flex-col items-center px-4 py-1 ${currentPage === 'frontdesk' ? 'text-[#576CA8]' : 'text-[#302B27]'}`}
             >
-              <span className="text-xl leading-none">🛎️</span>
+              <span className="text-[16px] leading-none">🛎️</span>
               <span className="text-xs font-medium mt-0.5">Front Desk</span>
             </button>
             <div className="relative">
@@ -650,7 +650,7 @@ export default function RestaurantApp() {
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border border-gray-200 py-2 w-44 z-50">
                     <button
                       onClick={() => { setCurrentPage('queue-teller'); setShowLoginMenu(false); }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 flex items-center gap-2"
+                      className="w-full text-left px-4 py-1.5 text-[12px] text-gray-700 hover:bg-blue-50 flex items-center gap-2"
                     >
                       <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -659,7 +659,7 @@ export default function RestaurantApp() {
                     </button>
                     <button
                       onClick={() => { setCurrentPage('admin'); setShowLoginMenu(false); }}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 flex items-center gap-2"
+                      className="w-full text-left px-4 py-1.5 text-[12px] text-gray-700 hover:bg-blue-50 flex items-center gap-2"
                     >
                       <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -692,7 +692,7 @@ function SizeModal({ product, onClose, onSelectSize }) {
         }
       }}
     >
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-4 relative animate-fadeIn">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-all"
@@ -701,17 +701,17 @@ function SizeModal({ product, onClose, onSelectSize }) {
         </button>
 
         <h2 className="text-2xl font-black text-green-600 mb-2">Select Size</h2>
-        <p className="text-gray-600 font-bold mb-6">{product.name}</p>
+        <p className="text-gray-600 font-bold mb-3">{product.name}</p>
 
         <div className="space-y-3">
           {product.sizes.map((size) => (
             <button
               key={size.name}
               onClick={() => onSelectSize(size)}
-              className="w-full bg-gray-50 hover:bg-green-50 border-2 border-gray-200 hover:border-green-600 rounded-lg p-4 flex items-center justify-between transition-all group"
+              className="w-full bg-gray-50 hover:bg-green-50 border-2 border-gray-200 hover:border-green-600 rounded-md p-4 flex items-center justify-between transition-all group"
             >
               <span className="font-bold text-gray-800 group-hover:text-green-600">{size.name}</span>
-              <span className="text-xl font-black text-green-600">Php {size.price.toFixed(2)}</span>
+              <span className="text-[16px] font-black text-green-600">Php {size.price.toFixed(2)}</span>
             </button>
           ))}
         </div>
@@ -832,8 +832,8 @@ function AppointmentForm() {
     }
   };
 
-  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-white placeholder-white/40 text-sm";
-  const labelCls = "block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5";
+  const inputCls = "w-full px-3 py-1.5 rounded-md border border-white/20 bg-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-white placeholder-white/40 text-[12px]";
+  const labelCls = "block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1";
   const sectionCls = "flex items-center gap-3 mb-4";
 
   const SectionDivider = ({ icon, title }) => (
@@ -849,12 +849,12 @@ function AppointmentForm() {
   const totalRoomsAvailable = Object.values(availability).reduce((sum, rt) => sum + rt.available, 0);
 
   return (
-    <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+    <div className="rounded-xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
       {/* Header */}
       <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-white font-bold text-lg tracking-tight">Book Your Stay</h3>
+            <h3 className="text-white font-bold text-[14px] tracking-tight">Book Your Stay</h3>
             <p className="text-white/70 text-xs mt-0.5">Complete the form below to reserve your room</p>
           </div>
           <div className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-full">
@@ -871,10 +871,10 @@ function AppointmentForm() {
         </div>
       </div>
 
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-4">
         {/* Status message */}
         {submitStatus.message && (
-          <div className={`mb-6 p-4 rounded-xl text-sm flex items-start gap-3 ${submitStatus.type === 'success'
+          <div className={`mb-3 p-4 rounded-xl text-[12px] flex items-start gap-3 ${submitStatus.type === 'success'
             ? 'bg-green-50 text-green-800 border border-green-200'
             : 'bg-red-50 text-red-800 border border-red-200'
             }`}>
@@ -936,11 +936,11 @@ function AppointmentForm() {
 
             {/* Nights + price summary bar */}
             {nights > 0 && (
-              <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-white/10 border border-white/20 rounded-lg">
+              <div className="flex items-center gap-2 mb-3 px-2 py-1.5 bg-white/10 border border-white/20 rounded-md">
                 <svg className="w-4 h-4 text-white/70 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
-                <span className="text-sm font-semibold text-white">
+                <span className="text-[12px] font-semibold text-white">
                   {nights} {nights === 1 ? 'night' : 'nights'}
                 </span>
                 {totalPrice > 0 && (
@@ -964,7 +964,7 @@ function AppointmentForm() {
                 value={formData.roomType}
                 onChange={handleChange}
                 required
-                className="w-full px-3 py-2.5 rounded-lg border border-white/20 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-sm text-black bg-white"
+                className="w-full px-3 py-1.5 rounded-md border border-white/20 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[12px] text-black bg-white"
               >
                 <option value="">Select a room type</option>
                 {roomTypes.map(rt => {
@@ -1124,7 +1124,7 @@ function AppointmentForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn-animated w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3.5 rounded-xl font-semibold text-sm tracking-wide hover:bg-[#465a8f] active:scale-[0.98] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="btn-animated w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3.5 rounded-xl font-semibold text-[12px] tracking-wide hover:bg-[#465a8f] active:scale-[0.98] transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>
@@ -2085,21 +2085,21 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   // Login Page
   if (!isLoggedIn) {
-    const inputCls = "w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 focus:border-white/20 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-white placeholder-white/20 text-sm";
-    const labelCls = "block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1.5";
+    const inputCls = "w-full px-4 py-3 rounded-xl border border-white/10 bg-white/5 focus:border-white/20 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-white placeholder-white/20 text-[12px]";
+    const labelCls = "block text-xs font-semibold text-white/40 uppercase tracking-wide mb-1";
 
     return (
       <div className="min-h-screen pt-[70px] md:pt-[30px] pb-24 flex items-center justify-center relative overflow-hidden">
         <div className="w-full max-w-md px-6 relative z-10">
-          <div className="rounded-3xl border border-white/20 p-10 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
+          <div className="rounded-3xl border border-white/20 p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
             <div className="text-center mb-10">
-              <div className="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-2xl">
+              <div className="w-20 h-20 bg-white/10 rounded-xl flex items-center justify-center mx-auto mb-3 border border-white/10 shadow-2xl">
                 <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
               <h2 className="text-3xl font-bold text-white tracking-tight">Admin Portal</h2>
-              <p className="text-white/40 mt-2 text-sm">Secure access for hotel management</p>
+              <p className="text-white/40 mt-2 text-[12px]">Secure access for hotel management</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-6">
@@ -2173,43 +2173,43 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'dashboard' && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* Main Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
               {[
                 { label: 'Arrivals Today', value: stats.arrivals_today, color: 'text-[#55A2F5]', icon: '🛫' },
                 { label: 'Departures Today', value: appointments.filter(a => a.status === 'checked_in' && a.check_out_date === new Date().toISOString().split('T')[0]).length, color: 'text-emerald-400', icon: '🛬' },
                 { label: 'In-House', value: appointments.filter(a => a.status === 'checked_in').length, color: 'text-amber-400', icon: '🏨' },
                 { label: 'Occupancy', value: `${Math.round((appointments.filter(a => a.status === 'checked_in').length / 50) * 100)}%`, color: 'text-purple-400', icon: '📊' },
               ].map((stat, i) => (
-                <div key={i} className="rounded-2xl border border-white/10 p-5 bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
+                <div key={i} className="rounded-xl border border-white/10 p-3 bg-white/[0.02] hover:bg-white/[0.04] transition-all group">
                   <div className="flex justify-between items-start mb-3">
                     <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">{stat.label}</span>
-                    <span className="text-xl opacity-40 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
+                    <span className="text-[16px] opacity-40 group-hover:opacity-100 transition-opacity">{stat.icon}</span>
                   </div>
                   <p className={`text-3xl font-black ${stat.color}`}>{stat.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               {/* Recent Activity */}
-              <div className="lg:col-span-2 rounded-3xl border border-white/10 p-8 overflow-hidden bg-white/[0.02] backdrop-blur-3xl">
-                <h3 className="text-sm font-black text-white/50 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+              <div className="lg:col-span-2 rounded-3xl border border-white/10 p-4 overflow-hidden bg-white/[0.02] backdrop-blur-3xl">
+                <h3 className="text-[12px] font-black text-white/50 uppercase tracking-[0.2em] mb-4 flex items-center gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#55A2F5] shadow-[0_0_10px_#55A2F5]"></span>
                   Recent Activity
                 </h3>
                 <div className="space-y-4">
                   {appointments.slice(0, 5).map((apt, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/20 font-black text-lg group-hover:text-[#55A2F5] transition-colors">
+                    <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/20 font-black text-[14px] group-hover:text-[#55A2F5] transition-colors">
                           {apt.full_name.charAt(0)}
                         </div>
                         <div>
-                          <p className="font-bold text-white text-sm">{apt.full_name}</p>
+                          <p className="font-bold text-white text-[12px]">{apt.full_name}</p>
                           <p className="text-[10px] text-white/30 font-bold uppercase tracking-wider mt-0.5">{apt.service_type} • {apt.preferred_date}</p>
                         </div>
                       </div>
-                      <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
+                      <span className={`px-2.5 py-1 rounded-md text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
                         {apt.status}
                       </span>
                     </div>
@@ -2218,8 +2218,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               </div>
 
               {/* Housekeeping Quick View */}
-              <div className="rounded-3xl border border-white/10 p-8 bg-white/[0.02] backdrop-blur-3xl">
-                <h3 className="text-sm font-black text-white/50 uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+              <div className="rounded-3xl border border-white/10 p-4 bg-white/[0.02] backdrop-blur-3xl">
+                <h3 className="text-[12px] font-black text-white/50 uppercase tracking-[0.2em] mb-4 flex items-center gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_#a855f7]"></span>
                   Status Overview
                 </h3>
@@ -2230,7 +2230,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     { label: 'Inspected', value: 15, color: 'text-[#55A2F5]', border: 'border-[#55A2F5]/20' },
                     { label: 'Out of Order', value: 2, color: 'text-white/20', border: 'border-white/10' },
                   ].map((item, i) => (
-                    <div key={i} className={`rounded-2xl p-4 flex justify-between items-center border bg-white/[0.02] ${item.border}`}>
+                    <div key={i} className={`rounded-xl p-4 flex justify-between items-center border bg-white/[0.02] ${item.border}`}>
                       <span className={`text-[10px] font-black uppercase tracking-widest ${item.color}`}>{item.label}</span>
                       <span className={`text-2xl font-black ${item.color}`}>{item.value}</span>
                     </div>
@@ -2257,7 +2257,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               const circumference = 2 * Math.PI * radius;
               let cumulative = 0;
               return (
-                <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                <div className="rounded-xl border border-white/20 p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                   <div className="flex flex-col md:flex-row items-center gap-10">
                     {/* Donut Chart */}
                     <div className="relative flex-shrink-0">
@@ -2289,7 +2289,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </svg>
                     </div>
                     {/* Legend + Bar Breakdown */}
-                    <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="flex-1 w-full grid grid-cols-1 md:grid-cols-2 gap-3">
                       {chartData.map((seg, i) => {
                         const pct = stats.total > 0 ? Math.round((seg.value / stats.total) * 100) : 0;
                         return (
@@ -2299,7 +2299,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <div className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor]" style={{ backgroundColor: seg.color, color: seg.color }}></div>
                                 <span className="text-xs font-bold text-white/60 uppercase tracking-wider">{seg.label}</span>
                               </div>
-                              <span className="text-sm font-black text-white">{seg.value} <span className="text-white/20 font-medium ml-1">({pct}%)</span></span>
+                              <span className="text-[12px] font-black text-white">{seg.value} <span className="text-white/20 font-medium ml-1">({pct}%)</span></span>
                             </div>
                             <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
                               <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
@@ -2314,8 +2314,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             })()}
 
             {/* Search & Filter Bar */}
-            <div className="rounded-2xl border border-white/20 p-6 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="rounded-xl border border-white/20 p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div className="md:col-span-2">
                   <label className="block text-[10px] font-bold text-white/40 uppercase tracking-widest mb-2">Search Guest</label>
                   <div className="relative">
@@ -2325,7 +2325,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Name, phone, or email..."
-                      className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-all text-sm"
+                      className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-white/20 transition-all text-[12px]"
                     />
                   </div>
                 </div>
@@ -2335,7 +2335,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/20 transition-all text-sm [color-scheme:dark]"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/20 transition-all text-[12px] [color-scheme:dark]"
                   />
                 </div>
                 <div>
@@ -2344,7 +2344,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/20 transition-all text-sm [color-scheme:dark]"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-white/20 transition-all text-[12px] [color-scheme:dark]"
                   />
                 </div>
               </div>
@@ -2356,12 +2356,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
+            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
               {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map(f => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
-                  className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${filter === f
+                  className={`px-6 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${filter === f
                     ? 'bg-white text-[#2D72C0] border-white shadow-[0_0_20px_rgba(255,255,255,0.3)]'
                     : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white'
                     }`}
@@ -2378,13 +2378,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 <p className="text-white/40 text-xs font-bold uppercase tracking-widest">Fetching reservations...</p>
               </div>
             ) : filteredAppointments.length === 0 ? (
-              <div className="text-center py-24 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
+              <div className="text-center py-24 rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl">
                 <p className="text-white/30 text-xs font-bold uppercase tracking-widest">No matching reservations found</p>
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <div className="rounded-xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                 {/* Table Header */}
-                <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 bg-white/5 border-b border-white/10 text-[10px] font-black text-white/40 uppercase tracking-widest items-center">
+                <div className="hidden md:grid md:grid-cols-[60px_repeat(5,1fr)_120px] gap-2 px-6 py-4 bg-white/5 border-b border-white/10 text-[10px] font-black text-white/40 uppercase tracking-widest items-center">
                   <span>#</span>
                   <span>Guest Name</span>
                   <span>Service</span>
@@ -2394,7 +2394,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   <span className="text-right">Actions</span>
                 </div>
                 {filteredAppointments.map((apt, index) => (
-                  <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-4 px-6 py-4 items-center text-sm border-b border-white/5 hover:bg-white/5 transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
+                  <div key={apt.id} className={`grid grid-cols-1 md:grid-cols-[60px_repeat(5,1fr)_120px] gap-2 px-6 py-4 items-center text-[12px] border-b border-white/5 hover:bg-white/5 transition-all group ${index % 2 === 0 ? '' : 'bg-white/[0.02]'}`}>
                     <span className="text-white/20 font-mono text-xs">{apt.id}</span>
                     <div className="min-w-0">
                       <p className="text-white font-bold group-hover:text-[#55A2F5] transition-colors truncate">{apt.full_name}</p>
@@ -2403,7 +2403,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     <span className="text-white/60 text-xs font-medium truncate">{apt.service_type}</span>
                     <span className="text-white/60 text-xs font-medium">{apt.preferred_date}</span>
                     <span className="text-white/60 text-xs font-medium">{apt.preferred_time}</span>
-                    <span className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(apt.status)}`}>
+                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-tighter border w-fit ${getStatusColor(apt.status)}`}>
                       {apt.status}
                     </span>
                     <div className="flex flex-wrap gap-1 justify-end">
@@ -2452,7 +2452,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             <div className="mt-6 flex gap-2">
               <button
                 onClick={exportToCSV}
-                className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-lg hover:bg-green-100 transition-all text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-green-50 text-green-600 border border-green-200 rounded-md hover:bg-green-100 transition-all text-[12px] flex items-center gap-2"
               >
                 📥 Export to CSV
               </button>
@@ -2466,11 +2466,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
           <div className="space-y-6">
-            <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-xl border border-white/20 p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <div className="flex justify-between items-center mb-10">
                 <div>
                   <h2 className="text-2xl font-black text-white tracking-tight">Room Inventory</h2>
-                  <p className="text-white/40 text-sm font-medium mt-1">Manage room types, pricing models, and global availability</p>
+                  <p className="text-white/40 text-[12px] font-medium mt-1">Manage room types, pricing models, and global availability</p>
                 </div>
                 <button
                   onClick={() => { setActiveTab('settings'); setSettingsSubTab('property'); }}
@@ -2480,34 +2480,34 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {adminRoomTypes.map(rt => (
-                  <div key={rt.id} className="bg-white/5 rounded-2xl border border-white/10 p-6 hover:bg-white/10 transition-all group">
-                    <div className="flex justify-between items-start mb-6">
-                      <h4 className="font-bold text-white text-lg group-hover:text-[#55A2F5] transition-colors">{rt.name}</h4>
-                      <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${rt.active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-white/30 border-white/10'}`}>
+                  <div key={rt.id} className="bg-white/5 rounded-xl border border-white/10 p-4 hover:bg-white/10 transition-all group">
+                    <div className="flex justify-between items-start mb-3">
+                      <h4 className="font-bold text-white text-[14px] group-hover:text-[#55A2F5] transition-colors">{rt.name}</h4>
+                      <span className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${rt.active ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-white/5 text-white/30 border-white/10'}`}>
                         {rt.active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
-                    <div className="space-y-3 mb-8">
+                    <div className="space-y-3 mb-4">
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Total Inventory</span>
-                        <span className="text-sm font-black text-white">{rt.total_rooms} Rooms</span>
+                        <span className="text-[12px] font-black text-white">{rt.total_rooms} Rooms</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Base Rate</span>
-                        <span className="text-sm font-black text-[#55A2F5]">₱{Number(rt.price_per_night).toLocaleString()}</span>
+                        <span className="text-[12px] font-black text-[#55A2F5]">₱{Number(rt.price_per_night).toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">Max Guests</span>
-                        <span className="text-sm font-black text-white">{rt.max_guests} Persons</span>
+                        <span className="text-[12px] font-black text-white">{rt.max_guests} Persons</span>
                       </div>
                     </div>
                     <div className="flex gap-2 pt-6 border-t border-white/10">
-                      <button className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
+                      <button className="flex-1 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
                         Inventory
                       </button>
-                      <button className="flex-1 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
+                      <button className="flex-1 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-black text-white/60 uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all">
                         Rates
                       </button>
                     </div>
@@ -2521,25 +2521,25 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {/* ==================== HOUSEKEEPING TAB ==================== */}
         {activeTab === 'housekeeping' && (
           <div className="space-y-6">
-            <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-xl border border-white/20 p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <div className="flex justify-between items-center mb-10">
                 <div>
                   <h2 className="text-2xl font-black text-white tracking-tight">Housekeeping</h2>
-                  <p className="text-white/40 text-sm font-medium mt-1">Real-time room status monitoring and staff assignment</p>
+                  <p className="text-white/40 text-[12px] font-medium mt-1">Real-time room status monitoring and staff assignment</p>
                 </div>
                 <div className="flex gap-3">
-                  <button className="px-5 py-2.5 bg-white/5 border border-white/10 text-white/70 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">Export</button>
-                  <button className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-all">+ Assign Task</button>
+                  <button className="px-5 py-1.5 bg-white/5 border border-white/10 text-white/70 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">Export</button>
+                  <button className="px-5 py-1.5 bg-emerald-600 text-white rounded-xl font-bold text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-all">+ Assign Task</button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
                 {Array.from({ length: 24 }).map((_, i) => {
                   const status = i % 5 === 0 ? 'Dirty' : i % 3 === 0 ? 'Inspected' : 'Clean';
                   const color = status === 'Clean' ? 'bg-emerald-400' : status === 'Dirty' ? 'bg-red-400' : 'bg-[#55A2F5]';
                   const textColor = status === 'Clean' ? 'text-emerald-400' : status === 'Dirty' ? 'text-red-400' : 'text-[#55A2F5]';
                   return (
-                    <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all cursor-pointer group">
+                    <div key={i} className="bg-white/5 border border-white/10 rounded-xl p-3 hover:bg-white/10 transition-all cursor-pointer group">
                       <div className="flex justify-between items-center mb-4">
                         <span className="font-bold text-white/20 text-[10px] uppercase tracking-widest">Room</span>
                         <div className={`w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] ${color}`} style={{ color: color.replace('bg-', '') }}></div>
@@ -2560,7 +2560,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'billing' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             {/* Header section */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
               <div>
                 <h2 className="text-2xl font-black text-white tracking-tight uppercase">Billing & Ledger</h2>
                 <div className="flex items-center gap-2 mt-1">
@@ -2586,22 +2586,22 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             </div>
 
             {/* Metric Cards - Sleek & Minimal */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
               {[
                 { label: 'Revenue', value: `₱${Number(stats.completed * 12500).toLocaleString()}`, color: 'text-[#55A2F5]' },
                 { label: 'Outstanding', value: `₱${Number(stats.pending * 8500).toLocaleString()}`, color: 'text-amber-400' },
                 { label: 'Collected', value: `₱${Number(stats.confirmed * 10200).toLocaleString()}`, color: 'text-emerald-400' },
                 { label: 'Avg. Stay', value: '₱12,400', color: 'text-purple-400' },
               ].map((card, i) => (
-                <div key={i} className="rounded-2xl border border-white/10 p-4 bg-white/[0.02] flex flex-col justify-between min-h-[90px]">
+                <div key={i} className="rounded-xl border border-white/10 p-4 bg-white/[0.02] flex flex-col justify-between min-h-[90px]">
                   <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">{card.label}</span>
-                  <div className={`text-xl font-black ${card.color}`}>{card.value}</div>
+                  <div className={`text-[16px] font-black ${card.color}`}>{card.value}</div>
                 </div>
               ))}
             </div>
 
             {/* Transactions Table */}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.01] overflow-hidden">
+            <div className="rounded-xl border border-white/10 bg-white/[0.01] overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-white/[0.03] text-white/20 text-[9px] font-black uppercase tracking-[0.2em] border-b border-white/5">
@@ -2629,14 +2629,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         </td>
                         <td className="px-6 py-4 text-white/50">{apt.service_type || apt.room_type}</td>
                         <td className="px-6 py-4">
-                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
+                          <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-widest border ${getStatusColor(apt.status)}`}>
                             {apt.status}
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button className="p-1.5 rounded-lg bg-white/5 text-white/40 hover:text-white transition-all" title="View Ledger">📄</button>
-                            <button className="p-1.5 rounded-lg bg-white/5 text-white/40 hover:text-white transition-all" title="Print Invoice">🖨</button>
+                            <button className="p-1.5 rounded-md bg-white/5 text-white/40 hover:text-white transition-all" title="View Ledger">📄</button>
+                            <button className="p-1.5 rounded-md bg-white/5 text-white/40 hover:text-white transition-all" title="Print Invoice">🖨</button>
                           </div>
                         </td>
                       </tr>
@@ -2654,13 +2654,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== CALENDAR TAB ==================== */}
         {activeTab === 'calendar' && (
-          <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <div className="flex items-center justify-between mb-8">
+          <div className="rounded-xl border border-white/20 p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-2xl font-black text-white tracking-tight">Reservation Calendar</h2>
-                <p className="text-white/40 text-sm font-medium mt-1">Track stay occupancy and blocked dates</p>
+                <p className="text-white/40 text-[12px] font-medium mt-1">Track stay occupancy and blocked dates</p>
               </div>
-              <div className="flex items-center gap-3 bg-white/5 p-1 rounded-2xl border border-white/10">
+              <div className="flex items-center gap-3 bg-white/5 p-1 rounded-xl border border-white/10">
                 <button
                   onClick={() => {
                     if (calendarMonth === 1) {
@@ -2718,7 +2718,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   days.push(
                     <div
                       key={day}
-                      className={`min-h-[100px] p-2 rounded-2xl border transition-all ${isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
+                      className={`min-h-[100px] p-2 rounded-xl border transition-all ${isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
                         isToday ? 'bg-[#55A2F5]/10 border-[#55A2F5]' :
                           'bg-white/[0.03] border-white/5 hover:border-white/20'
                         }`}
@@ -2727,12 +2727,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         {String(day).padStart(2, '0')}
                       </div>
                       {isBlocked && (
-                        <div className="text-[9px] font-black uppercase tracking-widest text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded-lg text-center">Blocked</div>
+                        <div className="text-[9px] font-black uppercase tracking-widest text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded-md text-center">Blocked</div>
                       )}
                       {dayAppointments.slice(0, 3).map((apt, idx) => (
                         <div
                           key={idx}
-                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
+                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-md mb-1 ${apt.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
                             apt.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
                               apt.status === 'completed' ? 'bg-[#55A2F5]/10 text-[#55A2F5]' :
                                 'bg-white/10 text-white/60'
@@ -2757,11 +2757,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'reports' && (() => {
           const fmtA = (n) => `₱${Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
           const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-          const subBtnCls = (id) => `px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all rounded-xl border ${reportsSubTab === id ? 'bg-[#55A2F5] text-white border-[#55A2F5] shadow-[0_0_20px_rgba(85,162,245,0.3)]' : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white'}`;
+          const subBtnCls = (id) => `px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] whitespace-nowrap transition-all rounded-xl border ${reportsSubTab === id ? 'bg-[#55A2F5] text-white border-[#55A2F5] shadow-[0_0_20px_rgba(85,162,245,0.3)]' : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white'}`;
           return (
             <div className="space-y-8">
               {/* Sub-tab navigation */}
-              <div className="flex gap-3 flex-wrap bg-white/[0.02] p-1.5 rounded-2xl border border-white/5 w-fit">
+              <div className="flex gap-3 flex-wrap bg-white/[0.02] p-1.5 rounded-xl border border-white/5 w-fit">
                 <button className={subBtnCls('appointments')} onClick={() => setReportsSubTab('appointments')}>Appointments</button>
                 <button className={subBtnCls('management')} onClick={() => setReportsSubTab('management')}>Stay Reports</button>
                 <button className={subBtnCls('financial')} onClick={() => setReportsSubTab('financial')}>Financials</button>
@@ -2770,15 +2770,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               {/* ── Appointments sub-tab (existing) ── */}
               {reportsSubTab === 'appointments' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/10 backdrop-blur-xl">
-                    <div className="flex flex-wrap gap-6 items-end">
+                  <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl">
+                    <div className="flex flex-wrap gap-3 items-end">
                       <div className="flex-1 min-w-[200px]">
                         <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">Reporting Period</label>
                         <div className="grid grid-cols-2 gap-3">
                           <input type="date" value={reportStartDate} onChange={(e) => setReportStartDate(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                            className="w-full px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
                           <input type="date" value={reportEndDate} onChange={(e) => setReportEndDate(e.target.value)}
-                            className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                            className="w-full px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
                         </div>
                       </div>
                       <button onClick={fetchReports} className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95">Generate Report</button>
@@ -2786,23 +2786,23 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   </div>
                   {reportStats && (
                     <>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {[
                           { label: 'Total Volume', value: reportStats.totals?.total || 0, color: '#55A2F5' },
                           { label: 'Completed', value: reportStats.totals?.completed || 0, color: '#10B981' },
                           { label: 'Cancelled', value: reportStats.totals?.cancelled || 0, color: '#F43F5E' },
                           { label: 'Conversion', value: `${reportStats.totals?.total > 0 ? Math.round((reportStats.totals.completed / reportStats.totals.total) * 100) : 0}%`, color: '#F59E0B' },
                         ].map((c, i) => (
-                          <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
+                          <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-3 relative overflow-hidden group">
                             <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
                             <p className="text-[9px] text-white/30 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
                             <p className="text-3xl font-black text-white">{c.value}</p>
                           </div>
                         ))}
                       </div>
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-8 flex items-center gap-3">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-4 flex items-center gap-3">
                             <span>Service Distribution</span>
                             <div className="flex-1 h-px bg-white/5"></div>
                           </h3>
@@ -2821,15 +2821,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </div>
                         </div>
 
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-4 flex items-center gap-3">
                             <span>Peak Occupancy Times</span>
                             <div className="flex-1 h-px bg-white/5"></div>
                           </h3>
                           <div className="grid grid-cols-2 gap-3">
                             {reportStats.hourly?.map((item, idx) => (
                               <div key={idx} className="bg-white/5 border border-white/5 rounded-xl p-4 text-center hover:bg-white/[0.08] transition-all cursor-default">
-                                <p className="text-[#55A2F5] font-black text-sm font-mono tracking-tighter">{item.time}</p>
+                                <p className="text-[#55A2F5] font-black text-[12px] font-mono tracking-tighter">{item.time}</p>
                                 <p className="text-white/20 text-[9px] font-black uppercase tracking-widest mt-1">{item.count} reservations</p>
                               </div>
                             ))}
@@ -2845,14 +2845,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               {reportsSubTab === 'management' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {/* Filter bar */}
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/10 backdrop-blur-xl flex flex-wrap gap-6 items-end">
+                  <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl flex flex-wrap gap-3 items-end">
                     <div className="flex-1 min-w-[200px]">
                       <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">Check-in Window</label>
                       <div className="grid grid-cols-2 gap-3">
                         <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
                         <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
                       </div>
                     </div>
                     <button onClick={fetchManagementReport} disabled={hotelRptLoading}
@@ -2867,7 +2867,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     return (
                       <>
                         {/* Summary cards */}
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
                           {[
                             { label: 'Total Stays', value: s.total, color: '#55A2F5' },
                             { label: 'Confirmed', value: s.confirmed, color: '#55A2F5' },
@@ -2876,7 +2876,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             { label: 'Cancelled', value: s.cancelled, color: '#F43F5E' },
                             { label: 'Guest Count', value: s.unique_guests, color: '#8B5CF6' },
                           ].map((c, i) => (
-                            <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-4 relative overflow-hidden group">
+                            <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-4 relative overflow-hidden group">
                               <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
                               <p className="text-[8px] text-white/30 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
                               <p className="text-2xl font-black text-white">{c.value || 0}</p>
@@ -2885,8 +2885,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         </div>
 
                         {/* Status mix & callouts */}
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 backdrop-blur-xl flex flex-wrap gap-8 items-center">
-                          <div className="flex gap-8 divide-x divide-white/5">
+                        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl flex flex-wrap gap-2 items-center">
+                          <div className="flex gap-2 divide-x divide-white/5">
                             <div className="text-center px-4">
                               <p className="text-[9px] text-white/30 font-black uppercase tracking-widest mb-1">Loss Rate</p>
                               <p className="text-2xl font-black text-rose-400">{total > 0 ? Math.round((parseInt(s.cancelled) / total) * 100) : 0}%</p>
@@ -2909,7 +2909,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <div key={i} className="h-full transition-all hover:brightness-125" style={{ width: `${(x.val / total) * 100}%`, background: x.color }} />
                               ))}
                             </div>
-                            <div className="flex flex-wrap gap-4 mt-3 text-[9px] font-black uppercase tracking-widest">
+                            <div className="flex flex-wrap gap-2 mt-3 text-[9px] font-black uppercase tracking-widest">
                               <span className="flex items-center gap-1.5 text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />In-House</span>
                               <span className="flex items-center gap-1.5 text-[#55A2F5]"><span className="w-1.5 h-1.5 rounded-full bg-[#55A2F5]" />Confirmed</span>
                               <span className="flex items-center gap-1.5 text-slate-400"><span className="w-1.5 h-1.5 rounded-full bg-slate-400" />Completed</span>
@@ -2919,8 +2919,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         </div>
 
                         {/* Room Type Performance */}
-                        <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/30 mb-4 flex items-center gap-3">
                             <span>Inventory Performance by Tier</span>
                             <div className="flex-1 h-px bg-white/5"></div>
                           </h3>
@@ -2934,7 +2934,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                   <div key={i} className="group">
                                     <div className="flex items-center justify-between text-xs mb-2">
                                       <span className="font-bold text-white/70 group-hover:text-white transition-colors uppercase tracking-widest text-[10px]">{rt.room_type}</span>
-                                      <div className="flex gap-4 text-white/30 font-black text-[9px] uppercase">
+                                      <div className="flex gap-2 text-white/30 font-black text-[9px] uppercase">
                                         <span>{rt.valid_bookings} stays</span>
                                         <span className="text-rose-400/50">{rt.cancellations} voids</span>
                                         <span className="text-[#55A2F5]">{pct}%</span>
@@ -2959,14 +2959,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               {reportsSubTab === 'financial' && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   {/* Filter bar */}
-                  <div className="bg-white/[0.03] rounded-2xl p-6 border border-white/10 backdrop-blur-xl flex flex-wrap gap-6 items-end">
+                  <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl flex flex-wrap gap-3 items-end">
                     <div className="flex-1 min-w-[200px]">
                       <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2">Audit Window</label>
                       <div className="grid grid-cols-2 gap-3">
                         <input type="date" value={hotelRptStart} onChange={e => setHotelRptStart(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
                         <input type="date" value={hotelRptEnd} onChange={e => setHotelRptEnd(e.target.value)}
-                          className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
+                          className="w-full px-4 py-1.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs outline-none focus:border-[#55A2F5]/50 transition-all" />
                       </div>
                     </div>
                     <button onClick={fetchFinancialReport} disabled={hotelRptLoading}
@@ -2978,14 +2978,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   {finData && (
                     <>
                       {/* Summary cards */}
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         {[
                           { label: 'Revenue Accrued', value: fmtA(finData.summary.totalCharged), color: '#55A2F5', sub: `${finData.summary.chargeCount} items posted` },
                           { label: 'Revenue Collected', value: fmtA(finData.summary.totalCollected), color: '#10B981', sub: `${finData.summary.paymentCount} payments` },
                           { label: 'Total Receivables', value: fmtA(finData.summary.totalOutstanding), color: finData.summary.totalOutstanding > 0 ? '#F43F5E' : '#94A3B8', sub: 'unsettled folios' },
                           { label: 'Capture Rate', value: `${finData.summary.collectionRate}%`, color: '#8B5CF6', sub: 'efficiency metric' },
                         ].map((c, i) => (
-                          <div key={i} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
+                          <div key={i} className="bg-white/[0.03] border border-white/10 rounded-xl p-3 relative overflow-hidden group">
                             <div className="absolute top-0 left-0 w-1 h-full" style={{ background: c.color }}></div>
                             <p className="text-[9px] text-white/30 font-black uppercase tracking-[0.2em] mb-1">{c.label}</p>
                             <p className="text-2xl font-black text-white">{c.value}</p>
@@ -2995,19 +2995,19 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </div>
 
                       {/* Revenue view toggle */}
-                      <div className="bg-white/[0.03] rounded-2xl border border-white/10 backdrop-blur-xl overflow-hidden">
+                      <div className="bg-white/[0.03] rounded-xl border border-white/10 backdrop-blur-xl overflow-hidden">
                         <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-white/[0.02]">
                           <div>
                             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/50">Revenue Distribution</h3>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
                             <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
                               <button onClick={() => setFinView('daily')}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'daily' ? 'bg-white/10 text-white shadow-xl' : 'text-white/30 hover:text-white'}`}>
+                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-md transition-all ${finView === 'daily' ? 'bg-white/10 text-white shadow-xl' : 'text-white/30 hover:text-white'}`}>
                                 Daily
                               </button>
                               <button onClick={() => { setFinView('monthly'); fetchMonthlyReport(); }}
-                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${finView === 'monthly' ? 'bg-white/10 text-white shadow-xl' : 'text-white/30 hover:text-white'}`}>
+                                className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-md transition-all ${finView === 'monthly' ? 'bg-white/10 text-white shadow-xl' : 'text-white/30 hover:text-white'}`}>
                                 Monthly
                               </button>
                             </div>
@@ -3017,7 +3017,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <input type="number" value={finYear} min="2020" max="2099"
                                   onChange={e => setFinYear(parseInt(e.target.value))}
                                   onBlur={fetchMonthlyReport}
-                                  className="w-20 px-3 py-1.5 text-xs bg-white/5 border border-white/10 rounded-lg text-white font-mono outline-none focus:border-[#55A2F5]/50 transition-all" />
+                                  className="w-20 px-3 py-1.5 text-xs bg-white/5 border border-white/10 rounded-md text-white font-mono outline-none focus:border-[#55A2F5]/50 transition-all" />
                               </div>
                             )}
                           </div>
@@ -3051,9 +3051,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <tfoot>
                                   <tr className="bg-white/[0.05] font-black border-t border-white/10">
                                     <td className="px-6 py-5 text-white/30 text-[9px] uppercase tracking-[0.2em]">Audit Totals</td>
-                                    <td className="px-6 py-5 text-right text-[#55A2F5] font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.charged, 0))}</td>
-                                    <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.paid, 0))}</td>
-                                    <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(dailyRevData.reduce((s, r) => s + r.balance, 0))}</td>
+                                    <td className="px-6 py-5 text-right text-[#55A2F5] font-mono text-[12px]">{fmtA(dailyRevData.reduce((s, r) => s + r.charged, 0))}</td>
+                                    <td className="px-6 py-5 text-right text-emerald-400 font-mono text-[12px]">{fmtA(dailyRevData.reduce((s, r) => s + r.paid, 0))}</td>
+                                    <td className="px-6 py-5 text-right text-rose-400 font-mono text-[12px]">{fmtA(dailyRevData.reduce((s, r) => s + r.balance, 0))}</td>
                                   </tr>
                                 </tfoot>
                               </table>
@@ -3091,10 +3091,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <tfoot>
                                   <tr className="bg-white/[0.05] font-black border-t border-white/10">
                                     <td className="px-6 py-5 text-white/30 text-[9px] uppercase tracking-[0.2em]">Annual Summary</td>
-                                    <td className="px-6 py-5 text-right text-white/50 font-mono text-sm">{monthlyRevData.reduce((s, r) => s + r.bookings, 0)}</td>
-                                    <td className="px-6 py-5 text-right text-[#55A2F5] font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.charged, 0))}</td>
-                                    <td className="px-6 py-5 text-right text-emerald-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.paid, 0))}</td>
-                                    <td className="px-6 py-5 text-right text-rose-400 font-mono text-sm">{fmtA(monthlyRevData.reduce((s, r) => s + r.balance, 0))}</td>
+                                    <td className="px-6 py-5 text-right text-white/50 font-mono text-[12px]">{monthlyRevData.reduce((s, r) => s + r.bookings, 0)}</td>
+                                    <td className="px-6 py-5 text-right text-[#55A2F5] font-mono text-[12px]">{fmtA(monthlyRevData.reduce((s, r) => s + r.charged, 0))}</td>
+                                    <td className="px-6 py-5 text-right text-emerald-400 font-mono text-[12px]">{fmtA(monthlyRevData.reduce((s, r) => s + r.paid, 0))}</td>
+                                    <td className="px-6 py-5 text-right text-rose-400 font-mono text-[12px]">{fmtA(monthlyRevData.reduce((s, r) => s + r.balance, 0))}</td>
                                   </tr>
                                 </tfoot>
                               </table>
@@ -3105,10 +3105,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
 
                       {/* Payment Methods + Room Revenue */}
-                      <div className="grid md:grid-cols-2 gap-8">
+                      <div className="grid md:grid-cols-2 gap-2">
                         {/* Payment method breakdown */}
-                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl">
-                          <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl">
+                          <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em] mb-4 flex items-center gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></div>
                             Payment Channels
                           </h3>
@@ -3123,7 +3123,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                   <div key={i} className="group">
                                     <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
                                       <span className="text-white/60 group-hover:text-white transition-colors">{m.payment_method}</span>
-                                      <div className="flex gap-4 items-center">
+                                      <div className="flex gap-2 items-center">
                                         <span className="text-white/20 font-bold">{m.count} TX</span>
                                         <span className="text-emerald-400">{fmtA(m.total)}</span>
                                       </div>
@@ -3139,8 +3139,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         </div>
 
                         {/* Revenue by room type */}
-                        <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl">
-                          <h3 className="text-sm font-black text-white uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
+                        <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl">
+                          <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em] mb-4 flex items-center gap-3">
                             <div className="w-1.5 h-1.5 rounded-full bg-[#55A2F5] shadow-[0_0_8px_#55A2F5]"></div>
                             Room Category Revenue
                           </h3>
@@ -3155,7 +3155,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                   <div key={i} className="group">
                                     <div className="flex items-center justify-between text-[10px] mb-2 font-black uppercase tracking-widest">
                                       <span className="text-white/60 group-hover:text-white transition-colors">{rt.room_type}</span>
-                                      <div className="flex gap-4 items-center">
+                                      <div className="flex gap-2 items-center">
                                         <span className="text-white/20 font-bold">{rt.bookings} STAYS</span>
                                         <span className="text-[#55A2F5]">{fmtA(rt.charged)}</span>
                                       </div>
@@ -3174,7 +3174,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
                       {/* Outstanding Balances */}
                       {finData.outstandingList.length > 0 && (
-                        <div className="bg-rose-500/5 border border-rose-500/20 rounded-2xl overflow-hidden backdrop-blur-xl mt-8">
+                        <div className="bg-rose-500/5 border border-rose-500/20 rounded-xl overflow-hidden backdrop-blur-xl mt-8">
                           <div className="px-8 py-5 border-b border-rose-500/10 flex items-center justify-between bg-rose-500/5">
                             <div className="flex items-center gap-3">
                               <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_10px_#f43f5e]"></div>
@@ -3226,7 +3226,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'settings' && (
           <div>
             {/* Settings sub-tab navigation */}
-            <div className="flex overflow-x-auto gap-1 mb-6 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
+            <div className="flex overflow-x-auto gap-1 mb-3 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
               {[
                 { id: 'property', label: 'Property' },
                 { id: 'rooms', label: 'Rooms & Inventory' },
@@ -3239,7 +3239,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 <button
                   key={tab.id}
                   onClick={() => setSettingsSubTab(tab.id)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${settingsSubTab === tab.id
+                  className={`flex-shrink-0 px-4 py-2 rounded-md text-[12px] font-medium transition-all ${settingsSubTab === tab.id
                     ? 'bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white shadow-sm'
                     : 'text-gray-500 hover:text-gray-800 hover:bg-blue-50'
                     }`}
@@ -3251,10 +3251,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Property ── */}
             {settingsSubTab === 'property' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Property Information</h3>
+                    <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Property Information</h3>
                     <p className="text-white/30 text-xs mt-1">Global settings for your hotel identity and guest communication</p>
                   </div>
                   {settingsSavedMsg && (
@@ -3263,7 +3263,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {[
                     { key: 'hotel_name', label: 'Hotel Name', type: 'text', placeholder: 'Grand Hotel' },
                     { key: 'hotel_address', label: 'Address', type: 'text', placeholder: '123 Main Street, City' },
@@ -3302,10 +3302,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {settingsSubTab === 'rooms' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Add new room type */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                  <div className="mb-8 flex items-center justify-between">
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                  <div className="mb-4 flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Add Room Type</h3>
+                      <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Add Room Type</h3>
                       <p className="text-white/30 text-xs mt-1">Configure a new bookable unit with distinct pricing and rules</p>
                     </div>
                     <button
@@ -3315,7 +3315,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       Provision Unit
                     </button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                     {[
                       { key: 'name', label: 'Room Name', type: 'text', placeholder: 'e.g. Deluxe Room' },
                       { key: 'description', label: 'Description', type: 'text', placeholder: 'e.g. 1 King Bed · City View' },
@@ -3342,17 +3342,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
 
                 {/* Room type list */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                  <div className="mb-8 border-b border-white/5 pb-6">
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Active Inventory</h3>
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                  <div className="mb-4 border-b border-white/5 pb-6">
+                    <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Active Inventory</h3>
                     <p className="text-white/30 text-xs mt-1">Currently managing {adminRoomTypes.length} bookable tiers</p>
                   </div>
                   <div className="space-y-4">
                     {adminRoomTypes.map(rt => (
-                      <div key={rt.id} className={`rounded-2xl border p-6 transition-all group ${rt.active ? 'bg-white/[0.02] border-white/10 hover:border-white/20' : 'bg-white/[0.01] border-white/5 opacity-40'}`}>
+                      <div key={rt.id} className={`rounded-xl border p-4 transition-all group ${rt.active ? 'bg-white/[0.02] border-white/10 hover:border-white/20' : 'bg-white/[0.01] border-white/5 opacity-40'}`}>
                         {editRoomId === rt.id ? (
                           <div className="space-y-6">
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                               {[
                                 { key: 'name', label: 'Name' },
                                 { key: 'description', label: 'Description' },
@@ -3366,29 +3366,29 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 <div key={f.key}>
                                   <label className="text-[9px] font-black text-white/30 uppercase tracking-widest mb-1 block">{f.label}</label>
                                   <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
-                                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white" />
+                                    className="w-full px-2 py-1.5 bg-white/5 border border-white/10 rounded-md text-xs text-white" />
                                 </div>
                               ))}
                             </div>
                             <div className="flex gap-3">
-                              <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#55A2F5] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
-                              <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white/5 text-white/40 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-white">Cancel</button>
+                              <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#55A2F5] text-white rounded-md text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
+                              <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white/5 text-white/40 rounded-md text-[10px] font-black uppercase tracking-widest hover:text-white">Cancel</button>
                             </div>
                           </div>
                         ) : (
-                          <div className="flex items-start justify-between gap-6">
+                          <div className="flex items-start justify-between gap-3">
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-3 mb-2">
-                                <span className="font-black text-white tracking-tight uppercase text-sm group-hover:text-[#55A2F5] transition-colors">{rt.name}</span>
+                                <span className="font-black text-white tracking-tight uppercase text-[12px] group-hover:text-[#55A2F5] transition-colors">{rt.name}</span>
                                 {!rt.active && <span className="text-[9px] bg-white/5 text-white/20 px-2 py-0.5 rounded-full uppercase font-black tracking-widest">Inactive</span>}
                               </div>
                               <p className="text-xs text-white/30 mb-4 line-clamp-2">{rt.description}</p>
-                              <div className="flex flex-wrap gap-4 text-[9px] font-black uppercase tracking-widest">
+                              <div className="flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-widest">
                                 <span className="text-[#55A2F5] font-mono text-[11px]">₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')} / Night</span>
                                 <span className="text-white/40">{rt.total_rooms} Units Available</span>
                                 <span className="text-white/40">Max {rt.max_guests} Guests</span>
                                 <span className="text-white/40">Level {rt.floor || 1}</span>
-                                {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-lg border border-emerald-400/20">{rt.area}</span>}
+                                {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20">{rt.area}</span>}
                               </div>
                             </div>
                             <div className="flex gap-2 flex-shrink-0">
@@ -3414,7 +3414,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </div>
                     ))}
                     {adminRoomTypes.length === 0 && (
-                      <div className="py-16 text-center text-white/20 italic text-xs font-medium border border-dashed border-white/10 rounded-2xl">Inventory is empty. Use the form above to add room tiers.</div>
+                      <div className="py-16 text-center text-white/20 italic text-xs font-medium border border-dashed border-white/10 rounded-xl">Inventory is empty. Use the form above to add room tiers.</div>
                     )}
                   </div>
                 </div>
@@ -3425,32 +3425,32 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {settingsSubTab === 'rate-codes' && (
               <div className="space-y-4">
                 {/* Add new rate code */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                  <div className="mb-8 flex items-center justify-between">
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                  <div className="mb-4 flex items-center justify-between">
                     <div>
-                      <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Add Rate Code</h3>
+                      <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Add Rate Code</h3>
                       <p className="text-white/30 text-xs mt-1">Define a new pricing tier or promotional code</p>
                     </div>
-                    {rcMsg && <div className="px-4 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
+                    {rcMsg && <div className="px-4 py-1.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                     <div>
                       <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Reference Code</label>
                       <input value={rcNewForm.code} onChange={e => setRcNewForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
                         placeholder="e.g. CORP" maxLength={10}
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all" />
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all" />
                     </div>
                     <div>
                       <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Display Name</label>
                       <input value={rcNewForm.name} onChange={e => setRcNewForm(f => ({ ...f, name: e.target.value }))}
                         placeholder="e.g. Corporate Rate"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all" />
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all" />
                     </div>
                     <div>
                       <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Description</label>
                       <input value={rcNewForm.description} onChange={e => setRcNewForm(f => ({ ...f, description: e.target.value }))}
                         placeholder="e.g. Standard corporate discount"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all" />
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all" />
                     </div>
                   </div>
                   <button
@@ -3473,7 +3473,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                 </div>
 
                 {/* Rate codes list */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl overflow-hidden backdrop-blur-xl">
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden backdrop-blur-xl">
                   <div className="px-8 py-5 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
                     <h3 className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Configured Tiers</h3>
                     <button onClick={fetchAdminRateCodes} className="text-[9px] font-black text-[#55A2F5] uppercase tracking-widest hover:text-white transition-colors">Refresh Records</button>
@@ -3537,13 +3537,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                               {rcPriceEdit === rc.id && (
                                 <tr className="bg-white/[0.04]">
                                   <td colSpan={5} className="px-8 py-8 border-t border-white/5">
-                                    <div className="flex items-center justify-between mb-8">
+                                    <div className="flex items-center justify-between mb-4">
                                       <div>
                                         <h4 className="text-[10px] font-black text-white uppercase tracking-[0.2em]">Price Configuration</h4>
                                         <p className="text-white/20 text-[10px] mt-1 font-medium italic">Leave blank to inherit global default rates for the selected tier</p>
                                       </div>
                                       <button onClick={() => saveRcPrices(rc.id)} disabled={rcSaving}
-                                        className="px-6 py-2 bg-[#55A2F5] text-white rounded-lg font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                                        className="px-6 py-2 bg-[#55A2F5] text-white rounded-md font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
                                         {rcSaving ? 'Syncing...' : 'Apply Overrides'}
                                       </button>
                                     </div>
@@ -3581,10 +3581,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Reservations ── */}
             {settingsSubTab === 'reservations' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Reservation Rules</h3>
+                    <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Reservation Rules</h3>
                     <p className="text-white/30 text-xs mt-1">Define stay limits, booking window, and cancellation policy</p>
                   </div>
                   {settingsSavedMsg && (
@@ -3593,7 +3593,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Minimum Stay (nights)</label>
                     <input
@@ -3601,7 +3601,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       value={hotelSettings.min_stay_nights || '1'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, min_stay_nights: e.target.value }))}
                       min="1"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                     />
                   </div>
                   <div>
@@ -3611,7 +3611,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       value={hotelSettings.max_stay_nights || '30'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, max_stay_nights: e.target.value }))}
                       min="1"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                     />
                   </div>
                   <div>
@@ -3621,7 +3621,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       value={hotelSettings.advance_booking_days || '365'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, advance_booking_days: e.target.value }))}
                       min="1"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                     />
                   </div>
                   <div>
@@ -3629,7 +3629,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     <select
                       value={hotelSettings.deposit_required || 'false'}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_required: e.target.value }))}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all appearance-none"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all appearance-none"
                     >
                       <option value="false" className="bg-[#1A1F2C]">No</option>
                       <option value="true" className="bg-[#1A1F2C]">Yes</option>
@@ -3643,7 +3643,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         value={hotelSettings.deposit_percentage || '50'}
                         onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_percentage: e.target.value }))}
                         min="1" max="100"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                       />
                     </div>
                   )}
@@ -3655,14 +3655,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     onChange={(e) => setHotelSettings(prev => ({ ...prev, cancellation_policy: e.target.value }))}
                     rows={4}
                     placeholder="e.g. Free cancellation up to 24 hours before check-in."
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all resize-none"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all resize-none"
                   />
                 </div>
                 <div className="flex justify-end pt-4">
                   <button
                     onClick={saveHotelSettings}
                     disabled={savingSettings}
-                    className="px-10 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                    className="px-10 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
                   >
                     {savingSettings ? 'Synchronizing...' : 'Save Reservation Policy'}
                   </button>
@@ -3672,14 +3672,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Availability ── */}
             {settingsSubTab === 'availability' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
+                    <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
                     <p className="text-white/30 text-xs mt-1">Restrict availability for maintenance or seasonal holidays</p>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-4 items-end">
+                <div className="flex flex-wrap gap-2 items-end">
                   <div className="flex-1 min-w-[200px]">
                     <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Blackout Date</label>
                     <input
@@ -3711,8 +3711,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   <h4 className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Current Restricted Dates</h4>
                   {blockedDates.map(bd => (
                     <div key={bd.id} className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-4 group hover:bg-white/5 transition-all">
-                      <div className="flex items-center gap-6">
-                        <span className="text-white font-mono text-sm font-bold">{bd.blocked_date}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-white font-mono text-[12px] font-bold">{bd.blocked_date}</span>
                         {bd.reason && <span className="text-white/20 text-xs font-medium tracking-wide">— {bd.reason}</span>}
                       </div>
                       <button
@@ -3724,7 +3724,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
                   ))}
                   {blockedDates.length === 0 && (
-                    <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-2xl">
+                    <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-xl">
                       No restricted dates in the registry.
                     </div>
                   )}
@@ -3734,10 +3734,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             {/* ── Notifications ── */}
             {settingsSubTab === 'notifications' && (
-              <div className="bg-white/[0.03] rounded-2xl p-8 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="flex items-center justify-between flex-wrap gap-4 border-b border-white/5 pb-6">
+              <div className="bg-white/[0.03] rounded-xl p-4 border border-white/10 backdrop-blur-xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between flex-wrap gap-2 border-b border-white/5 pb-6">
                   <div>
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Notification Settings</h3>
+                    <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Notification Settings</h3>
                     <p className="text-white/30 text-xs mt-1">Configure sender identities for automated guest communications</p>
                   </div>
                   {settingsSavedMsg && (
@@ -3746,7 +3746,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
                     <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Display Name</label>
                     <input
@@ -3754,7 +3754,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       value={hotelSettings.email_sender_name || ''}
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, email_sender_name: e.target.value }))}
                       placeholder="e.g. Grand Horizon Hotel"
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                     />
                     <p className="text-[10px] text-white/10 mt-2 ml-1 italic font-medium">This name appears in the "From" field of guest emails</p>
                   </div>
@@ -3766,7 +3766,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       onChange={(e) => setHotelSettings(prev => ({ ...prev, sms_sender_name: e.target.value }))}
                       placeholder="e.g. HOTEL"
                       maxLength={11}
-                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                      className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                     />
                     <p className="text-[10px] text-white/10 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
                   </div>
@@ -3775,7 +3775,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   <button
                     onClick={saveHotelSettings}
                     disabled={savingSettings}
-                    className="px-10 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                    className="px-10 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
                   >
                     {savingSettings ? 'Synchronizing...' : 'Save Communication Settings'}
                   </button>
@@ -3787,12 +3787,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             {settingsSubTab === 'clinic' && (
               <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Doctors */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                  <div className="mb-8">
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Practitioner Registry</h3>
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                  <div className="mb-4">
+                    <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Practitioner Registry</h3>
                     <p className="text-white/30 text-xs mt-1">Manage specialists available for appointment scheduling</p>
                   </div>
-                  <div className="flex flex-wrap gap-4 items-end mb-8">
+                  <div className="flex flex-wrap gap-2 items-end mb-4">
                     <div className="flex-1 min-w-[200px]">
                       <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Full Name</label>
                       <input
@@ -3800,7 +3800,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         value={newDoctorName}
                         onChange={(e) => setNewDoctorName(e.target.value)}
                         placeholder="e.g. Dr. Jane Smith"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                       />
                     </div>
                     <div className="flex-[2] min-w-[250px]">
@@ -3810,7 +3810,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         value={newDoctorSpec}
                         onChange={(e) => setNewDoctorSpec(e.target.value)}
                         placeholder="e.g. General Physician"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                       />
                     </div>
                     <button
@@ -3824,24 +3824,24 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     <h4 className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Active Staff</h4>
                     {doctors.map(doc => (
                       <div key={doc.id} className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-4 group hover:bg-white/5 transition-all">
-                        <div className="flex items-center gap-6">
-                          <span className="text-white font-bold text-sm">{doc.name}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-white font-bold text-[12px]">{doc.name}</span>
                           <span className="text-white/20 text-xs font-medium tracking-wide">— {doc.specialization}</span>
                         </div>
                         <button onClick={() => deleteDoctor(doc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Revoke</button>
                       </div>
                     ))}
-                    {doctors.length === 0 && <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-2xl">No practitioners registered.</div>}
+                    {doctors.length === 0 && <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-xl">No practitioners registered.</div>}
                   </div>
                 </div>
 
                 {/* Services */}
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-8 backdrop-blur-xl">
-                  <div className="mb-8">
-                    <h3 className="text-sm font-black text-white uppercase tracking-[0.2em]">Service Catalog</h3>
+                <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 backdrop-blur-xl">
+                  <div className="mb-4">
+                    <h3 className="text-[12px] font-black text-white uppercase tracking-[0.2em]">Service Catalog</h3>
                     <p className="text-white/30 text-xs mt-1">Define clinic procedures, estimated durations, and standard pricing</p>
                   </div>
-                  <div className="flex flex-wrap gap-4 items-end mb-8">
+                  <div className="flex flex-wrap gap-2 items-end mb-4">
                     <div className="flex-[3] min-w-[250px]">
                       <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Service Descriptor</label>
                       <input
@@ -3849,7 +3849,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         value={newServiceName}
                         onChange={(e) => setNewServiceName(e.target.value)}
                         placeholder="e.g. Diagnostic Consultation"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                       />
                     </div>
                     <div className="flex-1 min-w-[120px]">
@@ -3859,7 +3859,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         value={newServiceDuration}
                         onChange={(e) => setNewServiceDuration(parseInt(e.target.value))}
                         placeholder="30"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                       />
                     </div>
                     <div className="flex-1 min-w-[120px]">
@@ -3869,7 +3869,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         value={newServicePrice}
                         onChange={(e) => setNewServicePrice(parseFloat(e.target.value))}
                         placeholder="0.00"
-                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-sm focus:border-[#55A2F5]/50 outline-none transition-all"
+                        className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white font-mono text-[12px] font-medium focus:border-[#55A2F5]/50 outline-none transition-all"
                       />
                     </div>
                     <button onClick={addService} className="px-8 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all">
@@ -3880,15 +3880,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     <h4 className="text-[9px] font-black text-white/30 uppercase tracking-[0.2em] mb-4">Offered Procedures</h4>
                     {services.map(svc => (
                       <div key={svc.id} className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-xl p-4 group hover:bg-white/5 transition-all">
-                        <div className="flex items-center gap-6">
-                          <span className="text-white font-bold text-sm">{svc.name}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-white font-bold text-[12px]">{svc.name}</span>
                           <span className="text-white/20 text-xs font-medium tracking-wide">— {svc.duration} Min</span>
-                          {svc.price > 0 && <span className="text-[#55A2F5] font-mono text-sm font-black">₱{svc.price.toLocaleString()}</span>}
+                          {svc.price > 0 && <span className="text-[#55A2F5] font-mono text-[12px] font-black">₱{svc.price.toLocaleString()}</span>}
                         </div>
                         <button onClick={() => deleteService(svc.id)} className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all">Remove</button>
                       </div>
                     ))}
-                    {services.length === 0 && <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-2xl">No services defined in the catalog.</div>}
+                    {services.length === 0 && <div className="py-12 text-center text-white/10 italic text-xs font-medium border border-dashed border-white/5 rounded-xl">No services defined in the catalog.</div>}
                   </div>
                 </div>
               </div>
@@ -3900,30 +3900,30 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       {/* Reschedule Modal */}
       {rescheduleModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md border border-blue-200">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Reschedule Appointment</h3>
-            <p className="text-gray-500 text-sm mb-4">
+          <div className="bg-white shadow-xl rounded-xl p-4 w-full max-w-md border border-blue-200">
+            <h3 className="text-[16px] font-bold text-gray-800 mb-4">Reschedule Appointment</h3>
+            <p className="text-gray-500 text-[12px] mb-4">
               Patient: <span className="text-gray-800">{rescheduleModal.full_name}</span>
             </p>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-gray-500 text-sm mb-2">New Date</label>
+                <label className="block text-gray-500 text-[12px] mb-2">New Date</label>
                 <input
                   type="date"
                   value={newDate}
                   onChange={(e) => handleDateChange(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-md text-gray-800 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-gray-500 text-sm mb-2">New Time</label>
+                <label className="block text-gray-500 text-[12px] mb-2">New Time</label>
                 <select
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-md text-gray-800 focus:outline-none focus:border-blue-500"
                 >
                   <option value="">Select time slot</option>
                   {availableSlots.map(slot => (
@@ -3931,7 +3931,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   ))}
                 </select>
                 {availableSlots.length === 0 && newDate && (
-                  <p className="text-red-400 text-sm mt-1">No slots available for this date</p>
+                  <p className="text-red-400 text-[12px] mt-1">No slots available for this date</p>
                 )}
               </div>
             </div>
@@ -3939,14 +3939,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setRescheduleModal(null)}
-                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all"
+                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReschedule}
                 disabled={!newDate || !newTime || isRescheduling}
-                className="flex-1 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white font-semibold rounded-lg hover:bg-[#465a8f] transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white font-semibold rounded-md hover:bg-[#465a8f] transition-all disabled:opacity-50"
               >
                 {isRescheduling ? 'Saving...' : 'Save Changes'}
               </button>
@@ -3958,14 +3958,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       {/* Print Appointment Slip */}
       {printAppointment && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 print:bg-white print:p-0">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-md print:rounded-none print:shadow-none">
-            <div className="text-center mb-6">
+          <div className="bg-white rounded-xl p-4 w-full max-w-md print:rounded-none print:shadow-none">
+            <div className="text-center mb-3">
               <h2 className="text-2xl font-bold text-blue-900">HealthCare Clinic</h2>
-              <p className="text-stone-600 text-sm">Cantecson, Gairan, Bogo City, Cebu</p>
+              <p className="text-stone-600 text-[12px]">Cantecson, Gairan, Bogo City, Cebu</p>
             </div>
             <div className="border-t border-b border-stone-200 py-4 mb-4">
-              <h3 className="text-lg font-semibold text-blue-900 mb-3">Appointment Slip</h3>
-              <div className="space-y-2 text-sm">
+              <h3 className="text-[14px] font-semibold text-blue-900 mb-3">Appointment Slip</h3>
+              <div className="space-y-2 text-[12px]">
                 <p><strong>Patient:</strong> {printAppointment.full_name}</p>
                 <p><strong>Service:</strong> {printAppointment.service_type}</p>
                 <p><strong>Date:</strong> {printAppointment.preferred_date}</p>
@@ -3977,13 +3977,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             <div className="mt-6 flex gap-3 print:hidden">
               <button
                 onClick={() => setPrintAppointment(null)}
-                className="flex-1 py-2 bg-stone-200 text-stone-700 rounded-lg"
+                className="flex-1 py-2 bg-stone-200 text-stone-700 rounded-md"
               >
                 Close
               </button>
               <button
                 onClick={() => window.print()}
-                className="flex-1 py-2 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-lg"
+                className="flex-1 py-2 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-md"
               >
                 Print
               </button>
@@ -4106,7 +4106,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
     <div className="bg-blue-50 min-h-screen pt-[70px] md:pt-[30px] pb-24">
       <div className="w-full max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           <div className="w-16 h-16 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-[#576CA8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -4118,48 +4118,48 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 
         {/* Success Message */}
         {cancelSuccess && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 text-center">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-3 text-center">
             <svg className="w-12 h-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-green-700 font-semibold">Appointment Cancelled Successfully</p>
-            <p className="text-green-600 text-sm mt-1">A confirmation email has been sent to you.</p>
+            <p className="text-green-600 text-[12px] mt-1">A confirmation email has been sent to you.</p>
           </div>
         )}
 
         {/* Lookup Form (only show if no appointment loaded) */}
         {!appointment && !isLoading && (
-          <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Find Your Appointment</h2>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <h2 className="text-[14px] font-semibold text-gray-800 mb-4">Find Your Appointment</h2>
 
             <form onSubmit={handleLookup} className="space-y-4">
               <div>
-                <label className="block text-gray-500 text-sm mb-2">Email Address</label>
+                <label className="block text-gray-500 text-[12px] mb-2">Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-gray-500 text-sm mb-2">Reference ID</label>
+                <label className="block text-gray-500 text-[12px] mb-2">Reference ID</label>
                 <input
                   type="number"
                   value={referenceId}
                   onChange={(e) => setReferenceId(e.target.value)}
                   placeholder="Enter your reference number (e.g., 123)"
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
                   required
                 />
                 <p className="text-gray-400 text-xs mt-1">Found in your confirmation email</p>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-[12px]">
                   {error}
                 </div>
               )}
@@ -4167,7 +4167,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white font-semibold rounded-lg hover:bg-[#465a8f] transition-all disabled:opacity-50"
+                className="w-full py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white font-semibold rounded-md hover:bg-[#465a8f] transition-all disabled:opacity-50"
               >
                 {isLoading ? 'Looking up...' : 'Find Appointment'}
               </button>
@@ -4185,16 +4185,16 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 
         {/* Appointment Details */}
         {appointment && !isLoading && (
-          <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-800">Appointment Details</h2>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(appointment.status)}`}>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-[14px] font-semibold text-gray-800">Appointment Details</h2>
+              <span className={`px-3 py-1 rounded-full text-[12px] font-medium border ${getStatusColor(appointment.status)}`}>
                 {appointment.status}
               </span>
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Patient Name</p>
                   <p className="text-gray-800 font-medium">{appointment.full_name}</p>
@@ -4205,7 +4205,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Service</p>
                   <p className="text-gray-800">{appointment.service_type}</p>
@@ -4217,14 +4217,14 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               </div>
 
               <div className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0]/10 rounded-xl p-4 border border-[#576CA8]/20">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-[#576CA8]/70 text-xs uppercase tracking-wider mb-1">Date</p>
-                    <p className="text-gray-800 font-semibold text-lg">{appointment.preferred_date}</p>
+                    <p className="text-gray-800 font-semibold text-[14px]">{appointment.preferred_date}</p>
                   </div>
                   <div>
                     <p className="text-[#576CA8]/70 text-xs uppercase tracking-wider mb-1">Time</p>
-                    <p className="text-gray-800 font-semibold text-lg">{appointment.preferred_time}</p>
+                    <p className="text-gray-800 font-semibold text-[14px]">{appointment.preferred_time}</p>
                   </div>
                 </div>
               </div>
@@ -4232,7 +4232,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               {appointment.notes && (
                 <div>
                   <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Notes</p>
-                  <p className="text-gray-500 text-sm">{appointment.notes}</p>
+                  <p className="text-gray-500 text-[12px]">{appointment.notes}</p>
                 </div>
               )}
             </div>
@@ -4246,7 +4246,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
                   setReferenceId('');
                   setCancelSuccess(false);
                 }}
-                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all"
+                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all"
               >
                 Look Up Another
               </button>
@@ -4254,7 +4254,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               {canCancel && (
                 <button
                   onClick={() => setShowCancelConfirm(true)}
-                  className="flex-1 py-3 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-all"
+                  className="flex-1 py-3 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-all"
                 >
                   Cancel Appointment
                 </button>
@@ -4266,7 +4266,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
         {/* Back Button */}
         <button
           onClick={() => setCurrentPage('home')}
-          className="w-full mt-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all text-sm"
+          className="w-full mt-6 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all text-[12px]"
         >
           ← Back to Home
         </button>
@@ -4275,24 +4275,24 @@ function MyAppointment({ setCurrentPage, initialToken }) {
       {/* Cancel Confirmation Modal */}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md border border-blue-200">
+          <div className="bg-white shadow-xl rounded-xl p-4 w-full max-w-md border border-blue-200">
             <div className="text-center mb-4">
               <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-800">Cancel Appointment?</h3>
+              <h3 className="text-[16px] font-bold text-gray-800">Cancel Appointment?</h3>
               <p className="text-gray-500 mt-2">This action cannot be undone.</p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-500 text-sm mb-2">Reason for cancellation (optional)</label>
+              <label className="block text-gray-500 text-[12px] mb-2">Reason for cancellation (optional)</label>
               <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="Let us know why you're cancelling..."
-                className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-500/50 resize-none"
+                className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-500/50 resize-none"
                 rows={3}
               />
             </div>
@@ -4300,14 +4300,14 @@ function MyAppointment({ setCurrentPage, initialToken }) {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCancelConfirm(false)}
-                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all"
+                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all"
               >
                 Keep Appointment
               </button>
               <button
                 onClick={handleCancel}
                 disabled={isCancelling}
-                className="flex-1 py-3 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition-all disabled:opacity-50"
               >
                 {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
               </button>
@@ -4321,7 +4321,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 
 // Header Component
 function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
-  const inputCls = "w-full pl-10 pr-4 py-2 rounded-lg border border-white/10 bg-white/5 focus:border-white/20 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-white placeholder-white/20 text-sm";
+  const inputCls = "w-full pl-10 pr-4 py-2 rounded-md border border-white/10 bg-white/5 focus:border-white/20 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-white placeholder-white/20 text-[12px]";
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
@@ -4373,7 +4373,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery }) {
               ))}
               <button
                 onClick={() => document.getElementById('location-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest text-white/40 hover:text-white border border-white/10 rounded-lg bg-white/5"
+                className="font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest text-white/40 hover:text-white border border-white/10 rounded-md bg-white/5"
               >
                 Contact
               </button>
@@ -4405,13 +4405,13 @@ function HomePage({ setCurrentPage }) {
 
               {/* Guest Check-In CTA */}
               <div className="mt-4 flex justify-center">
-                <div className="rounded-2xl border border-white/20 px-5 py-3 flex items-center gap-3"
+                <div className="rounded-xl border border-white/20 px-5 py-3 flex items-center gap-3"
                   style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                   <span className="text-2xl">🏨</span>
-                  <span className="text-white/70 text-sm">Already have a reservation?</span>
+                  <span className="text-white/70 text-[12px]">Already have a reservation?</span>
                   <button
                     onClick={() => setCurrentPage('checkin')}
-                    className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
+                    className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-[12px] font-semibold px-4 py-1.5 rounded-md transition-colors"
                   >
                     Check In Now
                   </button>
@@ -4421,25 +4421,25 @@ function HomePage({ setCurrentPage }) {
               {/* Text Content Below Form */}
               <div className="text-center mt-12 mb-16">
                 {/* Main Heading */}
-                <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-[1.05] tracking-tight">
+                <h2 className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-3 leading-[1.05] tracking-tight">
                   Seamless stays,
                   <span className="block text-[#55A2F5] mt-2">unforgettable memories</span>
                 </h2>
 
                 {/* Subheading */}
-                <p className="text-base md:text-xl text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
+                <p className="text-base md:text-[16px] text-white/50 mb-12 max-w-2xl mx-auto leading-relaxed font-medium">
                   Experience world-class hospitality with our modern reservation system. Book your perfect getaway in just a few clicks.
                 </p>
 
                 {/* Stats */}
-                <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+                <div className="flex flex-wrap justify-center gap-2 md:gap-2">
                   {[
                     { label: 'Rooms Available', value: '50+' },
                     { label: 'Happy Guests', value: '12k+' },
                     { label: 'Star Rating', value: '4.9/5' },
                     { label: 'Support', value: '24/7' },
                   ].map((stat, i) => (
-                    <div key={i} className="px-8 py-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all group">
+                    <div key={i} className="px-8 py-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all group">
                       <div className="text-3xl md:text-4xl font-black text-white group-hover:text-[#55A2F5] transition-colors tracking-tighter">{stat.value}</div>
                       <div className="text-white/30 text-[10px] mt-2 font-bold uppercase tracking-widest">{stat.label}</div>
                     </div>
@@ -4457,13 +4457,13 @@ function HomePage({ setCurrentPage }) {
         <div className="w-full px-8">
           <div className="max-w-6xl mx-auto">
             {/* Footer Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 mb-12">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-10 mb-12">
               {/* About */}
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <h4 className="text-lg font-bold text-white">Helios Systems</h4>
+                  <h4 className="text-[14px] font-bold text-white">Helios Systems</h4>
                 </div>
-                <p className="text-gray-200 text-sm leading-relaxed">
+                <p className="text-gray-200 text-[12px] leading-relaxed">
                   Providing modern, responsive, and user-friendly websites that help businesses thrive online. Let's work together to bring your vision to life!
                 </p>
                 {/* Social Links */}
@@ -4482,8 +4482,8 @@ function HomePage({ setCurrentPage }) {
 
               {/* Address */}
               <div>
-                <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Address</h4>
-                <div className="text-gray-200 text-sm space-y-1">
+                <h4 className="text-white font-semibold mb-4 uppercase text-[12px] tracking-wider">Address</h4>
+                <div className="text-gray-200 text-[12px] space-y-1">
                   <p>Pelaez St.</p>
                   <p>Bogo City, Cebu</p>
                   <p>Philippines 6010</p>
@@ -4492,8 +4492,8 @@ function HomePage({ setCurrentPage }) {
 
               {/* Contact */}
               <div>
-                <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Contact</h4>
-                <div className="text-gray-200 text-sm space-y-2">
+                <h4 className="text-white font-semibold mb-4 uppercase text-[12px] tracking-wider">Contact</h4>
+                <div className="text-gray-200 text-[12px] space-y-2">
                   <p className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-[#576CA8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -4511,8 +4511,8 @@ function HomePage({ setCurrentPage }) {
 
               {/* Hours */}
               <div>
-                <h4 className="text-white font-semibold mb-4 uppercase text-sm tracking-wider">Hours</h4>
-                <div className="text-gray-200 text-sm space-y-1">
+                <h4 className="text-white font-semibold mb-4 uppercase text-[12px] tracking-wider">Hours</h4>
+                <div className="text-gray-200 text-[12px] space-y-1">
                   <p>Mon - Fri: 8:00 AM - 6:00 PM</p>
                   <p>Saturday: 8:00 AM - 12:00 PM</p>
                   <p>Sunday: Closed</p>
@@ -4522,7 +4522,7 @@ function HomePage({ setCurrentPage }) {
 
             {/* Footer Bottom */}
             <div className="border-t border-white/20 pt-8 text-center">
-              <p className="text-gray-200 text-sm">
+              <p className="text-gray-200 text-[12px]">
                 © 2026 Roger Tonacao.|  Helios | All rights reserved. |
                 <a href="#" className="hover:text-[#576CA8] transition-all ml-1">Privacy Policy</a> |
                 <a href="#" className="hover:text-[#576CA8] transition-all ml-1">Terms of Service</a> |
@@ -4586,14 +4586,14 @@ function MenuPage({ selectedCategory, setSelectedCategory, searchQuery, menuData
       {/* Hero Section */}
       <div className="relative py-16 px-8 text-center bg-transparent">
         <div className="max-w-3xl mx-auto">
-          <span className="inline-block px-4 py-1 bg-white/10 text-white/80 rounded-full text-sm font-medium mb-4 border border-white/20 backdrop-blur-md">
+          <span className="inline-block px-4 py-1 bg-white/10 text-white/80 rounded-full text-[12px] font-medium mb-4 border border-white/20 backdrop-blur-md">
             Our Healthcare Services
           </span>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
             Quality Care for Your
             <span className="text-[#55A2F5]"> Well-being</span>
           </h1>
-          <p className="text-white/70 text-lg max-w-2xl mx-auto">
+          <p className="text-white/70 text-[14px] max-w-2xl mx-auto">
             Comprehensive healthcare services tailored to meet your needs. Scroll down to explore our services.
           </p>
         </div>
@@ -4610,7 +4610,7 @@ function MenuPage({ selectedCategory, setSelectedCategory, searchQuery, menuData
         {loadingServices ? (
           <div className="text-center py-16">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-white/40 mb-4"></div>
-            <p className="text-xl text-white/60 font-medium">Loading services...</p>
+            <p className="text-[16px] text-white/60 font-medium">Loading services...</p>
           </div>
         ) : (
           <div className="max-w-4xl mx-auto">
@@ -4624,7 +4624,7 @@ function MenuPage({ selectedCategory, setSelectedCategory, searchQuery, menuData
                 }}
               >
                 <div
-                  className="rounded-2xl border border-white/20 overflow-hidden transform transition-all duration-300 hover:scale-[1.02]"
+                  className="rounded-xl border border-white/20 overflow-hidden transform transition-all duration-300 hover:scale-[1.02]"
                   style={{
                     background: 'rgba(255,255,255,0.05)',
                     backdropFilter: 'blur(20px)',
@@ -4632,12 +4632,12 @@ function MenuPage({ selectedCategory, setSelectedCategory, searchQuery, menuData
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
                   }}
                 >
-                  <div className="p-4 md:p-8">
+                  <div className="p-4 md:p-4">
                     {/* Always horizontal: Icon LEFT, Text RIGHT */}
-                    <div className="flex flex-row items-start md:items-center gap-3 md:gap-6">
+                    <div className="flex flex-row items-start md:items-center gap-3 md:gap-3">
                       {/* Icon - Left side */}
                       <div className="flex-shrink-0">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center border border-white/20 shadow-lg">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 bg-white/10 rounded-xl md:rounded-xl flex items-center justify-center border border-white/20 shadow-lg">
                           <span className="text-2xl sm:text-3xl md:text-5xl">
                             {serviceIcons[service.name] || serviceIcons['default']}
                           </span>
@@ -4653,23 +4653,23 @@ function MenuPage({ selectedCategory, setSelectedCategory, searchQuery, menuData
                       {/* Content - Right side */}
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-1 sm:gap-2 md:gap-3 mb-1 md:mb-2">
-                          <h3 className="text-sm sm:text-base md:text-2xl font-bold text-white leading-tight">
+                          <h3 className="text-[12px] sm:text-base md:text-2xl font-bold text-white leading-tight">
                             {service.name}
                           </h3>
-                          <span className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 md:px-3 md:py-1 bg-white/10 text-white/60 rounded-full text-[10px] sm:text-xs md:text-sm font-medium border border-white/10">
+                          <span className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 md:px-3 md:py-1 bg-white/10 text-white/60 rounded-full text-[10px] sm:text-xs md:text-[12px] font-medium border border-white/10">
                             {service.duration}min
                           </span>
                         </div>
                         <p className="text-white/50 mb-2 md:mb-4 text-[11px] sm:text-xs md:text-base line-clamp-2">
                           {service.description || 'Professional healthcare service.'}
                         </p>
-                        <div className="flex flex-wrap items-center gap-2 md:gap-4">
-                          <div className="text-base sm:text-lg md:text-3xl font-bold text-[#55A2F5]">
+                        <div className="flex flex-wrap items-center gap-2 md:gap-2">
+                          <div className="text-base sm:text-[14px] md:text-3xl font-bold text-[#55A2F5]">
                             ₱{parseFloat(service.price).toLocaleString()}
                           </div>
                           <button
                             onClick={() => document.getElementById('appointment-section')?.scrollIntoView({ behavior: 'smooth' })}
-                            className="px-2 py-1.5 sm:px-3 sm:py-2 md:px-6 md:py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-lg md:rounded-xl font-semibold hover:opacity-90 transition-all flex items-center gap-1 md:gap-2 shadow-lg text-[10px] sm:text-xs md:text-base"
+                            className="px-2 py-1.5 sm:px-3 sm:py-2 md:px-6 md:py-3 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-md md:rounded-xl font-semibold hover:opacity-90 transition-all flex items-center gap-1 md:gap-2 shadow-lg text-[10px] sm:text-xs md:text-base"
                           >
                             <svg className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -4707,16 +4707,16 @@ function MenuPage({ selectedCategory, setSelectedCategory, searchQuery, menuData
       {/* CTA Section */}
       <div className="py-16 px-8 relative overflow-hidden">
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <div className="rounded-3xl border border-white/20 p-8 md:p-12" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="rounded-3xl border border-white/20 p-4 md:p-4" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
               Ready to Book Your Appointment?
             </h2>
-            <p className="text-white/60 mb-8">
+            <p className="text-white/60 mb-4">
               Our team of healthcare professionals is ready to provide you with the best care.
             </p>
             <button
               onClick={() => document.getElementById('appointment-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-bold text-lg hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
+              className="px-8 py-4 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white rounded-xl font-bold text-[14px] hover:opacity-90 transition-all shadow-lg hover:shadow-xl"
             >
               Schedule Now
             </button>
@@ -4736,7 +4736,7 @@ function MenuItem({ item }) {
       {/* Left side - Product Image */}
       <div className="bg-stone-100 p-3 sm:p-4 flex items-center justify-center w-48 sm:w-54 md:w-60 flex-shrink-0 relative">
         {item.image && item.image.startsWith('assets/') ? (
-          <img src={item.image} alt={item.name} className="object-contain w-full h-48 sm:h-54 md:h-60 rounded-lg group-hover:scale-110 transition-transform duration-300" />
+          <img src={item.image} alt={item.name} className="object-contain w-full h-48 sm:h-54 md:h-60 rounded-md group-hover:scale-110 transition-transform duration-300" />
         ) : (
           <div className="text-7xl sm:text-8xl md:text-9xl group-hover:scale-110 transition-transform duration-300">{item.image}</div>
         )}
@@ -4748,22 +4748,22 @@ function MenuItem({ item }) {
       </div>
 
       {/* Right side - Product Details */}
-      <div className="p-4 sm:p-5 md:p-6 flex flex-col justify-start flex-1 min-w-0">
+      <div className="p-4 sm:p-3 md:p-4 flex flex-col justify-start flex-1 min-w-0">
         <div className="mb-4">
-          <h3 className="text-base sm:text-lg md:text-xl font-bold text-blue-900 mb-2 break-words">{item.name}</h3>
-          <p className="text-stone-600 text-sm sm:text-base mb-3 line-clamp-2 font-normal">{item.description}</p>
+          <h3 className="text-base sm:text-[14px] md:text-[16px] font-bold text-blue-900 mb-2 break-words">{item.name}</h3>
+          <p className="text-stone-600 text-[12px] sm:text-base mb-3 line-clamp-2 font-normal">{item.description}</p>
         </div>
         <div className="flex flex-col gap-3 mt-auto">
           {item.sizes ? (
-            <span className="text-sm sm:text-base md:text-lg font-semibold text-blue-900 break-words">
+            <span className="text-[12px] sm:text-base md:text-[14px] font-semibold text-blue-900 break-words">
               From Php {Math.min(...item.sizes.map(s => s.price)).toFixed(2)}
             </span>
           ) : (
-            <span className="text-sm sm:text-base md:text-lg font-semibold text-blue-900 break-words">Php {item.price.toFixed(2)}</span>
+            <span className="text-[12px] sm:text-base md:text-[14px] font-semibold text-blue-900 break-words">Php {item.price.toFixed(2)}</span>
           )}
           <button
             onClick={() => addToCart(item)}
-            className="btn-animated bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 sm:px-5 py-3 rounded-lg hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 text-sm font-semibold w-full whitespace-nowrap"
+            className="btn-animated bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 sm:px-5 py-3 rounded-md hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 text-[12px] font-semibold w-full whitespace-nowrap"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -4783,8 +4783,8 @@ function CartDrawer({ setShowCart, setCurrentPage }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end" onClick={() => setShowCart(false)}>
       <div className="bg-gray-100 w-full max-w-md h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
             <h2 className="text-2xl font-bold text-gray-800">Your Cart</h2>
             <button onClick={() => setShowCart(false)} className="text-gray-500 hover:text-gray-700">
               <X className="w-6 h-6" />
@@ -4798,7 +4798,7 @@ function CartDrawer({ setShowCart, setCurrentPage }) {
             </div>
           ) : (
             <>
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4 mb-3">
                 {cartItems.map((item, index) => (
                   <CartItemCard key={`${item.id}-${item.selectedSize || 'default'}-${index}`} item={item} />
                 ))}
@@ -4831,10 +4831,10 @@ function CartPage({ setCurrentPage }) {
     return (
       <div className="min-h-screen py-12">
         <div className="max-w-md mx-auto px-8 text-center">
-          <div className="rounded-3xl border border-white/20 p-12" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <ShoppingCart className="w-16 h-16 text-white/20 mx-auto mb-6" />
+          <div className="rounded-3xl border border-white/20 p-4" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <ShoppingCart className="w-16 h-16 text-white/20 mx-auto mb-3" />
             <h2 className="text-2xl font-bold text-white mb-2">Your cart is empty</h2>
-            <p className="text-white/50 mb-8">Add some services to get started</p>
+            <p className="text-white/50 mb-4">Add some services to get started</p>
             <button
               onClick={() => setCurrentPage('menu')}
               className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all"
@@ -4852,7 +4852,7 @@ function CartPage({ setCurrentPage }) {
       <div className="w-full max-w-6xl mx-auto px-6">
         <h1 className="text-3xl font-bold text-white mb-10 text-center">Your Cart</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item, index) => (
               <CartItemCard key={`${item.id}-${item.selectedSize || 'default'}-${index}`} item={item} detailed />
@@ -4860,9 +4860,9 @@ function CartPage({ setCurrentPage }) {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="rounded-2xl border border-white/20 p-6 sticky top-[120px]" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <h3 className="text-lg font-bold text-white mb-6">Order Summary</h3>
-              <div className="space-y-4 mb-8">
+            <div className="rounded-xl border border-white/20 p-4 sticky top-[120px]" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <h3 className="text-[14px] font-bold text-white mb-3">Order Summary</h3>
+              <div className="space-y-4 mb-4">
                 <div className="flex justify-between text-white/60">
                   <span>Subtotal</span>
                   <span className="text-white">Php {getTotalPrice().toFixed(2)}</span>
@@ -4876,7 +4876,7 @@ function CartPage({ setCurrentPage }) {
                   <span className="text-white">Php {tax.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-white/10 pt-4 mt-4">
-                  <div className="flex justify-between text-xl font-bold">
+                  <div className="flex justify-between text-[16px] font-bold">
                     <span className="text-white">Total</span>
                     <span className="text-[#55A2F5]">Php {total.toFixed(2)}</span>
                   </div>
@@ -4901,10 +4901,10 @@ function CartItemCard({ item, detailed = false }) {
   const { updateQuantity, removeFromCart } = useCart();
 
   return (
-    <div className="rounded-2xl border border-white/10 p-4 flex items-center gap-4 group transition-all hover:bg-white/5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+    <div className="rounded-xl border border-white/10 p-4 flex items-center gap-2 group transition-all hover:bg-white/5" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
       <div className="bg-white/10 border border-white/10 rounded-xl flex items-center justify-center w-20 h-20 shrink-0">
         {item.image && item.image.startsWith('assets/') ? (
-          <img src={item.image} alt={item.name} className="object-contain w-full h-full rounded-lg" />
+          <img src={item.image} alt={item.name} className="object-contain w-full h-full rounded-md" />
         ) : (
           <div className="text-4xl">{item.image}</div>
         )}
@@ -4912,19 +4912,19 @@ function CartItemCard({ item, detailed = false }) {
       <div className="flex-1 min-w-0">
         <h3 className="font-bold text-white text-base truncate">{item.name}</h3>
         {item.selectedSize && <p className="text-white/40 text-xs mt-0.5">Category: {item.selectedSize}</p>}
-        <p className="text-[#55A2F5] font-bold text-lg mt-1">Php {item.price.toFixed(2)}</p>
+        <p className="text-[#55A2F5] font-bold text-[14px] mt-1">Php {item.price.toFixed(2)}</p>
       </div>
       <div className="flex items-center gap-3">
         <button
           onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
-          className="w-8 h-8 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg flex items-center justify-center transition-all"
+          className="w-8 h-8 bg-white/10 hover:bg-white/20 border border-white/10 rounded-md flex items-center justify-center transition-all"
         >
           <Minus className="w-4 h-4 text-white" />
         </button>
         <span className="font-bold text-white w-4 text-center">{item.quantity}</span>
         <button
           onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
-          className="w-8 h-8 bg-[#55A2F5] hover:opacity-90 rounded-lg flex items-center justify-center transition-all shadow-lg"
+          className="w-8 h-8 bg-[#55A2F5] hover:opacity-90 rounded-md flex items-center justify-center transition-all shadow-lg"
         >
           <Plus className="w-4 h-4 text-white" />
         </button>
@@ -5110,13 +5110,13 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
       <div className="w-full max-w-6xl mx-auto px-6">
         <h1 className="text-3xl font-bold text-white mb-10 text-center">Checkout</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <form onSubmit={handleSubmit} className="rounded-xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <div className="px-6 py-5 bg-white/5 border-b border-white/10">
-                <h3 className="text-lg font-bold text-white">Delivery Address</h3>
+                <h3 className="text-[14px] font-bold text-white">Delivery Address</h3>
               </div>
-              <div className="p-8 space-y-6">
+              <div className="p-4 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <input
                     type="text"
@@ -5124,7 +5124,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                   <input
                     type="email"
@@ -5132,7 +5132,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                   <input
                     type="tel"
@@ -5140,7 +5140,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                   <input
                     type="text"
@@ -5148,7 +5148,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.zipCode}
                     onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                 </div>
                 <input
@@ -5157,7 +5157,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                   required
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm mt-3"
+                  className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px] mt-3"
                 />
                 <input
                   type="text"
@@ -5165,22 +5165,22 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                   required
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm mt-3"
+                  className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px] mt-3"
                 />
               </div>
 
               {/* Notification Subscription Prompt */}
               {notificationStatus === 'checking' && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
                   <div className="flex items-center gap-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
-                    <span className="text-sm text-gray-600">Checking notification status...</span>
+                    <span className="text-[12px] text-gray-600">Checking notification status...</span>
                   </div>
                 </div>
               )}
 
               {notificationStatus !== 'subscribed' && notificationStatus !== 'checking' && (
-                <div className={`rounded-lg p-4 border-2 ${notificationStatus === 'denied'
+                <div className={`rounded-md p-4 border-2 ${notificationStatus === 'denied'
                   ? 'bg-red-50 border-red-200'
                   : 'bg-yellow-50 border-yellow-300'
                   }`}>
@@ -5189,7 +5189,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       {notificationStatus === 'denied' ? '🔕' : '🔔'}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-800 text-sm mb-1">
+                      <h4 className="font-medium text-gray-800 text-[12px] mb-1">
                         {notificationStatus === 'denied'
                           ? 'Notifications Blocked'
                           : 'Get Order Updates'}
@@ -5220,11 +5220,11 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
               )}
 
               {notificationStatus === 'subscribed' && (
-                <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">
+                <div className="bg-green-50 border-2 border-green-300 rounded-md p-4">
                   <div className="flex items-center gap-3">
                     <div className="text-2xl">✅</div>
                     <div>
-                      <h4 className="font-medium text-green-700 text-sm">Notifications Enabled</h4>
+                      <h4 className="font-medium text-green-700 text-[12px]">Notifications Enabled</h4>
                       <p className="text-xs text-green-600">You'll receive updates when your order status changes!</p>
                     </div>
                   </div>
@@ -5244,7 +5244,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value, paymentReference: '' })}
                       className="w-4 h-4 text-green-600"
                     />
-                    <span className="text-sm text-gray-700">Cash on Delivery</span>
+                    <span className="text-[12px] text-gray-700">Cash on Delivery</span>
                   </label>
 
                   <label className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all ${formData.paymentMethod === 'gcash' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
@@ -5257,7 +5257,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                       className="w-4 h-4 text-green-600"
                     />
-                    <span className="text-sm text-gray-700">GCash</span>
+                    <span className="text-[12px] text-gray-700">GCash</span>
                   </label>
 
                   <label className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all ${formData.paymentMethod === 'bank' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
@@ -5270,14 +5270,14 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                       className="w-4 h-4 text-green-600"
                     />
-                    <span className="text-sm text-gray-700">Bank Transfer</span>
+                    <span className="text-[12px] text-gray-700">Bank Transfer</span>
                   </label>
                 </div>
 
                 {/* Payment Instructions */}
                 {formData.paymentMethod === 'cash' && (
                   <div className="mt-4 bg-gray-50 border border-gray-200 rounded-md p-4">
-                    <h4 className="font-medium text-gray-700 text-sm mb-2">Cash on Delivery Instructions</h4>
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-2">Cash on Delivery Instructions</h4>
                     <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
                       <li>Prepare exact amount if possible</li>
                       <li>Payment will be collected upon delivery</li>
@@ -5288,13 +5288,13 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
 
                 {formData.paymentMethod === 'gcash' && (
                   <div className="mt-4 bg-green-50 border border-green-200 rounded-md p-4">
-                    <h4 className="font-medium text-gray-700 text-sm mb-3">GCash Payment</h4>
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-3">GCash Payment</h4>
                     <div className="space-y-3">
                       <div className="bg-white rounded-md p-3 border border-green-100">
                         <p className="text-xs text-gray-500 mb-1">Amount to pay:</p>
-                        <p className="text-lg font-medium text-green-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
+                        <p className="text-[14px] font-medium text-green-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-[12px] text-gray-600">
                         <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
@@ -5314,7 +5314,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
 
                 {formData.paymentMethod === 'bank' && (
                   <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
-                    <h4 className="font-medium text-gray-700 text-sm mb-3">Bank Transfer Instructions</h4>
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-3">Bank Transfer Instructions</h4>
                     <div className="space-y-3">
                       <div className="bg-white rounded-md p-3 border border-blue-100">
                         <p className="text-xs text-gray-500 mb-2">Transfer to:</p>
@@ -5324,7 +5324,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       </div>
                       <div className="bg-white rounded-md p-3 border border-blue-100">
                         <p className="text-xs text-gray-500 mb-1">Amount to transfer:</p>
-                        <p className="text-lg font-medium text-blue-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
+                        <p className="text-[14px] font-medium text-blue-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
                       </div>
                       <div className="text-xs text-gray-600 space-y-1">
                         <p className="font-medium">After transfer:</p>
@@ -5339,7 +5339,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                         placeholder="Enter Bank Reference Number"
                         value={formData.paymentReference}
                         onChange={(e) => setFormData({ ...formData, paymentReference: e.target.value })}
-                        className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none text-sm"
+                        className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none text-[12px]"
                       />
                     </div>
                   </div>
@@ -5349,7 +5349,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-3 rounded-md font-medium transition-all text-sm ${isSubmitting
+                className={`w-full py-3 rounded-md font-medium transition-all text-[12px] ${isSubmitting
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-green-600 text-white hover:bg-green-700'
                   }`}
@@ -5360,18 +5360,18 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-5 sticky top-[160px] md:top-[120px]">
+            <div className="bg-white rounded-md shadow-sm p-3 sticky top-[160px] md:top-[120px]">
               <h3 className="text-base font-medium text-gray-800 mb-4">Order Summary</h3>
               <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-[12px] text-gray-600">
                   <span>Subtotal</span>
                   <span>Php {getTotalPrice().toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-[12px] text-gray-600">
                   <span>Delivery Fee</span>
                   <span>Php {deliveryFee.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-[12px] text-gray-600">
                   <span>Tax (8%)</span>
                   <span>Php {tax.toFixed(2)}</span>
                 </div>
@@ -5399,28 +5399,28 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
     <div className="bg-gray-50 min-h-screen py-8">
       <div className="w-full px-8">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-3">
           <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </div>
-          <h1 className="text-xl font-medium text-gray-800 mb-1">
+          <h1 className="text-[16px] font-medium text-gray-800 mb-1">
             {paymentStatus === 'success' ? 'Payment Successful!' : 'Order Confirmed'}
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-[12px] text-gray-500">
             {paymentStatus === 'success' ? 'Your GCash payment has been received' : 'Thank you for your order'}
           </p>
         </div>
 
         {/* Order Number */}
-        <div className="bg-green-600 rounded-lg p-4 mb-6 text-center">
+        <div className="bg-green-600 rounded-md p-4 mb-3 text-center">
           <div className="text-xs text-green-200 mb-1">Order Number</div>
-          <div className="text-xl font-medium text-white">{displayOrderNumber}</div>
+          <div className="text-[16px] font-medium text-white">{displayOrderNumber}</div>
         </div>
 
         {/* Order Status */}
-        <div className="bg-white rounded-lg p-5 mb-6 shadow-sm">
+        <div className="bg-white rounded-md p-3 mb-3 shadow-sm">
           <h3 className="text-base font-medium text-gray-800 mb-4">Order Status</h3>
 
           <div className="space-y-0">
@@ -5435,7 +5435,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
                 <div className="w-0.5 h-8 bg-green-500"></div>
               </div>
               <div className="pb-3">
-                <div className="text-sm font-medium text-gray-800">Order Received</div>
+                <div className="text-[12px] font-medium text-gray-800">Order Received</div>
                 <div className="text-xs text-gray-500">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</div>
               </div>
             </div>
@@ -5449,7 +5449,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
                 <div className="w-0.5 h-8 bg-gray-200"></div>
               </div>
               <div className="pb-3">
-                <div className="text-sm font-medium text-gray-800">Preparing your order</div>
+                <div className="text-[12px] font-medium text-gray-800">Preparing your order</div>
                 <div className="text-xs text-gray-500">Estimated: 15-20 mins</div>
               </div>
             </div>
@@ -5460,7 +5460,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
                 <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
               </div>
               <div>
-                <div className="text-sm text-gray-400">Out for delivery</div>
+                <div className="text-[12px] text-gray-400">Out for delivery</div>
                 <div className="text-xs text-gray-400">Estimated arrival: 25-30 mins</div>
               </div>
             </div>
@@ -5468,7 +5468,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
         </div>
 
         {/* SMS Notice */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-3">
           <p className="text-xs text-gray-500">You will receive a text message with delivery updates</p>
         </div>
 
@@ -5476,13 +5476,13 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
         <div className="flex gap-3">
           <button
             onClick={() => setCurrentPage('home')}
-            className="flex-1 bg-green-600 text-white py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
+            className="flex-1 bg-green-600 text-white py-1.5 rounded-md text-[12px] font-medium hover:bg-green-700 transition-all"
           >
             Back to Home
           </button>
           <button
             onClick={() => setCurrentPage('menu')}
-            className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-md text-sm font-medium hover:bg-gray-200 transition-all"
+            className="flex-1 bg-gray-100 text-gray-700 py-1.5 rounded-md text-[12px] font-medium hover:bg-gray-200 transition-all"
           >
             Order Again
           </button>
@@ -5498,32 +5498,32 @@ function PaymentFailedPage({ setCurrentPage, orderNumber }) {
     <div className="bg-gray-50 min-h-screen py-8">
       <div className="w-full px-8 max-w-md mx-auto">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-3">
           <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
-          <h1 className="text-xl font-medium text-gray-800 mb-1">Payment Failed</h1>
-          <p className="text-sm text-gray-500">Your GCash payment was not completed</p>
+          <h1 className="text-[16px] font-medium text-gray-800 mb-1">Payment Failed</h1>
+          <p className="text-[12px] text-gray-500">Your GCash payment was not completed</p>
         </div>
 
         {/* Order Number */}
         {orderNumber && (
-          <div className="bg-gray-200 rounded-lg p-4 mb-6 text-center">
+          <div className="bg-gray-200 rounded-md p-4 mb-3 text-center">
             <div className="text-xs text-gray-500 mb-1">Order Number</div>
-            <div className="text-xl font-medium text-gray-700">{orderNumber}</div>
+            <div className="text-[16px] font-medium text-gray-700">{orderNumber}</div>
           </div>
         )}
 
         {/* Message */}
-        <div className="bg-white rounded-lg p-5 mb-6 shadow-sm">
+        <div className="bg-white rounded-md p-3 mb-3 shadow-sm">
           <h3 className="text-base font-medium text-gray-800 mb-3">What happened?</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-[12px] text-gray-600 mb-4">
             Your payment was cancelled or failed to process. Your order has been saved but is awaiting payment.
           </p>
           <h3 className="text-base font-medium text-gray-800 mb-3">What can you do?</h3>
-          <ul className="text-sm text-gray-600 space-y-2">
+          <ul className="text-[12px] text-gray-600 space-y-2">
             <li>• Try placing your order again with GCash</li>
             <li>• Choose a different payment method (Cash on Delivery)</li>
             <li>• Contact us if you need assistance</li>
@@ -5534,13 +5534,13 @@ function PaymentFailedPage({ setCurrentPage, orderNumber }) {
         <div className="flex flex-col gap-3">
           <button
             onClick={() => setCurrentPage('checkout')}
-            className="w-full bg-green-600 text-white py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
+            className="w-full bg-green-600 text-white py-1.5 rounded-md text-[12px] font-medium hover:bg-green-700 transition-all"
           >
             Try Again
           </button>
           <button
             onClick={() => setCurrentPage('home')}
-            className="w-full bg-gray-100 text-gray-700 py-2.5 rounded-md text-sm font-medium hover:bg-gray-200 transition-all"
+            className="w-full bg-gray-100 text-gray-700 py-1.5 rounded-md text-[12px] font-medium hover:bg-gray-200 transition-all"
           >
             Back to Home
           </button>
@@ -5737,10 +5737,10 @@ function QueueAdminTab({ setCurrentPage }) {
         }
 
         return (
-          <div className={`grid grid-cols-1 ${hasTimeliness ? 'md:grid-cols-2' : ''} gap-4 mb-6`}>
+          <div className={`grid grid-cols-1 ${hasTimeliness ? 'md:grid-cols-2' : ''} gap-2 mb-3`}>
             {/* Column 1: Queue Status */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-              <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
+              <div className="flex flex-col md:flex-row items-center gap-3">
                 <div className="relative flex-shrink-0">
                   <svg width="160" height="160" viewBox="0 0 128 128">
                     <circle cx="64" cy="64" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="16" />
@@ -5761,7 +5761,7 @@ function QueueAdminTab({ setCurrentPage }) {
                   </svg>
                 </div>
                 <div className="flex-1 w-full">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Queue Status</h3>
+                  <h3 className="text-[12px] font-semibold text-gray-700 mb-3">Queue Status</h3>
                   <div className="space-y-3">
                     {chartData.map((seg, i) => {
                       const pct = stats.total > 0 ? Math.round((seg.value / stats.total) * 100) : 0;
@@ -5770,9 +5770,9 @@ function QueueAdminTab({ setCurrentPage }) {
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
                               <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: seg.color }}></span>
-                              <span className="text-sm text-gray-600">{seg.label}</span>
+                              <span className="text-[12px] text-gray-600">{seg.label}</span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-800">{seg.value} <span className="text-gray-400 font-normal">({pct}%)</span></span>
+                            <span className="text-[12px] font-semibold text-gray-800">{seg.value} <span className="text-gray-400 font-normal">({pct}%)</span></span>
                           </div>
                           <div className="w-full bg-gray-100 rounded-full h-2">
                             <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
@@ -5787,9 +5787,9 @@ function QueueAdminTab({ setCurrentPage }) {
 
             {/* Column 2: Timeliness */}
             {hasTimeliness && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Timeliness</h3>
-                <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
+                <h3 className="text-[12px] font-semibold text-gray-700 mb-3">Timeliness</h3>
+                <div className="grid grid-cols-3 gap-2 mb-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-blue-600">{fmt(avgWait)}</p>
                     <p className="text-[10px] text-gray-400 uppercase tracking-wider">Avg Wait</p>
@@ -5817,7 +5817,7 @@ function QueueAdminTab({ setCurrentPage }) {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+                <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
                   <span>Fastest: {fmt(minWait)}</span>
                   <span>Slowest: {fmt(maxWait)}</span>
                   <span>Served: {completedTickets.length}</span>
@@ -5829,40 +5829,40 @@ function QueueAdminTab({ setCurrentPage }) {
       })()}
 
       {/* Quick Links */}
-      <div className="flex gap-3 mb-6 flex-wrap">
-        <button onClick={() => setCurrentPage('queue-display')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+      <div className="flex gap-3 mb-3 flex-wrap">
+        <button onClick={() => setCurrentPage('queue-display')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
           Open Public Display
         </button>
-        <button onClick={() => setCurrentPage('queue-teller')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+        <button onClick={() => setCurrentPage('queue-teller')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
           Open Teller View
         </button>
-        <button onClick={() => setShowResetConfirm(true)} className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-red-200 ml-auto">
+        <button onClick={() => setShowResetConfirm(true)} className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-md text-[12px] font-medium transition-all border border-red-200 ml-auto">
           Reset Queue
         </button>
       </div>
 
       {/* Reset Confirm */}
       {showResetConfirm && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between">
-          <p className="text-red-600 text-sm">Are you sure? This will delete all tickets for today.</p>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-3 flex items-center justify-between">
+          <p className="text-red-600 text-[12px]">Are you sure? This will delete all tickets for today.</p>
           <div className="flex gap-2">
-            <button onClick={resetQueue} className="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium">Yes, Reset</button>
-            <button onClick={() => setShowResetConfirm(false)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium">Cancel</button>
+            <button onClick={resetQueue} className="bg-red-500 text-white px-4 py-2 rounded-md text-[12px] font-medium">Yes, Reset</button>
+            <button onClick={() => setShowResetConfirm(false)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-md text-[12px] font-medium">Cancel</button>
           </div>
         </div>
       )}
 
       {/* Today's Tickets */}
-      <div className="bg-white border border-blue-200 rounded-xl shadow-sm overflow-hidden mb-6">
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm overflow-hidden mb-3">
         <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200">
-          <h3 className="text-gray-800 font-bold text-lg">Today's Tickets</h3>
+          <h3 className="text-gray-800 font-bold text-[14px]">Today's Tickets</h3>
           <div className="flex gap-2">
-            <button onClick={() => window.open('http://localhost:5000/api/export/queue-tickets', '_blank')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-blue-200">
+            <button onClick={() => window.open('http://localhost:5000/api/export/queue-tickets', '_blank')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all border border-blue-200">
               Export CSV
             </button>
-            <button onClick={fetchAll} className="text-blue-600 hover:text-blue-800 text-sm transition-all">Refresh</button>
+            <button onClick={fetchAll} className="text-blue-600 hover:text-blue-800 text-[12px] transition-all">Refresh</button>
           </div>
         </div>
         {tickets.length === 0 ? (
@@ -5881,7 +5881,7 @@ function QueueAdminTab({ setCurrentPage }) {
               <span>Time</span>
             </div>
             {tickets.map((t, index) => (
-              <div key={t.id} className={`grid grid-cols-1 md:grid-cols-8 gap-3 px-4 py-3 items-center text-sm border-b border-blue-100 hover:bg-blue-50/50 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+              <div key={t.id} className={`grid grid-cols-1 md:grid-cols-8 gap-3 px-4 py-3 items-center text-[12px] border-b border-blue-100 hover:bg-blue-50/50 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
                 <div className="font-bold text-blue-700 min-w-0">
                   {t.ticket_number}
                   {t.is_priority && <span className="ml-1 text-[9px] font-bold bg-orange-500 text-white px-1.5 py-0.5 rounded-full uppercase">{t.priority_type || 'Priority'}</span>}
@@ -5889,7 +5889,7 @@ function QueueAdminTab({ setCurrentPage }) {
                 <span className="text-gray-800 font-medium truncate">{t.customer_name}</span>
                 <span className="text-gray-600 truncate">{t.cellphone_number}</span>
                 <span className="text-gray-600 truncate">{t.transaction_type}</span>
-                <span className={`px-2 py-1 rounded-full text-sm font-medium border w-fit ${getQueueStatusColor(t.status)}`}>
+                <span className={`px-2 py-1 rounded-full text-[12px] font-medium border w-fit ${getQueueStatusColor(t.status)}`}>
                   {t.status}
                 </span>
                 <span className="text-gray-600">{t.teller_window || '-'}</span>
@@ -5902,15 +5902,15 @@ function QueueAdminTab({ setCurrentPage }) {
       </div>
 
       {/* Configuration */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Transaction Types */}
-        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6">
-          <h3 className="text-gray-800 font-bold text-lg mb-4">Transaction Types</h3>
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4">
+          <h3 className="text-gray-800 font-bold text-[14px] mb-4">Transaction Types</h3>
           <div className="space-y-2 mb-4">
             {transactionTypes.map(type => (
-              <div key={type.id} className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
+              <div key={type.id} className="flex items-center justify-between bg-blue-50 rounded-md p-3">
                 <div>
-                  <span className="text-gray-800 text-sm font-medium">{type.name}</span>
+                  <span className="text-gray-800 text-[12px] font-medium">{type.name}</span>
                   <span className="text-gray-400 text-xs ml-2">({type.prefix})</span>
                 </div>
                 <button onClick={() => deleteTransactionType(type.id)} className="text-red-400 hover:text-red-600 transition-all">
@@ -5925,7 +5925,7 @@ function QueueAdminTab({ setCurrentPage }) {
               value={newTypeName}
               onChange={e => setNewTypeName(e.target.value)}
               placeholder="Name"
-              className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+              className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
             <input
               type="text"
@@ -5933,25 +5933,25 @@ function QueueAdminTab({ setCurrentPage }) {
               onChange={e => setNewTypePrefix(e.target.value.toUpperCase().slice(0, 3))}
               placeholder="Prefix"
               maxLength={3}
-              className="w-20 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+              className="w-20 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
-            <button onClick={addTransactionType} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all">
+            <button onClick={addTransactionType} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all">
               Add
             </button>
           </div>
         </div>
 
         {/* Teller Windows */}
-        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6">
-          <h3 className="text-gray-800 font-bold text-lg mb-4">Teller Windows</h3>
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4">
+          <h3 className="text-gray-800 font-bold text-[14px] mb-4">Teller Windows</h3>
 
           <div className="space-y-3 mb-4">
             {tellers.map(teller => {
               const assignedIds = (teller.assigned_types || []).map(t => t.id);
               return (
-                <div key={teller.id} className="bg-blue-50 rounded-lg p-3">
+                <div key={teller.id} className="bg-blue-50 rounded-md p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-800 text-sm font-medium">{teller.window_name}</span>
+                    <span className="text-gray-800 text-[12px] font-medium">{teller.window_name}</span>
                     <button onClick={() => deleteTeller(teller.id)} className="text-red-400 hover:text-red-600 transition-all">
                       <X className="w-4 h-4" />
                     </button>
@@ -5980,9 +5980,9 @@ function QueueAdminTab({ setCurrentPage }) {
               value={newWindowName}
               onChange={e => setNewWindowName(e.target.value)}
               placeholder="Window name"
-              className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+              className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
-            <button onClick={addTeller} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all">
+            <button onClick={addTeller} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all">
               Add
             </button>
           </div>
@@ -5990,15 +5990,15 @@ function QueueAdminTab({ setCurrentPage }) {
       </div>
 
       {/* Marquee Text */}
-      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6 mt-6">
-        <h3 className="text-gray-800 font-bold text-lg mb-4">Display Marquee Text</h3>
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 mt-6">
+        <h3 className="text-gray-800 font-bold text-[14px] mb-4">Display Marquee Text</h3>
         <div className="flex gap-2">
           <input
             type="text"
             value={marqueeText}
             onChange={e => setMarqueeText(e.target.value)}
             placeholder="Enter scrolling text for the queue display..."
-            className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+            className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
           />
           <button
             onClick={async () => {
@@ -6013,7 +6013,7 @@ function QueueAdminTab({ setCurrentPage }) {
               setMarqueeSaving(false);
             }}
             disabled={marqueeSaving}
-            className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
+            className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50"
           >
             {marqueeSaving ? 'Saving...' : 'Save'}
           </button>
@@ -6022,13 +6022,13 @@ function QueueAdminTab({ setCurrentPage }) {
       </div>
 
       {/* Display Template */}
-      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6 mt-6">
-        <h3 className="text-gray-800 font-bold text-lg mb-4">Display Template</h3>
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 mt-6">
+        <h3 className="text-gray-800 font-bold text-[14px] mb-4">Display Template</h3>
         <div className="flex flex-col md:flex-row gap-2 md:items-center">
           <select
             value={displayTemplate}
             onChange={(e) => setDisplayTemplate(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm focus:border-[#576CA8] focus:outline-none"
+            className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none"
           >
             <option value="template1">Template 1 - Classic</option>
             <option value="template2">Template 2 - Split Board</option>
@@ -6055,7 +6055,7 @@ function QueueAdminTab({ setCurrentPage }) {
               setTemplateSaving(false);
             }}
             disabled={templateSaving}
-            className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
+            className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50"
           >
             {templateSaving ? 'Saving...' : 'Set as Default'}
           </button>
@@ -6069,7 +6069,7 @@ function QueueAdminTab({ setCurrentPage }) {
           onClick={() => setShowReports(!showReports)}
           className="w-full flex items-center justify-between px-6 py-4 hover:bg-blue-50/50 transition-all"
         >
-          <h3 className="text-gray-800 font-bold text-lg">Queue Reports & Analytics</h3>
+          <h3 className="text-gray-800 font-bold text-[14px]">Queue Reports & Analytics</h3>
           <svg className={`w-5 h-5 text-gray-400 transition-transform ${showReports ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
@@ -6078,26 +6078,26 @@ function QueueAdminTab({ setCurrentPage }) {
         {showReports && (
           <div className="px-6 pb-6 border-t border-blue-100">
             {/* Date Range + Generate */}
-            <div className="flex flex-wrap items-end gap-3 mt-4 mb-6">
+            <div className="flex flex-wrap items-end gap-3 mt-4 mb-3">
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Start Date</label>
                 <input type="date" value={reportStartDate} onChange={e => setReportStartDate(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm focus:border-[#576CA8] focus:outline-none" />
+                  className="px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 block mb-1">End Date</label>
                 <input type="date" value={reportEndDate} onChange={e => setReportEndDate(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm focus:border-[#576CA8] focus:outline-none" />
+                  className="px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none" />
               </div>
               <button onClick={fetchReport} disabled={reportLoading}
-                className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-5 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50">
+                className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-5 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50">
                 {reportLoading ? 'Loading...' : 'Generate Report'}
               </button>
               <button onClick={() => {
                 const params = new URLSearchParams({ startDate: reportStartDate, endDate: reportEndDate });
                 window.open(`http://localhost:5000/api/export/queue-tickets?${params}`, '_blank');
               }}
-                className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-blue-200">
+                className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all border border-blue-200">
                 Export to CSV
               </button>
             </div>
@@ -6105,7 +6105,7 @@ function QueueAdminTab({ setCurrentPage }) {
             {reportData && (
               <>
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
                   <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
                     <p className="text-blue-200 text-xs uppercase tracking-wider">Total Tickets</p>
                     <p className="text-3xl font-bold text-white">{reportData.summary.totalTickets}</p>
@@ -6125,7 +6125,7 @@ function QueueAdminTab({ setCurrentPage }) {
                 </div>
 
                 {/* Completion Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-3 gap-2 mb-3">
                   <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
                     <p className="text-green-600 text-xs uppercase tracking-wider">Completed</p>
                     <p className="text-2xl font-bold text-green-700 mt-1">{reportData.summary.completed}</p>
@@ -6142,8 +6142,8 @@ function QueueAdminTab({ setCurrentPage }) {
 
                 {/* By Transaction Type */}
                 {reportData.byTransactionType.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">By Transaction Type</h4>
+                  <div className="mb-3">
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">By Transaction Type</h4>
                     <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
                       <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-xs font-semibold text-white uppercase tracking-wider">
                         <span>Type</span>
@@ -6151,7 +6151,7 @@ function QueueAdminTab({ setCurrentPage }) {
                         <span className="text-right">Avg Wait</span>
                       </div>
                       {reportData.byTransactionType.map((item, i) => (
-                        <div key={item.type} className={`grid grid-cols-3 gap-3 px-4 py-2.5 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+                        <div key={item.type} className={`grid grid-cols-3 gap-3 px-4 py-1.5 text-[12px] ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
                           <span className="text-gray-800 font-medium">{item.type}</span>
                           <span className="text-gray-600 text-center">{item.count}</span>
                           <span className="text-gray-600 text-right">{formatSeconds(item.avgWait)}</span>
@@ -6163,8 +6163,8 @@ function QueueAdminTab({ setCurrentPage }) {
 
                 {/* By Hour - Bar Chart */}
                 {reportData.byHour.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">Tickets by Hour</h4>
+                  <div className="mb-3">
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">Tickets by Hour</h4>
                     <div className="bg-white rounded-xl border border-blue-200 p-4">
                       {(() => {
                         const maxCount = Math.max(...reportData.byHour.map(h => h.count));
@@ -6193,7 +6193,7 @@ function QueueAdminTab({ setCurrentPage }) {
                 {/* By Day */}
                 {reportData.byDay.length > 1 && (
                   <div>
-                    <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">Daily Breakdown</h4>
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">Daily Breakdown</h4>
                     <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
                       <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-xs font-semibold text-white uppercase tracking-wider">
                         <span>Date</span>
@@ -6201,7 +6201,7 @@ function QueueAdminTab({ setCurrentPage }) {
                         <span className="text-right">Completed</span>
                       </div>
                       {reportData.byDay.map((item, i) => (
-                        <div key={item.date} className={`grid grid-cols-3 gap-3 px-4 py-2.5 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+                        <div key={item.date} className={`grid grid-cols-3 gap-3 px-4 py-1.5 text-[12px] ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
                           <span className="text-gray-800 font-medium">{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                           <span className="text-gray-600 text-center">{item.total}</span>
                           <span className="text-gray-600 text-right">{item.completed}</span>
@@ -6267,10 +6267,10 @@ function QueuePage({ setCurrentPage }) {
   if (view === 'initial') {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 pt-[30px]">
-        <p className="text-gray-500 text-sm mb-6 text-center max-w-sm mt-[30px]">Tap the button below to get your queue number and wait for your turn to be called.</p>
+        <p className="text-gray-500 text-[12px] mb-3 text-center max-w-sm mt-[30px]">Tap the button below to get your queue number and wait for your turn to be called.</p>
         <button
           onClick={() => setView('form')}
-          className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-[#465a8f] transition-all shadow-lg hover:shadow-[#576CA8]/20 hover:-translate-y-0.5 flex items-center space-x-3"
+          className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white px-10 py-4 rounded-full font-bold text-[14px] hover:bg-[#465a8f] transition-all shadow-lg hover:shadow-[#576CA8]/20 hover:-translate-y-0.5 flex items-center space-x-3"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -6285,36 +6285,36 @@ function QueuePage({ setCurrentPage }) {
   if (view === 'receipt' && ticket) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4 py-8">
-        <div className="bg-white border border-blue-200 rounded-2xl shadow-sm p-8 max-w-md w-full text-center">
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-8 h-8 text-[#576CA8]" />
           </div>
-          <p className="text-gray-500 text-sm mb-2">Your Ticket Number</p>
+          <p className="text-gray-500 text-[12px] mb-2">Your Ticket Number</p>
           <h2 className="text-5xl font-black text-[#576CA8] mb-4 tracking-wider">{ticket.ticket_number}</h2>
-          <div className="bg-blue-50 rounded-xl p-4 mb-6 space-y-2 text-left">
+          <div className="bg-blue-50 rounded-xl p-4 mb-3 space-y-2 text-left">
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Name</span>
-              <span className="text-gray-800 text-sm font-medium">{ticket.customer_name}</span>
+              <span className="text-gray-500 text-[12px]">Name</span>
+              <span className="text-gray-800 text-[12px] font-medium">{ticket.customer_name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Transaction</span>
-              <span className="text-gray-800 text-sm font-medium">{ticket.transaction_type}</span>
+              <span className="text-gray-500 text-[12px]">Transaction</span>
+              <span className="text-gray-800 text-[12px] font-medium">{ticket.transaction_type}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Queue Position</span>
-              <span className="text-[#576CA8] text-sm font-bold">#{position}</span>
+              <span className="text-gray-500 text-[12px]">Queue Position</span>
+              <span className="text-[#576CA8] text-[12px] font-bold">#{position}</span>
             </div>
             {ticket.is_priority && (
               <div className="flex justify-between">
-                <span className="text-gray-500 text-sm">Priority</span>
-                <span className="text-orange-400 text-sm font-bold">{ticket.priority_type}</span>
+                <span className="text-gray-500 text-[12px]">Priority</span>
+                <span className="text-orange-400 text-[12px] font-bold">{ticket.priority_type}</span>
               </div>
             )}
           </div>
-          <p className="text-gray-400 text-xs mb-6">{ticket.is_priority ? 'You are in the priority lane. Please wait for your number.' : 'Please wait for your number to be called.'}</p>
+          <p className="text-gray-400 text-xs mb-3">{ticket.is_priority ? 'You are in the priority lane. Please wait for your number.' : 'Please wait for your number to be called.'}</p>
           <button
             onClick={resetForm}
-            className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all"
+            className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all"
           >
             Okay
           </button>
@@ -6326,43 +6326,43 @@ function QueuePage({ setCurrentPage }) {
   // Form view
   return (
     <div className="min-h-[60vh] flex items-start justify-center px-4 pt-[50px] py-8 md:pt-[80px]">
-      <div className="bg-white border border-blue-200 rounded-2xl shadow-sm p-8 max-w-md w-full">
-        <button onClick={() => setView('initial')} className="text-gray-500 hover:text-blue-700 text-sm mb-4 flex items-center gap-1 transition-all">
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full">
+        <button onClick={() => setView('initial')} className="text-gray-500 hover:text-blue-700 text-[12px] mb-4 flex items-center gap-1 transition-all">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           Back
         </button>
         <h2 className="text-2xl font-bold text-gray-800 mb-1">Create a Ticket</h2>
-        <p className="text-gray-500 text-sm mb-6">Fill in your details to join the queue.</p>
+        <p className="text-gray-500 text-[12px] mb-3">Fill in your details to join the queue.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-600 text-sm font-medium mb-1">Name</label>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Name</label>
             <input
               type="text"
               required
               value={formData.customerName}
               onChange={(e) => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
               placeholder="Enter your full name"
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
+              className="w-full px-4 py-3 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-[12px]"
             />
           </div>
           <div>
-            <label className="block text-gray-600 text-sm font-medium mb-1">Cellphone Number</label>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Cellphone Number</label>
             <input
               type="tel"
               required
               value={formData.cellphoneNumber}
               onChange={(e) => setFormData(prev => ({ ...prev, cellphoneNumber: e.target.value }))}
               placeholder="09XX XXX XXXX"
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
+              className="w-full px-4 py-3 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-[12px]"
             />
           </div>
           <div>
-            <label className="block text-gray-600 text-sm font-medium mb-1">Transaction</label>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Transaction</label>
             <select
               required
               value={formData.transactionType}
               onChange={(e) => setFormData(prev => ({ ...prev, transactionType: e.target.value }))}
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 text-sm"
+              className="w-full px-4 py-3 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#55A2F5]/30 focus:outline-none transition-all text-gray-800 text-[12px]"
             >
               <option value="" className="bg-white text-gray-800">Select transaction type</option>
               {transactionTypes.map(type => (
@@ -6371,7 +6371,7 @@ function QueuePage({ setCurrentPage }) {
             </select>
           </div>
           {/* Priority Lane */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -6380,7 +6380,7 @@ function QueuePage({ setCurrentPage }) {
                 className="w-5 h-5 rounded accent-[#55A2F5]"
               />
               <div>
-                <span className="text-gray-800 text-sm font-medium">Priority Lane</span>
+                <span className="text-gray-800 text-[12px] font-medium">Priority Lane</span>
                 <p className="text-gray-400 text-xs">Senior Citizen, PWD, or Pregnant Women</p>
               </div>
             </label>
@@ -6391,7 +6391,7 @@ function QueuePage({ setCurrentPage }) {
                     key={type}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, priorityType: type }))}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${formData.priorityType === type ? 'bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white border-[#576CA8]' : 'bg-blue-50 text-gray-500 border-blue-200 hover:border-blue-400'}`}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${formData.priorityType === type ? 'bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white border-[#576CA8]' : 'bg-blue-50 text-gray-500 border-blue-200 hover:border-blue-400'}`}
                   >
                     {type}
                   </button>
@@ -6402,7 +6402,7 @@ function QueuePage({ setCurrentPage }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-lg font-bold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50 mt-2"
+            className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white py-3 rounded-md font-bold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50 mt-2"
           >
             {isSubmitting ? 'Creating...' : 'Get Ticket Number'}
           </button>
@@ -6550,7 +6550,7 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 bg-blue-700 z-[100] flex items-center justify-center">
         <button
           onClick={() => setHasInteracted(true)}
-          className="bg-white text-blue-700 px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-blue-50 transition-all shadow-2xl flex items-center gap-4"
+          className="bg-white text-blue-700 px-12 py-6 rounded-xl font-bold text-2xl hover:bg-blue-50 transition-all shadow-2xl flex items-center gap-2"
         >
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
@@ -6572,7 +6572,7 @@ function QueueDisplayPage() {
         </div>
 
         <div className="grid grid-cols-3 gap-3 p-3 flex-1 overflow-hidden">
-          <div className={`col-span-2 bg-slate-900 border-2 ${isAnnouncing ? 'animate-border-blink border-cyan-400' : 'border-slate-700'} rounded-2xl p-4 overflow-hidden`}>
+          <div className={`col-span-2 bg-slate-900 border-2 ${isAnnouncing ? 'animate-border-blink border-cyan-400' : 'border-slate-700'} rounded-xl p-4 overflow-hidden`}>
             <div className="grid grid-cols-3 gap-3 h-full">
               {Array.from({ length: 6 }).map((_, idx) => {
                 const ticket = serving[idx];
@@ -6583,14 +6583,14 @@ function QueueDisplayPage() {
                         <div>
                           <p className="text-cyan-300 text-xs font-bold uppercase">Now Serving</p>
                           <p className="text-6xl text-white leading-none mt-2" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
-                          <p className="text-slate-300 text-sm truncate mt-1">{ticket.customer_name}</p>
+                          <p className="text-slate-300 text-[12px] truncate mt-1">{ticket.customer_name}</p>
                         </div>
-                        <div className="bg-cyan-600 text-slate-900 rounded-lg px-3 py-1.5 text-center font-black text-2xl">
+                        <div className="bg-cyan-600 text-slate-900 rounded-md px-3 py-1.5 text-center font-black text-2xl">
                           {ticket.teller_window?.replace(/\D/g, '') || '-'}
                         </div>
                       </>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-slate-500 text-sm">Waiting...</div>
+                      <div className="h-full flex items-center justify-center text-slate-500 text-[12px]">Waiting...</div>
                     )}
                   </div>
                 );
@@ -6598,21 +6598,21 @@ function QueueDisplayPage() {
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-3 flex flex-col overflow-hidden">
-            <h2 className="text-cyan-300 font-bold text-lg mb-3">WAITING LIST</h2>
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 flex flex-col overflow-hidden">
+            <h2 className="text-cyan-300 font-bold text-[14px] mb-3">WAITING LIST</h2>
             <div className="space-y-2 overflow-y-auto">
               {waiting.length === 0 ? (
-                <p className="text-slate-500 text-sm">No waiting tickets</p>
+                <p className="text-slate-500 text-[12px]">No waiting tickets</p>
               ) : (
                 waiting.slice(0, 12).map((ticket) => (
-                  <div key={ticket.id} className="bg-slate-800 rounded-lg px-3 py-2 flex items-center justify-between">
+                  <div key={ticket.id} className="bg-slate-800 rounded-md px-2 py-1.5 flex items-center justify-between">
                     <span className="text-white font-semibold">{ticket.ticket_number}</span>
                     <span className="text-cyan-300 text-xs">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
                 ))
               )}
             </div>
-            <div className="mt-3 bg-black rounded-lg overflow-hidden">
+            <div className="mt-3 bg-black rounded-md overflow-hidden">
               <video className="w-full aspect-video object-cover" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
           </div>
@@ -6621,8 +6621,8 @@ function QueueDisplayPage() {
         {marqueeText && (
           <div className="h-[48px] bg-cyan-500 flex items-center overflow-hidden">
             <div className="animate-marquee whitespace-nowrap">
-              <span className="text-slate-900 text-lg font-bold mx-8">{marqueeText}</span>
-              <span className="text-slate-900 text-lg font-bold mx-8">{marqueeText}</span>
+              <span className="text-slate-900 text-[14px] font-bold mx-8">{marqueeText}</span>
+              <span className="text-slate-900 text-[14px] font-bold mx-8">{marqueeText}</span>
             </div>
           </div>
         )}
@@ -6635,7 +6635,7 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-amber-50">
         <div className="bg-gradient-to-r from-amber-700 to-orange-700 px-10 py-4 flex items-center justify-between">
           <div>
-            <p className="text-amber-100 text-sm tracking-[0.3em]">SERVICE CENTER</p>
+            <p className="text-amber-100 text-[12px] tracking-[0.3em]">SERVICE CENTER</p>
             <h1 className="text-5xl font-black text-white leading-none">LIVE CALLING</h1>
           </div>
           <div className="text-amber-100 text-3xl font-mono font-bold">
@@ -6643,25 +6643,25 @@ function QueueDisplayPage() {
           </div>
         </div>
 
-        <div className="flex-1 grid grid-cols-2 gap-4 p-4 overflow-hidden">
-          <div className={`rounded-3xl bg-white border-4 ${isAnnouncing ? 'animate-border-blink border-orange-500' : 'border-amber-200'} shadow-xl p-6 flex flex-col items-center justify-center`}>
-            <p className="text-amber-600 uppercase tracking-wider text-sm font-bold mb-2">Current Ticket</p>
+        <div className="flex-1 grid grid-cols-2 gap-2 p-4 overflow-hidden">
+          <div className={`rounded-3xl bg-white border-4 ${isAnnouncing ? 'animate-border-blink border-orange-500' : 'border-amber-200'} shadow-xl p-4 flex flex-col items-center justify-center`}>
+            <p className="text-amber-600 uppercase tracking-wider text-[12px] font-bold mb-2">Current Ticket</p>
             {serving.length === 0 ? (
-              <p className="text-gray-400 text-xl">No ticket called</p>
+              <p className="text-gray-400 text-[16px]">No ticket called</p>
             ) : (
               <>
                 <p className="text-[180px] leading-none text-gray-900" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
                 <div className="mt-2 px-8 py-2 rounded-full bg-orange-600 text-white text-3xl font-black">
                   Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}
                 </div>
-                <p className="mt-3 text-gray-600 text-lg">{serving[0].customer_name}</p>
+                <p className="mt-3 text-gray-600 text-[14px]">{serving[0].customer_name}</p>
               </>
             )}
           </div>
 
-          <div className="flex flex-col gap-4 overflow-hidden">
+          <div className="flex flex-col gap-2 overflow-hidden">
             <div className="rounded-3xl bg-white border border-amber-200 shadow p-4 overflow-hidden">
-              <h2 className="text-amber-700 font-bold text-lg mb-3">Now Serving Windows</h2>
+              <h2 className="text-amber-700 font-bold text-[14px] mb-3">Now Serving Windows</h2>
               <div className="grid grid-cols-2 gap-2">
                 {serving.slice(0, 4).map(ticket => (
                   <div key={ticket.id} className={`rounded-xl bg-amber-100 p-3 ${cardAnimation}`}>
@@ -6674,13 +6674,13 @@ function QueueDisplayPage() {
             </div>
 
             <div className="rounded-3xl bg-white border border-amber-200 shadow p-4 flex-1 overflow-hidden">
-              <h2 className="text-amber-700 font-bold text-lg mb-2">Waiting Queue</h2>
+              <h2 className="text-amber-700 font-bold text-[14px] mb-2">Waiting Queue</h2>
               <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-full pr-1">
                 {waiting.length === 0 ? (
-                  <p className="text-gray-400 text-sm col-span-2">No waiting tickets</p>
+                  <p className="text-gray-400 text-[12px] col-span-2">No waiting tickets</p>
                 ) : (
                   waiting.slice(0, 14).map(ticket => (
-                    <div key={ticket.id} className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex justify-between">
+                    <div key={ticket.id} className="rounded-md bg-amber-50 border border-amber-200 px-2 py-1.5 flex justify-between">
                       <span className="font-semibold text-gray-800">{ticket.ticket_number}</span>
                       <span className="text-xs text-amber-700">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                     </div>
@@ -6694,8 +6694,8 @@ function QueueDisplayPage() {
         {marqueeText && (
           <div className="h-[48px] bg-orange-600 flex items-center overflow-hidden">
             <div className="animate-marquee whitespace-nowrap">
-              <span className="text-white text-lg font-semibold mx-8">{marqueeText}</span>
-              <span className="text-white text-lg font-semibold mx-8">{marqueeText}</span>
+              <span className="text-white text-[14px] font-semibold mx-8">{marqueeText}</span>
+              <span className="text-white text-[14px] font-semibold mx-8">{marqueeText}</span>
             </div>
           </div>
         )}
@@ -6713,8 +6713,8 @@ function QueueDisplayPage() {
           </div>
           <div className="text-gray-700 text-2xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         </div>
-        <div className="grid grid-cols-12 gap-4 p-4 flex-1 overflow-hidden">
-          <div className="col-span-8 bg-white border border-gray-200 rounded-2xl p-4 overflow-hidden">
+        <div className="grid grid-cols-12 gap-2 p-4 flex-1 overflow-hidden">
+          <div className="col-span-8 bg-white border border-gray-200 rounded-xl p-4 overflow-hidden">
             <h2 className="text-gray-700 font-medium mb-3">Now Serving</h2>
             <div className="grid grid-cols-2 gap-3 h-[calc(100%-2rem)] overflow-y-auto">
               {serving.length === 0 ? (
@@ -6725,24 +6725,24 @@ function QueueDisplayPage() {
                     <p className="text-xs uppercase text-gray-500">Ticket</p>
                     <p className="text-6xl leading-none text-gray-900 mt-1" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
                     <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm text-gray-600 truncate">{ticket.customer_name}</span>
-                      <span className="text-sm font-semibold text-gray-800">{ticket.teller_window || '-'}</span>
+                      <span className="text-[12px] text-gray-600 truncate">{ticket.customer_name}</span>
+                      <span className="text-[12px] font-semibold text-gray-800">{ticket.teller_window || '-'}</span>
                     </div>
                   </div>
                 ))
               )}
             </div>
           </div>
-          <div className="col-span-4 flex flex-col gap-4 overflow-hidden">
-            <div className="bg-white border border-gray-200 rounded-2xl p-3">
+          <div className="col-span-4 flex flex-col gap-2 overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-xl p-3">
               <h3 className="text-gray-700 font-medium mb-2">Video</h3>
-              <video className="w-full aspect-video object-cover rounded-lg" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
-            <div className={`bg-white border-2 ${isAnnouncing ? 'animate-border-blink border-blue-400' : 'border-gray-200'} rounded-2xl p-4 flex-1 overflow-hidden`}>
+            <div className={`bg-white border-2 ${isAnnouncing ? 'animate-border-blink border-blue-400' : 'border-gray-200'} rounded-xl p-4 flex-1 overflow-hidden`}>
               <h3 className="text-gray-700 font-medium mb-2">Waiting Queue</h3>
               <div className="space-y-2 overflow-y-auto max-h-full">
-                {waiting.length === 0 ? <p className="text-gray-400 text-sm">No waiting tickets</p> : waiting.slice(0, 12).map(ticket => (
-                  <div key={ticket.id} className="flex items-center justify-between border border-gray-100 rounded-lg px-3 py-2">
+                {waiting.length === 0 ? <p className="text-gray-400 text-[12px]">No waiting tickets</p> : waiting.slice(0, 12).map(ticket => (
+                  <div key={ticket.id} className="flex items-center justify-between border border-gray-100 rounded-md px-2 py-1.5">
                     <span className="font-medium text-gray-800">{ticket.ticket_number}</span>
                     <span className="text-xs text-gray-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
@@ -6761,28 +6761,28 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-white">
         <div className="px-8 py-4 border-b border-gray-200 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-gray-900">Now Serving</h1>
-          <div className="text-gray-600 text-xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+          <div className="text-gray-600 text-[16px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         </div>
         <div className="flex-1 grid grid-cols-3 overflow-hidden">
-          <div className="col-span-2 border-r border-gray-200 p-6 overflow-hidden">
+          <div className="col-span-2 border-r border-gray-200 p-4 overflow-hidden">
             {serving.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-400">No ticket called</div>
             ) : (
-              <div className={`h-full border border-gray-200 rounded-2xl p-8 flex flex-col justify-center items-center ${isAnnouncing ? 'animate-border-blink border-green-400' : ''}`}>
-                <p className="text-sm text-gray-500 uppercase tracking-wide">Current Ticket</p>
+              <div className={`h-full border border-gray-200 rounded-xl p-4 flex flex-col justify-center items-center ${isAnnouncing ? 'animate-border-blink border-green-400' : ''}`}>
+                <p className="text-[12px] text-gray-500 uppercase tracking-wide">Current Ticket</p>
                 <p className="text-[180px] leading-none text-gray-900" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
                 <p className="text-3xl font-medium text-gray-700">Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}</p>
                 <p className="mt-2 text-gray-500">{serving[0].customer_name}</p>
               </div>
             )}
           </div>
-          <div className="col-span-1 p-4 flex flex-col gap-4 overflow-hidden">
+          <div className="col-span-1 p-4 flex flex-col gap-2 overflow-hidden">
             <div className="border border-gray-200 rounded-xl p-2">
-              <p className="text-gray-600 text-sm mb-2">Video Display</p>
-              <video className="w-full aspect-video object-cover rounded-lg" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+              <p className="text-gray-600 text-[12px] mb-2">Video Display</p>
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
             <div className="border border-gray-200 rounded-xl p-3 flex-1 overflow-hidden">
-              <p className="text-gray-600 text-sm mb-2">Queue List</p>
+              <p className="text-gray-600 text-[12px] mb-2">Queue List</p>
               <div className="space-y-1.5 overflow-y-auto max-h-full">
                 {waiting.slice(0, 16).map(ticket => (
                   <div key={ticket.id} className="flex justify-between bg-gray-50 rounded px-2.5 py-2">
@@ -6790,12 +6790,12 @@ function QueueDisplayPage() {
                     <span className="text-xs text-gray-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
                 ))}
-                {waiting.length === 0 && <p className="text-gray-400 text-sm">No waiting tickets</p>}
+                {waiting.length === 0 && <p className="text-gray-400 text-[12px]">No waiting tickets</p>}
               </div>
             </div>
           </div>
         </div>
-        {marqueeText && <div className="h-[42px] bg-gray-100 text-gray-700 flex items-center overflow-hidden border-t border-gray-200"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
+        {marqueeText && <div className="h-[32px] bg-gray-100 text-gray-700 flex items-center overflow-hidden border-t border-gray-200"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
       </div>
     );
   }
@@ -6805,11 +6805,11 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-[#F8FAFC]">
         <div className="bg-[#0F172A] px-8 py-3 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-white">Queue Information Panel</h1>
-          <div className="text-slate-200 text-xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+          <div className="text-slate-200 text-[16px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         </div>
-        <div className="p-4 grid grid-cols-12 gap-4 flex-1 overflow-hidden">
+        <div className="p-4 grid grid-cols-12 gap-2 flex-1 overflow-hidden">
           <div className="col-span-5 bg-white rounded-xl border border-slate-200 p-4 overflow-hidden">
-            <p className="text-sm text-slate-500 mb-2">Main Call</p>
+            <p className="text-[12px] text-slate-500 mb-2">Main Call</p>
             {serving[0] ? (
               <div className={`h-full flex flex-col justify-center items-center ${cardAnimation}`}>
                 <p className="text-[160px] text-slate-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
@@ -6818,24 +6818,24 @@ function QueueDisplayPage() {
             ) : <div className="h-full flex items-center justify-center text-slate-400">No active ticket</div>}
           </div>
           <div className="col-span-4 bg-white rounded-xl border border-slate-200 p-4 overflow-hidden">
-            <p className="text-sm text-slate-500 mb-2">Active Windows</p>
+            <p className="text-[12px] text-slate-500 mb-2">Active Windows</p>
             <div className="space-y-2 overflow-y-auto max-h-full">
               {serving.slice(0, 10).map(ticket => (
-                <div key={ticket.id} className={`rounded-lg border ${isAnnouncing ? 'border-blue-300' : 'border-slate-200'} px-3 py-2 flex items-center justify-between`}>
+                <div key={ticket.id} className={`rounded-md border ${isAnnouncing ? 'border-blue-300' : 'border-slate-200'} px-2 py-1.5 flex items-center justify-between`}>
                   <span className="text-slate-800 font-medium">{ticket.ticket_number}</span>
-                  <span className="text-slate-500 text-sm">{ticket.teller_window || '-'}</span>
+                  <span className="text-slate-500 text-[12px]">{ticket.teller_window || '-'}</span>
                 </div>
               ))}
-              {serving.length === 0 && <p className="text-slate-400 text-sm">No active windows</p>}
+              {serving.length === 0 && <p className="text-slate-400 text-[12px]">No active windows</p>}
             </div>
           </div>
-          <div className="col-span-3 flex flex-col gap-4 overflow-hidden">
+          <div className="col-span-3 flex flex-col gap-2 overflow-hidden">
             <div className="bg-white rounded-xl border border-slate-200 p-3">
-              <p className="text-sm text-slate-500 mb-2">Video</p>
-              <video className="w-full aspect-video object-cover rounded-lg" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+              <p className="text-[12px] text-slate-500 mb-2">Video</p>
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
             <div className="bg-white rounded-xl border border-slate-200 p-3 flex-1 overflow-hidden">
-              <p className="text-sm text-slate-500 mb-2">Waiting</p>
+              <p className="text-[12px] text-slate-500 mb-2">Waiting</p>
               <div className="space-y-1.5 overflow-y-auto max-h-full">
                 {waiting.slice(0, 12).map(ticket => (
                   <div key={ticket.id} className="rounded-md bg-slate-50 px-2.5 py-1.5 flex justify-between">
@@ -6843,7 +6843,7 @@ function QueueDisplayPage() {
                     <span className="text-xs text-slate-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
                 ))}
-                {waiting.length === 0 && <p className="text-slate-400 text-sm">No waiting tickets</p>}
+                {waiting.length === 0 && <p className="text-slate-400 text-[12px]">No waiting tickets</p>}
               </div>
             </div>
           </div>
@@ -6865,7 +6865,7 @@ function QueueDisplayPage() {
       <div className="flex flex-1 overflow-hidden">
         <div className="w-[60%] overflow-y-auto p-3 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1]">
           {serving.length === 0 ? (
-            <p className="text-blue-300 text-lg text-center py-10">No tickets being served</p>
+            <p className="text-blue-300 text-[14px] text-center py-10">No tickets being served</p>
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {serving.map(ticket => (
@@ -6895,14 +6895,14 @@ function QueueDisplayPage() {
             </div>
           </div>
 
-          <div className={`flex-1 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1] flex flex-row items-center justify-center p-0 gap-8 ${isAnnouncing ? 'animate-border-blink border-[#3A7CA5]' : 'border-transparent border-4'}`}>
+          <div className={`flex-1 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1] flex flex-row items-center justify-center p-0 gap-2 ${isAnnouncing ? 'animate-border-blink border-[#3A7CA5]' : 'border-transparent border-4'}`}>
             {serving.length === 0 ? (
               <p className="text-blue-300 text-2xl">No ticket called</p>
             ) : (
               <>
                 <div className="flex flex-col items-center">
                   <p className="text-[120px] text-gray-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
-                  {serving[0].is_priority && <span className="mt-2 text-sm font-bold bg-orange-500 text-white px-4 py-1 rounded-full uppercase">{serving[0].priority_type || 'Priority'}</span>}
+                  {serving[0].is_priority && <span className="mt-2 text-[12px] font-bold bg-orange-500 text-white px-4 py-1 rounded-full uppercase">{serving[0].priority_type || 'Priority'}</span>}
                 </div>
                 <div className="bg-[#3A7CA5] rounded-xl px-8 py-3 flex flex-col items-center gap-1">
                   <span className="text-xs font-bold text-blue-200 uppercase tracking-widest">Window</span>
@@ -6917,8 +6917,8 @@ function QueueDisplayPage() {
       {marqueeText && (
         <div className="h-[48px] bg-[#81C3D7] flex items-center overflow-hidden">
           <div className="animate-marquee whitespace-nowrap">
-            <span className="text-black text-lg font-medium mx-8">{marqueeText}</span>
-            <span className="text-black text-lg font-medium mx-8">{marqueeText}</span>
+            <span className="text-black text-[14px] font-medium mx-8">{marqueeText}</span>
+            <span className="text-black text-[14px] font-medium mx-8">{marqueeText}</span>
           </div>
         </div>
       )}
@@ -7071,9 +7071,9 @@ function QueueTellerPage({ setCurrentPage }) {
   if (!selectedWindow) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4 mt-[40px]">
-        <div className="bg-white border border-blue-200 rounded-2xl shadow-sm p-8 max-w-md w-full text-center">
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Teller Station</h2>
-          <p className="text-gray-500 text-sm mb-6">Enter your name and select your window to start serving.</p>
+          <p className="text-gray-500 text-[12px] mb-3">Enter your name and select your window to start serving.</p>
           <div className="mb-4">
             <label className="block text-gray-500 text-xs mb-1 text-left">Teller Name</label>
             <input
@@ -7090,7 +7090,7 @@ function QueueTellerPage({ setCurrentPage }) {
                 key={teller.id}
                 onClick={() => setSelectedWindow(teller.window_name)}
                 disabled={!tellerName.trim()}
-                className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] border border-[#2D72C0] text-white py-4 rounded-xl font-semibold text-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:opacity-100"
+                className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] border border-[#2D72C0] text-white py-4 rounded-xl font-semibold text-[14px] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:opacity-100"
               >
                 {teller.window_name}
               </button>
@@ -7098,7 +7098,7 @@ function QueueTellerPage({ setCurrentPage }) {
           </div>
           <button
             onClick={() => setCurrentPage('home')}
-            className="mt-6 text-gray-400 hover:text-blue-700 text-sm transition-all"
+            className="mt-6 text-gray-400 hover:text-blue-700 text-[12px] transition-all"
           >
             ← Back to Home
           </button>
@@ -7111,10 +7111,10 @@ function QueueTellerPage({ setCurrentPage }) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Teller Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">{selectedWindow}</h2>
-          <p className="text-gray-500 text-sm">Teller: {tellerName}</p>
+          <p className="text-gray-500 text-[12px]">Teller: {tellerName}</p>
           <div className="flex flex-wrap gap-1 mt-1">
             {assignedTypes.length > 0
               ? assignedTypes.map(type => (
@@ -7126,7 +7126,7 @@ function QueueTellerPage({ setCurrentPage }) {
         </div>
         <button
           onClick={() => { setSelectedWindow(''); setCurrentTicket(null); }}
-          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-all text-sm flex items-center gap-1.5"
+          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-all text-[12px] flex items-center gap-1.5"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
           Change Window
@@ -7134,11 +7134,11 @@ function QueueTellerPage({ setCurrentPage }) {
       </div>
 
       {/* Two Column Layout */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-3">
         {/* Left Side — Teller Controls */}
         <div className="flex-1 min-w-0">
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-2 md:gap-4 mb-6 -mt-[30px]">
+          <div className="grid grid-cols-4 gap-2 md:gap-2 mb-3 -mt-[30px]">
             <div className="flex flex-col items-center gap-1 py-3">
               <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" /></svg>
               <p className="text-2xl font-bold text-gray-900">{completedCount}</p>
@@ -7163,37 +7163,37 @@ function QueueTellerPage({ setCurrentPage }) {
 
           {/* Current Ticket */}
           {currentTicket ? (
-            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-6 -mt-[20px]">
-              <div className="bg-[#274690] px-4 py-2.5">
+            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-3 -mt-[20px]">
+              <div className="bg-[#274690] px-4 py-1.5">
                 <p className="text-white/70 text-xs font-medium uppercase tracking-wider">Now Serving</p>
               </div>
-              <div className="p-5 md:p-8">
-                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-5">
-                  <div className="flex items-center gap-4 md:flex-1">
+              <div className="p-3 md:p-4">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 md:flex-1">
                     <span className="text-4xl md:text-6xl font-black text-[#274690] leading-none">{currentTicket.ticket_number}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 text-lg md:text-xl font-semibold truncate">{currentTicket.customer_name}</p>
-                      <p className="text-gray-400 text-sm">{currentTicket.transaction_type} &bull; {currentTicket.cellphone_number}</p>
+                      <p className="text-gray-900 text-[14px] md:text-[16px] font-semibold truncate">{currentTicket.customer_name}</p>
+                      <p className="text-gray-400 text-[12px]">{currentTicket.transaction_type} &bull; {currentTicket.cellphone_number}</p>
                     </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 md:flex md:gap-3 md:justify-center">
                   <button
                     onClick={completeTicket}
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2"
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all flex items-center justify-center gap-2"
                   >
                     <Check className="w-4 h-4 md:w-5 md:h-5" />
                     Complete
                   </button>
                   <button
                     onClick={() => setShowTransferModal(true)}
-                    className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
+                    className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all text-center"
                   >
                     Transfer
                   </button>
                   <button
                     onClick={skipTicket}
-                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all text-center"
                   >
                     Skip
                   </button>
@@ -7201,11 +7201,11 @@ function QueueTellerPage({ setCurrentPage }) {
               </div>
             </div>
           ) : (
-            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-6 -mt-[20px]">
-              <div className="bg-[#274690] px-4 py-2.5">
+            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-3 -mt-[20px]">
+              <div className="bg-[#274690] px-4 py-1.5">
                 <p className="text-white/70 text-xs font-medium uppercase tracking-wider">Now Serving</p>
               </div>
-              <div className="p-5 md:p-8 text-center">
+              <div className="p-3 md:p-4 text-center">
                 <p className="text-gray-400 text-base mb-4">No ticket being served</p>
                 <button
                   onClick={callNext}
@@ -7214,7 +7214,7 @@ function QueueTellerPage({ setCurrentPage }) {
                 >
                   {isLoading ? 'Calling...' : 'Call Next'}
                 </button>
-                {waitingCount === 0 && <p className="text-gray-400 text-sm mt-3">No tickets in the waiting queue</p>}
+                {waitingCount === 0 && <p className="text-gray-400 text-[12px] mt-3">No tickets in the waiting queue</p>}
               </div>
             </div>
           )}
@@ -7236,10 +7236,10 @@ function QueueTellerPage({ setCurrentPage }) {
                 </div>
                 <div className="divide-y divide-gray-100 max-h-[40vh] overflow-y-auto">
                   {skippedTickets.map((ticket, index) => (
-                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-2.5 ${index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-1.5 ${index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
                       <span className="w-6 text-center text-xs font-bold bg-red-100 text-red-500 rounded-full leading-5">{index + 1}</span>
-                      <span className="w-16 text-sm font-bold text-gray-900">{ticket.ticket_number}</span>
-                      <span className="text-sm text-gray-700 truncate flex-1">{ticket.customer_name}</span>
+                      <span className="w-16 text-[12px] font-bold text-gray-900">{ticket.ticket_number}</span>
+                      <span className="text-[12px] text-gray-700 truncate flex-1">{ticket.customer_name}</span>
                       <span className="text-xs text-gray-400">{ticket.transaction_type}</span>
                       <button
                         onClick={() => recallTicket(ticket.id)}
@@ -7274,16 +7274,16 @@ function QueueTellerPage({ setCurrentPage }) {
               {waitingTickets.length > 0 ? (
                 <div className="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
                   {waitingTickets.map((ticket, index) => (
-                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${index === 0 ? 'bg-amber-50 border-l-3 border-l-amber-400' : index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-1.5 transition-colors ${index === 0 ? 'bg-amber-50 border-l-3 border-l-amber-400' : index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
                       <span className={`w-6 text-center text-xs font-bold rounded-full leading-5 ${index === 0 ? 'bg-amber-400 text-white' : 'bg-gray-200 text-gray-500'}`}>{index + 1}</span>
-                      <span className="w-16 text-sm font-bold text-gray-900">{ticket.ticket_number}</span>
-                      <span className="text-sm text-gray-700 truncate flex-1">{ticket.customer_name}</span>
+                      <span className="w-16 text-[12px] font-bold text-gray-900">{ticket.ticket_number}</span>
+                      <span className="text-[12px] text-gray-700 truncate flex-1">{ticket.customer_name}</span>
                       <span className="text-xs text-gray-400">{ticket.transaction_type}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-400 text-sm text-center py-8">No tickets waiting</p>
+                <p className="text-gray-400 text-[12px] text-center py-8">No tickets waiting</p>
               )}
             </div>
           </div>
@@ -7293,12 +7293,12 @@ function QueueTellerPage({ setCurrentPage }) {
       {/* Transfer Modal */}
       {showTransferModal && currentTicket && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
-          <div className="bg-white border border-blue-200 rounded-2xl p-6 max-w-sm w-full shadow-xl">
-            <h3 className="text-gray-800 font-bold text-lg mb-2">Transfer Ticket</h3>
-            <p className="text-gray-500 text-sm mb-1">
+          <div className="bg-white border border-blue-200 rounded-xl p-4 max-w-sm w-full shadow-xl">
+            <h3 className="text-gray-800 font-bold text-[14px] mb-2">Transfer Ticket</h3>
+            <p className="text-gray-500 text-[12px] mb-1">
               Transferring <span className="text-[#576CA8] font-bold">{currentTicket.ticket_number}</span> — {currentTicket.customer_name}
             </p>
-            <p className="text-gray-400 text-xs mb-5">Select the destination window:</p>
+            <p className="text-gray-400 text-xs mb-3">Select the destination window:</p>
             <div className="space-y-2">
               {tellers
                 .filter(t => t.window_name !== selectedWindow)
@@ -7314,7 +7314,7 @@ function QueueTellerPage({ setCurrentPage }) {
             </div>
             <button
               onClick={() => setShowTransferModal(false)}
-              className="w-full mt-4 bg-blue-50 hover:bg-blue-100 text-gray-500 py-2.5 rounded-xl text-sm transition-all"
+              className="w-full mt-4 bg-blue-50 hover:bg-blue-100 text-gray-500 py-1.5 rounded-xl text-[12px] transition-all"
             >
               Cancel
             </button>
@@ -7339,8 +7339,8 @@ function GuestCheckinPage({ setCurrentPage }) {
   const [ckReservation, setCkReservation] = React.useState(null);
   const [ckArriving, setCkArriving] = React.useState(false);
 
-  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-white placeholder-white/40 text-sm";
-  const labelCls = "block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1.5";
+  const inputCls = "w-full px-3 py-1.5 rounded-md border border-white/20 bg-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-white placeholder-white/40 text-[12px]";
+  const labelCls = "block text-xs font-semibold text-white/60 uppercase tracking-wide mb-1";
 
 
   return (
@@ -7351,13 +7351,13 @@ function GuestCheckinPage({ setCurrentPage }) {
         {ckStep === 1 && (
           <>
             {/* Glass card */}
-            <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
               {/* Header — matches booking form header exactly */}
               <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-white font-bold text-lg tracking-tight">Guest Check-In</h3>
+                    <h3 className="text-white font-bold text-[14px] tracking-tight">Guest Check-In</h3>
                     <p className="text-white/70 text-xs mt-0.5">Find your reservation to begin check-in</p>
                   </div>
                   <div className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-full">
@@ -7370,15 +7370,15 @@ function GuestCheckinPage({ setCurrentPage }) {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4">
                 {/* Method toggle */}
-                <div className="flex bg-white/10 rounded-xl p-1 mb-5 gap-1">
+                <div className="flex bg-white/10 rounded-xl p-1 mb-3 gap-1">
                   {[
                     { id: 'id', label: 'Confirmation #' },
                     { id: 'email', label: 'Email & Name' },
                   ].map((m) => (
                     <button key={m.id} onClick={() => { setCkMethod(m.id); setCkError(''); }}
-                      className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${ckMethod === m.id ? 'bg-white/20 text-white shadow' : 'text-white/50 hover:text-white/80'}`}>
+                      className={`flex-1 py-2 text-[12px] font-semibold rounded-md transition-all ${ckMethod === m.id ? 'bg-white/20 text-white shadow' : 'text-white/50 hover:text-white/80'}`}>
                       {m.label}
                     </button>
                   ))}
@@ -7393,7 +7393,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                       onChange={(e) => setCkConfId(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && ckConfId && handleLookup()}
                       placeholder="e.g. 1042"
-                      className={inputCls + " text-xl font-mono font-bold"}
+                      className={inputCls + " text-[16px] font-mono font-bold"}
                       autoFocus
                     />
                     <p className="text-white/30 text-xs mt-2">Your confirmation number was sent in your booking email or SMS.</p>
@@ -7415,7 +7415,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                 )}
 
                 {ckError && (
-                  <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 text-red-200 text-sm">
+                  <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 text-red-200 text-[12px]">
                     {ckError}
                   </div>
                 )}
@@ -7423,7 +7423,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                 <button
                   onClick={handleLookup}
                   disabled={ckLoading || (ckMethod === 'id' ? !ckConfId : !ckEmail || !ckLastName)}
-                  className="w-full mt-5 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:bg-white/10 disabled:text-white/30 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                  className="w-full mt-5 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:bg-white/10 disabled:text-white/30 text-white font-bold py-3 rounded-xl transition-colors text-[12px]"
                 >
                   {ckLoading ? 'Searching...' : 'Find My Reservation →'}
                 </button>
@@ -7431,7 +7431,7 @@ function GuestCheckinPage({ setCurrentPage }) {
             </div>
 
             <div className="text-center mt-5">
-              <button onClick={() => setCurrentPage('home')} className="text-white/40 hover:text-white/70 text-sm transition-colors">
+              <button onClick={() => setCurrentPage('home')} className="text-white/40 hover:text-white/70 text-[12px] transition-colors">
                 ← Back to Home
               </button>
             </div>
@@ -7441,54 +7441,54 @@ function GuestCheckinPage({ setCurrentPage }) {
         {/* ── Step 2 — Confirm ── */}
         {ckStep === 2 && ckReservation && (
           <>
-            <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="rounded-xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
               {/* Header */}
               <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-white font-bold text-lg tracking-tight">Confirm Your Stay</h3>
+                    <h3 className="text-white font-bold text-[14px] tracking-tight">Confirm Your Stay</h3>
                     <p className="text-white/70 text-xs mt-0.5">Please verify your reservation details</p>
                   </div>
                   <span className="text-white/50 text-xs bg-white/10 px-3 py-1.5 rounded-full font-mono">#{ckReservation.id}</span>
                 </div>
               </div>
 
-              <div className="p-6">
-                <SectionDivider title="Guest" icon={<span className="text-sm">👤</span>} />
+              <div className="p-4">
+                <SectionDivider title="Guest" icon={<span className="text-[12px]">👤</span>} />
                 <div className="bg-white/10 rounded-xl border border-white/10 p-4 space-y-2 mb-2">
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Name</span><span className="font-semibold text-white">{ckReservation.full_name}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Email</span><span className="text-white/80">{ckReservation.email}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-white/50">Name</span><span className="font-semibold text-white">{ckReservation.full_name}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-white/50">Email</span><span className="text-white/80">{ckReservation.email}</span></div>
                 </div>
 
-                <SectionDivider title="Reservation" icon={<span className="text-sm">🏨</span>} />
+                <SectionDivider title="Reservation" icon={<span className="text-[12px]">🏨</span>} />
                 <div className="bg-white/10 rounded-xl border border-white/10 p-4 space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Room Type</span><span className="font-semibold text-white bg-white/10 px-2 py-0.5 rounded text-xs">{ckReservation.room_type}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Check-In</span><span className="text-white/80">{fmtDate(ckReservation.check_in_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Check-Out</span><span className="text-white/80">{fmtDate(ckReservation.check_out_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-white/50">Duration</span><span className="text-white/80">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-white/50">Room Type</span><span className="font-semibold text-white bg-white/10 px-2 py-0.5 rounded text-xs">{ckReservation.room_type}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-white/50">Check-In</span><span className="text-white/80">{fmtDate(ckReservation.check_in_date)}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-white/50">Check-Out</span><span className="text-white/80">{fmtDate(ckReservation.check_out_date)}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-white/50">Duration</span><span className="text-white/80">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
                   {ckReservation.number_of_guests && (
-                    <div className="flex justify-between text-sm"><span className="text-white/50">Guests</span><span className="text-white/80">{ckReservation.number_of_guests}</span></div>
+                    <div className="flex justify-between text-[12px]"><span className="text-white/50">Guests</span><span className="text-white/80">{ckReservation.number_of_guests}</span></div>
                   )}
                 </div>
 
                 {ckReservation.special_requests && (
                   <div className="mt-4 bg-amber-500/20 border border-amber-400/30 rounded-xl px-4 py-3">
                     <div className="text-xs font-bold text-amber-300/80 uppercase tracking-widest mb-1">Special Requests</div>
-                    <p className="text-amber-100/80 text-sm italic">"{ckReservation.special_requests}"</p>
+                    <p className="text-amber-100/80 text-[12px] italic">"{ckReservation.special_requests}"</p>
                   </div>
                 )}
 
                 {ckError && (
-                  <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 text-red-200 text-sm">{ckError}</div>
+                  <div className="mt-4 bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 text-red-200 text-[12px]">{ckError}</div>
                 )}
 
                 <button onClick={handleArrive} disabled={ckArriving}
-                  className="w-full mt-5 bg-green-600 hover:bg-green-700 disabled:bg-white/10 disabled:text-white/30 text-white font-bold py-3 rounded-xl transition-colors text-sm">
+                  className="w-full mt-5 bg-green-600 hover:bg-green-700 disabled:bg-white/10 disabled:text-white/30 text-white font-bold py-3 rounded-xl transition-colors text-[12px]">
                   {ckArriving ? 'Checking you in...' : "Yes, I'm here — Check Me In ✓"}
                 </button>
                 <button onClick={() => { setCkStep(1); setCkReservation(null); setCkError(''); }}
-                  className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white/60 font-semibold py-2.5 rounded-xl transition-colors text-sm">
+                  className="w-full mt-2 bg-white/10 hover:bg-white/15 text-white/60 font-semibold py-1.5 rounded-xl transition-colors text-[12px]">
                   Not my reservation
                 </button>
               </div>
@@ -7498,13 +7498,13 @@ function GuestCheckinPage({ setCurrentPage }) {
 
         {/* ── Step 3 — Success ── */}
         {ckStep === 3 && ckReservation && (
-          <div className="rounded-2xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+          <div className="rounded-xl border border-white/20 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
 
             {/* Header */}
             <div className="px-6 py-5" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-white font-bold text-lg tracking-tight">You&apos;re Checked In!</h3>
+                  <h3 className="text-white font-bold text-[14px] tracking-tight">You&apos;re Checked In!</h3>
                   <p className="text-white/70 text-xs mt-0.5">Please proceed to the front desk for your key</p>
                 </div>
                 <div className="flex items-center gap-2 bg-green-500/30 border border-green-400/40 px-3 py-1.5 rounded-full">
@@ -7517,7 +7517,7 @@ function GuestCheckinPage({ setCurrentPage }) {
               </div>
             </div>
 
-            <div className="p-6 text-center">
+            <div className="p-4 text-center">
               {/* Checkmark */}
               <div className="w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-400/50 flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -7526,13 +7526,13 @@ function GuestCheckinPage({ setCurrentPage }) {
               </div>
 
               <h2 className="text-2xl font-black text-white mb-1">Welcome, {firstName(ckReservation.full_name)}!</h2>
-              <p className="text-white/50 text-sm mb-6">You are now in our system.</p>
+              <p className="text-white/50 text-[12px] mb-3">You are now in our system.</p>
 
               {/* Key instructions */}
-              <div className="bg-white/10 border border-white/15 rounded-xl px-5 py-4 mb-5 text-left">
+              <div className="bg-white/10 border border-white/15 rounded-xl px-5 py-4 mb-3 text-left">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">🔑</span>
-                  <span className="text-white font-semibold text-sm">Please head to the front desk</span>
+                  <span className="text-white font-semibold text-[12px]">Please head to the front desk</span>
                 </div>
                 <p className="text-white/50 text-xs leading-relaxed">
                   Our staff will verify your ID, assign your room, and hand you your key. Your stay is all set!
@@ -7540,14 +7540,14 @@ function GuestCheckinPage({ setCurrentPage }) {
               </div>
 
               {/* Summary */}
-              <div className="bg-white/10 rounded-xl border border-white/10 p-4 space-y-2 text-left mb-5">
-                <div className="flex justify-between text-sm"><span className="text-white/50">Confirmation #</span><span className="font-mono font-bold text-white">#{ckReservation.id}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-white/50">Room Type</span><span className="text-white/80">{ckReservation.room_type}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-white/50">Check-Out</span><span className="text-white/80">{fmtDate(ckReservation.check_out_date)}</span></div>
+              <div className="bg-white/10 rounded-xl border border-white/10 p-4 space-y-2 text-left mb-3">
+                <div className="flex justify-between text-[12px]"><span className="text-white/50">Confirmation #</span><span className="font-mono font-bold text-white">#{ckReservation.id}</span></div>
+                <div className="flex justify-between text-[12px]"><span className="text-white/50">Room Type</span><span className="text-white/80">{ckReservation.room_type}</span></div>
+                <div className="flex justify-between text-[12px]"><span className="text-white/50">Check-Out</span><span className="text-white/80">{fmtDate(ckReservation.check_out_date)}</span></div>
               </div>
 
               <button onClick={() => setCurrentPage('home')}
-                className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white font-bold py-3 rounded-xl transition-colors text-sm">
+                className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white font-bold py-3 rounded-xl transition-colors text-[12px]">
                 Return to Home
               </button>
             </div>
@@ -8247,7 +8247,7 @@ function FrontDeskTab() {
         className={`relative rounded-xl border ${cfg.border} ${cfg.bg} p-3 text-left transition-all hover:scale-[1.03] hover:shadow-lg active:scale-100 w-full aspect-square flex flex-col justify-between`}
       >
         <div>
-          <div className={`text-xl font-black font-mono ${cfg.text} leading-none`}>{r.room_number}</div>
+          <div className={`text-[16px] font-black font-mono ${cfg.text} leading-none`}>{r.room_number}</div>
           <div className="text-white/40 text-[10px] mt-0.5 truncate">{r.room_type || 'Room'}</div>
         </div>
         <div>
@@ -8325,12 +8325,12 @@ function FrontDeskTab() {
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10">
             <div>
-              <div className="text-white font-semibold text-sm">Guest Profile</div>
+              <div className="text-white font-semibold text-[12px]">Guest Profile</div>
               <div className="text-white/40 text-[11px] mt-0.5">
                 Room {gpRes.room_number || '—'} &middot; {gpRes.room_type_name || gpRes.room_type} &middot; {fmtDate(gpRes.check_in_date)} – {fmtDate(gpRes.check_out_date)} ({nights} nights)
               </div>
             </div>
-            <button onClick={() => setGpOpen(false)} className="text-white/30 hover:text-white text-lg leading-none transition-colors">&times;</button>
+            <button onClick={() => setGpOpen(false)} className="text-white/30 hover:text-white text-[14px] leading-none transition-colors">&times;</button>
           </div>
 
           {/* Scrollable body */}
@@ -8409,15 +8409,15 @@ function FrontDeskTab() {
     const nights = nightsCount(r);
     const isDueOut = r.check_out_date && r.check_out_date.slice(0, 10) === today;
     return (
-      <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all"
+      <div className="grid items-center gap-x-3 px-3 py-1.5 transition-all"
         style={{ gridTemplateColumns: '3rem 1fr 7rem 5.5rem 2.5rem 3rem 3.5rem 3.5rem 5rem', borderBottom: `1px solid ${isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(255,255,255,0.06)'}`, background: isDueOut ? 'rgba(251,191,36,0.05)' : 'transparent' }}>
         {/* Room */}
-        <span className={`font-mono font-bold text-sm ${isDueOut ? 'text-amber-300' : 'text-white/70'}`}>
+        <span className={`font-mono font-bold text-[12px] ${isDueOut ? 'text-amber-300' : 'text-white/70'}`}>
           {r.room_number || '—'}
         </span>
         {/* Name */}
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className={`font-semibold text-sm truncate ${isDueOut ? 'text-amber-100' : 'text-white'}`}>{r.full_name}</span>
+          <span className={`font-semibold text-[12px] truncate ${isDueOut ? 'text-amber-100' : 'text-white'}`}>{r.full_name}</span>
           {isDueOut && <span className="flex-shrink-0 text-[10px] font-bold uppercase tracking-wider text-amber-400">Due Out</span>}
         </div>
         {/* Room type */}
@@ -8459,7 +8459,7 @@ function FrontDeskTab() {
         <div className="flex-1 p-4 flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-white text-sm">{r.full_name}</span>
+              <span className="font-semibold text-white text-[12px]">{r.full_name}</span>
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
             </div>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -8473,10 +8473,10 @@ function FrontDeskTab() {
           </div>
           <div className="flex-shrink-0">
             {(r.status === 'pending' || r.status === 'confirmed') && (
-              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">Check In</button>
+              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition-colors">Check In</button>
             )}
             {r.status === 'checked_in' && (
-              <button onClick={() => setCheckoutConfirmId(r.id)} className="bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs px-3 py-1.5 rounded-lg font-semibold transition-all">Check Out</button>
+              <button onClick={() => setCheckoutConfirmId(r.id)} className="bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs px-3 py-1.5 rounded-md font-semibold transition-all">Check Out</button>
             )}
           </div>
         </div>
@@ -8488,7 +8488,7 @@ function FrontDeskTab() {
   const WizardStepBar = () => {
     const steps = ['Guest ID', 'Reservation', 'Room', 'Payment'];
     return (
-      <div className="flex items-center gap-0 mb-6">
+      <div className="flex items-center gap-0 mb-3">
         {steps.map((label, idx) => {
           const num = idx + 1;
           const active = num === wizardStep;
@@ -8502,7 +8502,7 @@ function FrontDeskTab() {
                 <span className={`text-xs mt-1 whitespace-nowrap ${active ? 'text-[#576CA8] font-semibold' : done ? 'text-green-600' : 'text-gray-400'}`}>{label}</span>
               </div>
               {idx < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-1 mb-5 transition-all ${done ? 'bg-green-400' : 'bg-gray-200'}`} />
+                <div className={`flex-1 h-0.5 mx-1 mb-3 transition-all ${done ? 'bg-green-400' : 'bg-gray-200'}`} />
               )}
             </React.Fragment>
           );
@@ -8516,21 +8516,21 @@ function FrontDeskTab() {
       <h3 className="font-semibold text-gray-900 mb-1">Verify Guest Identity</h3>
       <p className="text-xs text-gray-500 mb-4">Ask the guest to present a valid government-issued photo ID.</p>
       <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-2 mb-3">
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Name</span><span className="font-medium text-gray-900">{wizardReservation?.full_name}</span></div>
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Email</span><span className="font-medium text-gray-900">{wizardReservation?.email || '—'}</span></div>
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Phone</span><span className="font-medium text-gray-900">{wizardReservation?.phone_number || '—'}</span></div>
-        {wizardReservation?.nationality && <div className="flex justify-between text-sm"><span className="text-gray-500">Nationality</span><span className="font-medium text-gray-900">{wizardReservation.nationality}</span></div>}
-        {wizardReservation?.id_type && <div className="flex justify-between text-sm"><span className="text-gray-500">ID</span><span className="font-medium text-gray-900">{wizardReservation.id_type} — {wizardReservation.id_number || '—'}</span></div>}
-        <div className="flex justify-between text-sm"><span className="text-gray-500">Confirmation #</span><span className="font-mono text-[#576CA8] font-bold">{wizardReservation?.id}</span></div>
+        <div className="flex justify-between text-[12px]"><span className="text-gray-500">Name</span><span className="font-medium text-gray-900">{wizardReservation?.full_name}</span></div>
+        <div className="flex justify-between text-[12px]"><span className="text-gray-500">Email</span><span className="font-medium text-gray-900">{wizardReservation?.email || '—'}</span></div>
+        <div className="flex justify-between text-[12px]"><span className="text-gray-500">Phone</span><span className="font-medium text-gray-900">{wizardReservation?.phone_number || '—'}</span></div>
+        {wizardReservation?.nationality && <div className="flex justify-between text-[12px]"><span className="text-gray-500">Nationality</span><span className="font-medium text-gray-900">{wizardReservation.nationality}</span></div>}
+        {wizardReservation?.id_type && <div className="flex justify-between text-[12px]"><span className="text-gray-500">ID</span><span className="font-medium text-gray-900">{wizardReservation.id_type} — {wizardReservation.id_number || '—'}</span></div>}
+        <div className="flex justify-between text-[12px]"><span className="text-gray-500">Confirmation #</span><span className="font-mono text-[#576CA8] font-bold">{wizardReservation?.id}</span></div>
       </div>
       <button onClick={() => wizardReservation && openGuestProfile(wizardReservation)}
-        className="w-full mb-4 py-1.5 text-xs text-[#576CA8] border border-[#576CA8]/30 rounded-lg hover:bg-[#576CA8]/5 transition-colors font-medium">
+        className="w-full mb-4 py-1.5 text-xs text-[#576CA8] border border-[#576CA8]/30 rounded-md hover:bg-[#576CA8]/5 transition-colors font-medium">
         ✏ Complete / Edit Guest Profile
       </button>
       <label className="flex items-start gap-3 cursor-pointer group">
         <input type="checkbox" checked={wizardIdVerified} onChange={(e) => setWizardIdVerified(e.target.checked)}
           className="mt-0.5 w-4 h-4 accent-[#576CA8] cursor-pointer" />
-        <span className="text-sm text-gray-700 group-hover:text-gray-900">
+        <span className="text-[12px] text-gray-700 group-hover:text-gray-900">
           I have verified the guest&apos;s identity document and it matches the reservation.
         </span>
       </label>
@@ -8544,16 +8544,16 @@ function FrontDeskTab() {
         <h3 className="font-semibold text-gray-900 mb-1">Review Reservation</h3>
         <p className="text-xs text-gray-500 mb-4">Confirm all reservation details with the guest.</p>
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-2 mb-4">
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Check-In</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_in_date)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Guests</span><span className="font-medium text-gray-900">{wizardReservation?.number_of_guests || 1}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Check-In</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_in_date)}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Guests</span><span className="font-medium text-gray-900">{wizardReservation?.number_of_guests || 1}</span></div>
         </div>
         {wizardReservation?.special_requests && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
             <div className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">Special Requests</div>
-            <p className="text-sm text-amber-800 italic">&ldquo;{wizardReservation.special_requests}&rdquo;</p>
+            <p className="text-[12px] text-amber-800 italic">&ldquo;{wizardReservation.special_requests}&rdquo;</p>
           </div>
         )}
       </div>
@@ -8571,7 +8571,7 @@ function FrontDeskTab() {
         <h3 className="font-semibold text-gray-900 mb-1">Assign Room</h3>
         <p className="text-xs text-gray-500 mb-4">Select an available room for this guest.</p>
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Room Number</label>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Room Number</label>
           {typeRooms.length === 0 ? (
             <input
               type="text"
@@ -8579,7 +8579,7 @@ function FrontDeskTab() {
               onChange={(e) => setWizardRoomNumber(e.target.value)}
               placeholder="e.g. 201"
               autoComplete="off"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-lg font-mono font-bold outline-none transition-all"
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-[14px] font-mono font-bold outline-none transition-all"
               autoFocus
             />
           ) : (
@@ -8617,13 +8617,13 @@ function FrontDeskTab() {
           )}
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Front Desk Notes (optional)</label>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Front Desk Notes (optional)</label>
           <textarea
             value={wizardNotes}
             onChange={(e) => setWizardNotes(e.target.value)}
             placeholder="Any notes for housekeeping or other staff..."
             rows={3}
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-sm outline-none transition-all resize-none"
+            className="w-full px-3 py-1.5 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-[12px] outline-none transition-all resize-none"
           />
         </div>
       </div>
@@ -8637,17 +8637,17 @@ function FrontDeskTab() {
         <h3 className="font-semibold text-gray-900 mb-1">Payment &amp; Confirmation</h3>
         <p className="text-xs text-gray-500 mb-4">Collect payment and complete the check-in process.</p>
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-2 mb-4">
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Guest</span><span className="font-medium text-gray-900">{wizardReservation?.full_name}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Room Assigned</span><span className="font-bold text-[#576CA8] font-mono">{wizardRoomNumber || '—'}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
-          {wizardNotes && <div className="flex justify-between text-sm"><span className="text-gray-500">Notes</span><span className="text-gray-700 text-right max-w-[60%]">{wizardNotes}</span></div>}
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Guest</span><span className="font-medium text-gray-900">{wizardReservation?.full_name}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Room Assigned</span><span className="font-bold text-[#576CA8] font-mono">{wizardRoomNumber || '—'}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
+          {wizardNotes && <div className="flex justify-between text-[12px]"><span className="text-gray-500">Notes</span><span className="text-gray-700 text-right max-w-[60%]">{wizardNotes}</span></div>}
         </div>
         <label className="flex items-start gap-3 cursor-pointer group">
           <input type="checkbox" checked={wizardPayment} onChange={(e) => setWizardPayment(e.target.checked)}
             className="mt-0.5 w-4 h-4 accent-[#576CA8] cursor-pointer" />
-          <span className="text-sm text-gray-700 group-hover:text-gray-900">
+          <span className="text-[12px] text-gray-700 group-hover:text-gray-900">
             Payment has been collected / verified for this stay.
           </span>
         </label>
@@ -8660,16 +8660,16 @@ function FrontDeskTab() {
       <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-bounce">
         <span className="text-3xl">✓</span>
       </div>
-      <h3 className="text-xl font-bold text-gray-900 mb-1">Check-In Complete!</h3>
-      <p className="text-sm text-gray-500 mb-5">{wizardReservation?.full_name} is now checked in.</p>
-      <div className="bg-green-50 border border-green-200 rounded-2xl px-8 py-4 mb-4">
+      <h3 className="text-[16px] font-bold text-gray-900 mb-1">Check-In Complete!</h3>
+      <p className="text-[12px] text-gray-500 mb-3">{wizardReservation?.full_name} is now checked in.</p>
+      <div className="bg-green-50 border border-green-200 rounded-xl px-8 py-4 mb-4">
         <div className="text-4xl font-mono font-black text-green-800">{wizardRoomNumber}</div>
         <div className="text-xs text-green-600 font-semibold uppercase tracking-widest mt-1">Room Number</div>
       </div>
-      <span className="inline-block bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide mb-6">
+      <span className="inline-block bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide mb-3">
         KEY READY
       </span>
-      <button onClick={closeWizard} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors">
+      <button onClick={closeWizard} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 rounded-xl transition-colors">
         Close
       </button>
     </div>
@@ -8684,9 +8684,9 @@ function FrontDeskTab() {
             {/* Header bar */}
             <div className="px-6 pt-0.5 pb-0" style={{ background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               {/* Title row */}
-              <div className="flex items-center justify-between gap-4 mb-2">
+              <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="shrink-0">
-                  <h3 className="text-white font-bold text-lg tracking-tight leading-tight">Front Desk</h3>
+                  <h3 className="text-white font-bold text-[14px] tracking-tight leading-tight">Front Desk</h3>
                   <p className="text-white/50 text-xs">Guest management</p>
                 </div>
                 <div className="flex items-center gap-2 bg-white/15 px-3 py-1.5 rounded-full shrink-0">
@@ -8721,21 +8721,21 @@ function FrontDeskTab() {
                 })}
               </div>
             </div>
-            <div className="p-6 md:p-8 flex-1 overflow-y-auto">
+            <div className="p-4 md:p-4 flex-1 overflow-y-auto">
 
               {/* ── Arrivals View ── */}
               {fdView === 'arrivals' && (
                 <div>
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/10">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">Date</span>
                       <input
                         type="date"
                         value={arrivalDate}
                         onChange={(e) => setArrivalDate(e.target.value)}
-                        className="px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white focus:border-white/40 focus:ring-2 focus:ring-white/20 text-sm outline-none"
+                        className="px-2 py-1.5 rounded-md border border-white/20 bg-white/10 text-white focus:border-white/40 focus:ring-2 focus:ring-white/20 text-[12px] outline-none"
                       />
-                      <div className="flex items-center gap-4 ml-2 pl-3 border-l border-white/10">
+                      <div className="flex items-center gap-2 ml-2 pl-3 border-l border-white/10">
                         {[
                           { label: 'Total', value: arrivalStats.total, color: 'text-white', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M2 4h10M2 7h10M2 10h6" /></svg> },
                           { label: 'Checked In', value: arrivalStats.checkedIn, color: 'text-white', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l3.5 3.5L12 4" /></svg> },
@@ -8744,13 +8744,13 @@ function FrontDeskTab() {
                         ].map((s) => (
                           <div key={s.label} className="flex flex-col items-center text-white/60">
                             {s.svg}
-                            <span className={`text-lg font-bold leading-tight ${s.color}`}>{s.value}</span>
+                            <span className={`text-[14px] font-bold leading-tight ${s.color}`}>{s.value}</span>
                             <span className="text-[10px] text-white/40 font-medium">{s.label}</span>
                           </div>
                         ))}
                       </div>
                     </div>
-                    <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg transition-all">
+                    <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-md transition-all">
                       ↻ Refresh
                     </button>
                   </div>
@@ -8805,26 +8805,26 @@ function FrontDeskTab() {
                                 <span className="font-mono text-white/25">#{r.id}</span>
                               </div>
                               {r.special_requests && (
-                                <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-lg px-2.5 py-1.5 italic">
+                                <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-md px-2.5 py-1.5 italic">
                                   "{r.special_requests}"
                                 </div>
                               )}
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               {(r.status === 'pending' || r.status === 'confirmed') && (
-                                <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors whitespace-nowrap">
+                                <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition-colors whitespace-nowrap">
                                   Check In
                                 </button>
                               )}
                               {r.status !== 'checked_in' && r.status !== 'checked_out' && (
-                                <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-white/20 rounded-lg px-2 py-1.5 bg-white/10 text-white/80 cursor-pointer">
+                                <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-white/20 rounded-md px-2 py-1.5 bg-white/10 text-white/80 cursor-pointer">
                                   <option value="pending">Pending</option>
                                   <option value="confirmed">Confirmed</option>
                                   <option value="cancelled">Cancel</option>
                                   <option value="no_show">No Show</option>
                                 </select>
                               )}
-                              <button onClick={() => setSelectedArrival(null)} className="text-white/30 hover:text-white/70 text-lg leading-none px-1">×</button>
+                              <button onClick={() => setSelectedArrival(null)} className="text-white/30 hover:text-white/70 text-[14px] leading-none px-1">×</button>
                             </div>
                           </div>
                         </div>
@@ -8848,12 +8848,12 @@ function FrontDeskTab() {
               {/* ── In-House View ── */}
               {fdView === 'inhouse' && (
                 <div>
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/10">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
                     <div>
-                      <span className="text-sm font-semibold text-white">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
+                      <span className="text-[12px] font-semibold text-white">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
                       <span className="text-xs text-white/40 ml-2">as of now</span>
                     </div>
-                    <button onClick={fetchInHouse} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg transition-all">
+                    <button onClick={fetchInHouse} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-md transition-all">
                       ↻ Refresh
                     </button>
                   </div>
@@ -8884,14 +8884,14 @@ function FrontDeskTab() {
               {/* ── Search View ── */}
               {fdView === 'search' && (
                 <div>
-                  <div className="relative mb-5">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-sm">🔍</span>
+                  <div className="relative mb-3">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-[12px]">🔍</span>
                     <input
                       type="text"
                       value={searchQ}
                       onChange={(e) => setSearchQ(e.target.value)}
                       placeholder="Name, email, phone, or confirmation # …"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder-white/40 focus:border-white/40 focus:ring-2 focus:ring-white/20 text-sm outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-white/20 bg-white/10 text-white placeholder-white/40 focus:border-white/40 focus:ring-2 focus:ring-white/20 text-[12px] outline-none transition-all"
                       autoFocus
                     />
                     {searchLoading && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 text-xs animate-pulse">Searching…</span>}
@@ -8899,7 +8899,7 @@ function FrontDeskTab() {
                   {searchQ.trim() === '' ? (
                     <div className="text-center py-10 text-white/30">
                       <div className="text-3xl mb-3">🔍</div>
-                      <div className="text-sm font-medium text-white/50 mb-4">Look up any reservation to check in a guest</div>
+                      <div className="text-[12px] font-medium text-white/50 mb-4">Look up any reservation to check in a guest</div>
                       <div className="flex flex-col gap-2 text-xs text-white/30 items-center">
                         <span>Type a <strong className="text-white/45">confirmation #</strong> — e.g. <span className="font-mono text-white/45">42</span></span>
                         <span>Or search by <strong className="text-white/45">name</strong>, <strong className="text-white/45">email</strong>, or <strong className="text-white/45">phone</strong></span>
@@ -8927,14 +8927,14 @@ function FrontDeskTab() {
                       <div className="w-16 h-16 rounded-full bg-green-500/20 border border-green-400/30 flex items-center justify-center mb-4">
                         <span className="text-3xl">✅</span>
                       </div>
-                      <h3 className="text-xl font-bold text-white mb-1">Walk-In Complete!</h3>
-                      <p className="text-sm text-white/60 mb-6">{wkResult.full_name} is now checked in.</p>
-                      <div className="bg-green-500/15 border border-green-400/30 rounded-2xl px-12 py-5 mb-4 w-full max-w-xs">
+                      <h3 className="text-[16px] font-bold text-white mb-1">Walk-In Complete!</h3>
+                      <p className="text-[12px] text-white/60 mb-3">{wkResult.full_name} is now checked in.</p>
+                      <div className="bg-green-500/15 border border-green-400/30 rounded-xl px-12 py-5 mb-4 w-full max-w-xs">
                         <div className="text-5xl font-mono font-black text-green-300">{wkResult.room_number}</div>
                         <div className="text-xs text-green-400 font-semibold uppercase tracking-widest mt-2">Room Assigned</div>
                       </div>
-                      <div className="text-xs text-white/35 mb-5 font-mono">Confirmation #{wkResult.id}</div>
-                      <span className="inline-block bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-6">🔑 Key Ready</span>
+                      <div className="text-xs text-white/35 mb-3 font-mono">Confirmation #{wkResult.id}</div>
+                      <span className="inline-block bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold px-5 py-2 rounded-full tracking-widest uppercase mb-3">🔑 Key Ready</span>
                       <button onClick={resetWalkin} className="w-full bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white font-semibold py-3 rounded-xl transition-all">
                         + New Walk-In Guest
                       </button>
@@ -8942,7 +8942,7 @@ function FrontDeskTab() {
                   ) : (
                     <div>
                       {/* ── 2-COLUMN LAYOUT ── */}
-                      <div className="flex gap-4 mt-1">
+                      <div className="flex gap-2 mt-1">
 
                         {/* ── LEFT: Guest Profile · Contact · Identification ── */}
                         <div className="flex-1 min-w-0 flex flex-col gap-2">
@@ -9253,7 +9253,7 @@ function FrontDeskTab() {
               {fdView === 'rooms' && (
                 <div>
                   {/* Toolbar */}
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-white/10">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
                     {(() => {
                       const counts = rooms.reduce((acc, r) => { acc[r.computed_status] = (acc[r.computed_status] || 0) + 1; return acc; }, {});
                       const stats = [
@@ -9271,7 +9271,7 @@ function FrontDeskTab() {
                             const active = roomFilter === s.key;
                             return (
                               <button key={s.label} onClick={() => setRoomFilter(s.key)}
-                                className={`flex flex-col items-center px-2.5 py-1 rounded-lg transition-all ${active ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/8'}`}>
+                                className={`flex flex-col items-center px-2.5 py-1 rounded-md transition-all ${active ? 'bg-white/15 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/8'}`}>
                                 {s.svg}
                                 <span className="text-base font-bold leading-tight">{s.value}</span>
                                 <span className="text-[10px] font-medium">{s.label}</span>
@@ -9282,9 +9282,9 @@ function FrontDeskTab() {
                       );
                     })()}
                     <div className="flex items-center gap-2">
-                      <button onClick={fetchRooms} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-lg transition-all">↻ Refresh</button>
+                      <button onClick={fetchRooms} className="text-xs font-semibold text-white/50 hover:text-white bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-md transition-all">↻ Refresh</button>
                       <button onClick={() => { setAddRoomOpen(v => !v); if (!newRoomType && wkRoomTypes.length > 0) setNewRoomType(wkRoomTypes[0].name); }}
-                        className="text-xs font-semibold text-white bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 px-3 py-1.5 rounded-lg transition-all">
+                        className="text-xs font-semibold text-white bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 px-3 py-1.5 rounded-md transition-all">
                         + Add Room
                       </button>
                     </div>
@@ -9292,19 +9292,19 @@ function FrontDeskTab() {
 
                   {/* Add Room Form */}
                   {addRoomOpen && (
-                    <div className="mb-5 rounded-xl border border-white/15 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="mb-3 rounded-xl border border-white/15 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
                       <div className="text-xs font-semibold text-white/55 uppercase tracking-widest mb-3">New Room</div>
                       <div className="grid grid-cols-3 gap-3 mb-3">
                         <div>
                           <label className="block text-xs text-white/50 mb-1">Room Number *</label>
                           <input type="text" value={newRoomNumber} onChange={e => setNewRoomNumber(e.target.value)}
                             placeholder="e.g. 201" autoComplete="off"
-                            className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/30 text-sm font-mono font-bold outline-none focus:border-white/40" />
+                            className="w-full px-2 py-1.5 rounded-md border border-white/20 bg-white/10 text-white placeholder-white/30 text-[12px] font-mono font-bold outline-none focus:border-white/40" />
                         </div>
                         <div>
                           <label className="block text-xs text-white/50 mb-1">Room Type</label>
                           <select value={newRoomType} onChange={e => setNewRoomType(e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-white/20 text-white text-sm outline-none focus:border-white/40"
+                            className="w-full px-2 py-1.5 rounded-md border border-white/20 text-white text-[12px] outline-none focus:border-white/40"
                             style={{ background: 'rgba(20,30,60,0.95)' }}>
                             <option value="" style={{ background: '#1a2744' }}>— select —</option>
                             {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name} style={{ background: '#1a2744' }}>{rt.name}</option>)}
@@ -9313,12 +9313,12 @@ function FrontDeskTab() {
                         <div>
                           <label className="block text-xs text-white/50 mb-1">Floor</label>
                           <input type="number" min="1" max="99" value={newRoomFloor} onChange={e => setNewRoomFloor(parseInt(e.target.value) || 1)}
-                            className="w-full px-3 py-2 rounded-lg border border-white/20 bg-white/10 text-white text-sm outline-none focus:border-white/40" />
+                            className="w-full px-2 py-1.5 rounded-md border border-white/20 bg-white/10 text-white text-[12px] outline-none focus:border-white/40" />
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={addRoom} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all">Save Room</button>
-                        <button onClick={() => setAddRoomOpen(false)} className="text-white/50 hover:text-white text-xs font-semibold px-4 py-2 rounded-lg bg-white/10 transition-all">Cancel</button>
+                        <button onClick={addRoom} className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-md transition-all">Save Room</button>
+                        <button onClick={() => setAddRoomOpen(false)} className="text-white/50 hover:text-white text-xs font-semibold px-4 py-2 rounded-md bg-white/10 transition-all">Cancel</button>
                       </div>
                     </div>
                   )}
@@ -9331,14 +9331,14 @@ function FrontDeskTab() {
                       <div className="text-4xl mb-3">🏨</div>
                       <div className="font-semibold text-white/50 mb-1">No rooms tracked yet</div>
                       <div className="text-xs text-white/30 mb-4">Rooms appear here automatically after check-in, or add them manually.</div>
-                      <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 px-4 py-2 rounded-lg">+ Add Room</button>
+                      <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 px-4 py-2 rounded-md">+ Add Room</button>
                     </div>
                   ) : (
                     <div>
                       {(() => {
                         const filtered = roomFilter === 'all' ? rooms : rooms.filter(r => r.computed_status === roomFilter);
                         if (filtered.length === 0) return (
-                          <div className="text-center py-10 text-white/40 text-sm">No rooms match this filter.</div>
+                          <div className="text-center py-10 text-white/40 text-[12px]">No rooms match this filter.</div>
                         );
                         const byFloor = filtered.reduce((acc, r) => {
                           const f = r.floor || 1;
@@ -9347,7 +9347,7 @@ function FrontDeskTab() {
                           return acc;
                         }, {});
                         return Object.keys(byFloor).sort((a, b) => a - b).map(floor => (
-                          <div key={floor} className="mb-6">
+                          <div key={floor} className="mb-3">
                             <div className="flex items-center gap-2 mb-3">
                               <span className="text-xs font-bold text-white/60 uppercase tracking-widest">Floor {floor}</span>
                               <div className="flex-1 h-px bg-white/10" />
@@ -9494,7 +9494,7 @@ function FrontDeskTab() {
                       const clr = TC[effStatus] || TC.confirmed;
                       const nights = Math.round((new Date(r.check_out_date) - new Date(r.check_in_date)) / 86400000);
                       return (
-                        <div className="mb-3 px-3 py-2 rounded border flex items-center justify-between gap-3"
+                        <div className="mb-3 px-2 py-1.5 rounded border flex items-center justify-between gap-3"
                           style={{ background: clr.bg, borderColor: 'rgba(255,255,255,0.15)' }}>
                           <div className="flex items-center gap-3 flex-wrap">
                             <span className="text-xs font-bold" style={{ color: clr.text }}>{r.full_name}</span>
@@ -9515,9 +9515,9 @@ function FrontDeskTab() {
 
                     {/* ── Chart ── */}
                     {tcLoading ? (
-                      <div className="text-center py-12 text-white/30 text-sm">Loading chart...</div>
+                      <div className="text-center py-12 text-white/30 text-[12px]">Loading chart...</div>
                     ) : tcRooms.length === 0 ? (
-                      <div className="text-center py-12 text-white/30 text-sm">No room types found — add room types in Admin → Settings → Rooms first.</div>
+                      <div className="text-center py-12 text-white/30 text-[12px]">No room types found — add room types in Admin → Settings → Rooms first.</div>
                     ) : (
                       <>
                         {tcTypeView && (
@@ -9707,7 +9707,7 @@ function FrontDeskTab() {
               {/* ── Room Detail Panel ── */}
               {selectedRoom && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setSelectedRoom(null)}>
-                  <div className="bg-[#1a2340] border border-white/20 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                  <div className="bg-[#1a2340] border border-white/20 rounded-xl shadow-2xl w-full max-w-sm overflow-hidden"
                     onClick={e => e.stopPropagation()}>
                     {/* Header */}
                     {(() => {
@@ -9725,10 +9725,10 @@ function FrontDeskTab() {
                                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.pill}`}>{cfg.label}</span>
                                 </div>
                               </div>
-                              <button onClick={() => setSelectedRoom(null)} className="text-white/40 hover:text-white text-lg font-bold leading-none mt-1">✕</button>
+                              <button onClick={() => setSelectedRoom(null)} className="text-white/40 hover:text-white text-[14px] font-bold leading-none mt-1">✕</button>
                             </div>
                           </div>
-                          <div className="p-5 space-y-4">
+                          <div className="p-3 space-y-4">
                             {/* Guest info */}
                             {isActive && selectedRoom.guest_name && (
                               <div className="bg-white/8 border border-white/10 rounded-xl p-3.5 space-y-1.5">
@@ -9758,7 +9758,7 @@ function FrontDeskTab() {
                                     <button key={status}
                                       onClick={() => updateHkStatus(selectedRoom.room_number, status)}
                                       disabled={hkUpdating === selectedRoom.room_number}
-                                      className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-white/15 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'}`}>
+                                      className={`px-2 py-1.5 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-white/15 bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'}`}>
                                       {label}
                                     </button>
                                   );
@@ -9771,13 +9771,13 @@ function FrontDeskTab() {
                               {(selectedRoom.computed_status === 'occupied' || selectedRoom.computed_status === 'due_out') && selectedRoom.reservation_id && (
                                 <button
                                   onClick={() => { setCheckoutConfirmId(selectedRoom.reservation_id); setSelectedRoom(null); }}
-                                  className="flex-1 bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs font-bold py-2.5 rounded-xl transition-all">
+                                  className="flex-1 bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs font-bold py-1.5 rounded-xl transition-all">
                                   Check Out Guest
                                 </button>
                               )}
                               <button
                                 onClick={() => removeRoom(selectedRoom.room_number)}
-                                className="flex-1 bg-white/5 hover:bg-white/10 border border-white/15 text-white/40 hover:text-white/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
+                                className="flex-1 bg-white/5 hover:bg-white/10 border border-white/15 text-white/40 hover:text-white/60 text-xs font-semibold py-1.5 rounded-xl transition-all">
                                 Remove Room
                               </button>
                             </div>
@@ -9792,17 +9792,17 @@ function FrontDeskTab() {
               {/* ── Check-In Wizard Modal ── */}
               {wizardOpen && wizardReservation && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+                  <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
                     <div className="bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] px-6 py-4 flex items-center justify-between">
                       <div>
                         <div className="text-white font-bold">Check-In Wizard</div>
                         <div className="text-white/70 text-xs">{wizardReservation.full_name} · #{wizardReservation.id}</div>
                       </div>
                       {!wizardSuccess && (
-                        <button onClick={closeWizard} className="text-white/70 hover:text-white text-lg font-bold transition-colors">✕</button>
+                        <button onClick={closeWizard} className="text-white/70 hover:text-white text-[14px] font-bold transition-colors">✕</button>
                       )}
                     </div>
-                    <div className="p-6">
+                    <div className="p-4">
                       {wizardSuccess ? (
                         <WizardSuccessCard />
                       ) : (
@@ -9813,7 +9813,7 @@ function FrontDeskTab() {
                           {wizardStep === 3 && <WizardStep3 />}
                           {wizardStep === 4 && <WizardStep4 />}
                           {wizardError && (
-                            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium">
+                            <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-[12px] text-red-600 font-medium">
                               {wizardError}
                             </div>
                           )}
@@ -9821,7 +9821,7 @@ function FrontDeskTab() {
                             {wizardStep > 1 && (
                               <button
                                 onClick={() => { setWizardStep(s => s - 1); setWizardError(''); }}
-                                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
+                                className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 rounded-xl transition-colors"
                               >
                                 Back
                               </button>
@@ -9830,7 +9830,7 @@ function FrontDeskTab() {
                               <button
                                 onClick={() => { setWizardStep(s => s + 1); setWizardError(''); }}
                                 disabled={wizardStep === 1 && !wizardIdVerified}
-                                className="flex-1 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
+                                className="flex-1 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-1.5 rounded-xl transition-colors"
                               >
                                 Next
                               </button>
@@ -9838,7 +9838,7 @@ function FrontDeskTab() {
                               <button
                                 onClick={submitCheckin}
                                 disabled={!wizardPayment || wizardSubmitting}
-                                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-bold py-2.5 rounded-xl transition-colors"
+                                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-bold py-1.5 rounded-xl transition-colors"
                               >
                                 {wizardSubmitting ? 'Processing...' : 'Complete Check-In'}
                               </button>
@@ -9854,22 +9854,22 @@ function FrontDeskTab() {
               {/* ── Checkout Confirm Modal ── */}
               {checkoutConfirmId && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-                    <div className="text-center mb-5">
+                  <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-4">
+                    <div className="text-center mb-3">
                       <div className="text-4xl mb-3">🔑</div>
-                      <h3 className="text-lg font-bold text-gray-900">Confirm Check-Out</h3>
-                      <p className="text-sm text-gray-500 mt-1">Are you sure you want to check out this guest? This action cannot be undone.</p>
+                      <h3 className="text-[14px] font-bold text-gray-900">Confirm Check-Out</h3>
+                      <p className="text-[12px] text-gray-500 mt-1">Are you sure you want to check out this guest? This action cannot be undone.</p>
                     </div>
                     {/* Folio balance */}
                     {checkoutFolioBalance === null ? (
                       <div className="mb-4 text-center text-xs text-gray-400">Checking folio balance...</div>
                     ) : checkoutFolioBalance <= 0 ? (
-                      <div className="mb-4 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
-                        <span className="text-green-600 text-sm font-semibold">Folio settled</span>
+                      <div className="mb-4 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-1.5">
+                        <span className="text-green-600 text-[12px] font-semibold">Folio settled</span>
                       </div>
                     ) : (
-                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
-                        <div className="text-center text-sm font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-1.5">
+                        <div className="text-center text-[12px] font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                         <div className="text-center text-xs text-amber-500 mt-0.5">Please settle folio before checkout</div>
                       </div>
                     )}
@@ -9877,14 +9877,14 @@ function FrontDeskTab() {
                       <button
                         onClick={() => setCheckoutConfirmId(null)}
                         disabled={checkoutSubmitting}
-                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 rounded-xl transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => submitCheckout(checkoutConfirmId)}
                         disabled={checkoutSubmitting}
-                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-white font-bold py-2.5 rounded-xl transition-colors"
+                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 text-white font-bold py-1.5 rounded-xl transition-colors"
                       >
                         {checkoutSubmitting ? 'Processing...' : 'Check Out'}
                       </button>
@@ -9900,28 +9900,28 @@ function FrontDeskTab() {
       {transferGuest && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>
           <div
-            className="rounded-2xl border border-white/20 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
+            className="rounded-xl border border-white/20 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             style={{ background: 'rgba(20,25,40,0.95)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
           >
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/10" style={{ background: 'rgba(255,255,255,0.08)' }}>
               <div>
-                <div className="text-white font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
+                <div className="text-white font-bold text-[14px] tracking-tight">Room Transfer / Upgrade</div>
                 <div className="text-white/70 text-xs mt-0.5">Assign a new room for this guest</div>
               </div>
-              <button onClick={() => setTransferGuest(null)} className="text-white/70 hover:text-white text-lg font-bold transition-colors leading-none">✕</button>
+              <button onClick={() => setTransferGuest(null)} className="text-white/70 hover:text-white text-[14px] font-bold transition-colors leading-none">✕</button>
             </div>
             {transferSuccess ? (
               <div className="px-6 py-12 text-center">
                 <div className="w-14 h-14 rounded-full bg-green-500/25 flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl text-green-300 font-bold">✓</span>
                 </div>
-                <div className="text-white font-bold text-lg mb-1">{transferSuccess}</div>
-                <div className="text-white/60 text-sm">Previous room marked dirty for housekeeping</div>
-                <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white/15 hover:bg-white/20 border border-white/20 text-white font-semibold py-2.5 rounded-xl transition-colors text-sm">Close</button>
+                <div className="text-white font-bold text-[14px] mb-1">{transferSuccess}</div>
+                <div className="text-white/60 text-[12px]">Previous room marked dirty for housekeeping</div>
+                <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white/15 hover:bg-white/20 border border-white/20 text-white font-semibold py-1.5 rounded-xl transition-colors text-[12px]">Close</button>
               </div>
             ) : (
-              <div className="p-6 space-y-5">
+              <div className="p-4 space-y-5">
                 {/* Current guest info */}
                 <div
                   className="border border-white/20 rounded-xl px-4 py-3 flex items-center justify-between"
@@ -9931,7 +9931,7 @@ function FrontDeskTab() {
                     <div className="text-[10px] text-white/40 font-semibold uppercase tracking-wide mb-0.5">
                       Current Assignment
                     </div>
-                    <div className="font-semibold text-white text-sm">{transferGuest?.full_name}</div>
+                    <div className="font-semibold text-white text-[12px]">{transferGuest?.full_name}</div>
                     <div className="text-xs text-white/50 mt-0.5">
                       {transferGuest?.room_type} · Check-out {fmtDate(transferGuest?.check_out_date)}
                     </div>
@@ -9949,7 +9949,7 @@ function FrontDeskTab() {
                         setTransferRoomType('');
                         setTransferRoomNumber('');
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${transferRoomType === ''
+                      className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-all ${transferRoomType === ''
                         ? 'bg-teal-500/50 border-teal-400/60 text-white shadow-sm'
                         : 'bg-white/15 border-white/20 text-white/70 hover:bg-white/20 hover:border-white/40 hover:text-white'
                         }`}
@@ -9966,7 +9966,7 @@ function FrontDeskTab() {
                             setTransferRoomType(rt.name);
                             setTransferRoomNumber('');
                           }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isSelected
+                          className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-all ${isSelected
                             ? 'bg-blue-500/50 border-blue-400/60 text-white shadow-sm'
                             : 'bg-white/15 border-white/20 text-white/70 hover:bg-white/20 hover:border-white/40 hover:text-white'
                             }`}
@@ -10002,7 +10002,7 @@ function FrontDeskTab() {
                             onChange={(e) => setTransferRoomNumber(e.target.value)}
                             placeholder="Enter room number (e.g. 301)"
                             autoComplete="off"
-                            className="w-full px-3 py-2.5 rounded-lg border border-white/20 bg-white/15 text-white placeholder-white/40 text-sm font-mono font-bold outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all"
+                            className="w-full px-3 py-1.5 rounded-md border border-white/20 bg-white/15 text-white placeholder-white/40 text-[12px] font-mono font-bold outline-none focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all"
                           />
                           <div className="text-xs text-white/40 mt-2 italic">
                             {transferRoomType
@@ -10037,7 +10037,7 @@ function FrontDeskTab() {
                               disabled={!isAvailable || isCurrent}
                               onClick={() => setTransferRoomNumber(isSelected ? '' : r.room_number)}
                               title={`Room ${r.room_number} — ${cfg.label}`}
-                              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${isSelected
+                              className={`relative w-full flex items-center gap-3 px-3 py-1.5 rounded-md border transition-all text-left ${isSelected
                                 ? 'bg-blue-500/40 border-blue-400/60'
                                 : isCurrent
                                   ? 'bg-white/10 border-white/10 opacity-50 cursor-not-allowed'
@@ -10049,7 +10049,7 @@ function FrontDeskTab() {
                               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColors[r.computed_status] || 'bg-gray-300'}`} />
                               <div className="flex-1">
                                 <span
-                                  className={`font-mono font-bold text-sm ${isSelected ? 'text-white' : isCurrent || !isAvailable ? 'text-white/40' : 'text-white'
+                                  className={`font-mono font-bold text-[12px] ${isSelected ? 'text-white' : isCurrent || !isAvailable ? 'text-white/40' : 'text-white'
                                     }`}
                                 >
                                   Room {r.room_number}
@@ -10073,7 +10073,7 @@ function FrontDeskTab() {
                 {/* Transfer summary */}
                 {transferRoomNumber && (
                   <div
-                    className="border border-white/20 rounded-xl px-5 py-3 flex items-center gap-4"
+                    className="border border-white/20 rounded-xl px-5 py-3 flex items-center gap-2"
                     style={{ background: 'rgba(59, 130, 246, 0.1)' }}
                   >
                     <div className="text-center min-w-[3rem]">
@@ -10094,7 +10094,7 @@ function FrontDeskTab() {
 
                 {/* Error message */}
                 {transferError && (
-                  <div className="bg-red-500/15 border border-red-400/30 rounded-xl px-4 py-3 text-sm text-red-300">
+                  <div className="bg-red-500/15 border border-red-400/30 rounded-xl px-4 py-3 text-[12px] text-red-300">
                     {transferError}
                   </div>
                 )}
@@ -10103,14 +10103,14 @@ function FrontDeskTab() {
                 <div className="flex gap-3 pt-2">
                   <button
                     onClick={() => setTransferGuest(null)}
-                    className="flex-1 bg-white/12 hover:bg-white/18 border border-white/15 text-white/70 hover:text-white text-sm font-semibold py-2.5 rounded-xl transition-all"
+                    className="flex-1 bg-white/12 hover:bg-white/18 border border-white/15 text-white/70 hover:text-white text-[12px] font-semibold py-1.5 rounded-xl transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={submitTransfer}
                     disabled={!transferRoomNumber?.trim() || transferSubmitting}
-                    className="flex-1 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold py-2.5 rounded-xl transition-all"
+                    className="flex-1 bg-gradient-to-br from-[#55A2F5] to-[#2D72C0] hover:opacity-90 disabled:opacity-40 text-white text-[12px] font-bold py-1.5 rounded-xl transition-all"
                   >
                     {transferSubmitting
                       ? 'Moving…'
@@ -10132,12 +10132,12 @@ function FrontDeskTab() {
       {/* ── Folio Modal ── */}
       {folioOpen && folioRes && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setFolioOpen(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-start justify-between px-6 py-4 border-b border-gray-100">
               <div>
-                <h2 className="text-lg font-bold text-gray-900">Guest Folio</h2>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <h2 className="text-[14px] font-bold text-gray-900">Guest Folio</h2>
+                <p className="text-[12px] text-gray-500 mt-0.5">
                   {folioRes.full_name} &nbsp;&middot;&nbsp; Room {folioRes.room_number || '—'} &nbsp;&middot;&nbsp; {folioRes.room_type}
                 </p>
                 <p className="text-xs text-gray-400 mt-0.5">
@@ -10146,14 +10146,14 @@ function FrontDeskTab() {
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <button onClick={printFolio} title="Print folio"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-all">
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-all">
                   🖨 Print
                 </button>
                 <button onClick={sendFolioEmail} disabled={folioEmailSending} title="Email folio to guest"
-                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition-all disabled:opacity-50">
+                  className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-md transition-all disabled:opacity-50">
                   {folioEmailSending ? '...' : '✉ Email'}
                 </button>
-                <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none ml-1">&#10005;</button>
+                <button onClick={() => setFolioOpen(false)} className="text-gray-400 hover:text-gray-600 text-[16px] font-bold leading-none ml-1">&#10005;</button>
               </div>
             </div>
             {folioEmailMsg && (
@@ -10172,15 +10172,15 @@ function FrontDeskTab() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-blue-50 rounded-xl p-3 text-center">
                     <div className="text-xs text-blue-500 font-semibold uppercase tracking-wide mb-1">Total Charges</div>
-                    <div className="text-lg font-bold text-blue-700">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                    <div className="text-[14px] font-bold text-blue-700">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
                   <div className="bg-green-50 rounded-xl p-3 text-center">
                     <div className="text-xs text-green-500 font-semibold uppercase tracking-wide mb-1">Total Payments</div>
-                    <div className="text-lg font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                    <div className="text-[14px] font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
                   <div className={`rounded-xl p-3 text-center ${folioTotals.balance > 0 ? 'bg-red-50' : 'bg-gray-50'}`}>
                     <div className={`text-xs font-semibold uppercase tracking-wide mb-1 ${folioTotals.balance > 0 ? 'text-red-500' : 'text-gray-400'}`}>Balance Due</div>
-                    <div className={`text-lg font-bold ${folioTotals.balance > 0 ? 'text-red-600' : 'text-gray-500'}`}>&#8369;{Number(folioTotals.balance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                    <div className={`text-[14px] font-bold ${folioTotals.balance > 0 ? 'text-red-600' : 'text-gray-500'}`}>&#8369;{Number(folioTotals.balance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                   </div>
                 </div>
 
@@ -10188,13 +10188,13 @@ function FrontDeskTab() {
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Charges</h3>
                   <div className="border border-gray-100 rounded-xl overflow-hidden">
-                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
+                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-2 py-1.5 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
                       <span>Type</span><span>Description</span><span className="text-center">Qty</span><span className="text-right">Price</span><span className="text-right">Amount</span><span></span>
                     </div>
                     {folioItems.length === 0 ? (
-                      <div className="text-center text-gray-400 text-sm py-4">No charges posted yet</div>
+                      <div className="text-center text-gray-400 text-[12px] py-4">No charges posted yet</div>
                     ) : folioItems.map(item => (
-                      <div key={item.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${item.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
+                      <div key={item.id} className={`grid px-3 py-1.5 text-[12px] items-center border-b border-gray-50 last:border-0 ${item.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 2fr 50px 80px 80px 36px' }}>
                         <span className={`font-medium text-gray-700 ${item.voided ? 'line-through' : ''}`}>{item.charge_type}</span>
                         <span className={`text-gray-500 truncate ${item.voided ? 'line-through' : ''}`}>{item.description || '—'}</span>
                         <span className="text-center text-gray-500">{item.quantity}</span>
@@ -10208,22 +10208,22 @@ function FrontDeskTab() {
                       </div>
                     ))}
                     {folioItems.filter(i => !i.voided).length > 0 && (
-                      <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
+                      <div className="flex justify-end px-2 py-1.5 border-t border-gray-100 bg-gray-50">
                         <span className="text-xs text-gray-400 mr-2">Total Charges</span>
-                        <span className="text-sm font-bold text-gray-800">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                        <span className="text-[12px] font-bold text-gray-800">&#8369;{Number(folioTotals.charges).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
                       </div>
                     )}
                   </div>
                   <div className="mt-3 bg-blue-50 rounded-xl p-3 space-y-2">
                     <div className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Post Charge</div>
                     <div className="flex gap-2 flex-wrap">
-                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none">
+                      <select value={fcType} onChange={e => setFcType(e.target.value)} className="px-2 py-1.5 text-[12px] border border-blue-200 rounded-md bg-white text-gray-700 focus:outline-none">
                         {['Room Charge', 'Food & Beverage', 'Minibar', 'Laundry', 'Parking', 'Damage', 'Miscellaneous'].map(t => <option key={t}>{t}</option>)}
                       </select>
-                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-sm border border-blue-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors">
+                      <input type="text" value={fcDesc} onChange={e => setFcDesc(e.target.value)} placeholder="Description" className="flex-1 min-w-[100px] px-2 py-1.5 text-[12px] border border-blue-200 rounded-md bg-white text-gray-700 focus:outline-none" />
+                      <input type="number" value={fcQty} onChange={e => setFcQty(e.target.value)} min="1" placeholder="Qty" className="w-14 px-2 py-1.5 text-[12px] border border-blue-200 rounded-md bg-white text-gray-700 focus:outline-none" />
+                      <input type="number" value={fcPrice} onChange={e => setFcPrice(e.target.value)} placeholder="Unit Price" className="w-28 px-2 py-1.5 text-[12px] border border-blue-200 rounded-md bg-white text-gray-700 focus:outline-none" />
+                      <button onClick={addCharge} disabled={fcSaving} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-[12px] font-semibold rounded-md transition-colors">
                         {fcSaving ? '...' : '+ Add'}
                       </button>
                     </div>
@@ -10235,13 +10235,13 @@ function FrontDeskTab() {
                 <div>
                   <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Payments</h3>
                   <div className="border border-gray-100 rounded-xl overflow-hidden">
-                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-3 py-2 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
+                    <div className="grid text-xs font-semibold text-gray-400 uppercase tracking-wide px-2 py-1.5 bg-gray-50 border-b border-gray-100" style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
                       <span>Method</span><span>Reference</span><span>Date</span><span className="text-right">Amount</span><span></span>
                     </div>
                     {folioPayments.length === 0 ? (
-                      <div className="text-center text-gray-400 text-sm py-4">No payments recorded yet</div>
+                      <div className="text-center text-gray-400 text-[12px] py-4">No payments recorded yet</div>
                     ) : folioPayments.map(pay => (
-                      <div key={pay.id} className={`grid px-3 py-2.5 text-sm items-center border-b border-gray-50 last:border-0 ${pay.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
+                      <div key={pay.id} className={`grid px-3 py-1.5 text-[12px] items-center border-b border-gray-50 last:border-0 ${pay.voided ? 'opacity-40' : 'hover:bg-gray-50'}`} style={{ gridTemplateColumns: '1fr 1fr 100px 90px 36px' }}>
                         <span className={`font-medium text-gray-700 ${pay.voided ? 'line-through' : ''}`}>{pay.payment_method}</span>
                         <span className="text-gray-500 truncate">{pay.reference || '—'}</span>
                         <span className="text-gray-400 text-xs">{new Date(pay.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
@@ -10254,21 +10254,21 @@ function FrontDeskTab() {
                       </div>
                     ))}
                     {folioPayments.filter(p => !p.voided).length > 0 && (
-                      <div className="flex justify-end px-3 py-2 border-t border-gray-100 bg-gray-50">
+                      <div className="flex justify-end px-2 py-1.5 border-t border-gray-100 bg-gray-50">
                         <span className="text-xs text-gray-400 mr-2">Total Paid</span>
-                        <span className="text-sm font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
+                        <span className="text-[12px] font-bold text-green-700">&#8369;{Number(folioTotals.payments).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span>
                       </div>
                     )}
                   </div>
                   <div className="mt-3 bg-green-50 rounded-xl p-3 space-y-2">
                     <div className="text-xs font-semibold text-green-600 uppercase tracking-wide">Record Payment</div>
                     <div className="flex gap-2 flex-wrap">
-                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none">
+                      <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="px-2 py-1.5 text-[12px] border border-green-200 rounded-md bg-white text-gray-700 focus:outline-none">
                         {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Bank Transfer', 'Other'].map(m => <option key={m}>{m}</option>)}
                       </select>
-                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-sm border border-green-200 rounded-lg bg-white text-gray-700 focus:outline-none" />
-                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg transition-colors">
+                      <input type="number" value={fpAmount} onChange={e => setFpAmount(e.target.value)} placeholder="Amount" className="w-32 px-2 py-1.5 text-[12px] border border-green-200 rounded-md bg-white text-gray-700 focus:outline-none" />
+                      <input type="text" value={fpRef} onChange={e => setFpRef(e.target.value)} placeholder="Reference / Note" className="flex-1 min-w-[100px] px-2 py-1.5 text-[12px] border border-green-200 rounded-md bg-white text-gray-700 focus:outline-none" />
+                      <button onClick={addPayment} disabled={fpSaving} className="px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-[12px] font-semibold rounded-md transition-colors">
                         {fpSaving ? '...' : '+ Pay'}
                       </button>
                     </div>
@@ -10326,18 +10326,18 @@ function GuestsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-white/20 p-8 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+      <div className="rounded-xl border border-white/20 p-4 overflow-hidden" style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
         <div className="flex justify-between items-center mb-10">
           <div>
             <h2 className="text-2xl font-black text-white tracking-tight">Guest Directory</h2>
-            <p className="text-white/40 text-sm font-medium mt-1">Universal guest profiles and historical stay records</p>
+            <p className="text-white/40 text-[12px] font-medium mt-1">Universal guest profiles and historical stay records</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <div className="relative group">
-              <input type="text" value={guestSearch} onChange={e => setGuestSearch(e.target.value)} placeholder="Search name or email..." className="w-80 px-5 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white text-sm outline-none focus:border-[#55A2F5]/50 transition-all pl-12" />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-lg group-focus-within:text-[#55A2F5] transition-colors">🔍</span>
+              <input type="text" value={guestSearch} onChange={e => setGuestSearch(e.target.value)} placeholder="Search name or email..." className="w-80 px-5 py-3.5 bg-white/5 border border-white/10 rounded-xl text-white text-[12px] outline-none focus:border-[#55A2F5]/50 transition-all pl-12" />
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 text-[14px] group-focus-within:text-[#55A2F5] transition-colors">🔍</span>
             </div>
-            <button onClick={() => fetchGuests(guestSearch)} className="px-5 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/50 hover:text-white transition-all">↻</button>
+            <button onClick={() => fetchGuests(guestSearch)} className="px-5 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/50 hover:text-white transition-all">↻</button>
           </div>
         </div>
 
@@ -10355,11 +10355,11 @@ function GuestsTab() {
               const isLoading = historyLoading === g.email;
               return (
                 <div key={g.email} className={`rounded-3xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'bg-white/[0.08] border-white/25 shadow-2xl' : 'bg-white/[0.03] border-white/10 hover:border-white/20'}`}>
-                  <div className="flex items-center justify-between p-6 cursor-pointer" onClick={() => toggleHistory(g.email)}>
-                    <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl shadow-inner border border-white/5">👤</div>
+                  <div className="flex items-center justify-between p-4 cursor-pointer" onClick={() => toggleHistory(g.email)}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl shadow-inner border border-white/5">👤</div>
                       <div>
-                        <div className="text-lg font-black text-white">{g.full_name}</div>
+                        <div className="text-[14px] font-black text-white">{g.full_name}</div>
                         <div className="text-white/40 text-xs font-medium flex items-center gap-2 mt-1">
                           <span>{g.email}</span>
                           <span className="w-1 h-1 rounded-full bg-white/20"></span>
@@ -10370,11 +10370,11 @@ function GuestsTab() {
                     <div className="flex items-center gap-12">
                       <div className="text-right">
                         <div className="text-[10px] text-white/20 font-black uppercase tracking-[0.2em] mb-1">Total Stays</div>
-                        <div className="text-xl font-black text-[#55A2F5]">{g.total_bookings}</div>
+                        <div className="text-[16px] font-black text-[#55A2F5]">{g.total_bookings}</div>
                       </div>
                       <div className="text-right">
                         <div className="text-[10px] text-white/20 font-black uppercase tracking-[0.2em] mb-1">Last Stay</div>
-                        <div className="text-sm font-bold text-white/80">{fmtDate(g.last_booking)}</div>
+                        <div className="text-[12px] font-bold text-white/80">{fmtDate(g.last_booking)}</div>
                       </div>
                       <div className={`text-2xl transition-transform duration-300 ${isExpanded ? 'rotate-180 text-[#55A2F5]' : 'text-white/10'}`}>▾</div>
                     </div>
@@ -10382,7 +10382,7 @@ function GuestsTab() {
 
                   {isExpanded && (
                     <div className="px-8 pb-8 animate-in fade-in slide-in-from-top-4 duration-300">
-                      <div className="h-px bg-white/10 mb-8"></div>
+                      <div className="h-px bg-white/10 mb-4"></div>
                       {isLoading ? (
                         <div className="py-12 flex flex-col items-center gap-3">
                           <div className="w-8 h-8 border-2 border-[#55A2F5]/20 border-t-[#55A2F5] rounded-full animate-spin"></div>
@@ -10392,28 +10392,28 @@ function GuestsTab() {
                         <p className="text-xs text-white/30 italic py-4">No historical records found for this identity.</p>
                       ) : (
                         <div className="space-y-6">
-                          <div className="flex flex-wrap gap-6 p-5 rounded-2xl bg-white/[0.02] border border-white/5">
+                          <div className="flex flex-wrap gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5">
                             <div className="flex flex-col gap-1">
                               <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Email Identity</span>
-                              <span className="text-sm font-bold text-white/80">{g.email}</span>
+                              <span className="text-[12px] font-bold text-white/80">{g.email}</span>
                             </div>
                             <div className="flex flex-col gap-1">
                               <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">Contact Phone</span>
-                              <span className="text-sm font-bold text-white/80 font-mono">{g.phone_number || '—'}</span>
+                              <span className="text-[12px] font-bold text-white/80 font-mono">{g.phone_number || '—'}</span>
                             </div>
                             <div className="flex flex-col gap-1">
                               <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">First Registration</span>
-                              <span className="text-sm font-bold text-white/80">{fmtDate(g.first_booking)}</span>
+                              <span className="text-[12px] font-bold text-white/80">{fmtDate(g.first_booking)}</span>
                             </div>
                           </div>
 
-                          <div className="rounded-2xl border border-white/10 overflow-hidden bg-white/[0.01]">
-                            <div className="grid gap-4 px-6 py-3 bg-white/[0.03] border-b border-white/10 text-[9px] font-black text-white/30 uppercase tracking-[0.15em]" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
+                          <div className="rounded-xl border border-white/10 overflow-hidden bg-white/[0.01]">
+                            <div className="grid gap-2 px-6 py-3 bg-white/[0.03] border-b border-white/10 text-[9px] font-black text-white/30 uppercase tracking-[0.15em]" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
                               <span>Ref #</span><span>Room Category</span><span>Room</span><span>Arrival</span><span>Departure</span><span>Stay</span><span className="text-right">Status</span>
                             </div>
                             <div className="divide-y divide-white/[0.03]">
                               {history.map(bk => (
-                                <div key={bk.id} className="grid gap-4 px-6 py-4 text-xs items-center hover:bg-white/[0.02] transition-all" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
+                                <div key={bk.id} className="grid gap-2 px-6 py-4 text-xs items-center hover:bg-white/[0.02] transition-all" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
                                   <span className="text-[#55A2F5] font-mono font-black">#{bk.id}</span>
                                   <span className="text-white font-bold truncate">{bk.room_type}</span>
                                   <span className="text-white/60 font-mono">{bk.room_number || '—'}</span>
@@ -10421,7 +10421,7 @@ function GuestsTab() {
                                   <span className="text-white/40">{fmtDate(bk.check_out_date)}</span>
                                   <span className="text-white/20 text-[10px] font-bold uppercase">{nightsCount(bk)}</span>
                                   <div className="flex justify-end gap-2">
-                                    <button onClick={() => openFolio(bk)} className="px-3 py-1 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase tracking-widest text-[#55A2F5] rounded-lg transition-all border border-[#55A2F5]/10">Ledger</button>
+                                    <button onClick={() => openFolio(bk)} className="px-3 py-1 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase tracking-widest text-[#55A2F5] rounded-md transition-all border border-[#55A2F5]/10">Ledger</button>
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColors[bk.status]?.bg} ${statusColors[bk.status]?.text}`}>{statusLabel(bk.status)}</span>
                                   </div>
                                 </div>
@@ -10454,9 +10454,9 @@ function FolioModal({ folioOpen, folioRes, setFolioOpen, fmtDate, nightsCount, p
         {/* Header */}
         <div className="flex items-start justify-between px-8 py-6 border-b border-white/10 bg-white/[0.02]">
           <div>
-            <h2 className="text-xl font-black text-white tracking-tight">Guest Folio</h2>
+            <h2 className="text-[16px] font-black text-white tracking-tight">Guest Folio</h2>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm font-bold text-[#55A2F5]">{folioRes.full_name}</span>
+              <span className="text-[12px] font-bold text-[#55A2F5]">{folioRes.full_name}</span>
               <span className="w-1 h-1 rounded-full bg-white/20"></span>
               <span className="text-xs font-mono text-white/50">Room {folioRes.room_number || '—'}</span>
               <span className="w-1 h-1 rounded-full bg-white/20"></span>

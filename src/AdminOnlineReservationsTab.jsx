@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openWizard, roomTypes = [], rateCodes = [], promos = [] }) {
+export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openConfirmModal, openWizard, roomTypes = [], rateCodes = [], promos = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterChannel, setFilterChannel] = useState('All Channels');
@@ -82,40 +82,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
           guests: r.number_of_guests ? `${r.number_of_guests} Guest(s)` : '1 Adult',
           status: r.status,
           statusColor: getStatusColor(r.status),
-          total: (() => {
-            const nights = getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date);
-            const getRoomRate = (roomTypeName, rateCodeCode) => {
-              // 1. Check rate codes (e.g. corp rates)
-              if (rateCodeCode) {
-                const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
-                if (matchedRc && matchedRc.prices) {
-                  const priceObj = matchedRc.prices.find(p => p.room_type_name === roomTypeName);
-                  if (priceObj && priceObj.price_per_night) {
-                    return parseFloat(priceObj.price_per_night);
-                  }
-                }
-                // 2. Check promos (e.g. promo code like 'PRM')
-                const matchedPromo = promos.find(p => p.code === rateCodeCode);
-                if (matchedPromo && matchedPromo.prices) {
-                  const priceObj = matchedPromo.prices.find(p => p.room_type_name === roomTypeName);
-                  if (priceObj && priceObj.price_per_night) {
-                    return parseFloat(priceObj.price_per_night);
-                  }
-                }
-              }
-              // 3. Fall back to standard room type price
-              const matched = roomTypes.find(rt => rt.name === roomTypeName);
-              if (matched) return parseFloat(matched.price_per_night);
-              // 4. Last-resort hardcoded fallbacks
-              const type = (roomTypeName || '').toLowerCase();
-              if (type.includes('presidential')) return 25000;
-              if (type.includes('suite')) return 9000;
-              if (type.includes('family')) return 6500;
-              if (type.includes('deluxe')) return 4500;
-              return 2500;
-            };
-            return `₱${(nights * getRoomRate(r.room_type || r.service_name || 'Standard Room', r.rate_code)).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
-          })()
+          total: r.deposit_amount ? `₱${parseFloat(r.deposit_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '₱0.00'
         };
       });
   }, [reservations, searchQuery, filterStatus, filterChannel, roomTypes, rateCodes, promos]);
@@ -155,19 +122,19 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
       <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden">
         
         {/* Header bar */}
-        <div className="px-8 py-5 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
+        <div className="px-6 py-3 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
           <div>
             <h2 className="text-[#000000]/87 font-black text-[22px] tracking-tight leading-tight">Online Reservations</h2>
             <p className="text-black/60 text-[13px] mt-0.5 font-medium">View and manage all reservations made through your website and booking channels.</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm cursor-pointer hover:bg-gray-50 font-medium">
+            <div className="flex items-center gap-2 px-4 py-2 bg-white border border-black/10 rounded-md text-xs text-black shadow-sm cursor-pointer hover:bg-gray-50 font-medium">
               <span className="text-black/50 text-[10px] uppercase font-bold mr-1">Date Range</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/60"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               <span>{new Date().toLocaleDateString('en-US', {month: 'short', day: 'numeric', year: 'numeric'})}</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-1 text-black/40"><path d="M6 9l6 6 6-6"/></svg>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#005530] hover:bg-[#004420] text-white rounded-lg text-[13px] font-bold shadow-sm transition-colors">
+            <button className="flex items-center gap-2 px-4 py-2 bg-[#005530] hover:bg-[#004420] text-white rounded-md text-[13px] font-bold shadow-sm transition-colors">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.6 5.6"/></svg>
               <span>Refresh</span>
             </button>
@@ -175,12 +142,12 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8 flex flex-col">
-          <div className="max-w-[1500px] mx-auto w-full h-full flex flex-col gap-6">
+        <div className="flex-1 overflow-y-auto p-3 flex flex-col">
+          <div className="max-w-[1500px] mx-auto w-full h-full flex flex-col gap-3">
 
             {/* Top Stat Cards */}
-            <div className="grid grid-cols-5 gap-4 shrink-0">
-              <div className="bg-white rounded-xl border border-black/5 p-5 shadow-sm flex items-center justify-between">
+            <div className="grid grid-cols-5 gap-3 shrink-0">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-center justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-1">TOTAL ONLINE RESERVATIONS</h4>
                   <div className="text-[28px] font-black leading-none mb-1">{statsDerived.total}</div>
@@ -190,7 +157,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-xl border border-black/5 p-5 shadow-sm flex items-center justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-center justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-1">CONFIRMED</h4>
                   <div className="text-[28px] font-black leading-none mb-1">{statsDerived.confirmed}</div>
@@ -200,7 +167,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-xl border border-black/5 p-5 shadow-sm flex items-center justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-center justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-1">PENDING</h4>
                   <div className="text-[28px] font-black leading-none mb-1">{statsDerived.pending}</div>
@@ -210,7 +177,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-xl border border-black/5 p-5 shadow-sm flex items-center justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-center justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-1">AWAITING PAYMENT</h4>
                   <div className="text-[28px] font-black leading-none mb-1">{statsDerived.awaiting}</div>
@@ -220,7 +187,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6366F1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
               </div>
-              <div className="bg-white rounded-xl border border-black/5 p-5 shadow-sm flex items-center justify-between">
+              <div className="bg-white rounded-xl border border-black/5 p-3 shadow-sm flex items-center justify-between">
                 <div>
                   <h4 className="text-[10px] font-bold text-black/60 uppercase tracking-widest mb-1">TOTAL REVENUE</h4>
                   <div className="text-[22px] text-[#00005C] font-black leading-none mb-2">₱{statsDerived.totalRevenue}</div>
@@ -236,31 +203,31 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
             <div className="bg-white rounded-xl shadow-sm border border-black/5 flex-1 flex flex-col min-h-0">
               
               {/* Toolbar */}
-              <div className="p-4 border-b border-black/5 flex items-center justify-between gap-4 shrink-0">
+              <div className="p-3 border-b border-black/5 flex items-center justify-between gap-3 shrink-0">
                 <div className="flex items-center gap-3 flex-1">
                   <div className="relative w-[320px]">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     </div>
                     <input type="text" placeholder="Search guest name, email, or confirmation no." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                      className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40" />
+                      className="pl-9 pr-4 py-2 border border-black/10 rounded-md text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40" />
                   </div>
-                  <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8">
+                  <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium bg-white pr-8">
                     <option>All Status</option>
                     <option value="confirmed">Confirmed</option>
                     <option value="pending">Pending</option>
                     <option value="cancelled">Cancelled</option>
                   </select>
-                  <select value={filterChannel} onChange={e => setFilterChannel(e.target.value)} className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8">
+                  <select value={filterChannel} onChange={e => setFilterChannel(e.target.value)} className="border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium bg-white pr-8">
                     <option>All Channels</option>
                     <option>Direct Website</option>
                   </select>
-                  <button className="flex items-center gap-2 border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50">
+                  <button className="flex items-center gap-2 border border-black/10 rounded-md text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                     More Filters
                   </button>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50">
+                <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-md text-[13px] font-medium text-black/80 hover:bg-gray-50">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Export
                 </button>
@@ -271,67 +238,67 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                 <table className="w-full text-left text-[12px] relative">
                   <thead className="sticky top-0 z-10">
                     <tr className="border-b border-black/5 bg-gray-50/95 backdrop-blur-sm">
-                      <th className="px-5 py-4 w-10">
+                      <th className="px-2 py-1.5 w-10">
                         <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
                       </th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CONFIRMATION NO.</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">GUEST</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHANNEL</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">ROOM / RATE PLAN</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-IN</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-OUT</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">NIGHTS</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">GUESTS</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60">STATUS</th>
-                      <th className="px-4 py-4 font-black uppercase tracking-widest text-[10px] text-black/60 text-right">TOTAL AMOUNT</th>
-                      <th className="px-5 py-4 font-black uppercase tracking-widest text-[10px] text-black/60 text-center">ACTIONS</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">CONFIRMATION NO.</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">GUEST</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">CHANNEL</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">ROOM / RATE PLAN</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-IN</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">CHECK-OUT</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">NIGHTS</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">GUESTS</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60">STATUS</th>
+                      <th className="px-2.5 py-2 font-black uppercase tracking-widest text-[10px] text-black/60 text-right">TOTAL PAYMENT (DEPOSIT)</th>
+                      <th className="px-2 py-1.5 font-black uppercase tracking-widest text-[10px] text-black/60 text-center">ACTIONS</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/5">
                     {displayReservations.length === 0 ? (
-                      <tr><td colSpan="12" className="text-center py-8 text-black/50">No reservations found.</td></tr>
+                      <tr><td colSpan="12" className="text-center py-4 text-black/50">No reservations found.</td></tr>
                     ) : displayReservations.map((res, i) => (
                       <tr key={res.dbId} className={`transition-colors ${res.isNoShowWarning ? 'bg-rose-50 hover:bg-rose-100/70 border-b border-rose-100' : 'hover:bg-gray-50/50'}`}>
-                        <td className="px-5 py-4">
+                        <td className="px-2 py-1.5">
                           <input type="checkbox" className="rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]" />
                         </td>
-                        <td className="px-4 py-4 align-top">
+                        <td className="px-2.5 py-2 align-top">
                           <div className="font-bold text-[#00754A]">{res.id}</div>
                           <div className="text-[10px] text-black/40 mt-0.5">Booked: {res.booked}</div>
                         </td>
-                        <td className="px-4 py-4 align-top">
+                        <td className="px-2.5 py-2 align-top">
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-black/80">{res.guest}</span>
                             {res.vip && <span className="bg-amber-100 text-amber-700 text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">VIP</span>}
                           </div>
                           <div className="text-[11px] text-black/50 mt-0.5">{res.email}</div>
                         </td>
-                        <td className="px-4 py-4 align-top">
+                        <td className="px-2.5 py-2 align-top">
                           <div className="flex items-center gap-2">
                             {renderChannelIcon(res.channelIcon)}
                             <span className="font-medium text-black/80">{res.channel}</span>
                           </div>
                         </td>
-                        <td className="px-4 py-4 align-top">
+                        <td className="px-2.5 py-2 align-top">
                           <div className="font-bold text-black/80">{res.room}</div>
                           <div className="text-[11px] text-black/50 mt-0.5">{res.ratePlan}</div>
                         </td>
-                        <td className="px-4 py-4 align-top">
+                        <td className="px-2.5 py-2 align-top">
                           <div className="font-medium text-black/80">{res.checkIn}</div>
                           <div className={`text-[11px] font-medium mt-0.5 ${res.isNoShowWarning ? 'text-rose-600 font-bold' : 'text-emerald-600'}`}>{res.checkInHint}</div>
                         </td>
-                        <td className="px-4 py-4 align-top">
+                        <td className="px-2.5 py-2 align-top">
                           <div className="font-medium text-black/80">{res.checkOut}</div>
                         </td>
-                        <td className="px-4 py-4 align-top font-medium text-black/80">{res.nights}</td>
-                        <td className="px-4 py-4 align-top font-medium text-black/80">
+                        <td className="px-2.5 py-2 align-top font-medium text-black/80">{res.nights}</td>
+                        <td className="px-2.5 py-2 align-top font-medium text-black/80">
                           {res.guests}
                         </td>
-                        <td className="px-4 py-4 align-top">
+                        <td className="px-2.5 py-2 align-top">
                           <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${res.statusColor}`}>{res.status}</span>
                         </td>
-                        <td className="px-4 py-4 align-top text-right font-bold text-black/80">{res.total}</td>
-                        <td className="px-5 py-4 align-top text-right relative">
+                        <td className="px-2.5 py-2 align-top text-right font-bold text-black/80">{res.total}</td>
+                        <td className="px-2 py-1.5 align-top text-right relative">
                           <button 
                             onClick={() => setOpenDropdown(openDropdown === res.dbId ? null : res.dbId)}
                             className="p-1.5 border border-black/10 rounded hover:bg-gray-100 text-black/60 transition-colors"
@@ -340,7 +307,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                           </button>
                           
                           {openDropdown === res.dbId && (
-                            <div className="absolute right-8 top-10 mt-1 w-40 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+                            <div className="absolute right-8 top-10 mt-1 w-40 bg-white border border-black/10 rounded-md shadow-lg z-50 py-1 overflow-hidden">
                               {(res.status === 'pending' || res.status === 'Pending' || res.status === 'confirmed' || res.status === 'Confirmed') && openWizard && (
                                 <button 
                                   onClick={() => { openWizard(res.originalRes); setOpenDropdown(null); }}
@@ -352,11 +319,20 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                               )}
                               {(res.status === 'pending' || res.status === 'Pending') && (
                                 <button 
-                                  onClick={() => { updateStatus && updateStatus(res.dbId, 'confirmed'); setOpenDropdown(null); }}
+                                  onClick={() => { openConfirmModal && openConfirmModal(res.originalRes); setOpenDropdown(null); }}
                                   className="w-full px-4 py-2 text-left text-[12px] font-medium text-blue-600 hover:bg-blue-50 flex items-center gap-2"
                                 >
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                   Confirm Booking
+                                </button>
+                              )}
+                              {(res.status === 'confirmed' || res.status === 'Confirmed') && (
+                                <button 
+                                  onClick={() => { updateStatus && updateStatus(res.dbId, 'pending', ''); setOpenDropdown(null); }}
+                                  className="w-full px-4 py-2 text-left text-[12px] font-medium text-amber-600 hover:bg-amber-50 flex items-center gap-2"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12a10 10 0 1 0 10-10"></path><path d="M12 2v4"></path><path d="M12 8h.01"></path></svg>
+                                  Mark as Pending
                                 </button>
                               )}
                               {(res.status === 'pending' || res.status === 'Pending' || res.status === 'confirmed' || res.status === 'Confirmed') && (
@@ -368,6 +344,16 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                                   Cancel Booking
                                 </button>
                               )}
+                                {(res.status === 'cancelled') && deleteReservation && (
+                                  <button 
+                                    onClick={() => { deleteReservation(res.dbId); setOpenDropdown(null); }}
+                                    className="w-full px-4 py-2 text-left text-[12px] font-bold text-red-700 hover:bg-red-50 flex items-center gap-2"
+                                  >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                    Delete Booking
+                                  </button>
+                                )}
+
                               {res.isNoShowWarning && res.status !== 'no_show' && (
                                 <button 
                                   onClick={() => { updateStatus && updateStatus(res.dbId, 'no_show'); setOpenDropdown(null); }}
@@ -395,12 +381,12 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
               </div>
 
               {/* Pagination */}
-              <div className="px-6 py-4 border-t border-black/5 flex items-center justify-between text-[13px] shrink-0 bg-white">
+              <div className="px-4 py-2 border-t border-black/5 flex items-center justify-between text-[13px] shrink-0 bg-white">
                 <div className="text-black/50 font-medium">
                   Showing 1 to {displayReservations.length} of {displayReservations.length} entries
                 </div>
-                <div className="flex items-center gap-4">
-                  <select className="border border-black/10 rounded-lg px-2 py-1 outline-none text-black/80 font-medium bg-white">
+                <div className="flex items-center gap-3">
+                  <select className="border border-black/10 rounded-md px-2 py-1 outline-none text-black/80 font-medium bg-white">
                     <option>10 per page</option>
                   </select>
                 </div>
@@ -408,17 +394,17 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
             </div>
 
             {/* Bottom Footer Info */}
-            <div className="bg-[#F0F7FD] border border-[#BDE0FE] rounded-xl p-5 flex items-center gap-8 shadow-sm shrink-0">
-              <div className="flex gap-4 items-start flex-1">
+            <div className="bg-[#F0F7FD] border border-[#BDE0FE] rounded-xl p-3 flex items-center gap-3 shadow-sm shrink-0">
+              <div className="flex gap-3 items-start flex-1">
                 <div className="w-6 h-6 rounded-full bg-blue-500 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="font-serif italic text-sm font-bold">i</span>
+                  <span className="font-serif italic text-[12px] font-bold">i</span>
                 </div>
                 <div>
-                  <h4 className="font-bold text-[#00005C] text-sm mb-1">About Online Reservations</h4>
+                  <h4 className="font-bold text-[#00005C] text-[12px] mb-1">About Online Reservations</h4>
                   <p className="text-blue-800 text-[13px]">These reservations are received from your website and connected booking channels.</p>
                 </div>
               </div>
-              <div className="flex items-center gap-6 shrink-0 text-[12px]">
+              <div className="flex items-center gap-3 shrink-0 text-[12px]">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded border bg-white flex items-center justify-center shrink-0">
                     {renderChannelIcon('globe')}

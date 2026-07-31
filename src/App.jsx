@@ -196,53 +196,53 @@ function AdminBillingTab({
 
       {/* Top Header */}
       <div className="bg-white border-b border-black/10 px-8 py-5 shrink-0">
-        <div className="flex justify-between items-end mb-6">
+        <div className="flex justify-between items-end mb-3">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-[#111]">Billing</h1>
             <p className="text-black/50 text-xs font-medium mt-1">Manage guest folios, charges and payments</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <div className="relative">
-              <input type="text" placeholder="Search guest, room, or reservation..." className="pl-4 pr-10 py-2 w-72 text-xs border border-black/10 rounded-lg outline-none focus:border-[#00754A]" />
+              <input type="text" placeholder="Search guest, room, or reservation..." className="pl-4 pr-10 py-2 w-72 text-xs border border-black/10 rounded-md outline-none focus:border-[#00754A]" />
               <Search className="w-4 h-4 text-black/40 absolute right-3 top-2" />
             </div>
             <button className="relative w-8 h-8 rounded-full border border-black/10 flex items-center justify-center text-black/60 hover:text-black hover:bg-black/5">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
               <span className="absolute top-0 right-0 w-3 h-3 bg-[#00754A] border-2 border-white rounded-full"></span>
             </button>
-            <button className="flex items-center gap-1.5 bg-[#1E3932] hover:bg-[#142b22] text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">
+            <button className="flex items-center gap-1.5 bg-[#1E3932] hover:bg-[#142b22] text-white px-4 py-2 rounded-md text-xs font-bold transition-colors">
               <Plus className="w-3.5 h-3.5" /> Add Charge
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-8 -mb-5">
+        <div className="flex items-center gap-2 -mb-3">
           {['Guest Billing', 'Invoices', 'Payments', 'City Ledger', 'Cashier Shift', 'Taxes & Discounts'].map(tab => (
             <button key={tab} onClick={() => setBillingTab(tab)}
-              className={`pb-4 text-xs font-bold transition-colors border-b-2 ${billingTab === tab ? 'border-[#00754A] text-[#00754A]' : 'border-transparent text-black/60 hover:text-black'}`}>
+              className={`pb-2 text-xs font-bold transition-colors border-b-2 ${billingTab === tab ? 'border-[#00754A] text-[#00754A]' : 'border-transparent text-black/60 hover:text-black'}`}>
               {tab}
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden p-6 gap-6">
+      <div className="flex-1 flex overflow-hidden p-4 gap-3">
 
         {/* Left Panel: Guest Search & List */}
-        <div className="w-[300px] shrink-0 flex flex-col gap-6">
+        <div className="w-[300px] shrink-0 flex flex-col gap-3">
 
-          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-5">
+          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-3">
             <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest mb-4">Search Guest</h3>
             <div className="space-y-4">
               <div className="relative">
                 <input type="text" placeholder="Search guest name, room no. or folio no." value={searchQ} onChange={e => setSearchQ(e.target.value)}
-                  className="w-full pl-3 pr-8 py-2.5 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none focus:border-[#00754A]" />
+                  className="w-full pl-3 pr-8 py-1.5 bg-[#fcfcfc] border border-black/10 rounded-md text-[11px] outline-none focus:border-[#00754A]" />
                 <Search className="w-3.5 h-3.5 text-black/40 absolute right-3 top-3" />
               </div>
               <div>
                 <label className="block text-[10px] text-black/50 font-bold mb-1">Status</label>
-                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full py-2.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none">
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="w-full py-1.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-md text-[11px] outline-none">
                   <option value="All">All</option>
                   <option value="In-House">In-House</option>
                   <option value="Checked-Out">Checked-Out</option>
@@ -251,15 +251,15 @@ function AdminBillingTab({
               </div>
               <div>
                 <label className="block text-[10px] text-black/50 font-bold mb-1">Payment Status</label>
-                <select className="w-full py-2.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-lg text-[11px] outline-none">
+                <select className="w-full py-1.5 px-3 bg-[#fcfcfc] border border-black/10 rounded-md text-[11px] outline-none">
                   <option>All</option>
                   <option>Outstanding</option>
                   <option>Paid</option>
                 </select>
               </div>
               <div className="flex gap-2 pt-2">
-                <button className="flex-1 py-2 text-[11px] font-bold text-black/60 bg-black/5 rounded-lg hover:bg-black/10">Reset</button>
-                <button className="flex-1 py-2 text-[11px] font-bold text-white bg-[#00754A] rounded-lg hover:bg-[#006241]">Search</button>
+                <button className="flex-1 py-2 text-[11px] font-bold text-black/60 bg-black/5 rounded-md hover:bg-black/10">Reset</button>
+                <button className="flex-1 py-2 text-[11px] font-bold text-white bg-[#00754A] rounded-md hover:bg-[#006241]">Search</button>
               </div>
             </div>
           </div>
@@ -279,7 +279,7 @@ function AdminBillingTab({
                     <div className="flex justify-between items-start mb-1">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-[#111] text-xs">{r.room_number || 'TBA'}</span>
-                        <span className="font-bold text-black/80 text-xs truncate max-w-[100px]">{r.full_name}</span>
+                        <span className="font-bold text-black/80 text-xs truncate max-w-[100px]">{r.full_name}{r.is_vip && <span className="text-[10px] text-yellow-600 font-bold ml-1.5 whitespace-nowrap" title="VIP Guest">★ VIP</span>}{r.is_repeat && <span className="text-[10px] text-blue-600 font-bold ml-1.5 whitespace-nowrap" title="Repeat Guest">↺ REPEAT</span>}</span>
                         <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider ${r.status === 'In-House' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>{r.status}</span>
                       </div>
                       <span className={`text-xs font-bold ${bal > 0 ? 'text-red-600' : 'text-[#00754A]'}`}>{fmtA(bal)}</span>
@@ -303,26 +303,26 @@ function AdminBillingTab({
           {folioRes ? (
             <>
               {/* Guest Header */}
-              <div className="p-6 border-b border-black/5 shrink-0">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-[#f0f0f0] flex items-center justify-center text-lg font-bold text-black border border-black/10">
+              <div className="p-4 border-b border-black/5 shrink-0">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-12 h-12 rounded-full bg-[#f0f0f0] flex items-center justify-center text-[14px] font-bold text-black border border-black/10">
                       {initials}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-[#111]">{folioRes.full_name}</h2>
+                        <h2 className="text-[16px] font-bold text-[#111]">{folioRes.full_name}</h2>
                         <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-green-100 text-green-700 uppercase tracking-widest">{folioRes.status}</span>
                         <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-700 uppercase tracking-widest">VIP</span>
                       </div>
                     </div>
                   </div>
-                  <button className="px-4 py-1.5 border border-black/10 rounded-lg text-[11px] font-bold hover:bg-black/5 flex items-center gap-1.5">
+                  <button className="px-4 py-1.5 border border-black/10 rounded-md text-[11px] font-bold hover:bg-black/5 flex items-center gap-1.5">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg> Edit
                   </button>
                 </div>
 
-                <div className="grid grid-cols-6 gap-4 text-xs">
+                <div className="grid grid-cols-6 gap-2 text-xs">
                   <div>
                     <div className="text-black/50 text-[9px] font-bold uppercase tracking-widest mb-0.5 flex items-center gap-1"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg> Room</div>
                     <div className="font-bold">{folioRes.room_number || 'TBA'}</div>
@@ -352,7 +352,7 @@ function AdminBillingTab({
               </div>
 
               {/* Folio Tabs */}
-              <div className="px-6 flex gap-6 border-b border-black/5 shrink-0 bg-[#fbfcfc]">
+              <div className="px-6 flex gap-3 border-b border-black/5 shrink-0 bg-[#fbfcfc]">
                 {['Folio', 'Stay Details', 'Payments', 'Deposits', 'Notes', 'Documents', 'Audit Trail'].map(tab => (
                   <button key={tab} className={`py-3 text-[11px] font-bold border-b-2 transition-colors ${tab === 'Folio' ? 'border-[#00754A] text-[#00754A]' : 'border-transparent text-black/60 hover:text-black'}`}>
                     {tab}
@@ -409,9 +409,9 @@ function AdminBillingTab({
                 </div>
 
                 {/* Folio Summary Block */}
-                <div className="p-6 bg-[#fbfcfc] border-t border-black/5 shrink-0">
+                <div className="p-4 bg-[#fbfcfc] border-t border-black/5 shrink-0">
                   <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest mb-4">Folio Summary</h3>
-                  <div className="flex items-center gap-8">
+                  <div className="flex items-center gap-2">
                     <div className="flex-1 space-y-2">
                       <div className="flex justify-between text-xs"><span className="text-black/60">Total Charges</span><span className="font-bold">{fmtA(folioTotals.charges)}</span></div>
                       <div className="flex justify-between text-xs"><span className="text-black/60">Total Payments</span><span className="font-bold">{fmtA(folioTotals.payments)}</span></div>
@@ -432,49 +432,49 @@ function AdminBillingTab({
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center text-black/40">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-4 opacity-50"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-              <h2 className="text-lg font-bold text-black/60">No Guest Selected</h2>
+              <h2 className="text-[14px] font-bold text-black/60">No Guest Selected</h2>
               <p className="text-xs">Select a guest from the list to view their folio and billing details.</p>
             </div>
           )}
         </div>
 
         {/* Right Panel: Quick Actions & Summaries */}
-        <div className="w-[260px] shrink-0 flex flex-col gap-6 overflow-y-auto no-scrollbar">
+        <div className="w-[260px] shrink-0 flex flex-col gap-3 overflow-y-auto no-scrollbar">
 
           <div className="space-y-4">
             <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Quick Actions</h3>
             <div className="space-y-2">
-              <button onClick={() => setAddChargeOpen(true)} className="w-full flex items-center gap-3 p-3 bg-[#1E3932] text-white rounded-lg hover:bg-[#142b22] transition-colors text-xs font-bold shadow-sm">
+              <button onClick={() => setAddChargeOpen(true)} className="w-full flex items-center gap-3 p-3 bg-[#1E3932] text-white rounded-md hover:bg-[#142b22] transition-colors text-xs font-bold shadow-sm">
                 <Plus className="w-4 h-4" /> Add Charge
               </button>
-              <button onClick={() => setAddPayOpen(o => !o)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={() => setAddPayOpen(o => !o)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg> Add Payment
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg> Refund
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg> Add Deposit
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20V10M18 20V4M6 20v-4" /></svg> Discount / Adjustment
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <X className="w-4 h-4" /> Void Transaction
               </button>
-              <button onClick={sendFolioEmail} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={sendFolioEmail} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg> Email Folio
               </button>
-              <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><path d="M6 14h12v8H6z" /></svg> Print Folio
               </button>
-              <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-lg hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={printFolio} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg> Download PDF
               </button>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-5 space-y-4 mt-2">
+          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-3 space-y-4 mt-2">
             <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Today's Summary</h3>
             <div className="space-y-3 text-xs">
               <div className="flex justify-between"><span className="text-black/60">Total Charges</span><span className="font-medium">{fmtA(totalCharges)}</span></div>
@@ -484,7 +484,7 @@ function AdminBillingTab({
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-5 space-y-4">
+          <div className="bg-white rounded-xl shadow-sm border border-black/5 p-3 space-y-4">
             <h3 className="text-[10px] font-black text-[#00754A] uppercase tracking-widest">Payment Methods (Today)</h3>
             <div className="space-y-3 text-xs">
               {paymentMethods.length > 0 ? (
@@ -505,23 +505,23 @@ function AdminBillingTab({
 
       {addChargeOpen && (
         <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-bold mb-4">Add Charge</h3>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4">Add Charge</h3>
             <div className="space-y-4">
-              <select value={fcType} onChange={e => setFcType(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
+              <select value={fcType} onChange={e => setFcType(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
                 <option value="Room Charge">Room Charge</option>
                 <option value="Food & Beverage">Food & Beverage</option>
                 <option value="Mini Bar">Mini Bar</option>
                 <option value="Laundry">Laundry</option>
               </select>
-              <input type="text" placeholder="Description" value={fcDesc} onChange={e => setFcDesc(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
-              <div className="flex gap-4">
-                <input type="number" placeholder="Qty" value={fcQty} onChange={e => setFcQty(e.target.value)} className="w-20 border rounded-lg p-2 text-sm" />
-                <input type="number" placeholder="Price" value={fcPrice} onChange={e => setFcPrice(e.target.value)} className="flex-1 border rounded-lg p-2 text-sm" />
+              <input type="text" placeholder="Description" value={fcDesc} onChange={e => setFcDesc(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <div className="flex gap-2">
+                <input type="number" placeholder="Qty" value={fcQty} onChange={e => setFcQty(e.target.value)} className="w-20 border rounded-md p-2 text-[12px]" />
+                <input type="number" placeholder="Price" value={fcPrice} onChange={e => setFcPrice(e.target.value)} className="flex-1 border rounded-md p-2 text-[12px]" />
               </div>
               <div className="flex gap-3 pt-4">
-                <button onClick={() => setAddChargeOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
-                <button onClick={handleAddCharge} disabled={fcSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fcSaving ? 'Saving...' : 'Post Charge'}</button>
+                <button onClick={() => setAddChargeOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddCharge} disabled={fcSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fcSaving ? 'Saving...' : 'Post Charge'}</button>
               </div>
             </div>
           </div>
@@ -530,17 +530,17 @@ function AdminBillingTab({
 
       {addPayOpen && (
         <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-bold mb-4">Post Payment</h3>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4">Post Payment</h3>
             <div className="space-y-4">
-              <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="w-full border rounded-lg p-2 text-sm">
+              <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
                 {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Maya', 'Bank Transfer'].map(m => <option key={m}>{m}</option>)}
               </select>
-              <input type="number" placeholder="Amount (₱)" value={fpAmount} onChange={e => setFpAmount(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
-              <input type="text" placeholder="Reference No. (Optional)" value={fpRef} onChange={e => setFpRef(e.target.value)} className="w-full border rounded-lg p-2 text-sm" />
+              <input type="number" placeholder="Amount (₱)" value={fpAmount} onChange={e => setFpAmount(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <input type="text" placeholder="Reference No. (Optional)" value={fpRef} onChange={e => setFpRef(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
               <div className="flex gap-3 pt-4">
-                <button onClick={() => setAddPayOpen(false)} className="flex-1 py-2 rounded-lg text-sm font-bold bg-black/5 hover:bg-black/10">Cancel</button>
-                <button onClick={handleAddPayment} disabled={fpSaving} className="flex-1 py-2 rounded-lg text-sm font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving ? 'Saving...' : 'Post Payment'}</button>
+                <button onClick={() => setAddPayOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddPayment} disabled={fpSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving ? 'Saving...' : 'Post Payment'}</button>
               </div>
             </div>
           </div>
@@ -1079,7 +1079,7 @@ export default function RestaurantApp() {
         </aside>
       )}
 
-      <div className={`min-h-screen pb-16 md:pb-0 print:!ml-0 ${showAdminSidebar ? 'ml-[150px]' : 'ml-0'}`} style={{ position: 'relative', zIndex: 1 }}>
+      <div className={`min-h-screen pb-16 md:pb-0 print:!ml-0 ${showAdminSidebar ? 'ml-[120px]' : 'ml-0'}`} style={{ position: 'relative', zIndex: 1 }}>
         {!['admin', 'frontdesk', 'checkin', 'queue', 'queue-teller'].includes(currentPage) && (
           <div className={currentPage === 'booking' ? 'hidden sm:block' : ''}>
             <Header
@@ -1151,7 +1151,7 @@ export default function RestaurantApp() {
             <svg viewBox="0 0 36 36" className="w-8 h-8" fill="currentColor">
               <path d="M18 2C9.163 2 2 8.795 2 17.177c0 4.772 2.375 8.98 6.064 11.834v5.352c0 .762.839 1.218 1.488.81l5.412-3.393c.96.262 1.97.4 3.036.4 8.837 0 16-6.795 16-15.18C34 8.796 26.837 2 18 2zm1.096 20.443-3.327-3.553-6.49 3.553 7.158-7.614 3.395 3.553 6.425-3.553-7.161 7.614z" />
             </svg>
-            <span className="absolute right-full mr-4 bg-white text-black/80 text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <span className="absolute right-full mr-4 bg-white text-black/80 text-xs font-bold px-3 py-1.5 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Chat with us
             </span>
           </a>
@@ -1200,18 +1200,18 @@ export default function RestaurantApp() {
                 }}
               >
                 {/* Inner White Box */}
-                <div className="bg-white w-full h-full rounded-xl p-6 md:p-8 flex flex-col justify-between relative">
+                <div className="bg-white w-full h-full rounded-xl p-4 md:p-4 flex flex-col justify-between relative">
 
                   <div className="flex justify-between items-start mt-2">
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-gray-800 tracking-[0.2em] uppercase">Special Offer</span>
+                      <span className="text-[12px] font-bold text-gray-800 tracking-[0.2em] uppercase">Special Offer</span>
 
                       {latestPromo.prices && latestPromo.prices.length > 0 ? (
                         <>
                           <span className="text-6xl md:text-7xl font-black text-gray-800 mt-2 leading-none tracking-tighter">
                             ₱{Math.min(...latestPromo.prices.map(p => parseFloat(p.price_per_night)))}
                           </span>
-                          <span className="text-xl font-bold text-gray-600 mt-2 tracking-wide uppercase">{latestPromo.name}</span>
+                          <span className="text-[16px] font-bold text-gray-600 mt-2 tracking-wide uppercase">{latestPromo.name}</span>
                         </>
                       ) : (
                         <span className="text-5xl md:text-6xl font-black text-gray-800 mt-2 leading-none uppercase">{latestPromo.name}</span>
@@ -1234,7 +1234,7 @@ export default function RestaurantApp() {
                     </div>
                   </div>
 
-                  <div className="border-t-[3px] border-gray-800 mt-6 pt-5 flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="border-t-[3px] border-gray-800 mt-6 pt-5 flex flex-col md:flex-row items-center justify-between gap-2">
                     <div className="text-xs text-gray-500 font-medium w-full md:w-[65%]">
                       <p className="mb-3">{latestPromo.description}</p>
                       {/* Promo rates list inline */}
@@ -1287,7 +1287,7 @@ function SizeModal({ product, onClose, onSelectSize }) {
         }
       }}
     >
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-4 relative animate-fadeIn">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-all"
@@ -1296,17 +1296,17 @@ function SizeModal({ product, onClose, onSelectSize }) {
         </button>
 
         <h2 className="text-2xl font-black text-green-600 mb-2">Select Size</h2>
-        <p className="text-gray-600 font-bold mb-6">{product.name}</p>
+        <p className="text-gray-600 font-bold mb-3">{product.name}</p>
 
         <div className="space-y-3">
           {product.sizes.map((size) => (
             <button
               key={size.name}
               onClick={() => onSelectSize(size)}
-              className="w-full bg-gray-50 hover:bg-green-50 border-2 border-gray-200 hover:border-green-600 rounded-lg p-4 flex items-center justify-between transition-all group"
+              className="w-full bg-gray-50 hover:bg-green-50 border-2 border-gray-200 hover:border-green-600 rounded-md p-4 flex items-center justify-between transition-all group"
             >
               <span className="font-bold text-gray-800 group-hover:text-green-600">{size.name}</span>
-              <span className="text-xl font-black text-green-600">Php {size.price.toFixed(2)}</span>
+              <span className="text-[16px] font-black text-green-600">Php {size.price.toFixed(2)}</span>
             </button>
           ))}
         </div>
@@ -1585,13 +1585,13 @@ function AppointmentForm({ onSuccess }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const inputCls = "w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[#000000]/87 placeholder-white/40 text-sm";
-  const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
+  const inputCls = "w-full px-3 py-1.5 rounded-md border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/20 focus:outline-none transition-all text-[#000000]/87 placeholder-white/40 text-[12px]";
+  const labelCls = "block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wide mb-1";
 
   return (
     <div className="bg-white">
-      <div className="pb-4 border-b border-black/5 mb-2">
-        <h3 className="text-[#000000]/87 font-bold text-lg">{step === 1 ? 'Step 1: Reservation Details' : 'Step 2: Deposit Payment'}</h3>
+      <div className="pb-2 border-b border-black/5 mb-2">
+        <h3 className="text-[#000000]/87 font-bold text-[14px]">{step === 1 ? 'Step 1: Reservation Details' : 'Step 2: Deposit Payment'}</h3>
       </div>
       <div className="pt-4">
         {step === 1 ? (
@@ -1614,7 +1614,7 @@ function AppointmentForm({ onSuccess }) {
               </div>
 
               {nights > 0 && (
-                <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-[#f8f9fa] border border-black/5 rounded-lg text-sm">
+                <div className="flex items-center gap-2 mb-3 px-2 py-1.5 bg-[#f8f9fa] border border-black/5 rounded-md text-[12px]">
                   <span className="font-semibold text-black/80">{nights} {nights === 1 ? 'night' : 'nights'}</span>
                   {totalPrice > 0 && <span className="font-black text-[#006241] bg-white px-2 py-0.5 rounded-full text-xs shadow-sm">₱{totalPrice.toLocaleString('en-PH')} total</span>}
                   <span className="text-xs text-black/50 ml-auto">
@@ -1626,7 +1626,7 @@ function AppointmentForm({ onSuccess }) {
               <div>
                 <label className={labelCls}>Room Type</label>
                 <select name="roomType" value={formData.roomType} onChange={handleChange} required
-                  className="w-full px-3 py-2.5 rounded-lg border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 transition-all text-sm text-black bg-white">
+                  className="w-full px-3 py-1.5 rounded-md border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 transition-all text-[12px] text-black bg-white">
                   <option value="">Select a room type</option>
                   {roomTypes.map(rt => {
                     const avail = availability[rt.name];
@@ -1698,7 +1698,7 @@ function AppointmentForm({ onSuccess }) {
             {/* Promo Code */}
             <div>
               <label className={labelCls}>Promo Code <span className="normal-case font-normal text-gray-400">(optional)</span></label>
-              <div className="bg-[#00754A]/5 border border-[#00754A]/20 rounded-lg p-3 mb-3 text-xs text-[#00754A]">
+              <div className="bg-[#00754A]/5 border border-[#00754A]/20 rounded-md p-3 mb-3 text-xs text-[#00754A]">
                 <strong>Promo Policy:</strong> To avail promos, bookings must be made at least 1 day prior to check-in, and full payment is required upon booking.
               </div>
               <div className="flex gap-3">
@@ -1712,10 +1712,10 @@ function AppointmentForm({ onSuccess }) {
                 </div>
                 {appliedPromo ? (
                   <button type="button" onClick={() => { setAppliedPromo(null); setPromoCodeInput(''); setPromoMessage({ type: '', text: '' }); }}
-                    className="px-4 py-2.5 bg-red-50 text-red-600 rounded-lg font-bold text-sm border border-red-200 h-[42px]">Remove</button>
+                    className="px-4 py-1.5 bg-red-50 text-red-600 rounded-md font-bold text-[12px] border border-red-200 h-[32px]">Remove</button>
                 ) : (
                   <button type="button" onClick={validatePromoCode} disabled={isVerifyingPromo || !promoCodeInput.trim() || !formData.roomType}
-                    className="px-4 py-2.5 bg-slate-900 text-white rounded-lg font-bold text-sm disabled:opacity-50 h-[42px]">
+                    className="px-4 py-1.5 bg-slate-900 text-white rounded-md font-bold text-[12px] disabled:opacity-50 h-[32px]">
                     {isVerifyingPromo ? '...' : 'Apply'}
                   </button>
                 )}
@@ -1728,7 +1728,7 @@ function AppointmentForm({ onSuccess }) {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-0.5">Total Stay Cost</p>
                   <span className="text-2xl font-black text-[#006241]">₱{totalPrice.toLocaleString('en-PH')}</span>
-                  {appliedPromo && <span className="text-sm font-bold text-black/30 line-through ml-2">₱{(pricePerNight * nights).toLocaleString('en-PH')}</span>}
+                  {appliedPromo && <span className="text-[12px] font-bold text-black/30 line-through ml-2">₱{(pricePerNight * nights).toLocaleString('en-PH')}</span>}
                 </div>
                 <div className="text-right text-xs text-black/50">
                   <p>Deposit required on next step</p>
@@ -1738,7 +1738,7 @@ function AppointmentForm({ onSuccess }) {
             )}
 
             <button type="submit"
-              className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3.5 rounded-full font-semibold text-sm tracking-wide shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+              className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3.5 rounded-full font-semibold text-[12px] tracking-wide shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
               Proceed to Deposit Payment
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -1747,37 +1747,37 @@ function AppointmentForm({ onSuccess }) {
           </form>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <h4 className="font-bold text-sm text-black/70">Select Payment Method <span className="text-[#00754A] font-black">(Deposit Required)</span></h4>
+            <h4 className="font-bold text-[12px] text-black/70">Select Payment Method <span className="text-[#00754A] font-black">(Deposit Required)</span></h4>
             <div className="grid grid-cols-3 gap-2">
               {['GCash', 'PayMaya', 'Credit Card', 'PayPal', 'Bank Transfer', 'Others'].map(method => (
                 <button key={method} type="button" onClick={() => setDepositMethod(method)}
                   className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all ${depositMethod === method ? 'border-[#00754A] bg-[#00754A]/5' : 'border-black/10 bg-white hover:border-[#00754A]/40'}`}>
-                  <span className="text-xl">{method === 'GCash' ? '📱' : method === 'PayMaya' ? '💳' : method === 'Credit Card' ? '💳' : method === 'PayPal' ? '🅿️' : method === 'Bank Transfer' ? '🏦' : '💰'}</span>
+                  <span className="text-[16px]">{method === 'GCash' ? '📱' : method === 'PayMaya' ? '💳' : method === 'Credit Card' ? '💳' : method === 'PayPal' ? '🅿️' : method === 'Bank Transfer' ? '🏦' : '💰'}</span>
                   <span className={`text-[9px] font-black uppercase tracking-widest leading-tight ${depositMethod === method ? 'text-[#00754A]' : 'text-black/50'}`}>{method}</span>
                 </button>
               ))}
             </div>
             {depositMethod && (
               <div className="bg-blue-50/50 p-4 border border-blue-100 rounded-xl space-y-3">
-                <h5 className="font-bold text-sm text-blue-900">Payment Instructions</h5>
+                <h5 className="font-bold text-[12px] text-blue-900">Payment Instructions</h5>
                 {(() => {
                   const inst = getPaymentInstructions(depositMethod);
                   if (depositMethod === 'GCash') return (
-                    <div className="text-sm text-blue-800 space-y-1">
+                    <div className="text-[12px] text-blue-800 space-y-1">
                       <p><strong>Name:</strong> {inst.name}</p>
                       <p><strong>Number:</strong> {inst.number}</p>
                       <p className="text-xs text-blue-700 mt-2 italic">{inst.extra}</p>
                     </div>
                   );
                   if (depositMethod === 'PayMaya') return (
-                    <div className="text-sm text-blue-800 space-y-1">
+                    <div className="text-[12px] text-blue-800 space-y-1">
                       <p><strong>Name:</strong> {inst.name}</p>
                       <p><strong>Number:</strong> {inst.number}</p>
                       <p className="text-xs text-blue-700 mt-2 italic">{inst.extra}</p>
                     </div>
                   );
                   if (depositMethod === 'Bank Transfer') return (
-                    <div className="text-sm text-blue-800 space-y-4">
+                    <div className="text-[12px] text-blue-800 space-y-4">
                       <div className="space-y-1">
                         <p><strong>Bank:</strong> {inst.bank}</p>
                         <p><strong>Account Name:</strong> {inst.name}</p>
@@ -1788,12 +1788,12 @@ function AppointmentForm({ onSuccess }) {
                     </div>
                   );
                   if (depositMethod === 'Others') return (
-                    <div className="text-sm text-blue-800 space-y-1">
+                    <div className="text-[12px] text-blue-800 space-y-1">
                       <p><strong>{inst.label}</strong></p>
                       <p className="text-xs text-blue-700 mt-2 italic">{inst.extra}</p>
                     </div>
                   );
-                  return <div className="text-sm text-blue-800">Please follow the standard procedure for {depositMethod}.</div>;
+                  return <div className="text-[12px] text-blue-800">Please follow the standard procedure for {depositMethod}.</div>;
                 })()}
               </div>
             )}
@@ -1826,16 +1826,16 @@ function AppointmentForm({ onSuccess }) {
               <input type="text" value={depositRef} onChange={(e) => setDepositRef(e.target.value)} placeholder="e.g. GCash Ref: 1234567890" className={inputCls} />
             </div>
             {totalPrice > 0 && (
-              <div className="bg-gray-50 rounded-xl p-4 border border-black/5 space-y-2 text-sm">
+              <div className="bg-gray-50 rounded-xl p-4 border border-black/5 space-y-2 text-[12px]">
                 <div className="flex justify-between"><span className="text-black/60">Total Room Cost</span><span className="font-bold">₱{totalPrice.toLocaleString()}</span></div>
                 <div className="flex justify-between text-[#00754A]"><span>Deposit ({depositMethod})</span><span className="font-bold">— ₱{(parseFloat(depositAmount) || 0).toLocaleString()}</span></div>
                 <div className="flex justify-between border-t border-black/10 pt-2"><span className="text-black/60">Balance at Property</span><span className="font-bold text-[#006241]">₱{Math.max(0, totalPrice - (parseFloat(depositAmount) || 0)).toLocaleString()}</span></div>
               </div>
             )}
-            {submitStatus.message && <p className="text-sm text-red-500">{submitStatus.message}</p>}
+            {submitStatus.message && <p className="text-[12px] text-red-500">{submitStatus.message}</p>}
             <div className="flex gap-3">
-              <button type="button" onClick={() => { setStep(1); setSubmitStatus({ type: '', message: '' }); }} className="px-6 py-3 rounded-full border border-black/15 text-black/60 font-bold text-sm hover:bg-black/5 transition-all">← Back</button>
-              <button type="submit" disabled={isSubmitting || !depositOk} className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-sm disabled:opacity-50 flex items-center justify-center gap-2">
+              <button type="button" onClick={() => { setStep(1); setSubmitStatus({ type: '', message: '' }); }} className="px-6 py-3 rounded-full border border-black/15 text-black/60 font-bold text-[12px] hover:bg-black/5 transition-all">← Back</button>
+              <button type="submit" disabled={isSubmitting || !depositOk} className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-[12px] disabled:opacity-50 flex items-center justify-center gap-2">
                 {isSubmitting ? 'Processing...' : 'Confirm & Pay Deposit'}
               </button>
             </div>
@@ -2380,6 +2380,47 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
   // Reschedule state
   const [editModal, setEditModal] = useState(null);
+
+  const [confirmModal, setConfirmModal] = React.useState(null);
+  const [confirmRoomNumber, setConfirmRoomNumber] = React.useState('');
+  const [confirmOccupiedRooms, setConfirmOccupiedRooms] = React.useState([]);
+  const [confirmAllRooms, setConfirmAllRooms] = React.useState([]);
+
+  const handleOpenConfirmModal = async (res) => {
+    setConfirmModal(res);
+    setConfirmRoomNumber(res.room_number || '');
+    try {
+      const checkIn = res.check_in_date ? res.check_in_date.slice(0, 10) : res.preferred_date;
+      const checkOut = res.check_out_date ? res.check_out_date.slice(0, 10) : res.preferred_date;
+      
+      const [occResp, roomsResp] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/rooms/occupied?checkIn=${checkIn}&checkOut=${checkOut}&ignoreReservationId=${res.id || res.dbId || ''}`),
+        fetch(`${API_BASE_URL}/api/rooms`)
+      ]);
+      
+      const occData = await occResp.json();
+      if (occData.success) {
+        setConfirmOccupiedRooms(occData.occupiedRooms);
+      }
+      
+      const roomsData = await roomsResp.json();
+      if (roomsData.rooms) {
+        setConfirmAllRooms(roomsData.rooms);
+      }
+    } catch (e) {
+      console.error(e);
+      setConfirmOccupiedRooms([]);
+      setConfirmAllRooms([]);
+    }
+  };
+
+  const submitConfirmBooking = () => {
+    if (!confirmModal) return;
+    const id = confirmModal.id || confirmModal.dbId;
+    updateStatus(id, 'confirmed', confirmRoomNumber);
+    setConfirmModal(null);
+  };
+
   const [newDate, setNewDate] = useState('');
   const [newTime, setNewTime] = useState('');
   const [newRoomNumber, setNewRoomNumber] = useState('');
@@ -2587,13 +2628,30 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     }
   }, [isLoggedIn]);
 
-  const updateStatus = async (id, newStatus) => {
+  
+  const deleteReservation = async (id) => {
+    if (!window.confirm("Are you sure you want to permanently delete this cancelled booking?")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+      if (data.success) {
+        setReservations(prev => prev.filter(apt => apt.id !== id));
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting:', error);
+    }
+  };
+
+
+  const updateStatus = async (id, newStatus, roomNumber) => {
     setUpdatingId(id);
     try {
       const response = await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus, room_number: roomNumber })
       });
       const data = await response.json();
       if (data.success) {
@@ -3211,8 +3269,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
   // Login Page
   if (isVerifying) return <div className="min-h-screen bg-[#1E3932] flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>;
   if (!isLoggedIn) {
-    const inputCls = "w-full px-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-sm";
-    const labelCls = "block text-xs font-semibold text-black/60 uppercase tracking-wide mb-1.5";
+    const inputCls = "w-full px-2.5 py-2 rounded-xl border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-[12px]";
+    const labelCls = "block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wide mb-1";
 
     return (
       <div className="min-h-screen bg-[#1E3932] pt-[70px] md:pt-0 flex items-center justify-center relative overflow-hidden">
@@ -3220,21 +3278,21 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, #00754A 0%, transparent 50%), radial-gradient(circle at 75% 75%, #006241 0%, transparent 50%)' }} />
         <div className="w-full max-w-md px-6 relative z-10">
           {/* Logo / Brand */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#00754A] rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 16px rgba(0,0,0,0.24)' }}>
+          <div className="text-center mb-4">
+            <div className="w-16 h-16 bg-[#00754A] rounded-xl flex items-center justify-center mx-auto mb-3" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 16px rgba(0,0,0,0.24)' }}>
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
             <h4 className="text-white/50 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Northomes Pensionne</h4>
             <h2 className="text-3xl font-bold text-white tracking-tight">Admin Portal</h2>
-            <p className="text-white/50 mt-2 text-sm">Secure access for hotel management</p>
+            <p className="text-white/50 mt-2 text-[12px]">Secure access for hotel management</p>
           </div>
 
-          <div className="rounded-xl p-8" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
+          <div className="rounded-xl p-4" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
             <form onSubmit={handleLogin} className="space-y-5">
               {loginError && (
-                <div style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }} className="text-[#c82014] px-4 py-3 rounded-lg text-xs font-medium">
+                <div style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }} className="text-[#c82014] px-2.5 py-2 rounded-md text-xs font-medium">
                   {loginError}
                 </div>
               )}
@@ -3245,7 +3303,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                  className="w-full px-2.5 py-2 rounded-md text-[#000000]/87 text-[12px] outline-none transition-all"
                   style={{ border: '1px solid rgba(0,0,0,0.15)', background: '#ffffff' }}
                   onFocus={e => e.target.style.borderColor = '#00754A'}
                   onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.15)'}
@@ -3260,7 +3318,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg text-[#000000]/87 text-sm outline-none transition-all"
+                  className="w-full px-2.5 py-2 rounded-md text-[#000000]/87 text-[12px] outline-none transition-all"
                   style={{ border: '1px solid rgba(0,0,0,0.15)', background: '#ffffff' }}
                   onFocus={e => e.target.style.borderColor = '#00754A'}
                   onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.15)'}
@@ -3272,7 +3330,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full py-3.5 text-white font-bold text-sm uppercase tracking-[0.1em] transition-all disabled:opacity-50"
+                className="w-full py-3.5 text-white font-bold text-[12px] uppercase tracking-[0.1em] transition-all disabled:opacity-50"
                 style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                 onMouseEnter={e => { if (!isLoggingIn) e.currentTarget.style.background = '#006241'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#00754A'; }}
@@ -3290,7 +3348,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
             <button
               onClick={() => setCurrentPage('home')}
-              className="w-full mt-5 py-2.5 text-black/40 hover:text-[#00754A] text-xs font-bold transition-all uppercase tracking-[0.1em]"
+              className="w-full mt-5 py-1.5 text-black/40 hover:text-[#00754A] text-xs font-bold transition-all uppercase tracking-[0.1em]"
             >
               ← Back to Main Website
             </button>
@@ -3324,7 +3382,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
 
         {/* ==================== RESERVATIONS TAB ==================== */}
-        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} openWizard={handleOpenWizard} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
+        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} deleteReservation={deleteReservation} openConfirmModal={handleOpenConfirmModal} openWizard={handleOpenWizard} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
         {/* ==================== GUESTS TAB ==================== */}
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
@@ -3339,14 +3397,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                 {/* Header bar */}
                 <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="shrink-0">
-                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Room Inventory</h2>
+                      <h2 className="text-[#000000]/87 font-bold text-[14px] tracking-tight leading-tight">Room Inventory</h2>
                       <p className="text-black/60 text-xs mt-0.5">Manage room types, pricing models, and global availability</p>
                     </div>
                     <button
                       onClick={() => { setActiveTab('settings'); setSettingsSubTab('property'); }}
-                      className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
+                      className="px-6 py-1.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
                       style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                       onMouseEnter={e => e.currentTarget.style.background = '#006241'}
                       onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
@@ -3357,36 +3415,36 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </button>
                   </div>
                 </div>
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="p-4 md:p-4 flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {adminRoomTypes.map(rt => (
-                      <div key={rt.id} className="rounded-xl p-6 border border-black/5 bg-[#f9f9f9] hover:bg-white hover:shadow-md transition-all group cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.08)' }}>
-                        <div className="flex justify-between items-start mb-6">
-                          <h4 className="font-bold text-[#006241] text-lg">{rt.name}</h4>
+                      <div key={rt.id} className="rounded-xl p-4 border border-black/5 bg-[#f9f9f9] hover:bg-white hover:shadow-md transition-all group cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.08)' }}>
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-bold text-[#006241] text-[14px]">{rt.name}</h4>
                           <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${rt.active ? 'bg-[#d4e9e2] text-[#006241] border-[#d4e9e2]' : 'bg-[#f9f9f9] text-black/40 border-black/10'}`}>
                             {rt.active ? 'Active' : 'Inactive'}
                           </span>
                         </div>
-                        <div className="space-y-3 mb-8">
+                        <div className="space-y-3 mb-4">
                           <div className="flex justify-between items-center">
                             <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Total Inventory</span>
-                            <span className="text-sm font-black text-[#000000]/87">{rt.total_rooms} Rooms</span>
+                            <span className="text-[12px] font-black text-[#000000]/87">{rt.total_rooms} Rooms</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Base Rate</span>
-                            <span className="text-sm font-black text-[#006241]">₱{Number(rt.price_per_night).toLocaleString()}</span>
+                            <span className="text-[12px] font-black text-[#006241]">₱{Number(rt.price_per_night).toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Max Guests</span>
-                            <span className="text-sm font-black text-[#000000]/87">{rt.max_guests} Persons</span>
+                            <span className="text-[12px] font-black text-[#000000]/87">{rt.max_guests} Persons</span>
                           </div>
                         </div>
                         <div className="flex gap-2 pt-6 border-t border-black/5">
-                          <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                          <button className="flex-1 py-1.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
                             onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
                             onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
                           >Inventory</button>
-                          <button className="flex-1 py-2.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                          <button className="flex-1 py-1.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
                             onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
                             onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
                           >Rates</button>
@@ -3407,12 +3465,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                 {/* Header bar */}
                 <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="shrink-0">
-                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Housekeeping</h2>
+                      <h2 className="text-[#000000]/87 font-bold text-[14px] tracking-tight leading-tight">Housekeeping</h2>
                       <p className="text-black/60 text-xs mt-0.5">Real-time room status monitoring and staff assignment</p>
                     </div>
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-2 items-center">
                       <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                         <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'clean').length} Clean</span>
@@ -3422,7 +3480,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'dirty').length} Dirty</span>
                       </div>
                       <button
-                        className="px-6 py-2.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
+                        className="px-6 py-1.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
                         style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                         onMouseEnter={e => e.currentTarget.style.background = '#006241'}
                         onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
@@ -3434,8 +3492,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                     </div>
                   </div>
                 </div>
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto">
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div className="p-4 md:p-4 flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
                     {hkRooms.map((r) => {
                       const status = r.hk_status || 'clean';
                       const isClean = status === 'clean';
@@ -3492,13 +3550,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
         {/* ==================== CALENDAR TAB ==================== */}
         {activeTab === 'calendar' && (
-          <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <div className="flex items-center justify-between mb-8">
+          <div className="rounded-xl border border-black/5 p-4 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Reservation Calendar</h2>
-                <p className="text-black/60 text-sm font-medium mt-1">Track stay occupancy and blocked dates</p>
+                <p className="text-black/60 text-[12px] font-medium mt-1">Track stay occupancy and blocked dates</p>
               </div>
-              <div className="flex items-center gap-3 bg-white shadow-sm p-1 rounded-2xl border border-black/5">
+              <div className="flex items-center gap-3 bg-white shadow-sm p-1 rounded-xl border border-black/5">
                 <button
                   onClick={() => {
                     if (calendarMonth === 1) {
@@ -3556,7 +3614,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   days.push(
                     <div
                       key={day}
-                      className={`min-h-[100px] p-2 rounded-2xl border transition-all ${isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
+                      className={`min-h-[100px] p-2 rounded-xl border transition-all ${isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
                         isToday ? 'bg-[#00754A]/10 border-[#00754A]' :
                           'bg-white/[0.03] border-black/5 hover:border-black/5'
                         }`}
@@ -3565,12 +3623,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         {String(day).padStart(2, '0')}
                       </div>
                       {isBlocked && (
-                        <div className="text-[9px] font-black uppercase tracking-widest text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded-lg text-center">Blocked</div>
+                        <div className="text-[9px] font-black uppercase tracking-widest text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded-md text-center">Blocked</div>
                       )}
                       {dayReservations.slice(0, 3).map((res, idx) => (
                         <div
                           key={idx}
-                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-lg mb-1 ${res.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
+                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-md mb-1 ${res.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
                             res.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
                               res.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
                                 'bg-white shadow-sm text-black/60'
@@ -3603,16 +3661,16 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
               <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
                 {/* Header bar */}
                 <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-2">
                     <div className="shrink-0">
-                      <h2 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">System Settings</h2>
+                      <h2 className="text-[#000000]/87 font-bold text-[14px] tracking-tight leading-tight">System Settings</h2>
                       <p className="text-black/60 text-xs mt-0.5">Configure property details, rooms, and integrations</p>
                     </div>
                   </div>
                 </div>
-                <div className="p-6 md:p-8 flex-1 overflow-y-auto space-y-8">
+                <div className="p-4 md:p-4 flex-1 overflow-y-auto space-y-8">
                   {/* Settings sub-tab navigation */}
-                  <div className="flex overflow-x-auto gap-1 mb-6 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
+                  <div className="flex overflow-x-auto gap-1 mb-3 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
                     {[
                       { id: 'property', label: 'Property' },
                       { id: 'rooms', label: 'Rooms & Inventory' },
@@ -3628,7 +3686,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       <button
                         key={tab.id}
                         onClick={() => setSettingsSubTab(tab.id)}
-                        className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${settingsSubTab === tab.id
+                        className={`flex-shrink-0 px-4 py-2 rounded-md text-[12px] font-medium transition-all ${settingsSubTab === tab.id
                           ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white shadow-sm'
                           : 'text-gray-500 hover:text-gray-800 hover:bg-blue-50'
                           }`}
@@ -3641,10 +3699,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   {/* ── Property ── */}
                   {settingsSubTab === 'corporate' && <CorporateSettingsTab />}
                   {settingsSubTab === 'property' && (
-                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
                         <div>
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Property Information</h3>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Property Information</h3>
                           <p className="text-black/60 text-xs mt-1">Global settings for your hotel identity and guest communication</p>
                         </div>
                         {settingsSavedMsg && (
@@ -3653,7 +3711,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </div>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {[
                           { key: 'hotel_name', label: 'Hotel Name', type: 'text', placeholder: 'Grand Hotel' },
                           { key: 'hotel_address', label: 'Address', type: 'text', placeholder: '123 Main Street, City' },
@@ -3671,7 +3729,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                               value={hotelSettings[field.key] || ''}
                               onChange={(e) => setHotelSettings(prev => ({ ...prev, [field.key]: e.target.value }))}
                               placeholder={field.placeholder}
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                             />
                           </div>
                         ))}
@@ -3717,7 +3775,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             multiple
                             accept="image/*"
                             onChange={(e) => setHeroFiles(Array.from(e.target.files))}
-                            className="w-full max-w-md px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                            className="w-full max-w-md px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                           />
                           {heroFiles.length > 0 && (
                             <div className="text-xs text-[#00754A] font-medium mt-2">
@@ -3767,7 +3825,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             multiple
                             accept="image/*"
                             onChange={(e) => setGalleryFiles(Array.from(e.target.files))}
-                            className="w-full max-w-md px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                            className="w-full max-w-md px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                           />
                           {galleryFiles.length > 0 && (
                             <div className="text-xs text-[#00754A] font-medium mt-2">
@@ -3793,10 +3851,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   {settingsSubTab === 'rooms' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       {/* Add new room type */}
-                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                        <div className="mb-8 flex items-center justify-between">
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 flex items-center justify-between">
                           <div>
-                            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Room Type</h3>
+                            <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Room Type</h3>
                             <p className="text-black/60 text-xs mt-1">Configure a new bookable unit with distinct pricing and rules</p>
                           </div>
                           <button
@@ -3806,7 +3864,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             Provision Unit
                           </button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                           {[
                             { key: 'name', label: 'Room Name', type: 'text', placeholder: 'e.g. Deluxe Room' },
                             { key: 'description', label: 'Description', type: 'text', placeholder: 'e.g. 1 King Bed · City View' },
@@ -3825,7 +3883,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
                                 placeholder={field.placeholder}
                                 min={field.type === 'number' ? '0' : undefined}
-                                className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                                className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                               />
                             </div>
                           ))}
@@ -3837,7 +3895,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             multiple
                             accept="image/*"
                             onChange={(e) => setNewRoomFiles(Array.from(e.target.files))}
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                           />
                           {newRoomFiles.length > 0 && (
                             <div className="text-xs text-[#00754A] font-medium ml-1">
@@ -3848,17 +3906,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </div>
 
                       {/* Room type list */}
-                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                        <div className="mb-8 border-b border-black/5 pb-6">
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Active Inventory</h3>
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 border-b border-black/5 pb-6">
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Active Inventory</h3>
                           <p className="text-black/60 text-xs mt-1">Currently managing {adminRoomTypes.length} bookable tiers</p>
                         </div>
                         <div className="space-y-4">
                           {adminRoomTypes.map(rt => (
-                            <div key={rt.id} className={`rounded-2xl border p-6 transition-all group ${rt.active ? 'bg-white/[0.02] border-black/5 hover:border-black/5' : 'bg-white/[0.01] border-black/5 opacity-40'}`}>
+                            <div key={rt.id} className={`rounded-xl border p-4 transition-all group ${rt.active ? 'bg-white/[0.02] border-black/5 hover:border-black/5' : 'bg-white/[0.01] border-black/5 opacity-40'}`}>
                               {editRoomId === rt.id ? (
                                 <div className="space-y-6">
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                     {[
                                       { key: 'name', label: 'Name' },
                                       { key: 'description', label: 'Description' },
@@ -3872,7 +3930,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                       <div key={f.key}>
                                         <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">{f.label}</label>
                                         <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
-                                          className="w-full px-3 py-2 bg-white shadow-sm border border-black/5 rounded-lg text-xs text-[#000000]/87" />
+                                          className="w-full px-2 py-1.5 bg-white shadow-sm border border-black/5 rounded-md text-xs text-[#000000]/87" />
                                       </div>
                                     ))}
                                   </div>
@@ -3899,7 +3957,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                       multiple
                                       accept="image/*"
                                       onChange={(e) => setEditRoomFiles(Array.from(e.target.files))}
-                                      className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                                      className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
                                     />
                                     {editRoomFiles.length > 0 && (
                                       <div className="text-xs text-[#00754A] font-medium ml-1 mt-1">
@@ -3908,24 +3966,24 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                     )}
                                   </div>
                                   <div className="flex gap-3 mt-6">
-                                    <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#00754A] text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
-                                    <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white shadow-sm text-black/60 rounded-lg text-[10px] font-black uppercase tracking-widest hover:text-[#000000]/87">Cancel</button>
+                                    <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#00754A] text-white rounded-md text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
+                                    <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white shadow-sm text-black/60 rounded-md text-[10px] font-black uppercase tracking-widest hover:text-[#000000]/87">Cancel</button>
                                   </div>
                                 </div>
                               ) : (
-                                <div className="flex items-start justify-between gap-6">
+                                <div className="flex items-start justify-between gap-3">
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 mb-2">
-                                      <span className="font-black text-[#000000]/87 tracking-tight uppercase text-sm group-hover:text-[#00754A] transition-colors">{rt.name}</span>
+                                      <span className="font-black text-[#000000]/87 tracking-tight uppercase text-[12px] group-hover:text-[#00754A] transition-colors">{rt.name}</span>
                                       {!rt.active && <span className="text-[9px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded-full uppercase font-black tracking-widest">Inactive</span>}
                                     </div>
                                     <p className="text-xs text-black/60 mb-4 line-clamp-2">{rt.description}</p>
-                                    <div className="flex flex-wrap gap-4 text-[9px] font-black uppercase tracking-widest">
+                                    <div className="flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-widest">
                                       <span className="text-[#00754A] font-mono text-[11px]">₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')} / Night</span>
                                       <span className="text-black/60">{rt.total_rooms} Units Available</span>
                                       <span className="text-black/60">Max {rt.max_guests} Guests</span>
                                       <span className="text-black/60">Level {rt.floor || 1}</span>
-                                      {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-lg border border-emerald-400/20">{rt.area}</span>}
+                                      {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20">{rt.area}</span>}
                                     </div>
                                   </div>
                                   <div className="flex gap-2 flex-shrink-0">
@@ -3951,7 +4009,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             </div>
                           ))}
                           {adminRoomTypes.length === 0 && (
-                            <div className="py-16 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">Inventory is empty. Use the form above to add room tiers.</div>
+                            <div className="py-16 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">Inventory is empty. Use the form above to add room tiers.</div>
                           )}
                         </div>
                       </div>
@@ -3962,32 +4020,32 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   {settingsSubTab === 'rate-codes' && (
                     <div className="space-y-4">
                       {/* Add new rate code */}
-                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                        <div className="mb-8 flex items-center justify-between">
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 flex items-center justify-between">
                           <div>
-                            <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Rate Code</h3>
+                            <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Rate Code</h3>
                             <p className="text-black/60 text-xs mt-1">Define a new pricing tier or promotional code</p>
                           </div>
-                          {rcMsg && <div className="px-4 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
+                          {rcMsg && <div className="px-4 py-1.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                           <div>
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Reference Code</label>
                             <input value={rcNewForm.code} onChange={e => setRcNewForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
                               placeholder="e.g. CORP" maxLength={10}
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all" />
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all" />
                           </div>
                           <div>
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Display Name</label>
                             <input value={rcNewForm.name} onChange={e => setRcNewForm(f => ({ ...f, name: e.target.value }))}
                               placeholder="e.g. Corporate Rate"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all" />
                           </div>
                           <div>
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Description</label>
                             <input value={rcNewForm.description} onChange={e => setRcNewForm(f => ({ ...f, description: e.target.value }))}
                               placeholder="e.g. Standard corporate discount"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all" />
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all" />
                           </div>
                         </div>
                         <button
@@ -4010,7 +4068,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                       </div>
 
                       {/* Rate codes list */}
-                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl overflow-hidden ">
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl overflow-hidden ">
                         <div className="px-8 py-5 border-b border-black/5 flex items-center justify-between bg-white/[0.02]">
                           <h3 className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">Configured Tiers</h3>
                           <button onClick={fetchAdminRateCodes} className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">Refresh Records</button>
@@ -4074,13 +4132,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                     {rcPriceEdit === rc.id && (
                                       <tr className="bg-white/[0.04]">
                                         <td colSpan={5} className="px-8 py-8 border-t border-black/5">
-                                          <div className="flex items-center justify-between mb-8">
+                                          <div className="flex items-center justify-between mb-4">
                                             <div>
                                               <h4 className="text-[10px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Price Configuration</h4>
                                               <p className="text-black/60 text-[10px] mt-1 font-medium italic">Leave blank to inherit global default rates for the selected tier</p>
                                             </div>
                                             <button onClick={() => saveRcPrices(rc.id)} disabled={rcSaving}
-                                              className="px-6 py-2 bg-[#00754A] text-white rounded-lg font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                                              className="px-6 py-2 bg-[#00754A] text-white rounded-md font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
                                               {rcSaving ? 'Syncing...' : 'Apply Overrides'}
                                             </button>
                                           </div>
@@ -4118,10 +4176,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
                   {/* ── Reservations ── */}
                   {settingsSubTab === 'reservations' && (
-                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
                         <div>
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Reservation Rules</h3>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Reservation Rules</h3>
                           <p className="text-black/60 text-xs mt-1">Define stay limits, booking window, and cancellation policy</p>
                         </div>
                         {settingsSavedMsg && (
@@ -4130,7 +4188,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </div>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
                           <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Minimum Stay (nights)</label>
                           <input
@@ -4138,7 +4196,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             value={hotelSettings.min_stay_nights || '1'}
                             onChange={(e) => setHotelSettings(prev => ({ ...prev, min_stay_nights: e.target.value }))}
                             min="1"
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
                           />
                         </div>
                         <div>
@@ -4148,7 +4206,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             value={hotelSettings.max_stay_nights || '30'}
                             onChange={(e) => setHotelSettings(prev => ({ ...prev, max_stay_nights: e.target.value }))}
                             min="1"
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
                           />
                         </div>
                         <div>
@@ -4158,7 +4216,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             value={hotelSettings.advance_booking_days || '365'}
                             onChange={(e) => setHotelSettings(prev => ({ ...prev, advance_booking_days: e.target.value }))}
                             min="1"
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
                           />
                         </div>
                         <div>
@@ -4166,7 +4224,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           <select
                             value={hotelSettings.deposit_required || 'false'}
                             onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_required: e.target.value }))}
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all appearance-none"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all appearance-none"
                           >
                             <option value="false" className="bg-[#1A1F2C]">No</option>
                             <option value="true" className="bg-[#1A1F2C]">Yes</option>
@@ -4180,7 +4238,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                               value={hotelSettings.deposit_percentage || '50'}
                               onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_percentage: e.target.value }))}
                               min="1" max="100"
-                              className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
                             />
                           </div>
                         )}
@@ -4189,7 +4247,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           <select
                             value={hotelSettings.auto_post_room_charge || 'false'}
                             onChange={(e) => setHotelSettings(prev => ({ ...prev, auto_post_room_charge: e.target.value }))}
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all appearance-none"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all appearance-none"
                           >
                             <option value="false">No (Manual Billing)</option>
                             <option value="true">Yes (Automatic Billing)</option>
@@ -4203,14 +4261,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           onChange={(e) => setHotelSettings(prev => ({ ...prev, cancellation_policy: e.target.value }))}
                           rows={4}
                           placeholder="e.g. Free cancellation up to 24 hours before check-in."
-                          className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all resize-none"
+                          className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all resize-none"
                         />
                       </div>
                       <div className="flex justify-end pt-4">
                         <button
                           onClick={saveHotelSettings}
                           disabled={savingSettings}
-                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
                         >
                           {savingSettings ? 'Synchronizing...' : 'Save Reservation Policy'}
                         </button>
@@ -4220,21 +4278,21 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
                   {/* ── Availability ── */}
                   {settingsSubTab === 'availability' && (
-                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
                         <div>
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
                           <p className="text-black/60 text-xs mt-1">Restrict availability for maintenance or seasonal holidays</p>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-4 items-end">
+                      <div className="flex flex-wrap gap-2 items-end">
                         <div className="flex-1 min-w-[200px]">
                           <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Blackout Date</label>
                           <input
                             type="date"
                             value={newBlockedDate}
                             onChange={(e) => setNewBlockedDate(e.target.value)}
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
                           />
                         </div>
                         <div className="flex-[2] min-w-[300px]">
@@ -4244,7 +4302,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             value={newBlockedReason}
                             onChange={(e) => setNewBlockedReason(e.target.value)}
                             placeholder="e.g. Annual HVAC Maintenance"
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
                           />
                         </div>
                         <button
@@ -4259,8 +4317,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Current Restricted Dates</h4>
                         {blockedDates.map(bd => (
                           <div key={bd.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
-                            <div className="flex items-center gap-6">
-                              <span className="text-[#000000]/87 font-mono text-sm font-bold">{bd.blocked_date}</span>
+                            <div className="flex items-center gap-3">
+                              <span className="text-[#000000]/87 font-mono text-[12px] font-bold">{bd.blocked_date}</span>
                               {bd.reason && <span className="text-black/60 text-xs font-medium tracking-wide">— {bd.reason}</span>}
                             </div>
                             <button
@@ -4272,7 +4330,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </div>
                         ))}
                         {blockedDates.length === 0 && (
-                          <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-2xl">
+                          <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">
                             No restricted dates in the registry.
                           </div>
                         )}
@@ -4282,10 +4340,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
 
                   {/* ── Notifications ── */}
                   {settingsSubTab === 'notifications' && (
-                    <div className="bg-white/[0.03] rounded-2xl p-8 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-black/5 pb-6">
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
                         <div>
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Notification Settings</h3>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Notification Settings</h3>
                           <p className="text-black/60 text-xs mt-1">Configure sender identities for automated guest communications</p>
                         </div>
                         {settingsSavedMsg && (
@@ -4294,7 +4352,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                           </div>
                         )}
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div>
                           <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Display Name</label>
                           <input
@@ -4302,7 +4360,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             value={hotelSettings.email_sender_name || ''}
                             onChange={(e) => setHotelSettings(prev => ({ ...prev, email_sender_name: e.target.value }))}
                             placeholder="e.g. Grand Horizon Hotel"
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
                           />
                           <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">This name appears in the "From" field of guest emails</p>
                         </div>
@@ -4314,7 +4372,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             onChange={(e) => setHotelSettings(prev => ({ ...prev, sms_sender_name: e.target.value }))}
                             placeholder="e.g. HOTEL"
                             maxLength={11}
-                            className="w-full px-4 py-3 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-sm focus:border-[#00754A]/50 outline-none transition-all"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
                           />
                           <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
                         </div>
@@ -4323,7 +4381,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                         <button
                           onClick={saveHotelSettings}
                           disabled={savingSettings}
-                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
                         >
                           {savingSettings ? 'Synchronizing...' : 'Save Communication Settings'}
                         </button>
@@ -4337,25 +4395,25 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   {/* ── Staff & Permissions ── */}
                   {settingsSubTab === 'staff' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                        <div className="mb-8 border-b border-black/5 pb-6">
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">Staff Accounts</h3>
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 border-b border-black/5 pb-6">
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Staff Accounts</h3>
                           <p className="text-black/60 text-xs mt-1">Register new staff and assign modular permissions.</p>
                         </div>
-                        {staffMsg && <div className="mb-4 text-sm text-[#00754A] font-bold p-3 bg-[#00754A]/10 rounded-xl">{staffMsg}</div>}
+                        {staffMsg && <div className="mb-4 text-[12px] text-[#00754A] font-bold p-3 bg-[#00754A]/10 rounded-xl">{staffMsg}</div>}
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-8">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end mb-4">
                           <div className="space-y-2">
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Username</label>
-                            <input type="text" value={staffNewForm.username} onChange={e => setStaffNewForm({ ...staffNewForm, username: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                            <input type="text" value={staffNewForm.username} onChange={e => setStaffNewForm({ ...staffNewForm, username: e.target.value })} className="w-full px-2.5 py-2 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
                           <div className="space-y-2">
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Password</label>
-                            <input type="password" value={staffNewForm.password} onChange={e => setStaffNewForm({ ...staffNewForm, password: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                            <input type="password" value={staffNewForm.password} onChange={e => setStaffNewForm({ ...staffNewForm, password: e.target.value })} className="w-full px-2.5 py-2 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
                           <div className="space-y-2">
                             <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
-                            <input type="text" value={staffNewForm.full_name} onChange={e => setStaffNewForm({ ...staffNewForm, full_name: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                            <input type="text" value={staffNewForm.full_name} onChange={e => setStaffNewForm({ ...staffNewForm, full_name: e.target.value })} className="w-full px-2.5 py-2 rounded-xl border border-black/5 text-xs focus:outline-none" />
                           </div>
                           <button
                             onClick={async () => {
@@ -4373,7 +4431,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 setTimeout(() => setStaffMsg(''), 3000);
                               } catch (e) { }
                             }}
-                            className="w-full px-4 py-3 bg-[#000000] text-white text-xs font-bold rounded-xl hover:bg-[#00754A] transition-colors"
+                            className="w-full px-2.5 py-2 bg-[#000000] text-white text-xs font-bold rounded-xl hover:bg-[#00754A] transition-colors"
                           >Add Staff</button>
                         </div>
 
@@ -4382,7 +4440,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                             <div key={s.id} className="p-4 border border-black/5 rounded-xl bg-white/[0.01]">
                               <div className="flex justify-between items-center mb-4">
                                 <div>
-                                  <div className="font-bold text-sm text-[#000000]/87">{s.full_name} <span className="text-black/40 text-xs ml-2">@{s.username}</span></div>
+                                  <div className="font-bold text-[12px] text-[#000000]/87">{s.full_name} <span className="text-black/40 text-xs ml-2">@{s.username}</span></div>
                                 </div>
                                 <button onClick={async () => {
                                   if (window.confirm('Delete staff?')) {
@@ -4393,7 +4451,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                               </div>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                 {['dashboard', 'reservations', 'frontdesk', 'rooms', 'housekeeping', 'billing', 'reports', 'settings'].map(perm => (
-                                  <label key={perm} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-lg">
+                                  <label key={perm} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-md">
                                     <input type="checkbox" checked={(s.permissions || []).includes(perm) || (s.permissions || []).includes('all')}
                                       onChange={async (e) => {
                                         const newPerms = e.target.checked ? [...(s.permissions || []), perm] : (s.permissions || []).filter(p => p !== perm && p !== 'all');
@@ -4418,9 +4476,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   {/* ── About Us Configuration ── */}
                   {settingsSubTab === 'about-us' && (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="bg-white/[0.03] border border-black/5 rounded-2xl p-8 ">
-                        <div className="mb-6 border-b border-black/5 pb-6">
-                          <h3 className="text-sm font-black text-[#000000]/87 uppercase tracking-[0.2em]">About Us Content</h3>
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-3 border-b border-black/5 pb-6">
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">About Us Content</h3>
                           <p className="text-black/60 text-xs mt-1">Configure the formatted content for your public About Us page.</p>
                         </div>
                         <div className="space-y-6">
@@ -4443,14 +4501,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                               <textarea
                                 value={hotelSettings.about_us_content || ''}
                                 onChange={(e) => setHotelSettings(prev => ({ ...prev, about_us_content: e.target.value }))}
-                                className="w-full min-h-[300px] p-4 text-sm focus:outline-none resize-y"
+                                className="w-full min-h-[300px] p-4 text-[12px] font-medium focus:outline-none resize-y"
                                 placeholder="Enter HTML content here..."
                               />
                             </div>
                             <p className="text-xs text-black/40 mt-2 ml-1">You can use basic HTML tags for formatting. This content will be shown on the public-facing About Us page.</p>
                           </div>
 
-                          <div className="pt-4 flex items-center gap-4">
+                          <div className="pt-4 flex items-center gap-2">
                             <button
                               onClick={() => {
                                 setSavingSettings(true);
@@ -4466,12 +4524,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                                 });
                               }}
                               disabled={savingSettings}
-                              className="px-6 py-3 bg-[#00754A] hover:bg-[#006241] text-white text-sm font-bold rounded-xl shadow-md transition-all flex items-center gap-2"
+                              className="px-6 py-3 bg-[#00754A] hover:bg-[#006241] text-white text-[12px] font-bold rounded-xl shadow-md transition-all flex items-center gap-2"
                             >
                               {savingSettings ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Check className="w-4 h-4" />}
                               Save Changes
                             </button>
-                            {settingsSavedMsg && <span className="text-sm font-semibold text-[#00754A] animate-in fade-in">{settingsSavedMsg}</span>}
+                            {settingsSavedMsg && <span className="text-[12px] font-semibold text-[#00754A] animate-in fade-in">{settingsSavedMsg}</span>}
                           </div>
                         </div>
                       </div>
@@ -4486,11 +4544,73 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       </div>
 
       {/* Edit Booking Modal */}
+      {confirmModal && (() => {
+        const typeRooms = confirmAllRooms.filter(r => r.room_type === (confirmModal.room_type_name || confirmModal.room_type));
+        
+        return (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="px-6 py-5 border-b border-black/5 flex items-center justify-between bg-gray-50/50">
+                <h3 className="font-bold text-gray-900 text-[14px]">Confirm Booking</h3>
+                <button onClick={() => setConfirmModal(null)} className="p-1.5 hover:bg-black/5 rounded-md text-black/40 hover:text-black/60 transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                </button>
+              </div>
+              <div className="p-4 overflow-y-auto">
+                <p className="text-[12px] text-gray-600 mb-3">
+                  You are confirming the booking for <strong className="text-gray-900">{confirmModal.full_name}</strong>. 
+                  You can optionally assign a room number now.
+                </p>
+                <div className="mb-4">
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Assign Room (Optional)</label>
+                  {typeRooms.length === 0 ? (
+                    <input
+                      type="text"
+                      value={confirmRoomNumber}
+                      onChange={(e) => setConfirmRoomNumber(e.target.value)}
+                      placeholder="e.g. 201"
+                      className="w-full px-2.5 py-2 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 font-mono outline-none transition-all"
+                    />
+                  ) : (
+                    <select
+                      value={confirmRoomNumber}
+                      onChange={(e) => setConfirmRoomNumber(e.target.value)}
+                      className="w-full px-2.5 py-2 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 font-mono outline-none transition-all appearance-none cursor-pointer bg-white"
+                    >
+                      <option value="">No Room Assigned Yet</option>
+                      {typeRooms.map(r => {
+                        const isOccupied = confirmOccupiedRooms.includes(r.room_number);
+                        return (
+                          <option key={r.id} value={r.room_number} disabled={isOccupied}>
+                            Room {r.room_number} {isOccupied ? '(Unavailable for these dates)' : ''}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  )}
+                  <p className="text-[11px] text-gray-500 mt-2">
+                    Only showing rooms of type: {confirmModal.room_type_name || confirmModal.room_type}. Rooms that overlap with these dates are disabled.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-black/5 bg-gray-50 flex justify-end gap-3 shrink-0">
+                <button onClick={() => setConfirmModal(null)} className="px-5 py-1.5 rounded-xl text-[12px] font-bold text-gray-600 hover:bg-black/5 transition-colors">
+                  Cancel
+                </button>
+                <button onClick={submitConfirmBooking} className="px-5 py-1.5 rounded-xl text-[12px] font-bold bg-[#00754A] text-white hover:bg-[#006241] shadow-lg shadow-[#00754A]/20 transition-all flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Confirm & Assign
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
       {editModal && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md border border-[#00754A]/20">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Edit Booking</h3>
-            <p className="text-gray-500 text-sm mb-4">
+          <div className="bg-white shadow-xl rounded-xl p-4 w-full max-w-md border border-[#00754A]/20">
+            <h3 className="text-[16px] font-bold text-gray-800 mb-4">Edit Booking</h3>
+            <p className="text-gray-500 text-[12px] mb-4">
               Guest: <span className="text-gray-800 font-bold">{editModal.full_name}</span>
             </p>
 
@@ -4502,7 +4622,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   value={newRoomNumber}
                   onChange={(e) => setNewRoomNumber(e.target.value)}
                   placeholder="e.g. 101"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:border-[#00754A]"
+                  className="w-full px-2.5 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-[#00754A]"
                 />
               </div>
 
@@ -4512,7 +4632,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   type="date"
                   value={newDate}
                   onChange={(e) => handleDateChange(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:border-[#00754A]"
+                  className="w-full px-2.5 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-[#00754A]"
                 />
               </div>
 
@@ -4522,7 +4642,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
                   type="time"
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:border-[#00754A]"
+                  className="w-full px-2.5 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-[#00754A]"
                 />
               </div>
             </div>
@@ -4530,14 +4650,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setEditModal(null)}
-                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all font-bold"
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-all font-bold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleEditBooking}
                 disabled={!newDate || isEditing}
-                className="flex-1 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-bold rounded-lg hover:shadow-lg transition-all disabled:opacity-50"
+                className="flex-1 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-bold rounded-md hover:shadow-lg transition-all disabled:opacity-50"
               >
                 {isEditing ? 'Saving...' : 'Save Changes'}
               </button>
@@ -4549,14 +4669,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       {/* Print Appointment Slip */}
       {printAppointment && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 print:bg-white print:p-0">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-md print:rounded-none print:shadow-none">
-            <div className="text-center mb-6">
+          <div className="bg-white rounded-xl p-4 w-full max-w-md print:rounded-none print:shadow-none">
+            <div className="text-center mb-3">
               <h2 className="text-2xl font-bold text-blue-900">HealthCare Clinic</h2>
-              <p className="text-stone-600 text-sm">Cantecson, Gairan, Bogo City, Cebu</p>
+              <p className="text-stone-600 text-[12px]">Cantecson, Gairan, Bogo City, Cebu</p>
             </div>
             <div className="border-t border-b border-stone-200 py-4 mb-4">
-              <h3 className="text-lg font-semibold text-blue-900 mb-3">Appointment Slip</h3>
-              <div className="space-y-2 text-sm">
+              <h3 className="text-[14px] font-semibold text-blue-900 mb-3">Appointment Slip</h3>
+              <div className="space-y-2 text-[12px]">
                 <p><strong>Patient:</strong> {printAppointment.full_name}</p>
                 <p><strong>Service:</strong> {printAppointment.service_type}</p>
                 <p><strong>Date:</strong> {printAppointment.preferred_date}</p>
@@ -4568,13 +4688,13 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
             <div className="mt-6 flex gap-3 print:hidden">
               <button
                 onClick={() => setPrintAppointment(null)}
-                className="flex-1 py-2 bg-stone-200 text-stone-700 rounded-lg"
+                className="flex-1 py-2 bg-stone-200 text-stone-700 rounded-md"
               >
                 Close
               </button>
               <button
                 onClick={() => window.print()}
-                className="flex-1 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-lg"
+                className="flex-1 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-md"
               >
                 Print
               </button>
@@ -4697,7 +4817,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
     <div className="bg-blue-50 min-h-screen pt-[70px] md:pt-[30px] pb-24">
       <div className="w-full max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           <div className="w-16 h-16 bg-gradient-to-br from-[#00754A] to-[#006241]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-[#576CA8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -4709,48 +4829,48 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 
         {/* Success Message */}
         {cancelSuccess && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 text-center">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-3 text-center">
             <svg className="w-12 h-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-green-700 font-semibold">Appointment Cancelled Successfully</p>
-            <p className="text-green-600 text-sm mt-1">A confirmation email has been sent to you.</p>
+            <p className="text-green-600 text-[12px] mt-1">A confirmation email has been sent to you.</p>
           </div>
         )}
 
         {/* Lookup Form (only show if no appointment loaded) */}
         {!appointment && !isLoading && (
-          <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Find Your Appointment</h2>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <h2 className="text-[14px] font-semibold text-gray-800 mb-4">Find Your Appointment</h2>
 
             <form onSubmit={handleLookup} className="space-y-4">
               <div>
-                <label className="block text-gray-500 text-sm mb-2">Email Address</label>
+                <label className="block text-gray-500 text-[12px] mb-2">Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-2.5 py-2 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-gray-500 text-sm mb-2">Reference ID</label>
+                <label className="block text-gray-500 text-[12px] mb-2">Reference ID</label>
                 <input
                   type="number"
                   value={referenceId}
                   onChange={(e) => setReferenceId(e.target.value)}
                   placeholder="Enter your reference number (e.g., 123)"
-                  className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full px-2.5 py-2 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
                   required
                 />
                 <p className="text-gray-400 text-xs mt-1">Found in your confirmation email</p>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-red-50 border border-red-200 text-red-600 px-2.5 py-2 rounded-md text-[12px]">
                   {error}
                 </div>
               )}
@@ -4776,16 +4896,16 @@ function MyAppointment({ setCurrentPage, initialToken }) {
 
         {/* Appointment Details */}
         {appointment && !isLoading && (
-          <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-800">Appointment Details</h2>
-              <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(appointment.status)}`}>
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-[14px] font-semibold text-gray-800">Appointment Details</h2>
+              <span className={`px-3 py-1 rounded-full text-[12px] font-medium border ${getStatusColor(appointment.status)}`}>
                 {appointment.status}
               </span>
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Patient Name</p>
                   <p className="text-gray-800 font-medium">{appointment.full_name}</p>
@@ -4796,7 +4916,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Service</p>
                   <p className="text-gray-800">{appointment.service_type}</p>
@@ -4808,14 +4928,14 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               </div>
 
               <div className="bg-gradient-to-br from-[#00754A] to-[#006241]/10 rounded-xl p-4 border border-[#576CA8]/20">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-[#576CA8]/70 text-xs uppercase tracking-wider mb-1">Date</p>
-                    <p className="text-gray-800 font-semibold text-lg">{appointment.preferred_date}</p>
+                    <p className="text-gray-800 font-semibold text-[14px]">{appointment.preferred_date}</p>
                   </div>
                   <div>
                     <p className="text-[#576CA8]/70 text-xs uppercase tracking-wider mb-1">Time</p>
-                    <p className="text-gray-800 font-semibold text-lg">{appointment.preferred_time}</p>
+                    <p className="text-gray-800 font-semibold text-[14px]">{appointment.preferred_time}</p>
                   </div>
                 </div>
               </div>
@@ -4823,7 +4943,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               {appointment.notes && (
                 <div>
                   <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Notes</p>
-                  <p className="text-gray-500 text-sm">{appointment.notes}</p>
+                  <p className="text-gray-500 text-[12px]">{appointment.notes}</p>
                 </div>
               )}
             </div>
@@ -4837,7 +4957,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
                   setReferenceId('');
                   setCancelSuccess(false);
                 }}
-                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all"
+                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all"
               >
                 Look Up Another
               </button>
@@ -4845,7 +4965,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
               {canCancel && (
                 <button
                   onClick={() => setShowCancelConfirm(true)}
-                  className="flex-1 py-3 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-all"
+                  className="flex-1 py-3 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-all"
                 >
                   Cancel Appointment
                 </button>
@@ -4857,7 +4977,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
         {/* Back Button */}
         <button
           onClick={() => setCurrentPage('home')}
-          className="w-full mt-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all text-sm"
+          className="w-full mt-6 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all text-[12px]"
         >
           ← Back to Home
         </button>
@@ -4866,24 +4986,24 @@ function MyAppointment({ setCurrentPage, initialToken }) {
       {/* Cancel Confirmation Modal */}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white shadow-xl rounded-2xl p-6 w-full max-w-md border border-blue-200">
+          <div className="bg-white shadow-xl rounded-xl p-4 w-full max-w-md border border-blue-200">
             <div className="text-center mb-4">
               <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-800">Cancel Appointment?</h3>
+              <h3 className="text-[16px] font-bold text-gray-800">Cancel Appointment?</h3>
               <p className="text-gray-500 mt-2">This action cannot be undone.</p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-500 text-sm mb-2">Reason for cancellation (optional)</label>
+              <label className="block text-gray-500 text-[12px] mb-2">Reason for cancellation (optional)</label>
               <textarea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="Let us know why you're cancelling..."
-                className="w-full px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-500/50 resize-none"
+                className="w-full px-2.5 py-2 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-500/50 resize-none"
                 rows={3}
               />
             </div>
@@ -4891,7 +5011,7 @@ function MyAppointment({ setCurrentPage, initialToken }) {
             <div className="flex gap-3">
               <button
                 onClick={() => setShowCancelConfirm(false)}
-                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-all"
+                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all"
               >
                 Keep Appointment
               </button>
@@ -4914,8 +5034,8 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
   if (!data || !data.kpi) return null;
   return (
     <div className="bg-[#f8f9fa] text-[#333333] font-sans print:bg-white pb-12">
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+      <div className="grid grid-cols-4 gap-2 mb-3">
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
           <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-4 shrink-0">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" /></svg>
           </div>
@@ -4925,7 +5045,7 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <div className=" font-medium text-gray-500 mt-1 truncate">{data.kpi?.occupiedRooms} / {data.kpi?.totalRooms} Rooms</div>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
           <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-4 shrink-0">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01" /></svg>
           </div>
@@ -4935,7 +5055,7 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <div className=" font-medium text-gray-500 mt-1 truncate">Average Daily Rate</div>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
           <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-4 shrink-0">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
           </div>
@@ -4945,7 +5065,7 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <div className=" font-medium text-gray-500 mt-1 truncate">Rev. per Available Rm</div>
           </div>
         </div>
-        <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
           <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mr-4 shrink-0">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 18V6" /></svg>
           </div>
@@ -4957,9 +5077,9 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM STATISTICS</h3>
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">ROOM STATISTICS</h3>
           <div className="space-y-4 font-medium">
             <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.roomStatistics?.totalRooms}</span></div>
             <div className="flex justify-between items-center"><span className="text-gray-500">Available Rooms</span><span className="font-bold text-blue-600">{data.roomStatistics?.availableRooms}</span></div>
@@ -4969,9 +5089,9 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <div className="pt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Occupancy %</span><span className="font-black text-gray-900">{data.roomStatistics?.occupancyPercentage}%</span></div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ARRIVALS & DEPARTURES</h3>
-          <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">ARRIVALS & DEPARTURES</h3>
+          <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="flex items-center">
               <div className="w-10 h-10 rounded-full bg-green-50 text-green-700 flex items-center justify-center mr-3">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" /></svg>
@@ -5000,9 +5120,9 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <div className="flex justify-between"><span className="text-gray-500">Early Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.earlyCheckout}</span></div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">GUESTS IN HOUSE</h3>
-          <div className=" font-black text-gray-800 mb-8 mt-2">{data.guestsInHouse?.total}</div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">GUESTS IN HOUSE</h3>
+          <div className=" font-black text-gray-800 mb-4 mt-2">{data.guestsInHouse?.total}</div>
           <div className="space-y-4 font-medium mt-auto">
             <div className="flex justify-between items-center"><span className="text-gray-500">Adults</span><span className="font-bold text-gray-800">{data.guestsInHouse?.adults}</span></div>
             <div className="flex justify-between items-center"><span className="text-gray-500">Children</span><span className="font-bold text-gray-800">{data.guestsInHouse?.children}</span></div>
@@ -5011,9 +5131,9 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-[3fr_2fr] gap-6 mb-6">
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE SUMMARY (TODAY)</h3>
+      <div className="grid grid-cols-[3fr_2fr] gap-3 mb-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">REVENUE SUMMARY (TODAY)</h3>
           <table className="w-full text-left ">
             <thead>
               <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
@@ -5038,9 +5158,9 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             </tbody>
           </table>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">REVENUE BREAKDOWN</h3>
-          <div className="flex-1 flex items-center justify-between gap-8 mt-4">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">REVENUE BREAKDOWN</h3>
+          <div className="flex-1 flex items-center justify-between gap-2 mt-4">
             <div className="relative w-40 h-40 shrink-0">
               <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
                 {(() => {
@@ -5085,9 +5205,9 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">ROOM TYPES PERFORMANCE</h3>
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">ROOM TYPES PERFORMANCE</h3>
           <table className="w-full text-left ">
             <thead>
               <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
@@ -5101,25 +5221,25 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <tbody className="divide-y divide-gray-50">
               {data.roomTypesPerformance?.map((rt, i) => (
                 <tr key={i} className="hover:bg-gray-50">
-                  <td className="py-2.5 font-medium text-gray-600">{rt.roomType}</td>
-                  <td className="py-2.5 text-right font-medium text-gray-800">{rt.occupied}</td>
-                  <td className="py-2.5 text-right font-medium text-gray-800">{rt.available}</td>
-                  <td className="py-2.5 text-right font-bold text-gray-500">{rt.occPct}%</td>
-                  <td className="py-2.5 text-right font-medium text-gray-800">{parseFloat(rt.adr).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-1.5 font-medium text-gray-600">{rt.roomType}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{rt.occupied}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{rt.available}</td>
+                  <td className="py-1.5 text-right font-bold text-gray-500">{rt.occPct}%</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{parseFloat(rt.adr).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                 </tr>
               ))}
               <tr className="bg-gray-50/50">
-                <td className="py-2.5 font-bold text-green-700">TOTAL</td>
-                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupiedRooms}</td>
-                <td className="py-2.5 text-right font-bold text-green-700">{data.roomStatistics?.availableRooms}</td>
-                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.occupancy}%</td>
-                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.adr?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="py-1.5 font-bold text-green-700">TOTAL</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.occupiedRooms}</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.roomStatistics?.availableRooms}</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.occupancy}%</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.adr?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">PAYMENT SUMMARY (TODAY)</h3>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">PAYMENT SUMMARY (TODAY)</h3>
           <table className="w-full text-left ">
             <thead>
               <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
@@ -5131,21 +5251,21 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <tbody className="divide-y divide-gray-50">
               {data.paymentSummary?.map((ps, i) => (
                 <tr key={i} className="hover:bg-gray-50">
-                  <td className="py-2.5 font-medium text-gray-600">{ps.method}</td>
-                  <td className="py-2.5 text-right font-medium text-gray-800">{ps.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                  <td className="py-2.5 text-right font-bold text-gray-500">{(data.kpi?.totalRevenue ? (ps.amount / data.kpi.totalRevenue * 100) : 0).toFixed(1)}%</td>
+                  <td className="py-1.5 font-medium text-gray-600">{ps.method}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{ps.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-1.5 text-right font-bold text-gray-500">{(data.kpi?.totalRevenue ? (ps.amount / data.kpi.totalRevenue * 100) : 0).toFixed(1)}%</td>
                 </tr>
               ))}
               <tr className="bg-gray-50/50">
-                <td className="py-2.5 font-bold text-green-700">TOTAL PAYMENTS</td>
-                <td className="py-2.5 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                <td className="py-2.5 text-right font-bold text-green-700">100%</td>
+                <td className="py-1.5 font-bold text-green-700">TOTAL PAYMENTS</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="py-1.5 text-right font-bold text-green-700">100%</td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">HOUSEKEEPING SUMMARY</h3>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">HOUSEKEEPING SUMMARY</h3>
           <div className="space-y-4 font-medium mt-6">
             <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.housekeeping?.totalRooms}</span></div>
             <div className="flex justify-between items-center"><span className="text-gray-500">Clean Rooms</span><span className="font-bold text-green-700">{data.housekeeping?.cleanRooms}</span></div>
@@ -5157,9 +5277,9 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">TOP 5 ROOM REVENUE</h3>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">TOP 5 ROOM REVENUE</h3>
           <table className="w-full text-left ">
             <thead>
               <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
@@ -5171,25 +5291,25 @@ function ManagerDailyReportUI({ data, fromDate, toDate }) {
             <tbody className="divide-y divide-gray-50">
               {data.topRooms?.map((tr, i) => (
                 <tr key={i} className="hover:bg-gray-50">
-                  <td className="py-2.5 font-bold text-gray-800">{tr.roomNo}</td>
-                  <td className="py-2.5 font-medium text-gray-600">{tr.roomType}</td>
-                  <td className="py-2.5 text-right font-medium text-gray-800">{tr.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-1.5 font-bold text-gray-800">{tr.roomNo}</td>
+                  <td className="py-1.5 font-medium text-gray-600">{tr.roomType}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{tr.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">NOTES & REMINDERS</h3>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">NOTES & REMINDERS</h3>
           <ul className="space-y-4 font-medium text-gray-600">
             {data.notes?.map((n, i) => (
               <li key={i}>{n}</li>
             ))}
           </ul>
         </div>
-        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
-          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-5">WEATHER</h3>
-          <div className="flex items-center mt-2 mb-8">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">WEATHER</h3>
+          <div className="flex items-center mt-2 mb-4">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ea9f2f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-6"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
             <div>
               <div className=" font-black text-gray-800">{data.weather?.temp}</div>
@@ -5368,8 +5488,8 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
   };
 
   const renderTable = () => {
-    if (loading) return <div className="p-8 text-center text-black/40 font-medium">Generating report...</div>;
-    if (!data) return <div className="p-8 text-center text-red-500 font-medium">Failed to load report data.</div>;
+    if (loading) return <div className="p-4 text-center text-black/40 font-medium">Generating report...</div>;
+    if (!data) return <div className="p-4 text-center text-red-500 font-medium">Failed to load report data.</div>;
 
     if (report.title === "Daily Manager's Report" && data.stats) {
       return (
@@ -5393,17 +5513,17 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     }
 
     if (report.title === "Arrival Report" && data.arrivals) {
-      if (data.arrivals.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No arrivals scheduled for this date.</div>;
+      if (data.arrivals.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No arrivals scheduled for this date.</div>;
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Arrival Report</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Arrival Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
@@ -5412,11 +5532,11 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Dates</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Dates</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -5436,17 +5556,17 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     }
 
     if (report.title === "Departure Report" && data.departures) {
-      if (data.departures.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No departures scheduled for this date.</div>;
+      if (data.departures.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No departures scheduled for this date.</div>;
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Departure Report</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Departure Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
@@ -5455,10 +5575,10 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -5477,17 +5597,17 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     }
 
     if (report.title === "In-House Guest Report" && data.inHouse) {
-      if (data.inHouse.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No guests currently in-house.</div>;
+      if (data.inHouse.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No guests currently in-house.</div>;
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">In-House Guest Report</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">In-House Guest Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
@@ -5496,10 +5616,10 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Departure</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black text-right">Balance</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Departure</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black text-right">Balance</th>
               </tr>
             </thead>
             <tbody>
@@ -5520,14 +5640,14 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     if (report.title === "Room Status Report" && data.rooms) {
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Room Status Report</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Room Status Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
@@ -5536,10 +5656,10 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room Number</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Occupancy</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Cleanliness</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room Number</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Occupancy</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Cleanliness</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest</th>
               </tr>
             </thead>
             <tbody>
@@ -5558,18 +5678,18 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     }
 
     if (report.title === "Cashier Shift Report" && data.payments) {
-      if (data.payments.length === 0) return <div className="p-8 text-center text-black/40 font-medium">No payments collected for this date/staff.</div>;
+      if (data.payments.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No payments collected for this date/staff.</div>;
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
               <div>
-                <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">End of Shift / Cashier Report</h2>
+                <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">End of Shift / Cashier Report</h2>
                 <div className="font-bold text-black/60 text-xs mt-1">CASHIER: {shiftStaff.toUpperCase()}</div>
               </div>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
@@ -5580,11 +5700,11 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse mt-4">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Time</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Method / Ref</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Time</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Method / Ref</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -5600,20 +5720,20 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-black">Total Cash Collected:</td>
-                <td className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_cash).toLocaleString()}</td>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Cash Collected:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_cash).toLocaleString()}</td>
               </tr>
               <tr>
-                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-black">Total GCash/Online:</td>
-                <td className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_online).toLocaleString()}</td>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total GCash/Online:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_online).toLocaleString()}</td>
               </tr>
               <tr>
-                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-black">Total Card:</td>
-                <td className="border border-[#222] px-3 py-2 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_card).toLocaleString()}</td>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Card:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_card).toLocaleString()}</td>
               </tr>
               <tr className="bg-[#f0f0f0]">
-                <td colSpan="4" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Shift Collection:</td>
-                <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.summary.total_collected).toLocaleString()}</td>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Shift Collection:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.summary.total_collected).toLocaleString()}</td>
               </tr>
             </tfoot>
           </table>
@@ -5634,21 +5754,21 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     if (report.title === "Revenue Report" && data.items) {
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Revenue Report (By Department)</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Revenue Report (By Department)</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
 
           {/* Revenue Summary Table */}
-          <div className="mb-8 w-[60%] mx-auto">
+          <div className="mb-4 w-[60%] mx-auto">
             <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Revenue Summary</h3>
             <table className="w-full text-left border-collapse">
               <tbody>
@@ -5661,8 +5781,8 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               </tbody>
               <tfoot>
                 <tr className="bg-[#f0f0f0]">
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Recognized Revenue:</td>
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Recognized Revenue:</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
                 </tr>
               </tfoot>
             </table>
@@ -5673,11 +5793,11 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Time</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Department</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Description</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Time</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Department</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Description</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -5716,21 +5836,21 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     if (report.title === "Payment Collection Report" && data.payments) {
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Payment Collection Report</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Payment Collection Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
 
           {/* Payment Summary Table */}
-          <div className="mb-8 w-[60%] mx-auto">
+          <div className="mb-4 w-[60%] mx-auto">
             <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Collection Summary</h3>
             <table className="w-full text-left border-collapse">
               <tbody>
@@ -5743,8 +5863,8 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               </tbody>
               <tfoot>
                 <tr className="bg-[#f0f0f0]">
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected:</td>
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected:</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
                 </tr>
               </tfoot>
             </table>
@@ -5755,12 +5875,12 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Date & Time</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Payment Method</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Reference #</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Amount</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Cashier</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Date & Time</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Payment Method</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Reference #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Cashier</th>
               </tr>
             </thead>
             <tbody>
@@ -5802,14 +5922,14 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     if (report.title === "Guest Ledger Report" && data.ledger) {
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">Guest Ledger Report</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Guest Ledger Report</h2>
               <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
@@ -5818,14 +5938,14 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#f0f0f0]">
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Room #</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Check-in</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Check-out</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-center text-black">Status</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Charges</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Payments</th>
-                <th className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-right text-black">Balance</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Check-in</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Check-out</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Status</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Charges</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Payments</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Balance</th>
               </tr>
             </thead>
             <tbody>
@@ -5851,10 +5971,10 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             {data.ledger.length > 0 && (
               <tfoot>
                 <tr className="bg-[#f0f0f0]">
-                  <td colSpan="5" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total:</td>
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalCharges).toLocaleString()}</td>
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalPayments).toLocaleString()}</td>
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-right text-[#b91c1c]">₱{Number(data.summary.totalBalance).toLocaleString()}</td>
+                  <td colSpan="5" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total:</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalCharges).toLocaleString()}</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalPayments).toLocaleString()}</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-[#b91c1c]">₱{Number(data.summary.totalBalance).toLocaleString()}</td>
                 </tr>
               </tfoot>
             )}
@@ -5917,14 +6037,14 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
 
       return (
         <div className="text-black text-[11px] font-sans">
-          <div className="mb-6">
-            <div className="bg-[#1E3932] p-6 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
               <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
               <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
               <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
-              <h2 className="m-0 text-lg font-bold uppercase tracking-wider text-black">{report.title}</h2>
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">{report.title}</h2>
               {!isHousekeeping && <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>}
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
@@ -5934,7 +6054,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             <thead>
               <tr className="bg-[#f0f0f0]">
                 {columns.map((col, i) => (
-                  <th key={i} className="border border-[#222] px-3 py-2 text-[10px] font-bold uppercase text-left text-black">{col}</th>
+                  <th key={i} className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">{col}</th>
                 ))}
               </tr>
             </thead>
@@ -5956,12 +6076,12 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             {report.title === "Night Audit Report" && data.stats && (
               <tfoot>
                 <tr className="bg-[#f0f0f0]">
-                  <td colSpan="2" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Posted (Period):</td>
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_posted).toLocaleString()}</td>
+                  <td colSpan="2" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Posted (Period):</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_posted).toLocaleString()}</td>
                 </tr>
                 <tr className="bg-[#f0f0f0]">
-                  <td colSpan="2" className="border border-[#222] px-3 py-2 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected (Period):</td>
-                  <td className="border border-[#222] px-3 py-2 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_collected).toLocaleString()}</td>
+                  <td colSpan="2" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected (Period):</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_collected).toLocaleString()}</td>
                 </tr>
               </tfoot>
             )}
@@ -5981,14 +6101,14 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
       );
     }
 
-    return <div className="p-8 text-center text-black/40 font-medium">Report format not yet implemented.</div>;
+    return <div className="p-4 text-center text-black/40 font-medium">Report format not yet implemented.</div>;
   };
 
   return (
     <div className="fixed top-0 left-[120px] right-0 bottom-0 flex flex-col z-10 print:static print:block print:left-0 print:w-full print:h-auto print:overflow-visible print:bg-white">
       <div className="flex-1 flex flex-col overflow-hidden bg-[#f8f9fa] print:block print:overflow-visible print:bg-white" id="printable-report">
         <div className="px-8 py-6 border-b border-black/5 bg-white shrink-0 flex items-center justify-between print:hidden">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <button onClick={onBack} className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/60">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
             </button>
@@ -5999,7 +6119,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
           </div>
           <div className="flex items-center gap-3">
             {report.title === "Cashier Shift Report" && (
-              <select value={shiftStaff} onChange={e => setShiftStaff(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-lg text-sm outline-none focus:border-[#00754A]">
+              <select value={shiftStaff} onChange={e => setShiftStaff(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-md text-[12px] outline-none focus:border-[#00754A]">
                 <option value="All Staff">All Staff</option>
                 {staffList.map(s => <option key={s.id} value={s.username}>{s.full_name || s.username}</option>)}
                 <option value="admin">admin</option>
@@ -6007,33 +6127,33 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             )}
             {report.title !== "Room Status Report" && report.title !== "In-House Guest Report" && (
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg focus-within:border-[#00754A] transition-colors">
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md focus-within:border-[#00754A] transition-colors">
                   <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
-                  <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="text-sm outline-none bg-transparent cursor-pointer font-medium" />
+                  <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium" />
                 </div>
-                <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg focus-within:border-[#00754A] transition-colors">
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md focus-within:border-[#00754A] transition-colors">
                   <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
-                  <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="text-sm outline-none bg-transparent cursor-pointer font-medium" />
+                  <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium" />
                 </div>
               </div>
             )}
-            <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
+            <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-1.5 border border-black/10 rounded-md text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
               <span>Print</span>
             </button>
-            <button onClick={handleExportCSV} className="flex items-center gap-2 px-5 py-2.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-lg text-xs font-bold shadow-sm transition-colors">
+            <button onClick={handleExportCSV} className="flex items-center gap-2 px-5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-md text-xs font-bold shadow-sm transition-colors">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
               <span>Export CSV</span>
             </button>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-8 bg-[#f8f9fa] print:block print:overflow-visible print:p-0 print:bg-white w-full">
+        <div className="flex-1 overflow-y-auto p-4 bg-[#f8f9fa] print:block print:overflow-visible print:p-0 print:bg-white w-full">
           {report.title === "Daily Manager's Report" && data ? (
             <div className="max-w-[1400px] mx-auto print:max-w-[1400px] print:mx-auto w-full">
               <ManagerDailyReportUI data={data} fromDate={fromDate} toDate={toDate} />
             </div>
           ) : (
-            <div className="max-w-[794px] min-h-[1123px] mx-auto bg-white shadow-sm border border-black/10 print:shadow-none print:border-none print:p-0 w-full p-12">
+            <div className="max-w-[794px] min-h-[1123px] mx-auto bg-white shadow-sm border border-black/10 print:shadow-none print:border-none print:p-0 w-full p-4">
               {renderTable()}
             </div>
           )}
@@ -6120,12 +6240,12 @@ function AdminReportsTab() {
               <h2 className="text-[#000000]/87 font-black text-2xl tracking-tight leading-tight">Reports</h2>
               <p className="text-black/60 text-[13px] mt-1 font-medium">View and generate hotel reports</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
                 <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
                 <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="outline-none bg-transparent cursor-pointer font-medium" />
               </div>
-              <div className="flex items-center gap-2 px-3 py-2 bg-white border border-black/10 rounded-lg text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
+              <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
                 <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
                 <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="outline-none bg-transparent cursor-pointer font-medium" />
               </div>
@@ -6139,22 +6259,22 @@ function AdminReportsTab() {
                 const active = reportsSubTab === tab.id;
                 return (
                   <button key={tab.id} onClick={() => setReportsSubTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-[13px] transition-all ${active ? 'bg-[#00754A]/[0.06] text-[#00754A] font-bold' : 'text-black/60 hover:bg-black/5 font-medium'}`}>
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-[13px] transition-all ${active ? 'bg-[#00754A]/[0.06] text-[#00754A] font-bold' : 'text-black/60 hover:bg-black/5 font-medium'}`}>
                     {React.cloneElement(tab.icon, { stroke: active ? '#00754A' : 'currentColor' })}
                     <span>{tab.label}</span>
                   </button>
                 );
               })}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                 </div>
                 <input type="text" placeholder="Search reports..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-                  className="pl-9 pr-4 py-2.5 border border-black/10 rounded-lg text-xs w-64 outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] transition-all bg-white font-medium" />
+                  className="pl-9 pr-4 py-1.5 border border-black/10 rounded-md text-xs w-64 outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] transition-all bg-white font-medium" />
               </div>
-              <button className="flex items-center gap-2 px-5 py-2.5 border border-black/10 rounded-lg text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
+              <button className="flex items-center gap-2 px-5 py-1.5 border border-black/10 rounded-md text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/40"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
                 <span>Favorites</span>
               </button>
@@ -6162,17 +6282,17 @@ function AdminReportsTab() {
           </div>
 
           {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-10 bg-white">
+          <div className="flex-1 overflow-y-auto py-6 pr-6 pl-[10px] bg-[#f8f9fa]">
             <div className="space-y-12 max-w-[1400px]">
               {reportCategories.filter(cat => reportsSubTab === 'All Reports' || cat.id === reportsSubTab).map(cat => (
                 <div key={cat.id}>
-                  <h3 className="text-[12px] font-black uppercase tracking-[0.1em] text-[#00754A] mb-5">{cat.title}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                  <h3 className="text-[12px] font-black uppercase tracking-[0.1em] text-[#00754A] mb-3">{cat.title}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     {cat.reports.filter(r => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.desc.toLowerCase().includes(searchQuery.toLowerCase())).map((report, i) => (
                       <div key={i} onClick={() => setSelectedReport(report)} className="group bg-white border border-black/10 rounded-xl hover:border-[#00754A]/30 hover:shadow-[0_8px_24px_rgba(0,117,74,0.08)] transition-all cursor-pointer flex flex-col relative overflow-hidden">
-                        <div className="p-6 flex flex-col gap-4">
+                        <div className="p-4 flex flex-col gap-2">
                           <div className="flex items-start justify-between">
-                            <div className="w-10 h-10 rounded-lg bg-emerald-50/50 flex items-center justify-center shrink-0 border border-emerald-100/50">
+                            <div className="w-10 h-10 rounded-md bg-emerald-50/50 flex items-center justify-center shrink-0 border border-emerald-100/50">
                               {React.cloneElement(report.icon, { strokeWidth: "2" })}
                             </div>
                             <button className="text-black/20 hover:text-amber-400 transition-colors shrink-0" onClick={(e) => e.stopPropagation()}>
@@ -6180,7 +6300,7 @@ function AdminReportsTab() {
                             </button>
                           </div>
                           <div className="flex-1 min-w-0 mt-2">
-                            <h4 className="font-bold text-black text-[13px] leading-snug mb-1.5">{report.title}</h4>
+                            <h4 className="font-bold text-black text-[13px] leading-snug mb-1">{report.title}</h4>
                             <p className="text-[11px] text-black/50 leading-relaxed font-medium">{report.desc}</p>
                           </div>
                         </div>
@@ -6195,7 +6315,7 @@ function AdminReportsTab() {
               ))}
             </div>
 
-            <div className="mt-20 mb-8 flex items-center justify-center gap-2 text-black/40 text-xs font-medium">
+            <div className="mt-20 mb-4 flex items-center justify-center gap-2 text-black/40 text-xs font-medium">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
               <span>All reports can be exported to PDF, Excel, or CSV format.</span>
             </div>
@@ -6251,7 +6371,7 @@ function AdminInboxTab() {
         <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-black/10 bg-white overflow-hidden">
           <div className="px-6 py-5 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-black text-gray-900 tracking-tight">Inbox</h2>
+              <h2 className="text-[14px] font-black text-gray-900 tracking-tight">Inbox</h2>
               <p className="text-xs text-gray-400 mt-0.5">{messages.length} messages{unreadCount > 0 ? `, ${unreadCount} unread` : ''}</p>
             </div>
             <button onClick={fetchMessages} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
@@ -6266,7 +6386,7 @@ function AdminInboxTab() {
             ) : messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-48 text-center px-6">
                 <svg className="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
-                <p className="text-sm text-gray-400 font-medium">No messages yet</p>
+                <p className="text-[12px] text-gray-400 font-medium">No messages yet</p>
                 <p className="text-xs text-gray-300 mt-1">Guest messages will appear here</p>
               </div>
             ) : (
@@ -6279,7 +6399,7 @@ function AdminInboxTab() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
                       {!msg.is_read && <span className="w-2 h-2 rounded-full bg-[#00754A] flex-shrink-0 mt-1"></span>}
-                      <span className={`text-sm truncate ${!msg.is_read ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>{msg.name}</span>
+                      <span className={`text-[12px] truncate ${!msg.is_read ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>{msg.name}</span>
                     </div>
                     <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
                       {new Date(msg.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
@@ -6299,7 +6419,7 @@ function AdminInboxTab() {
             <div className="flex-1 flex flex-col overflow-y-auto">
               {/* Header / Actions */}
               <div className="px-8 py-4 border-b border-black/5 flex items-center justify-between sticky top-0 bg-white z-10">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-900 transition-colors p-2 -ml-2 rounded-full hover:bg-gray-100" title="Back to inbox">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                   </button>
@@ -6307,7 +6427,7 @@ function AdminInboxTab() {
                 <div>
                   <a
                     href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#f8f9fa] border border-black/10 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-[#f8f9fa] border border-black/10 text-gray-700 text-[12px] font-semibold rounded-md hover:bg-gray-50 transition-colors"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
                     Reply
@@ -6321,15 +6441,15 @@ function AdminInboxTab() {
               </div>
 
               {/* Sender Info */}
-              <div className="px-8 pb-6 flex items-start gap-4">
+              <div className="px-8 pb-6 flex items-start gap-2">
                 <div className="w-12 h-12 rounded-full bg-[#00754A] flex items-center justify-center flex-shrink-0 text-white shadow-sm mt-1">
-                  <span className="font-bold text-lg">{selected.name[0].toUpperCase()}</span>
+                  <span className="font-bold text-[14px]">{selected.name[0].toUpperCase()}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline justify-between flex-wrap gap-2">
                     <div className="flex items-baseline gap-2 truncate">
                       <span className="font-bold text-gray-900 text-base">{selected.name}</span>
-                      <span className="text-sm text-gray-500">&lt;{selected.email}&gt;</span>
+                      <span className="text-[12px] text-gray-500">&lt;{selected.email}&gt;</span>
                     </div>
                     <span className="text-xs text-gray-500 flex-shrink-0" title={new Date(selected.created_at).toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' })}>
                       {new Date(selected.created_at).toLocaleString('en-PH', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
@@ -6348,7 +6468,7 @@ function AdminInboxTab() {
             <div className="flex-1 flex flex-col items-center justify-center text-center px-6 bg-[#f8f9fa]">
               <svg className="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
               <p className="text-gray-400 font-medium">Select an item to read</p>
-              <p className="text-gray-400 text-sm mt-1">Nothing is selected</p>
+              <p className="text-gray-400 text-[12px] mt-1">Nothing is selected</p>
             </div>
           )}
         </div>
@@ -6369,13 +6489,13 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
       .catch(() => { });
   }, []);
 
-  const inputCls = "w-full pl-10 pr-4 py-2 rounded-lg border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-sm";
+  const inputCls = "w-full pl-10 pr-4 py-2 rounded-md border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-[12px]";
 
   return (
     <>
       {/* Top Pre-header Bar */}
       <div className="sticky top-0 z-[60] h-[50px] w-full bg-[#1E3932] flex items-center justify-between px-4 md:px-8 overflow-hidden">
-        <div className="flex items-center gap-2 sm:gap-6">
+        <div className="flex items-center gap-2 sm:gap-3">
           <a href="mailto:info@northomespensione.com" className="text-white/95 text-[11px] sm:text-xs font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-1.5 whitespace-nowrap">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
             <span>info@northomespensione.com</span>
@@ -6385,7 +6505,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
             <span>+63 917 132 3715</span>
           </a>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <div className="hidden sm:flex items-center gap-3">
             <a href="https://www.facebook.com/northomespensione" target="_blank" rel="noreferrer" className="text-white/80 hover:text-white transition-colors">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z" /></svg>
@@ -6412,8 +6532,8 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
       </div>
 
       <header className="relative z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
-        <div className="relative max-w-7xl mx-auto px-6 py-2.5">
-          <div className="flex items-center justify-between gap-4">
+        <div className="relative max-w-7xl mx-auto px-6 py-1.5">
+          <div className="flex items-center justify-between gap-2">
             {/* Logo Left */}
             <div className="flex items-center cursor-pointer" onClick={() => setCurrentPage('home')}>
               <img
@@ -6474,7 +6594,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
                               setAccommodationFilter(rt.name);
                               setCurrentPage('accommodations');
                             }}
-                            className="w-full text-left px-4 py-2.5 text-[11px] font-bold text-black/60 hover:text-[#00754A] hover:bg-[#f2f0eb] transition-colors uppercase tracking-widest"
+                            className="w-full text-left px-4 py-1.5 text-[11px] font-bold text-black/60 hover:text-[#00754A] hover:bg-[#f2f0eb] transition-colors uppercase tracking-widest"
                           >
                             {rt.name}
                           </button>
@@ -6490,7 +6610,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
             <div className="hidden md:block">
               <button
                 onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#1E3932] hover:opacity-90 text-white font-bold text-xs uppercase tracking-widest rounded-lg transition-all shadow-sm"
+                className="flex items-center gap-2 px-5 py-1.5 bg-[#1E3932] hover:opacity-90 text-white font-bold text-xs uppercase tracking-widest rounded-md transition-all shadow-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 Book Now
@@ -6530,7 +6650,7 @@ function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setA
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }
                 }}
-                className={`font-bold transition-all py-2 px-3 text-sm uppercase tracking-widest ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery') ? 'text-[#00754A]' : 'text-black/60 hover:text-[#000000]/87'}`}
+                className={`font-bold transition-all py-2 px-3 text-[12px] uppercase tracking-widest ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery') ? 'text-[#00754A]' : 'text-black/60 hover:text-[#000000]/87'}`}
               >
                 {item.name}
               </button>
@@ -6601,23 +6721,23 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
       </div>
 
       {/* Info Section */}
-      <div className="w-full p-8 md:p-12 flex flex-col items-center text-center bg-white relative grow">
+      <div className="w-full p-4 md:p-4 flex flex-col items-center text-center bg-white relative grow">
 
         <h2 className="text-3xl font-bold text-[#006241] tracking-tight mb-2">{room.name}</h2>
-        <div className="text-2xl font-black text-black/80 mb-6">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-sm text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
+        <div className="text-2xl font-black text-black/80 mb-3">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-[12px] text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
 
         {hasCheckedAvailability && (
-          <div className={`mb-6 inline-block w-fit px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${room.available > 0 ? 'bg-[#00754A]/5 border-[#00754A]/20 text-[#00754A]' : 'bg-red-500/5 border-red-500/20 text-red-600'}`}>
+          <div className={`mb-3 inline-block w-fit px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${room.available > 0 ? 'bg-[#00754A]/5 border-[#00754A]/20 text-[#00754A]' : 'bg-red-500/5 border-red-500/20 text-red-600'}`}>
             {room.available > 0 ? `${room.available} ${room.available === 1 ? 'Room' : 'Rooms'} Available` : 'Fully Booked for these dates'}
           </div>
         )}
 
-        <p className="text-black/60 font-medium leading-relaxed mb-8">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
+        <p className="text-black/60 font-medium leading-relaxed mb-4">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
 
         {room.amenities && (
-          <div className="mb-8 px-2 sm:px-4 flex flex-col gap-3">
+          <div className="mb-4 px-2 sm:px-4 flex flex-col gap-3">
             {room.amenities.split(/(?=FEATURES:)/i).map((part, idx) => (
-              <p key={idx} className="text-black/60 text-[11px] sm:text-sm text-justify leading-relaxed font-medium">
+              <p key={idx} className="text-black/60 text-[11px] sm:text-[12px] text-justify leading-relaxed font-medium">
                 {part.trim()}
               </p>
             ))}
@@ -6637,7 +6757,7 @@ function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
       </div>
 
       {/* Dark Bottom Section - Matches User Photo */}
-      <div className={`w-full bg-[#1E3932] p-8 text-white grid gap-6 shrink-0 mt-auto ${/economy/i.test(room.name) ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
+      <div className={`w-full bg-[#1E3932] p-4 text-white grid gap-3 shrink-0 mt-auto ${/economy/i.test(room.name) ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
         <div className="flex flex-col items-center text-center gap-2">
           <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
           <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Up to {room.max_guests} Guests</span>
@@ -6707,8 +6827,8 @@ function ContactPage({ setCurrentPage }) {
         </div>
         <div className="relative z-10 text-center px-4 mt-8">
           <h4 className="text-[#CBA258] text-[12px] font-black uppercase tracking-[0.3em] mb-4">Get In Touch</h4>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">Contact Us</h1>
-          <p className="text-white/80 text-lg max-w-xl mx-auto font-medium">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">Contact Us</h1>
+          <p className="text-white/80 text-[14px] max-w-xl mx-auto font-medium">
             We are here to help. Send us a message or call us for any inquiries about your stay.
           </p>
         </div>
@@ -6716,19 +6836,19 @@ function ContactPage({ setCurrentPage }) {
 
       {/* Main Content Area */}
       <div className="max-w-6xl mx-auto px-4 -mt-16 md:-mt-24 relative z-20">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
 
           {/* Left Column: Contact Details */}
-          <div className="lg:col-span-1 flex flex-col gap-8">
-            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 flex flex-col gap-8">
+          <div className="lg:col-span-1 flex flex-col gap-2">
+            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 flex flex-col gap-2">
 
-              <div className="flex gap-4 items-start">
+              <div className="flex gap-2 items-start">
                 <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Our Location</h3>
-                  <p className="text-black/60 text-sm leading-relaxed">
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Our Location</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
                     Pelaez St.<br />
                     Bogo City, Cebu<br />
                     Philippines 6010
@@ -6736,39 +6856,39 @@ function ContactPage({ setCurrentPage }) {
                 </div>
               </div>
 
-              <div className="flex gap-4 items-start">
+              <div className="flex gap-2 items-start">
                 <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Contact Number</h3>
-                  <p className="text-black/60 text-sm leading-relaxed">
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Contact Number</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
                     Front Desk / Reservations:<br />
                     <a href="tel:+639276230491" className="text-[#00754A] font-bold hover:underline"> +63 917 132 3715</a>
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-4 items-start">
+              <div className="flex gap-2 items-start">
                 <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Email Address</h3>
-                  <p className="text-black/60 text-sm leading-relaxed">
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Email Address</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
                     General Inquiries:<br />
                     <a href="mailto:info@northomespensione.com" className="text-[#00754A] font-bold hover:underline">info@northomespensione.com</a>
                   </p>
                 </div>
               </div>
 
-              <div className="flex gap-4 items-start">
+              <div className="flex gap-2 items-start">
                 <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#000000]/87 mb-1">Operating Hours</h3>
-                  <p className="text-black/60 text-sm leading-relaxed">
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Operating Hours</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
                     Front Desk is open 24/7.
                   </p>
                 </div>
@@ -6779,21 +6899,21 @@ function ContactPage({ setCurrentPage }) {
 
           {/* Right Column: Contact Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-12 h-full flex flex-col">
+            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 md:p-4 h-full flex flex-col">
               <h2 className="text-3xl font-bold text-[#006241] tracking-tight mb-2">Send us a Message</h2>
-              <p className="text-black/60 mb-8">Have a question or special request? Let us know and we'll get back to you as soon as possible.</p>
+              <p className="text-black/60 mb-4">Have a question or special request? Let us know and we'll get back to you as soon as possible.</p>
 
               {isSent ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-[#f2f0eb] rounded-2xl border border-[#00754A]/20">
-                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-6">
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-4 bg-[#f2f0eb] rounded-xl border border-[#00754A]/20">
+                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
                     <svg className="w-10 h-10 text-[#00754A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                   </div>
                   <h3 className="text-2xl font-bold text-[#000000]/87 mb-2">Message Sent!</h3>
                   <p className="text-black/60">Thank you for reaching out. We have received your message and will contact you shortly.</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Your Name</label>
                       <input
@@ -6801,7 +6921,7 @@ function ContactPage({ setCurrentPage }) {
                         required
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                        className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
                         placeholder="John Doe"
                       />
                     </div>
@@ -6812,7 +6932,7 @@ function ContactPage({ setCurrentPage }) {
                         required
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                        className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
                         placeholder="john@example.com"
                       />
                     </div>
@@ -6825,7 +6945,7 @@ function ContactPage({ setCurrentPage }) {
                       required
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                      className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
                       placeholder="How can we help?"
                     />
                   </div>
@@ -6836,18 +6956,18 @@ function ContactPage({ setCurrentPage }) {
                       required
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full px-4 py-3 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all resize-none flex-1 min-h-[150px]"
+                      className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all resize-none flex-1 min-h-[150px]"
                       placeholder="Type your message here..."
                     ></textarea>
                   </div>
 
                   {error && (
-                    <p className="text-red-500 text-sm font-medium text-center">{error}</p>
+                    <p className="text-red-500 text-[12px] font-medium text-center">{error}</p>
                   )}
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full px-8 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-bold text-sm uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-[#00754A]/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                    className="w-full px-8 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-bold text-[12px] uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-[#00754A]/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
                   >
                     {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
@@ -6923,21 +7043,21 @@ function AccommodationsPage({ setCurrentPage, accommodationFilter, setAccommodat
         <p className="text-black/60 max-w-2xl mx-auto font-medium mb-12">Experience comfort and style in the heart of Bogo City. Explore our carefully designed rooms tailored for your perfect stay.</p>
 
         {/* Availability Bar */}
-        <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-4 justify-center">
+        <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-2 justify-center">
           <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-sm shadow-sm w-full md:w-auto">
             <svg className="w-5 h-5 text-[#CBA258] ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
             <input
               type="date"
               value={checkIn}
               onChange={e => setCheckIn(e.target.value)}
-              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
+              className="px-2 py-1.5 text-[12px] font-bold text-black/60 focus:outline-none bg-transparent"
             />
             <span className="text-black/20 font-bold">-</span>
             <input
               type="date"
               value={checkOut}
               onChange={e => setCheckOut(e.target.value)}
-              className="px-3 py-2 text-sm font-bold text-black/60 focus:outline-none bg-transparent"
+              className="px-2 py-1.5 text-[12px] font-bold text-black/60 focus:outline-none bg-transparent"
             />
           </div>
 
@@ -6954,7 +7074,7 @@ function AccommodationsPage({ setCurrentPage, accommodationFilter, setAccommodat
       {/* Category Filter Badge */}
       {accommodationFilter && (
         <div className="max-w-7xl mx-auto px-4 mt-8 flex justify-center">
-          <div className="bg-white border border-black/5 rounded-full px-5 py-2.5 inline-flex items-center gap-3 shadow-sm">
+          <div className="bg-white border border-black/5 rounded-full px-5 py-1.5 inline-flex items-center gap-3 shadow-sm">
             <span className="text-xs font-bold uppercase tracking-widest text-black/60">Filtered by: <span className="text-[#00754A]">{accommodationFilter}</span></span>
             <button onClick={() => setAccommodationFilter(null)} className="text-black/30 hover:text-red-500 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -7026,11 +7146,11 @@ function PromoPage({ setCurrentPage }) {
             <p className="text-black/50">Check back later for exciting new offers!</p>
           </div>
         ) : (
-          <div className="bg-white rounded-[2rem] p-8 md:p-14 shadow-2xl border border-[#EBE3CD] relative">
+          <div className="bg-white rounded-[2rem] p-4 md:p-14 shadow-2xl border border-[#EBE3CD] relative">
 
             {/* Header */}
             <div className="text-center mb-10">
-              <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="h-px bg-[#D5C294] flex-1 max-w-[60px]"></div>
                 <div className="w-10 h-10 rounded-full border border-[#D5C294] flex items-center justify-center text-[#A98C51]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-45"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
@@ -7039,10 +7159,10 @@ function PromoPage({ setCurrentPage }) {
               </div>
 
               <h1 className="text-5xl md:text-6xl font-bold text-[#16392F] mb-2 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>{promo.name}</h1>
-              <p className="text-gray-500 text-lg md:text-xl mb-8">{promo.description || 'Seasonal Promo Rate'}</p>
+              <p className="text-gray-500 text-[14px] md:text-[16px] mb-4">{promo.description || 'Seasonal Promo Rate'}</p>
 
-              <div className="inline-flex items-center justify-center bg-[#FDFCF5] border border-dashed border-[#D5C294] rounded-lg px-8 py-3">
-                <span className="text-gray-500 font-semibold tracking-wider mr-4 uppercase text-sm">Use Promo Code:</span>
+              <div className="inline-flex items-center justify-center bg-[#FDFCF5] border border-dashed border-[#D5C294] rounded-md px-8 py-3">
+                <span className="text-gray-500 font-semibold tracking-wider mr-4 uppercase text-[12px]">Use Promo Code:</span>
                 <span className="text-3xl font-bold text-[#A98C51]">{promo.code}</span>
               </div>
             </div>
@@ -7050,20 +7170,20 @@ function PromoPage({ setCurrentPage }) {
             {/* Applicable Rooms */}
             {promo.prices && promo.prices.length > 0 && (
               <div className="mb-12">
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="text-[#A98C51]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></svg>
                   </div>
-                  <h3 className="text-sm font-bold text-[#16392F] tracking-widest uppercase">Applicable Rooms</h3>
+                  <h3 className="text-[12px] font-bold text-[#16392F] tracking-widest uppercase">Applicable Rooms</h3>
                   <div className="h-px bg-[#EBE3CD] flex-1 ml-4"></div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {promo.prices.map((p, i) => (
-                    <div key={i} className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+                    <div key={i} className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow">
                       <h4 className="font-bold text-gray-800 mb-2">{p.room_type_name}</h4>
                       {p.original_price && (
-                        <p className="text-gray-400 line-through text-sm mb-1">₱{parseFloat(p.original_price).toLocaleString()}</p>
+                        <p className="text-gray-400 line-through text-[12px] mb-1">₱{parseFloat(p.original_price).toLocaleString()}</p>
                       )}
                       <p className="text-3xl font-bold text-[#CBA258]">₱{parseFloat(p.price_per_night).toLocaleString()}</p>
                     </div>
@@ -7080,7 +7200,7 @@ function PromoPage({ setCurrentPage }) {
                   setCurrentPage('booking');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="inline-flex items-center justify-center gap-3 w-full md:w-auto px-12 py-4 bg-gradient-to-r from-[#B4965A] to-[#A2834A] hover:from-[#A2834A] hover:to-[#8E723B] text-white rounded-full font-bold text-sm md:text-base uppercase tracking-widest shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+                className="inline-flex items-center justify-center gap-3 w-full md:w-auto px-12 py-4 bg-gradient-to-r from-[#B4965A] to-[#A2834A] hover:from-[#A2834A] hover:to-[#8E723B] text-white rounded-full font-bold text-[12px] md:text-base uppercase tracking-widest shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 Book with this promo
@@ -7089,7 +7209,7 @@ function PromoPage({ setCurrentPage }) {
 
             {/* Terms and Conditions */}
             <div>
-              <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="flex items-center justify-center gap-2 mb-4">
                 <div className="h-px bg-[#EBE3CD] flex-1"></div>
                 <div className="text-[#D5C294]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
@@ -7097,9 +7217,9 @@ function PromoPage({ setCurrentPage }) {
                 <div className="h-px bg-[#EBE3CD] flex-1"></div>
               </div>
 
-              <div className="text-center mb-8">
-                <h3 className="text-xl font-bold text-[#16392F] mb-1">Book Early and Save More</h3>
-                <p className="text-gray-500 text-sm">Promo terms and conditions:</p>
+              <div className="text-center mb-4">
+                <h3 className="text-[16px] font-bold text-[#16392F] mb-1">Book Early and Save More</h3>
+                <p className="text-gray-500 text-[12px]">Promo terms and conditions:</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-10">
@@ -7124,7 +7244,7 @@ function PromoPage({ setCurrentPage }) {
                 ))}
               </div>
 
-              <div className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-lg p-4 flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
+              <div className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-md p-4 flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
                 <div className="text-[#CBA258]">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
                 </div>
@@ -7160,10 +7280,10 @@ function AboutPage() {
 
   return (
     <div className="w-full min-h-screen px-6 py-12 md:px-12 md:py-20 flex flex-col items-center">
-      <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-16 mt-8 md:mt-12">
+      <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-black/5 p-4 md:p-16 mt-8 md:mt-12">
         <h1 className="text-4xl md:text-5xl font-bold text-[#006241] mb-12 text-center tracking-tight">About Us</h1>
 
-        <div className="space-y-8 text-black/70 text-base md:text-lg leading-relaxed font-medium">
+        <div className="space-y-8 text-black/70 text-base md:text-[14px] leading-relaxed font-medium">
           {loading ? (
             <div className="flex justify-center py-12">
               <div className="w-8 h-8 border-4 border-[#00754A]/30 border-t-[#00754A] rounded-full animate-spin"></div>
@@ -7172,7 +7292,7 @@ function AboutPage() {
             <div className="quill-content" dangerouslySetInnerHTML={{ __html: content }} />
           ) : (
             <>
-              <p className="font-bold text-xl text-black/90 text-center mb-10 text-[#00754A]">
+              <p className="font-bold text-[16px] text-black/90 text-center mb-10 text-[#00754A]">
                 Welcome to Northomes Pensione — your home in the heart of Bogo City.
               </p>
 
@@ -7193,10 +7313,10 @@ function AboutPage() {
               </p>
 
               <div className="mt-12 pt-8 border-t border-black/5 text-center">
-                <p className="font-bold text-black/90 text-xl text-[#006241]">
+                <p className="font-bold text-black/90 text-[16px] text-[#006241]">
                   Thank you for being part of our story.
                 </p>
-                <p className="font-bold text-black/90 text-xl text-[#006241] mt-2">
+                <p className="font-bold text-black/90 text-[16px] text-[#006241] mt-2">
                   We look forward to welcoming you to Northomes Pensione.
                 </p>
               </div>
@@ -7216,22 +7336,22 @@ function BookingPage({ setCurrentPage }) {
     return (
       <div className="min-h-screen bg-white">
         <div className="max-w-2xl mx-auto px-4 pt-16 pb-16 text-center">
-          <div className="w-24 h-24 bg-[#00754A]/10 rounded-full flex items-center justify-center mx-auto mb-8">
+          <div className="w-24 h-24 bg-[#00754A]/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-12 h-12 text-[#00754A]" />
           </div>
           <h2 className="text-4xl font-black text-[#006241] tracking-tight mb-4">Reservation Confirmed!</h2>
-          <p className="text-xl text-black/80 font-medium mb-8">{bookingResult.message || 'Your booking has been successfully created.'}</p>
+          <p className="text-[16px] text-black/80 font-medium mb-4">{bookingResult.message || 'Your booking has been successfully created.'}</p>
 
-          <div className="bg-[#f8f9fa] p-6 rounded-2xl mb-10 text-left space-y-4 max-w-md mx-auto">
+          <div className="bg-[#f8f9fa] p-4 rounded-xl mb-10 text-left space-y-4 max-w-md mx-auto">
             <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-center">Next Steps</h4>
-            <p className="text-sm text-black/70 flex items-start gap-3">
-              <span className="text-lg">📧</span> We have sent a confirmation email to the address you provided.
+            <p className="text-[12px] text-black/70 flex items-start gap-3">
+              <span className="text-[14px]">📧</span> We have sent a confirmation email to the address you provided.
             </p>
-            <p className="text-sm text-black/70 flex items-start gap-3">
-              <span className="text-lg">🛎️</span> Please present this confirmation at the front desk upon check-in.
+            <p className="text-[12px] text-black/70 flex items-start gap-3">
+              <span className="text-[14px]">🛎️</span> Please present this confirmation at the front desk upon check-in.
             </p>
-            <p className="text-sm text-black/70 flex items-start gap-3">
-              <span className="text-lg">💳</span> Payment will be collected securely at the property.
+            <p className="text-[12px] text-black/70 flex items-start gap-3">
+              <span className="text-[14px]">💳</span> Payment will be collected securely at the property.
             </p>
           </div>
 
@@ -7254,7 +7374,7 @@ function BookingPage({ setCurrentPage }) {
   return (
     <div className="min-h-screen bg-white">
       {/* Mobile-only slim top bar */}
-      <div className="sm:hidden sticky top-0 z-50 bg-white border-b border-black/5 flex items-center justify-between px-4 py-3">
+      <div className="sm:hidden sticky top-0 z-50 bg-white border-b border-black/5 flex items-center justify-between px-2.5 py-2">
         <button
           onClick={() => setCurrentPage('accommodations')}
           className="flex items-center gap-2 text-black/60 hover:text-black/90 transition-colors"
@@ -7262,9 +7382,9 @@ function BookingPage({ setCurrentPage }) {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          <span className="text-sm font-semibold">Back</span>
+          <span className="text-[12px] font-semibold">Back</span>
         </button>
-        <span className="text-sm font-black text-[#006241] tracking-tight">Complete Reservation</span>
+        <span className="text-[12px] font-black text-[#006241] tracking-tight">Complete Reservation</span>
         <div className="w-16" />{/* spacer to center the title */}
       </div>
 
@@ -7276,7 +7396,7 @@ function BookingPage({ setCurrentPage }) {
         >
           <X className="w-5 h-5" />
         </button>
-        <h2 className="hidden sm:block text-3xl font-bold text-[#006241] text-center mb-8 tracking-tight">Complete Your Reservation</h2>
+        <h2 className="hidden sm:block text-3xl font-bold text-[#006241] text-center mb-4 tracking-tight">Complete Your Reservation</h2>
         <AppointmentForm onSuccess={(data) => setBookingResult(data)} />
       </div>
     </div>
@@ -7398,7 +7518,7 @@ function HomePage({ setCurrentPage }) {
               </div>
             </div>
 
-            <p className="text-black/70 text-sm md:text-base leading-relaxed font-medium max-w-lg">
+            <p className="text-black/70 text-[12px] md:text-base leading-relaxed font-medium max-w-lg">
               Whether you&apos;re here for business, family visits, or island adventures, Northomes Pensione offers clean, spacious accommodations with warm Filipino hospitality.
             </p>
 
@@ -7430,14 +7550,14 @@ function HomePage({ setCurrentPage }) {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <button
                 onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1E3932] hover:opacity-95 text-white font-bold text-xs uppercase tracking-widest rounded-lg transition-all shadow-md"
+                className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1E3932] hover:opacity-95 text-white font-bold text-xs uppercase tracking-widest rounded-md transition-all shadow-md"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                 Book Your Stay
               </button>
               <button
                 onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                className="flex items-center justify-center gap-2.5 px-6 py-3.5 border border-[#1E3932]/30 hover:bg-black/5 text-[#1e3932] font-bold text-xs uppercase tracking-widest rounded-lg transition-all"
+                className="flex items-center justify-center gap-2.5 px-6 py-3.5 border border-[#1E3932]/30 hover:bg-black/5 text-[#1e3932] font-bold text-xs uppercase tracking-widest rounded-md transition-all"
               >
                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                 View Rooms
@@ -7463,11 +7583,11 @@ function HomePage({ setCurrentPage }) {
 
       {/* Floating Horizontal Booking Bar */}
       <div className="relative -mt-12 z-30 px-6">
-        <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-5 flex flex-col items-center">
+        <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-3 flex flex-col items-center">
 
-          <div className="flex flex-col md:flex-row items-center gap-4 w-full pb-4">
+          <div className="flex flex-col md:flex-row items-center gap-2 w-full pb-2">
             {/* Check In */}
-            <div className="flex-1 w-full px-4 py-2.5 border-b md:border-b-0 md:border-r border-black/5 flex items-center gap-3">
+            <div className="flex-1 w-full px-4 py-1.5 border-b md:border-b-0 md:border-r border-black/5 flex items-center gap-3">
               <svg className="w-5 h-5 text-black/35" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
               <div className="flex-1">
                 <span className="text-[9px] font-black text-black/40 uppercase tracking-widest block mb-0.5">Check In</span>
@@ -7475,13 +7595,13 @@ function HomePage({ setCurrentPage }) {
                   type="date"
                   value={checkIn}
                   onChange={(e) => setCheckIn(e.target.value)}
-                  className="w-full text-sm font-bold text-[#1E3932] focus:outline-none bg-transparent"
+                  className="w-full text-[12px] font-bold text-[#1E3932] focus:outline-none bg-transparent"
                 />
               </div>
             </div>
 
             {/* Check Out */}
-            <div className="flex-1 w-full px-4 py-2.5 border-b md:border-b-0 md:border-r border-black/5 flex items-center gap-3">
+            <div className="flex-1 w-full px-4 py-1.5 border-b md:border-b-0 md:border-r border-black/5 flex items-center gap-3">
               <svg className="w-5 h-5 text-black/35" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
               <div className="flex-1">
                 <span className="text-[9px] font-black text-black/40 uppercase tracking-widest block mb-0.5">Check Out</span>
@@ -7489,17 +7609,17 @@ function HomePage({ setCurrentPage }) {
                   type="date"
                   value={checkOut}
                   onChange={(e) => setCheckOut(e.target.value)}
-                  className="w-full text-sm font-bold text-[#1E3932] focus:outline-none bg-transparent"
+                  className="w-full text-[12px] font-bold text-[#1E3932] focus:outline-none bg-transparent"
                 />
               </div>
             </div>
 
             {/* Guests */}
-            <div className="flex-1 w-full px-4 py-2.5 flex items-center gap-3">
+            <div className="flex-1 w-full px-4 py-1.5 flex items-center gap-3">
               <svg className="w-5 h-5 text-black/35" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
               <div className="flex-1">
                 <span className="text-[9px] font-black text-black/40 uppercase tracking-widest block mb-0.5">Guests</span>
-                <select className="w-full text-sm font-bold text-[#1E3932] focus:outline-none bg-transparent cursor-pointer">
+                <select className="w-full text-[12px] font-bold text-[#1E3932] focus:outline-none bg-transparent cursor-pointer">
                   <option>1 Guest</option>
                   <option>2 Guests</option>
                   <option>3 Guests</option>
@@ -7520,7 +7640,7 @@ function HomePage({ setCurrentPage }) {
           </div>
 
           {/* Trust indicators row */}
-          <div className="border-t border-black/5 pt-4 mt-2 flex flex-col sm:flex-row justify-center items-center gap-8 text-[11px] font-bold text-black/60 w-full">
+          <div className="border-t border-black/5 pt-4 mt-2 flex flex-col sm:flex-row justify-center items-center gap-2 text-[11px] font-bold text-black/60 w-full">
             <div className="flex items-center gap-2">
               <svg className="w-4.5 h-4.5 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
               <span>Best Rate Guaranteed</span>
@@ -7546,7 +7666,7 @@ function HomePage({ setCurrentPage }) {
             <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Featured Accommodations</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             {roomTypes.slice(0, 3).map((room, i) => (
               <div key={room.id} className="bg-[#f2f0eb] rounded-3xl overflow-hidden group cursor-pointer border border-black/5 shadow-sm" onClick={() => setCurrentPage('accommodations')}>
                 <div className="h-64 relative overflow-hidden">
@@ -7556,10 +7676,10 @@ function HomePage({ setCurrentPage }) {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </div>
-                <div className="p-8 text-center bg-white border-t border-black/5 rounded-b-3xl">
+                <div className="p-4 text-center bg-white border-t border-black/5 rounded-b-3xl">
                   <h3 className="text-2xl font-bold text-[#006241] mb-2">{room.name}</h3>
-                  <div className="text-lg font-black text-black/80 mb-4">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-xs text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
-                  <p className="text-black/60 text-sm mb-6 line-clamp-2">{room.description || 'Experience premium comfort and exceptional amenities.'}</p>
+                  <div className="text-[14px] font-black text-black/80 mb-4">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-xs text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
+                  <p className="text-black/60 text-[12px] mb-3 line-clamp-2">{room.description || 'Experience premium comfort and exceptional amenities.'}</p>
                   <span className="text-[#A98C51] font-bold text-[10px] uppercase tracking-[0.15em] group-hover:text-[#8e7644] transition-colors">View Details &rarr;</span>
                 </div>
               </div>
@@ -7584,7 +7704,7 @@ function HomePage({ setCurrentPage }) {
               <div className="w-16 h-16 rounded-full bg-white border border-black/5 shadow-sm flex items-center justify-center text-[#006241] mb-4">
                 {item.icon}
               </div>
-              <h5 className="font-bold text-black/80 text-sm">{item.title}</h5>
+              <h5 className="font-bold text-black/80 text-[12px]">{item.title}</h5>
             </div>
           ))}
         </div>
@@ -7597,9 +7717,9 @@ function HomePage({ setCurrentPage }) {
           <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Our Gallery</h2>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {galleryItems.map((img, i) => (
-            <div key={i} onClick={() => setLightboxIndex(i)} className="relative aspect-square group overflow-hidden rounded-2xl cursor-pointer bg-white border border-black/5 shadow-sm hover:shadow-md transition-all duration-300">
+            <div key={i} onClick={() => setLightboxIndex(i)} className="relative aspect-square group overflow-hidden rounded-xl cursor-pointer bg-white border border-black/5 shadow-sm hover:shadow-md transition-all duration-300">
               <div className="w-full h-full flex items-center justify-center bg-black/5">
                 <img
                   src={img.src}
@@ -7611,8 +7731,8 @@ function HomePage({ setCurrentPage }) {
                   }}
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/80 via-[#1E3932]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
-                <h3 className="text-white font-bold text-sm tracking-tight">{img.alt}</h3>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/80 via-[#1E3932]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                <h3 className="text-white font-bold text-[12px] tracking-tight">{img.alt}</h3>
               </div>
             </div>
           ))}
@@ -7627,7 +7747,7 @@ function HomePage({ setCurrentPage }) {
             <h2 className="text-4xl font-bold text-[#006241] tracking-tight">A Stay to Remember</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {[
               {
                 text: "Spacious room good for 2. with 2 beds 4 pillows. bathroom with heater. However, the flow of the water through the heater is slow. with cabinets, own heater for coffee if you want to drink. basta, nindot gyud siya puy an.",
@@ -7666,21 +7786,21 @@ function HomePage({ setCurrentPage }) {
                 rating: 5
               }
             ].map((testimonial, i) => (
-              <div key={i} className="bg-[#f2f0eb] rounded-3xl p-8 border border-black/5 shadow-sm flex flex-col">
-                <div className="flex gap-1 mb-6">
+              <div key={i} className="bg-[#f2f0eb] rounded-3xl p-4 border border-black/5 shadow-sm flex flex-col">
+                <div className="flex gap-1 mb-3">
                   {[...Array(testimonial.rating)].map((_, j) => (
                     <svg key={j} className="w-5 h-5 text-[#CBA258]" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
                 </div>
-                <p className="text-black/70 text-base leading-relaxed mb-8 flex-grow font-medium">"{testimonial.text}"</p>
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[#006241]/10 flex items-center justify-center text-[#006241] font-bold text-lg">
+                <p className="text-black/70 text-base leading-relaxed mb-4 flex-grow font-medium">"{testimonial.text}"</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-[#006241]/10 flex items-center justify-center text-[#006241] font-bold text-[14px]">
                     {testimonial.author.charAt(0)}
                   </div>
                   <div>
-                    <h5 className="font-bold text-[#006241] text-sm">{testimonial.author}</h5>
+                    <h5 className="font-bold text-[#006241] text-[12px]">{testimonial.author}</h5>
                     <p className="text-[#A98C51] text-[10px] font-bold uppercase tracking-widest mt-1">{testimonial.role}</p>
                   </div>
                 </div>
@@ -7695,11 +7815,11 @@ function HomePage({ setCurrentPage }) {
         <div className="w-full px-8">
           <div className="max-w-6xl mx-auto">
             {/* Footer Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-2 mb-16">
               {/* About */}
               <div className="lg:col-span-1">
-                <h4 className="text-xl font-bold text-white tracking-tight mb-6">Northomes Pensionne</h4>
-                <p className="text-white/70 text-sm leading-relaxed mb-8">
+                <h4 className="text-[16px] font-bold text-white tracking-tight mb-3">Northomes Pensionne</h4>
+                <p className="text-white/70 text-[12px] leading-relaxed mb-4">
                   A sanctuary of comfort and style in the heart of Bogo City. Experience genuine hospitality and make unforgettable memories with us.
                 </p>
                 {/* Social Links */}
@@ -7715,8 +7835,8 @@ function HomePage({ setCurrentPage }) {
 
               {/* Find Us */}
               <div>
-                <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-wider">Find Us</h4>
-                <div className="text-white/70 text-sm space-y-3 font-medium">
+                <h4 className="text-white font-bold mb-3 uppercase text-[12px] tracking-wider">Find Us</h4>
+                <div className="text-white/70 text-[12px] space-y-3 font-medium">
                   <p>Pelaez Street, Barangay Sto. Niño</p>
                   <p>Bogo City, Cebu, Philippines</p>
                   <a href="https://www.northomespensione.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">www.northomespensione.com</a>
@@ -7725,8 +7845,8 @@ function HomePage({ setCurrentPage }) {
 
               {/* Contact Us */}
               <div>
-                <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-wider">Contact Us</h4>
-                <div className="text-white/70 text-sm space-y-4 font-medium">
+                <h4 className="text-white font-bold mb-3 uppercase text-[12px] tracking-wider">Contact Us</h4>
+                <div className="text-white/70 text-[12px] space-y-4 font-medium">
                   <p className="flex items-center gap-3">
                     <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -7744,8 +7864,8 @@ function HomePage({ setCurrentPage }) {
 
               {/* Quick Links */}
               <div>
-                <h4 className="text-white font-bold mb-6 uppercase text-sm tracking-wider">Quick Links</h4>
-                <div className="flex flex-col space-y-4 text-sm font-medium">
+                <h4 className="text-white font-bold mb-3 uppercase text-[12px] tracking-wider">Quick Links</h4>
+                <div className="flex flex-col space-y-4 text-[12px] font-medium">
                   <button onClick={() => setCurrentPage('home')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Home</button>
                   <button onClick={() => setCurrentPage('accommodations')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Accommodations</button>
                   <button onClick={() => setCurrentPage('about')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Our Story</button>
@@ -7801,10 +7921,10 @@ function HomePage({ setCurrentPage }) {
             <img
               src={galleryItems[lightboxIndex].src}
               alt={galleryItems[lightboxIndex].alt}
-              className="max-h-[80vh] max-w-[80vw] object-contain rounded-lg shadow-2xl border border-white/10 select-none"
+              className="max-h-[80vh] max-w-[80vw] object-contain rounded-md shadow-2xl border border-white/10 select-none"
             />
             {galleryItems[lightboxIndex].alt && (
-              <span className="text-white/80 text-sm mt-4 font-semibold tracking-wide bg-black/40 px-4 py-1.5 rounded-full border border-white/5">
+              <span className="text-white/80 text-[12px] mt-4 font-semibold tracking-wide bg-black/40 px-4 py-1.5 rounded-full border border-white/5">
                 {galleryItems[lightboxIndex].alt}
               </span>
             )}
@@ -7819,7 +7939,7 @@ function HomePage({ setCurrentPage }) {
           </button>
 
           {/* Mobile controls */}
-          <div className="absolute bottom-6 flex gap-4 md:hidden">
+          <div className="absolute bottom-6 flex gap-2 md:hidden">
             <button
               className="text-white/70 bg-white/10 px-4 py-2 rounded-full text-xs font-bold"
               onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length); }}
@@ -7897,8 +8017,8 @@ function MenuPage() {
         </div>
         <div className="relative z-10 text-center px-4">
           <h4 className="text-[#CBA258] text-[12px] font-black uppercase tracking-[0.3em] mb-4">Northomes Cafe</h4>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight">Dining & Room Service</h1>
-          <p className="text-white/90 text-lg max-w-2xl mx-auto font-medium">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">Dining & Room Service</h1>
+          <p className="text-white/90 text-[14px] max-w-2xl mx-auto font-medium">
             Enjoy delicious, home-cooked meals from our in-house cafe. Available for dine-in or delivered straight to your room.
           </p>
           <div className="mt-8 inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-full text-white font-medium shadow-sm">
@@ -7909,26 +8029,26 @@ function MenuPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {menuCategories.map((category, idx) => (
-            <div key={idx} className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 md:p-10">
-              <div className="flex items-center gap-4 mb-8 pb-6 border-b border-black/5">
+            <div key={idx} className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 md:p-4">
+              <div className="flex items-center gap-2 mb-4 pb-6 border-b border-black/5">
                 <span className="text-4xl">{category.icon}</span>
                 <div>
                   <h2 className="text-2xl font-bold text-[#006241]">{category.title}</h2>
-                  {category.subtitle && <p className="text-sm font-medium text-[#CBA258] mt-1">{category.subtitle}</p>}
+                  {category.subtitle && <p className="text-[12px] font-medium text-[#CBA258] mt-1">{category.subtitle}</p>}
                 </div>
               </div>
 
               <div className="space-y-8">
                 {category.items.map((item, i) => (
-                  <div key={i} className="flex justify-between gap-4 group">
+                  <div key={i} className="flex justify-between gap-2 group">
                     <div className="flex-1">
-                      <h3 className="text-[#000000]/87 font-bold text-lg mb-1 group-hover:text-[#00754A] transition-colors">{item.name}</h3>
-                      <p className="text-black/60 text-sm leading-relaxed">{item.desc}</p>
+                      <h3 className="text-[#000000]/87 font-bold text-[14px] mb-1 group-hover:text-[#00754A] transition-colors">{item.name}</h3>
+                      <p className="text-black/60 text-[12px] leading-relaxed">{item.desc}</p>
                     </div>
                     <div className="flex-shrink-0">
-                      <span className="text-[#CBA258] font-bold text-lg">{item.price}</span>
+                      <span className="text-[#CBA258] font-bold text-[14px]">{item.price}</span>
                     </div>
                   </div>
                 ))}
@@ -7937,13 +8057,13 @@ function MenuPage() {
           ))}
         </div>
 
-        <div className="mt-12 bg-[#1E3932] rounded-3xl p-8 md:p-12 text-center relative overflow-hidden shadow-lg border border-black/10">
+        <div className="mt-12 bg-[#1E3932] rounded-3xl p-4 md:p-4 text-center relative overflow-hidden shadow-lg border border-black/10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#006241] rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#CBA258] rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/4"></div>
 
           <div className="relative z-10">
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Want to dine in the comfort of your room?</h3>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto mb-8">
+            <p className="text-white/80 text-[14px] max-w-2xl mx-auto mb-4">
               Room service is available during operating hours. Simply dial <span className="font-bold text-[#CBA258]">101</span> from your room telephone to place an order, and our staff will bring it right up.
             </p>
           </div>
@@ -7962,7 +8082,7 @@ function MenuItem({ item }) {
       {/* Left side - Product Image */}
       <div className="bg-stone-100 p-3 sm:p-4 flex items-center justify-center w-48 sm:w-54 md:w-60 flex-shrink-0 relative">
         {item.image && item.image.startsWith('assets/') ? (
-          <img src={item.image} alt={item.name} className="object-contain w-full h-48 sm:h-54 md:h-60 rounded-lg group-hover:scale-110 transition-transform duration-300" />
+          <img src={item.image} alt={item.name} className="object-contain w-full h-48 sm:h-54 md:h-60 rounded-md group-hover:scale-110 transition-transform duration-300" />
         ) : (
           <div className="text-7xl sm:text-8xl md:text-9xl group-hover:scale-110 transition-transform duration-300">{item.image}</div>
         )}
@@ -7974,22 +8094,22 @@ function MenuItem({ item }) {
       </div>
 
       {/* Right side - Product Details */}
-      <div className="p-4 sm:p-5 md:p-6 flex flex-col justify-start flex-1 min-w-0">
+      <div className="p-4 sm:p-3 md:p-4 flex flex-col justify-start flex-1 min-w-0">
         <div className="mb-4">
-          <h3 className="text-base sm:text-lg md:text-xl font-bold text-blue-900 mb-2 break-words">{item.name}</h3>
-          <p className="text-stone-600 text-sm sm:text-base mb-3 line-clamp-2 font-normal">{item.description}</p>
+          <h3 className="text-base sm:text-[14px] md:text-[16px] font-bold text-blue-900 mb-2 break-words">{item.name}</h3>
+          <p className="text-stone-600 text-[12px] sm:text-base mb-3 line-clamp-2 font-normal">{item.description}</p>
         </div>
         <div className="flex flex-col gap-3 mt-auto">
           {item.sizes ? (
-            <span className="text-sm sm:text-base md:text-lg font-semibold text-blue-900 break-words">
+            <span className="text-[12px] sm:text-base md:text-[14px] font-semibold text-blue-900 break-words">
               From Php {Math.min(...item.sizes.map(s => s.price)).toFixed(2)}
             </span>
           ) : (
-            <span className="text-sm sm:text-base md:text-lg font-semibold text-blue-900 break-words">Php {item.price.toFixed(2)}</span>
+            <span className="text-[12px] sm:text-base md:text-[14px] font-semibold text-blue-900 break-words">Php {item.price.toFixed(2)}</span>
           )}
           <button
             onClick={() => addToCart(item)}
-            className="btn-animated bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 sm:px-5 py-3 rounded-lg hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 text-sm font-semibold w-full whitespace-nowrap"
+            className="btn-animated bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 sm:px-5 py-3 rounded-md hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 text-[12px] font-semibold w-full whitespace-nowrap"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -8009,8 +8129,8 @@ function CartDrawer({ setShowCart, setCurrentPage }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end" onClick={() => setShowCart(false)}>
       <div className="bg-gray-100 w-full max-w-md h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
             <h2 className="text-2xl font-bold text-gray-800">Your Cart</h2>
             <button onClick={() => setShowCart(false)} className="text-gray-500 hover:text-gray-700">
               <X className="w-6 h-6" />
@@ -8024,7 +8144,7 @@ function CartDrawer({ setShowCart, setCurrentPage }) {
             </div>
           ) : (
             <>
-              <div className="space-y-4 mb-6">
+              <div className="space-y-4 mb-3">
                 {cartItems.map((item, index) => (
                   <CartItemCard key={`${item.id}-${item.selectedSize || 'default'}-${index}`} item={item} />
                 ))}
@@ -8057,10 +8177,10 @@ function CartPage({ setCurrentPage }) {
     return (
       <div className="min-h-screen py-12">
         <div className="max-w-md mx-auto px-8 text-center">
-          <div className="rounded-3xl border border-black/5 p-12" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-            <ShoppingCart className="w-16 h-16 text-black/60 mx-auto mb-6" />
+          <div className="rounded-3xl border border-black/5 p-4" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <ShoppingCart className="w-16 h-16 text-black/60 mx-auto mb-3" />
             <h2 className="text-2xl font-bold text-[#000000]/87 mb-2">Your cart is empty</h2>
-            <p className="text-black/60 mb-8">Add some services to get started</p>
+            <p className="text-black/60 mb-4">Add some services to get started</p>
             <button
               onClick={() => setCurrentPage('menu')}
               className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all"
@@ -8078,7 +8198,7 @@ function CartPage({ setCurrentPage }) {
       <div className="w-full max-w-6xl mx-auto px-6">
         <h1 className="text-3xl font-bold text-[#000000]/87 mb-10 text-center">Your Cart</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           <div className="lg:col-span-2 space-y-4">
             {cartItems.map((item, index) => (
               <CartItemCard key={`${item.id}-${item.selectedSize || 'default'}-${index}`} item={item} detailed />
@@ -8086,9 +8206,9 @@ function CartPage({ setCurrentPage }) {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="rounded-2xl border border-black/5 p-6 sticky top-[120px]" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
-              <h3 className="text-lg font-bold text-[#000000]/87 mb-6">Order Summary</h3>
-              <div className="space-y-4 mb-8">
+            <div className="rounded-xl border border-black/5 p-4 sticky top-[120px]" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <h3 className="text-[14px] font-bold text-[#000000]/87 mb-3">Order Summary</h3>
+              <div className="space-y-4 mb-4">
                 <div className="flex justify-between text-black/60">
                   <span>Subtotal</span>
                   <span className="text-[#000000]/87">Php {getTotalPrice().toFixed(2)}</span>
@@ -8102,7 +8222,7 @@ function CartPage({ setCurrentPage }) {
                   <span className="text-[#000000]/87">Php {tax.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-black/5 pt-4 mt-4">
-                  <div className="flex justify-between text-xl font-bold">
+                  <div className="flex justify-between text-[16px] font-bold">
                     <span className="text-[#000000]/87">Total</span>
                     <span className="text-[#00754A]">Php {total.toFixed(2)}</span>
                   </div>
@@ -8127,10 +8247,10 @@ function CartItemCard({ item, detailed = false }) {
   const { updateQuantity, removeFromCart } = useCart();
 
   return (
-    <div className="rounded-2xl border border-black/5 p-4 flex items-center gap-4 group transition-all hover:bg-white shadow-sm" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+    <div className="rounded-xl border border-black/5 p-4 flex items-center gap-2 group transition-all hover:bg-white shadow-sm" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
       <div className="bg-white shadow-sm border border-black/5 rounded-xl flex items-center justify-center w-20 h-20 shrink-0">
         {item.image && item.image.startsWith('assets/') ? (
-          <img src={item.image} alt={item.name} className="object-contain w-full h-full rounded-lg" />
+          <img src={item.image} alt={item.name} className="object-contain w-full h-full rounded-md" />
         ) : (
           <div className="text-4xl">{item.image}</div>
         )}
@@ -8138,19 +8258,19 @@ function CartItemCard({ item, detailed = false }) {
       <div className="flex-1 min-w-0">
         <h3 className="font-bold text-[#000000]/87 text-base truncate">{item.name}</h3>
         {item.selectedSize && <p className="text-black/60 text-xs mt-0.5">Category: {item.selectedSize}</p>}
-        <p className="text-[#00754A] font-bold text-lg mt-1">Php {item.price.toFixed(2)}</p>
+        <p className="text-[#00754A] font-bold text-[14px] mt-1">Php {item.price.toFixed(2)}</p>
       </div>
       <div className="flex items-center gap-3">
         <button
           onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
-          className="w-8 h-8 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 rounded-lg flex items-center justify-center transition-all"
+          className="w-8 h-8 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 rounded-md flex items-center justify-center transition-all"
         >
           <Minus className="w-4 h-4 text-[#000000]/87" />
         </button>
         <span className="font-bold text-[#000000]/87 w-4 text-center">{item.quantity}</span>
         <button
           onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
-          className="w-8 h-8 bg-[#00754A] hover:opacity-90 rounded-lg flex items-center justify-center transition-all shadow-lg"
+          className="w-8 h-8 bg-[#00754A] hover:opacity-90 rounded-md flex items-center justify-center transition-all shadow-lg"
         >
           <Plus className="w-4 h-4 text-[#000000]/87" />
         </button>
@@ -8336,13 +8456,13 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
       <div className="w-full max-w-6xl mx-auto px-6">
         <h1 className="text-3xl font-bold text-[#000000]/87 mb-10 text-center">Checkout</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="rounded-2xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <form onSubmit={handleSubmit} className="rounded-xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
               <div className="px-6 py-5 bg-white shadow-sm border-b border-black/5">
-                <h3 className="text-lg font-bold text-[#000000]/87">Delivery Address</h3>
+                <h3 className="text-[14px] font-bold text-[#000000]/87">Delivery Address</h3>
               </div>
-              <div className="p-8 space-y-6">
+              <div className="p-4 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <input
                     type="text"
@@ -8350,7 +8470,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                   <input
                     type="email"
@@ -8358,7 +8478,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                   <input
                     type="tel"
@@ -8366,7 +8486,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                   <input
                     type="text"
@@ -8374,7 +8494,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                     required
                     value={formData.zipCode}
                     onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
-                    className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm"
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
                   />
                 </div>
                 <input
@@ -8383,7 +8503,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                   required
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm mt-3"
+                  className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px] mt-3"
                 />
                 <input
                   type="text"
@@ -8391,22 +8511,22 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                   required
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-sm mt-3"
+                  className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px] mt-3"
                 />
               </div>
 
               {/* Notification Subscription Prompt */}
               {notificationStatus === 'checking' && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
                   <div className="flex items-center gap-3">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
-                    <span className="text-sm text-gray-600">Checking notification status...</span>
+                    <span className="text-[12px] text-gray-600">Checking notification status...</span>
                   </div>
                 </div>
               )}
 
               {notificationStatus !== 'subscribed' && notificationStatus !== 'checking' && (
-                <div className={`rounded-lg p-4 border-2 ${notificationStatus === 'denied'
+                <div className={`rounded-md p-4 border-2 ${notificationStatus === 'denied'
                   ? 'bg-red-50 border-red-200'
                   : 'bg-yellow-50 border-yellow-300'
                   }`}>
@@ -8415,7 +8535,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       {notificationStatus === 'denied' ? '🔕' : '🔔'}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-800 text-sm mb-1">
+                      <h4 className="font-medium text-gray-800 text-[12px] mb-1">
                         {notificationStatus === 'denied'
                           ? 'Notifications Blocked'
                           : 'Get Order Updates'}
@@ -8446,11 +8566,11 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
               )}
 
               {notificationStatus === 'subscribed' && (
-                <div className="bg-green-50 border-2 border-green-300 rounded-lg p-4">
+                <div className="bg-green-50 border-2 border-green-300 rounded-md p-4">
                   <div className="flex items-center gap-3">
                     <div className="text-2xl">✅</div>
                     <div>
-                      <h4 className="font-medium text-green-700 text-sm">Notifications Enabled</h4>
+                      <h4 className="font-medium text-green-700 text-[12px]">Notifications Enabled</h4>
                       <p className="text-xs text-green-600">You'll receive updates when your order status changes!</p>
                     </div>
                   </div>
@@ -8470,7 +8590,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value, paymentReference: '' })}
                       className="w-4 h-4 text-green-600"
                     />
-                    <span className="text-sm text-gray-700">Cash on Delivery</span>
+                    <span className="text-[12px] text-gray-700">Cash on Delivery</span>
                   </label>
 
                   <label className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all ${formData.paymentMethod === 'gcash' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
@@ -8483,7 +8603,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                       className="w-4 h-4 text-green-600"
                     />
-                    <span className="text-sm text-gray-700">GCash</span>
+                    <span className="text-[12px] text-gray-700">GCash</span>
                   </label>
 
                   <label className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all ${formData.paymentMethod === 'bank' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
@@ -8496,14 +8616,14 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
                       className="w-4 h-4 text-green-600"
                     />
-                    <span className="text-sm text-gray-700">Bank Transfer</span>
+                    <span className="text-[12px] text-gray-700">Bank Transfer</span>
                   </label>
                 </div>
 
                 {/* Payment Instructions */}
                 {formData.paymentMethod === 'cash' && (
                   <div className="mt-4 bg-gray-50 border border-gray-200 rounded-md p-4">
-                    <h4 className="font-medium text-gray-700 text-sm mb-2">Cash on Delivery Instructions</h4>
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-2">Cash on Delivery Instructions</h4>
                     <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
                       <li>Prepare exact amount if possible</li>
                       <li>Payment will be collected upon delivery</li>
@@ -8514,13 +8634,13 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
 
                 {formData.paymentMethod === 'gcash' && (
                   <div className="mt-4 bg-green-50 border border-green-200 rounded-md p-4">
-                    <h4 className="font-medium text-gray-700 text-sm mb-3">GCash Payment</h4>
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-3">GCash Payment</h4>
                     <div className="space-y-3">
                       <div className="bg-white rounded-md p-3 border border-green-100">
                         <p className="text-xs text-gray-500 mb-1">Amount to pay:</p>
-                        <p className="text-lg font-medium text-green-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
+                        <p className="text-[14px] font-medium text-green-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-[12px] text-gray-600">
                         <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                         </svg>
@@ -8540,7 +8660,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
 
                 {formData.paymentMethod === 'bank' && (
                   <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
-                    <h4 className="font-medium text-gray-700 text-sm mb-3">Bank Transfer Instructions</h4>
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-3">Bank Transfer Instructions</h4>
                     <div className="space-y-3">
                       <div className="bg-white rounded-md p-3 border border-blue-100">
                         <p className="text-xs text-gray-500 mb-2">Transfer to:</p>
@@ -8550,7 +8670,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                       </div>
                       <div className="bg-white rounded-md p-3 border border-blue-100">
                         <p className="text-xs text-gray-500 mb-1">Amount to transfer:</p>
-                        <p className="text-lg font-medium text-blue-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
+                        <p className="text-[14px] font-medium text-blue-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
                       </div>
                       <div className="text-xs text-gray-600 space-y-1">
                         <p className="font-medium">After transfer:</p>
@@ -8565,7 +8685,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
                         placeholder="Enter Bank Reference Number"
                         value={formData.paymentReference}
                         onChange={(e) => setFormData({ ...formData, paymentReference: e.target.value })}
-                        className="w-full px-3 py-2 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none text-sm"
+                        className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none text-[12px]"
                       />
                     </div>
                   </div>
@@ -8575,7 +8695,7 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`w-full py-3 rounded-full font-medium transition-all text-sm ${isSubmitting
+                className={`w-full py-3 rounded-full font-medium transition-all text-[12px] ${isSubmitting
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-green-600 text-[#000000]/87 hover:bg-green-700'
                   }`}
@@ -8586,18 +8706,18 @@ function CheckoutPage({ setCurrentPage, clearCart }) {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-5 sticky top-[160px] md:top-[120px]">
+            <div className="bg-white rounded-md shadow-sm p-3 sticky top-[160px] md:top-[120px]">
               <h3 className="text-base font-medium text-gray-800 mb-4">Order Summary</h3>
               <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-[12px] text-gray-600">
                   <span>Subtotal</span>
                   <span>Php {getTotalPrice().toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-[12px] text-gray-600">
                   <span>Delivery Fee</span>
                   <span>Php {deliveryFee.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between text-[12px] text-gray-600">
                   <span>Tax (8%)</span>
                   <span>Php {tax.toFixed(2)}</span>
                 </div>
@@ -8625,28 +8745,28 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
     <div className="bg-gray-50 min-h-screen py-8">
       <div className="w-full px-8">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-3">
           <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg className="w-6 h-6 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
             </svg>
           </div>
-          <h1 className="text-xl font-medium text-gray-800 mb-1">
+          <h1 className="text-[16px] font-medium text-gray-800 mb-1">
             {paymentStatus === 'success' ? 'Payment Successful!' : 'Order Confirmed'}
           </h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-[12px] text-gray-500">
             {paymentStatus === 'success' ? 'Your GCash payment has been received' : 'Thank you for your order'}
           </p>
         </div>
 
         {/* Order Number */}
-        <div className="bg-green-600 rounded-lg p-4 mb-6 text-center">
+        <div className="bg-green-600 rounded-md p-4 mb-3 text-center">
           <div className="text-xs text-green-200 mb-1">Order Number</div>
-          <div className="text-xl font-medium text-[#000000]/87">{displayOrderNumber}</div>
+          <div className="text-[16px] font-medium text-[#000000]/87">{displayOrderNumber}</div>
         </div>
 
         {/* Order Status */}
-        <div className="bg-white rounded-lg p-5 mb-6 shadow-sm">
+        <div className="bg-white rounded-md p-3 mb-3 shadow-sm">
           <h3 className="text-base font-medium text-gray-800 mb-4">Order Status</h3>
 
           <div className="space-y-0">
@@ -8661,7 +8781,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
                 <div className="w-0.5 h-8 bg-green-500"></div>
               </div>
               <div className="pb-3">
-                <div className="text-sm font-medium text-gray-800">Order Received</div>
+                <div className="text-[12px] font-medium text-gray-800">Order Received</div>
                 <div className="text-xs text-gray-500">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</div>
               </div>
             </div>
@@ -8675,7 +8795,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
                 <div className="w-0.5 h-8 bg-gray-200"></div>
               </div>
               <div className="pb-3">
-                <div className="text-sm font-medium text-gray-800">Preparing your order</div>
+                <div className="text-[12px] font-medium text-gray-800">Preparing your order</div>
                 <div className="text-xs text-gray-500">Estimated: 15-20 mins</div>
               </div>
             </div>
@@ -8686,7 +8806,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
                 <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
               </div>
               <div>
-                <div className="text-sm text-gray-400">Out for delivery</div>
+                <div className="text-[12px] text-gray-400">Out for delivery</div>
                 <div className="text-xs text-gray-400">Estimated arrival: 25-30 mins</div>
               </div>
             </div>
@@ -8694,7 +8814,7 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
         </div>
 
         {/* SMS Notice */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-3">
           <p className="text-xs text-gray-500">You will receive a text message with delivery updates</p>
         </div>
 
@@ -8702,13 +8822,13 @@ function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
         <div className="flex gap-3">
           <button
             onClick={() => setCurrentPage('home')}
-            className="flex-1 bg-green-600 text-[#000000]/87 py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
+            className="flex-1 bg-green-600 text-[#000000]/87 py-1.5 rounded-md text-[12px] font-medium hover:bg-green-700 transition-all"
           >
             Back to Home
           </button>
           <button
             onClick={() => setCurrentPage('menu')}
-            className="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-md text-sm font-medium hover:bg-gray-200 transition-all"
+            className="flex-1 bg-gray-100 text-gray-700 py-1.5 rounded-md text-[12px] font-medium hover:bg-gray-200 transition-all"
           >
             Order Again
           </button>
@@ -8724,32 +8844,32 @@ function PaymentFailedPage({ setCurrentPage, orderNumber }) {
     <div className="bg-gray-50 min-h-screen py-8">
       <div className="w-full px-8 max-w-md mx-auto">
         {/* Header */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-3">
           <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
             <svg className="w-6 h-6 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
-          <h1 className="text-xl font-medium text-gray-800 mb-1">Payment Failed</h1>
-          <p className="text-sm text-gray-500">Your GCash payment was not completed</p>
+          <h1 className="text-[16px] font-medium text-gray-800 mb-1">Payment Failed</h1>
+          <p className="text-[12px] text-gray-500">Your GCash payment was not completed</p>
         </div>
 
         {/* Order Number */}
         {orderNumber && (
-          <div className="bg-gray-200 rounded-lg p-4 mb-6 text-center">
+          <div className="bg-gray-200 rounded-md p-4 mb-3 text-center">
             <div className="text-xs text-gray-500 mb-1">Order Number</div>
-            <div className="text-xl font-medium text-gray-700">{orderNumber}</div>
+            <div className="text-[16px] font-medium text-gray-700">{orderNumber}</div>
           </div>
         )}
 
         {/* Message */}
-        <div className="bg-white rounded-lg p-5 mb-6 shadow-sm">
+        <div className="bg-white rounded-md p-3 mb-3 shadow-sm">
           <h3 className="text-base font-medium text-gray-800 mb-3">What happened?</h3>
-          <p className="text-sm text-gray-600 mb-4">
+          <p className="text-[12px] text-gray-600 mb-4">
             Your payment was cancelled or failed to process. Your order has been saved but is awaiting payment.
           </p>
           <h3 className="text-base font-medium text-gray-800 mb-3">What can you do?</h3>
-          <ul className="text-sm text-gray-600 space-y-2">
+          <ul className="text-[12px] text-gray-600 space-y-2">
             <li>• Try placing your order again with GCash</li>
             <li>• Choose a different payment method (Cash on Delivery)</li>
             <li>• Contact us if you need assistance</li>
@@ -8760,13 +8880,13 @@ function PaymentFailedPage({ setCurrentPage, orderNumber }) {
         <div className="flex flex-col gap-3">
           <button
             onClick={() => setCurrentPage('checkout')}
-            className="w-full bg-green-600 text-[#000000]/87 py-2.5 rounded-md text-sm font-medium hover:bg-green-700 transition-all"
+            className="w-full bg-green-600 text-[#000000]/87 py-1.5 rounded-md text-[12px] font-medium hover:bg-green-700 transition-all"
           >
             Try Again
           </button>
           <button
             onClick={() => setCurrentPage('home')}
-            className="w-full bg-gray-100 text-gray-700 py-2.5 rounded-md text-sm font-medium hover:bg-gray-200 transition-all"
+            className="w-full bg-gray-100 text-gray-700 py-1.5 rounded-md text-[12px] font-medium hover:bg-gray-200 transition-all"
           >
             Back to Home
           </button>
@@ -8963,10 +9083,10 @@ function QueueAdminTab({ setCurrentPage }) {
         }
 
         return (
-          <div className={`grid grid-cols-1 ${hasTimeliness ? 'md:grid-cols-2' : ''} gap-4 mb-6`}>
+          <div className={`grid grid-cols-1 ${hasTimeliness ? 'md:grid-cols-2' : ''} gap-2 mb-3`}>
             {/* Column 1: Queue Status */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-              <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
+              <div className="flex flex-col md:flex-row items-center gap-3">
                 <div className="relative flex-shrink-0">
                   <svg width="160" height="160" viewBox="0 0 128 128">
                     <circle cx="64" cy="64" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="16" />
@@ -8987,7 +9107,7 @@ function QueueAdminTab({ setCurrentPage }) {
                   </svg>
                 </div>
                 <div className="flex-1 w-full">
-                  <h3 className="text-sm font-semibold text-gray-700 mb-3">Queue Status</h3>
+                  <h3 className="text-[12px] font-semibold text-gray-700 mb-3">Queue Status</h3>
                   <div className="space-y-3">
                     {chartData.map((seg, i) => {
                       const pct = stats.total > 0 ? Math.round((seg.value / stats.total) * 100) : 0;
@@ -8996,9 +9116,9 @@ function QueueAdminTab({ setCurrentPage }) {
                           <div className="flex items-center justify-between mb-1">
                             <div className="flex items-center gap-2">
                               <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: seg.color }}></span>
-                              <span className="text-sm text-gray-600">{seg.label}</span>
+                              <span className="text-[12px] text-gray-600">{seg.label}</span>
                             </div>
-                            <span className="text-sm font-semibold text-gray-800">{seg.value} <span className="text-gray-400 font-normal">({pct}%)</span></span>
+                            <span className="text-[12px] font-semibold text-gray-800">{seg.value} <span className="text-gray-400 font-normal">({pct}%)</span></span>
                           </div>
                           <div className="w-full bg-gray-100 rounded-full h-2">
                             <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
@@ -9013,9 +9133,9 @@ function QueueAdminTab({ setCurrentPage }) {
 
             {/* Column 2: Timeliness */}
             {hasTimeliness && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Timeliness</h3>
-                <div className="grid grid-cols-3 gap-4 mb-4">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
+                <h3 className="text-[12px] font-semibold text-gray-700 mb-3">Timeliness</h3>
+                <div className="grid grid-cols-3 gap-2 mb-4">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-blue-600">{fmt(avgWait)}</p>
                     <p className="text-[10px] text-gray-400 uppercase tracking-wider">Avg Wait</p>
@@ -9043,7 +9163,7 @@ function QueueAdminTab({ setCurrentPage }) {
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-4 mt-3 text-xs text-gray-400">
+                <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
                   <span>Fastest: {fmt(minWait)}</span>
                   <span>Slowest: {fmt(maxWait)}</span>
                   <span>Served: {completedTickets.length}</span>
@@ -9055,40 +9175,40 @@ function QueueAdminTab({ setCurrentPage }) {
       })()}
 
       {/* Quick Links */}
-      <div className="flex gap-3 mb-6 flex-wrap">
-        <button onClick={() => setCurrentPage('queue-display')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+      <div className="flex gap-3 mb-3 flex-wrap">
+        <button onClick={() => setCurrentPage('queue-display')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
           Open Public Display
         </button>
-        <button onClick={() => setCurrentPage('queue-teller')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+        <button onClick={() => setCurrentPage('queue-teller')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all flex items-center gap-2">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
           Open Teller View
         </button>
-        <button onClick={() => setShowResetConfirm(true)} className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-red-200 ml-auto">
+        <button onClick={() => setShowResetConfirm(true)} className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-md text-[12px] font-medium transition-all border border-red-200 ml-auto">
           Reset Queue
         </button>
       </div>
 
       {/* Reset Confirm */}
       {showResetConfirm && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center justify-between">
-          <p className="text-red-600 text-sm">Are you sure? This will delete all tickets for today.</p>
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-3 flex items-center justify-between">
+          <p className="text-red-600 text-[12px]">Are you sure? This will delete all tickets for today.</p>
           <div className="flex gap-2">
-            <button onClick={resetQueue} className="bg-red-500 text-[#000000]/87 px-4 py-2 rounded-full text-sm font-medium">Yes, Reset</button>
-            <button onClick={() => setShowResetConfirm(false)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium">Cancel</button>
+            <button onClick={resetQueue} className="bg-red-500 text-[#000000]/87 px-4 py-2 rounded-full text-[12px] font-medium">Yes, Reset</button>
+            <button onClick={() => setShowResetConfirm(false)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-md text-[12px] font-medium">Cancel</button>
           </div>
         </div>
       )}
 
       {/* Today's Tickets */}
-      <div className="bg-white border border-blue-200 rounded-xl shadow-sm overflow-hidden mb-6">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-blue-200">
-          <h3 className="text-gray-800 font-bold text-lg">Today's Tickets</h3>
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm overflow-hidden mb-3">
+        <div className="flex items-center justify-between px-2.5 py-2 border-b border-blue-200">
+          <h3 className="text-gray-800 font-bold text-[14px]">Today's Tickets</h3>
           <div className="flex gap-2">
-            <button onClick={() => window.open(`${API_BASE_URL}/api/export/queue-tickets`, '_blank')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg text-sm font-medium transition-all border border-blue-200">
+            <button onClick={() => window.open(`${API_BASE_URL}/api/export/queue-tickets`, '_blank')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all border border-blue-200">
               Export CSV
             </button>
-            <button onClick={fetchAll} className="text-blue-600 hover:text-blue-800 text-sm transition-all">Refresh</button>
+            <button onClick={fetchAll} className="text-blue-600 hover:text-blue-800 text-[12px] transition-all">Refresh</button>
           </div>
         </div>
         {tickets.length === 0 ? (
@@ -9096,7 +9216,7 @@ function QueueAdminTab({ setCurrentPage }) {
         ) : (
           <>
             {/* Table Header */}
-            <div className="hidden md:grid md:grid-cols-8 gap-3 px-4 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider items-center">
+            <div className="hidden md:grid md:grid-cols-8 gap-3 px-2.5 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider items-center">
               <span>Ticket</span>
               <span>Name</span>
               <span>Phone</span>
@@ -9107,7 +9227,7 @@ function QueueAdminTab({ setCurrentPage }) {
               <span>Time</span>
             </div>
             {tickets.map((t, index) => (
-              <div key={t.id} className={`grid grid-cols-1 md:grid-cols-8 gap-3 px-4 py-3 items-center text-sm border-b border-blue-100 hover:bg-blue-50/50 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+              <div key={t.id} className={`grid grid-cols-1 md:grid-cols-8 gap-3 px-2.5 py-2 items-center text-[12px] border-b border-blue-100 hover:bg-blue-50/50 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
                 <div className="font-bold text-blue-700 min-w-0">
                   {t.ticket_number}
                   {t.is_priority && <span className="ml-1 text-[9px] font-bold bg-orange-500 text-[#000000]/87 px-1.5 py-0.5 rounded-full uppercase">{t.priority_type || 'Priority'}</span>}
@@ -9115,7 +9235,7 @@ function QueueAdminTab({ setCurrentPage }) {
                 <span className="text-gray-800 font-medium truncate">{t.customer_name}</span>
                 <span className="text-gray-600 truncate">{t.cellphone_number}</span>
                 <span className="text-gray-600 truncate">{t.transaction_type}</span>
-                <span className={`px-2 py-1 rounded-full text-sm font-medium border w-fit ${getQueueStatusColor(t.status)}`}>
+                <span className={`px-2 py-1 rounded-full text-[12px] font-medium border w-fit ${getQueueStatusColor(t.status)}`}>
                   {t.status}
                 </span>
                 <span className="text-gray-600">{t.teller_window || '-'}</span>
@@ -9128,15 +9248,15 @@ function QueueAdminTab({ setCurrentPage }) {
       </div>
 
       {/* Configuration */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Transaction Types */}
-        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6">
-          <h3 className="text-gray-800 font-bold text-lg mb-4">Transaction Types</h3>
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4">
+          <h3 className="text-gray-800 font-bold text-[14px] mb-4">Transaction Types</h3>
           <div className="space-y-2 mb-4">
             {transactionTypes.map(type => (
-              <div key={type.id} className="flex items-center justify-between bg-blue-50 rounded-lg p-3">
+              <div key={type.id} className="flex items-center justify-between bg-blue-50 rounded-md p-3">
                 <div>
-                  <span className="text-gray-800 text-sm font-medium">{type.name}</span>
+                  <span className="text-gray-800 text-[12px] font-medium">{type.name}</span>
                   <span className="text-gray-400 text-xs ml-2">({type.prefix})</span>
                 </div>
                 <button onClick={() => deleteTransactionType(type.id)} className="text-red-400 hover:text-red-600 transition-all">
@@ -9151,7 +9271,7 @@ function QueueAdminTab({ setCurrentPage }) {
               value={newTypeName}
               onChange={e => setNewTypeName(e.target.value)}
               placeholder="Name"
-              className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+              className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
             <input
               type="text"
@@ -9159,25 +9279,25 @@ function QueueAdminTab({ setCurrentPage }) {
               onChange={e => setNewTypePrefix(e.target.value.toUpperCase().slice(0, 3))}
               placeholder="Prefix"
               maxLength={3}
-              className="w-20 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+              className="w-20 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
-            <button onClick={addTransactionType} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all">
+            <button onClick={addTransactionType} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all">
               Add
             </button>
           </div>
         </div>
 
         {/* Teller Windows */}
-        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6">
-          <h3 className="text-gray-800 font-bold text-lg mb-4">Teller Windows</h3>
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4">
+          <h3 className="text-gray-800 font-bold text-[14px] mb-4">Teller Windows</h3>
 
           <div className="space-y-3 mb-4">
             {tellers.map(teller => {
               const assignedIds = (teller.assigned_types || []).map(t => t.id);
               return (
-                <div key={teller.id} className="bg-blue-50 rounded-lg p-3">
+                <div key={teller.id} className="bg-blue-50 rounded-md p-3">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-gray-800 text-sm font-medium">{teller.window_name}</span>
+                    <span className="text-gray-800 text-[12px] font-medium">{teller.window_name}</span>
                     <button onClick={() => deleteTeller(teller.id)} className="text-red-400 hover:text-red-600 transition-all">
                       <X className="w-4 h-4" />
                     </button>
@@ -9206,9 +9326,9 @@ function QueueAdminTab({ setCurrentPage }) {
               value={newWindowName}
               onChange={e => setNewWindowName(e.target.value)}
               placeholder="Window name"
-              className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+              className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
             />
-            <button onClick={addTeller} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all">
+            <button onClick={addTeller} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all">
               Add
             </button>
           </div>
@@ -9216,15 +9336,15 @@ function QueueAdminTab({ setCurrentPage }) {
       </div>
 
       {/* Marquee Text */}
-      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6 mt-6">
-        <h3 className="text-gray-800 font-bold text-lg mb-4">Display Marquee Text</h3>
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 mt-6">
+        <h3 className="text-gray-800 font-bold text-[14px] mb-4">Display Marquee Text</h3>
         <div className="flex gap-2">
           <input
             type="text"
             value={marqueeText}
             onChange={e => setMarqueeText(e.target.value)}
             placeholder="Enter scrolling text for the queue display..."
-            className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+            className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
           />
           <button
             onClick={async () => {
@@ -9239,7 +9359,7 @@ function QueueAdminTab({ setCurrentPage }) {
               setMarqueeSaving(false);
             }}
             disabled={marqueeSaving}
-            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
+            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50"
           >
             {marqueeSaving ? 'Saving...' : 'Save'}
           </button>
@@ -9248,13 +9368,13 @@ function QueueAdminTab({ setCurrentPage }) {
       </div>
 
       {/* Display Template */}
-      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-6 mt-6">
-        <h3 className="text-gray-800 font-bold text-lg mb-4">Display Template</h3>
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 mt-6">
+        <h3 className="text-gray-800 font-bold text-[14px] mb-4">Display Template</h3>
         <div className="flex flex-col md:flex-row gap-2 md:items-center">
           <select
             value={displayTemplate}
             onChange={(e) => setDisplayTemplate(e.target.value)}
-            className="flex-1 px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm focus:border-[#576CA8] focus:outline-none"
+            className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none"
           >
             <option value="template1">Template 1 - Classic</option>
             <option value="template2">Template 2 - Split Board</option>
@@ -9281,7 +9401,7 @@ function QueueAdminTab({ setCurrentPage }) {
               setTemplateSaving(false);
             }}
             disabled={templateSaving}
-            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50"
+            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50"
           >
             {templateSaving ? 'Saving...' : 'Set as Default'}
           </button>
@@ -9295,7 +9415,7 @@ function QueueAdminTab({ setCurrentPage }) {
           onClick={() => setShowReports(!showReports)}
           className="w-full flex items-center justify-between px-6 py-4 hover:bg-blue-50/50 transition-all"
         >
-          <h3 className="text-gray-800 font-bold text-lg">Queue Reports & Analytics</h3>
+          <h3 className="text-gray-800 font-bold text-[14px]">Queue Reports & Analytics</h3>
           <svg className={`w-5 h-5 text-gray-400 transition-transform ${showReports ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
@@ -9304,26 +9424,26 @@ function QueueAdminTab({ setCurrentPage }) {
         {showReports && (
           <div className="px-6 pb-6 border-t border-blue-100">
             {/* Date Range + Generate */}
-            <div className="flex flex-wrap items-end gap-3 mt-4 mb-6">
+            <div className="flex flex-wrap items-end gap-3 mt-4 mb-3">
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Start Date</label>
                 <input type="date" value={reportStartDate} onChange={e => setReportStartDate(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm focus:border-[#576CA8] focus:outline-none" />
+                  className="px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none" />
               </div>
               <div>
                 <label className="text-xs text-gray-500 block mb-1">End Date</label>
                 <input type="date" value={reportEndDate} onChange={e => setReportEndDate(e.target.value)}
-                  className="px-3 py-2 rounded-lg border border-blue-200 bg-blue-50 text-gray-800 text-sm focus:border-[#576CA8] focus:outline-none" />
+                  className="px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none" />
               </div>
               <button onClick={fetchReport} disabled={reportLoading}
-                className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-5 py-2 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50">
+                className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-5 py-2 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50">
                 {reportLoading ? 'Loading...' : 'Generate Report'}
               </button>
               <button onClick={() => {
                 const params = new URLSearchParams({ startDate: reportStartDate, endDate: reportEndDate });
                 window.open(`${API_BASE_URL}/api/export/queue-tickets?${params}`, '_blank');
               }}
-                className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-all border border-blue-200">
+                className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all border border-blue-200">
                 Export to CSV
               </button>
             </div>
@@ -9331,7 +9451,7 @@ function QueueAdminTab({ setCurrentPage }) {
             {reportData && (
               <>
                 {/* Summary Cards */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
                   <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
                     <p className="text-blue-200 text-xs uppercase tracking-wider">Total Tickets</p>
                     <p className="text-3xl font-bold text-[#000000]/87">{reportData.summary.totalTickets}</p>
@@ -9351,7 +9471,7 @@ function QueueAdminTab({ setCurrentPage }) {
                 </div>
 
                 {/* Completion Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-3 gap-2 mb-3">
                   <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
                     <p className="text-green-600 text-xs uppercase tracking-wider">Completed</p>
                     <p className="text-2xl font-bold text-green-700 mt-1">{reportData.summary.completed}</p>
@@ -9368,8 +9488,8 @@ function QueueAdminTab({ setCurrentPage }) {
 
                 {/* By Transaction Type */}
                 {reportData.byTransactionType.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">By Transaction Type</h4>
+                  <div className="mb-3">
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">By Transaction Type</h4>
                     <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
                       <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider">
                         <span>Type</span>
@@ -9377,7 +9497,7 @@ function QueueAdminTab({ setCurrentPage }) {
                         <span className="text-right">Avg Wait</span>
                       </div>
                       {reportData.byTransactionType.map((item, i) => (
-                        <div key={item.type} className={`grid grid-cols-3 gap-3 px-4 py-2.5 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+                        <div key={item.type} className={`grid grid-cols-3 gap-3 px-4 py-1.5 text-[12px] ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
                           <span className="text-gray-800 font-medium">{item.type}</span>
                           <span className="text-gray-600 text-center">{item.count}</span>
                           <span className="text-gray-600 text-right">{formatSeconds(item.avgWait)}</span>
@@ -9389,8 +9509,8 @@ function QueueAdminTab({ setCurrentPage }) {
 
                 {/* By Hour - Bar Chart */}
                 {reportData.byHour.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">Tickets by Hour</h4>
+                  <div className="mb-3">
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">Tickets by Hour</h4>
                     <div className="bg-white rounded-xl border border-blue-200 p-4">
                       {(() => {
                         const maxCount = Math.max(...reportData.byHour.map(h => h.count));
@@ -9419,7 +9539,7 @@ function QueueAdminTab({ setCurrentPage }) {
                 {/* By Day */}
                 {reportData.byDay.length > 1 && (
                   <div>
-                    <h4 className="text-gray-800 font-bold text-sm mb-3 uppercase tracking-wider">Daily Breakdown</h4>
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">Daily Breakdown</h4>
                     <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
                       <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider">
                         <span>Date</span>
@@ -9427,7 +9547,7 @@ function QueueAdminTab({ setCurrentPage }) {
                         <span className="text-right">Completed</span>
                       </div>
                       {reportData.byDay.map((item, i) => (
-                        <div key={item.date} className={`grid grid-cols-3 gap-3 px-4 py-2.5 text-sm ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+                        <div key={item.date} className={`grid grid-cols-3 gap-3 px-4 py-1.5 text-[12px] ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
                           <span className="text-gray-800 font-medium">{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                           <span className="text-gray-600 text-center">{item.total}</span>
                           <span className="text-gray-600 text-right">{item.completed}</span>
@@ -9493,10 +9613,10 @@ function QueuePage({ setCurrentPage }) {
   if (view === 'initial') {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 pt-[30px]">
-        <p className="text-gray-500 text-sm mb-6 text-center max-w-sm mt-[30px]">Tap the button below to get your queue number and wait for your turn to be called.</p>
+        <p className="text-gray-500 text-[12px] mb-3 text-center max-w-sm mt-[30px]">Tap the button below to get your queue number and wait for your turn to be called.</p>
         <button
           onClick={() => setView('form')}
-          className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-[#465a8f] transition-all shadow-lg hover:shadow-[#576CA8]/20 hover:-translate-y-0.5 flex items-center space-x-3"
+          className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-10 py-4 rounded-full font-bold text-[14px] hover:bg-[#465a8f] transition-all shadow-lg hover:shadow-[#576CA8]/20 hover:-translate-y-0.5 flex items-center space-x-3"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -9511,36 +9631,36 @@ function QueuePage({ setCurrentPage }) {
   if (view === 'receipt' && ticket) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4 py-8">
-        <div className="bg-white border border-blue-200 rounded-2xl shadow-sm p-8 max-w-md w-full text-center">
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-[#00754A] to-[#006241]/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <Check className="w-8 h-8 text-[#576CA8]" />
           </div>
-          <p className="text-gray-500 text-sm mb-2">Your Ticket Number</p>
+          <p className="text-gray-500 text-[12px] mb-2">Your Ticket Number</p>
           <h2 className="text-5xl font-black text-[#576CA8] mb-4 tracking-wider">{ticket.ticket_number}</h2>
-          <div className="bg-blue-50 rounded-xl p-4 mb-6 space-y-2 text-left">
+          <div className="bg-blue-50 rounded-xl p-4 mb-3 space-y-2 text-left">
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Name</span>
-              <span className="text-gray-800 text-sm font-medium">{ticket.customer_name}</span>
+              <span className="text-gray-500 text-[12px]">Name</span>
+              <span className="text-gray-800 text-[12px] font-medium">{ticket.customer_name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Transaction</span>
-              <span className="text-gray-800 text-sm font-medium">{ticket.transaction_type}</span>
+              <span className="text-gray-500 text-[12px]">Transaction</span>
+              <span className="text-gray-800 text-[12px] font-medium">{ticket.transaction_type}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500 text-sm">Queue Position</span>
-              <span className="text-[#576CA8] text-sm font-bold">#{position}</span>
+              <span className="text-gray-500 text-[12px]">Queue Position</span>
+              <span className="text-[#576CA8] text-[12px] font-bold">#{position}</span>
             </div>
             {ticket.is_priority && (
               <div className="flex justify-between">
-                <span className="text-gray-500 text-sm">Priority</span>
-                <span className="text-orange-400 text-sm font-bold">{ticket.priority_type}</span>
+                <span className="text-gray-500 text-[12px]">Priority</span>
+                <span className="text-orange-400 text-[12px] font-bold">{ticket.priority_type}</span>
               </div>
             )}
           </div>
-          <p className="text-gray-400 text-xs mb-6">{ticket.is_priority ? 'You are in the priority lane. Please wait for your number.' : 'Please wait for your number to be called.'}</p>
+          <p className="text-gray-400 text-xs mb-3">{ticket.is_priority ? 'You are in the priority lane. Please wait for your number.' : 'Please wait for your number to be called.'}</p>
           <button
             onClick={resetForm}
-            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-sm hover:bg-[#465a8f] transition-all"
+            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all"
           >
             Okay
           </button>
@@ -9552,43 +9672,43 @@ function QueuePage({ setCurrentPage }) {
   // Form view
   return (
     <div className="min-h-[60vh] flex items-start justify-center px-4 pt-[50px] py-8 md:pt-[80px]">
-      <div className="bg-white border border-blue-200 rounded-2xl shadow-sm p-8 max-w-md w-full">
-        <button onClick={() => setView('initial')} className="text-gray-500 hover:text-blue-700 text-sm mb-4 flex items-center gap-1 transition-all">
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full">
+        <button onClick={() => setView('initial')} className="text-gray-500 hover:text-blue-700 text-[12px] mb-4 flex items-center gap-1 transition-all">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           Back
         </button>
         <h2 className="text-2xl font-bold text-gray-800 mb-1">Create a Ticket</h2>
-        <p className="text-gray-500 text-sm mb-6">Fill in your details to join the queue.</p>
+        <p className="text-gray-500 text-[12px] mb-3">Fill in your details to join the queue.</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-600 text-sm font-medium mb-1">Name</label>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Name</label>
             <input
               type="text"
               required
               value={formData.customerName}
               onChange={(e) => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
               placeholder="Enter your full name"
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
+              className="w-full px-2.5 py-2 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-[12px]"
             />
           </div>
           <div>
-            <label className="block text-gray-600 text-sm font-medium mb-1">Cellphone Number</label>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Cellphone Number</label>
             <input
               type="tel"
               required
               value={formData.cellphoneNumber}
               onChange={(e) => setFormData(prev => ({ ...prev, cellphoneNumber: e.target.value }))}
               placeholder="09XX XXX XXXX"
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-sm"
+              className="w-full px-2.5 py-2 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-[12px]"
             />
           </div>
           <div>
-            <label className="block text-gray-600 text-sm font-medium mb-1">Transaction</label>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Transaction</label>
             <select
               required
               value={formData.transactionType}
               onChange={(e) => setFormData(prev => ({ ...prev, transactionType: e.target.value }))}
-              className="w-full px-4 py-3 rounded-lg border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 text-sm"
+              className="w-full px-2.5 py-2 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 text-[12px]"
             >
               <option value="" className="bg-white text-gray-800">Select transaction type</option>
               {transactionTypes.map(type => (
@@ -9597,7 +9717,7 @@ function QueuePage({ setCurrentPage }) {
             </select>
           </div>
           {/* Priority Lane */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -9606,7 +9726,7 @@ function QueuePage({ setCurrentPage }) {
                 className="w-5 h-5 rounded accent-[#00754A]"
               />
               <div>
-                <span className="text-gray-800 text-sm font-medium">Priority Lane</span>
+                <span className="text-gray-800 text-[12px] font-medium">Priority Lane</span>
                 <p className="text-gray-400 text-xs">Senior Citizen, PWD, or Pregnant Women</p>
               </div>
             </label>
@@ -9617,7 +9737,7 @@ function QueuePage({ setCurrentPage }) {
                     key={type}
                     type="button"
                     onClick={() => setFormData(prev => ({ ...prev, priorityType: type }))}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${formData.priorityType === type ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white border-[#576CA8]' : 'bg-blue-50 text-gray-500 border-blue-200 hover:border-blue-400'}`}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${formData.priorityType === type ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white border-[#576CA8]' : 'bg-blue-50 text-gray-500 border-blue-200 hover:border-blue-400'}`}
                   >
                     {type}
                   </button>
@@ -9628,7 +9748,7 @@ function QueuePage({ setCurrentPage }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-bold text-sm hover:bg-[#465a8f] transition-all disabled:opacity-50 mt-2"
+            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-bold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50 mt-2"
           >
             {isSubmitting ? 'Creating...' : 'Get Ticket Number'}
           </button>
@@ -9776,7 +9896,7 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 bg-blue-700 z-[100] flex items-center justify-center">
         <button
           onClick={() => setHasInteracted(true)}
-          className="bg-white text-blue-700 px-12 py-6 rounded-2xl font-bold text-2xl hover:bg-blue-50 transition-all shadow-2xl flex items-center gap-4"
+          className="bg-white text-blue-700 px-12 py-6 rounded-xl font-bold text-2xl hover:bg-blue-50 transition-all shadow-2xl flex items-center gap-2"
         >
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
@@ -9798,7 +9918,7 @@ function QueueDisplayPage() {
         </div>
 
         <div className="grid grid-cols-3 gap-3 p-3 flex-1 overflow-hidden">
-          <div className={`col-span-2 bg-slate-900 border-2 ${isAnnouncing ? 'animate-border-blink border-cyan-400' : 'border-slate-700'} rounded-2xl p-4 overflow-hidden`}>
+          <div className={`col-span-2 bg-slate-900 border-2 ${isAnnouncing ? 'animate-border-blink border-cyan-400' : 'border-slate-700'} rounded-xl p-4 overflow-hidden`}>
             <div className="grid grid-cols-3 gap-3 h-full">
               {Array.from({ length: 6 }).map((_, idx) => {
                 const ticket = serving[idx];
@@ -9809,14 +9929,14 @@ function QueueDisplayPage() {
                         <div>
                           <p className="text-cyan-300 text-xs font-bold uppercase">Now Serving</p>
                           <p className="text-6xl text-[#000000]/87 leading-none mt-2" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
-                          <p className="text-slate-300 text-sm truncate mt-1">{ticket.customer_name}</p>
+                          <p className="text-slate-300 text-[12px] truncate mt-1">{ticket.customer_name}</p>
                         </div>
-                        <div className="bg-cyan-600 text-slate-900 rounded-lg px-3 py-1.5 text-center font-black text-2xl">
+                        <div className="bg-cyan-600 text-slate-900 rounded-md px-3 py-1.5 text-center font-black text-2xl">
                           {ticket.teller_window?.replace(/\D/g, '') || '-'}
                         </div>
                       </>
                     ) : (
-                      <div className="h-full flex items-center justify-center text-slate-500 text-sm">Waiting...</div>
+                      <div className="h-full flex items-center justify-center text-slate-500 text-[12px]">Waiting...</div>
                     )}
                   </div>
                 );
@@ -9824,21 +9944,21 @@ function QueueDisplayPage() {
             </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl p-3 flex flex-col overflow-hidden">
-            <h2 className="text-cyan-300 font-bold text-lg mb-3">WAITING LIST</h2>
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 flex flex-col overflow-hidden">
+            <h2 className="text-cyan-300 font-bold text-[14px] mb-3">WAITING LIST</h2>
             <div className="space-y-2 overflow-y-auto">
               {waiting.length === 0 ? (
-                <p className="text-slate-500 text-sm">No waiting tickets</p>
+                <p className="text-slate-500 text-[12px]">No waiting tickets</p>
               ) : (
                 waiting.slice(0, 12).map((ticket) => (
-                  <div key={ticket.id} className="bg-slate-800 rounded-lg px-3 py-2 flex items-center justify-between">
+                  <div key={ticket.id} className="bg-slate-800 rounded-md px-2 py-1.5 flex items-center justify-between">
                     <span className="text-[#000000]/87 font-semibold">{ticket.ticket_number}</span>
                     <span className="text-cyan-300 text-xs">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
                 ))
               )}
             </div>
-            <div className="mt-3 bg-black rounded-lg overflow-hidden">
+            <div className="mt-3 bg-black rounded-md overflow-hidden">
               <video className="w-full aspect-video object-cover" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
           </div>
@@ -9847,8 +9967,8 @@ function QueueDisplayPage() {
         {marqueeText && (
           <div className="h-[48px] bg-cyan-500 flex items-center overflow-hidden">
             <div className="animate-marquee whitespace-nowrap">
-              <span className="text-slate-900 text-lg font-bold mx-8">{marqueeText}</span>
-              <span className="text-slate-900 text-lg font-bold mx-8">{marqueeText}</span>
+              <span className="text-slate-900 text-[14px] font-bold mx-8">{marqueeText}</span>
+              <span className="text-slate-900 text-[14px] font-bold mx-8">{marqueeText}</span>
             </div>
           </div>
         )}
@@ -9861,7 +9981,7 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-amber-50">
         <div className="bg-gradient-to-r from-amber-700 to-orange-700 px-10 py-4 flex items-center justify-between">
           <div>
-            <p className="text-amber-100 text-sm tracking-[0.3em]">SERVICE CENTER</p>
+            <p className="text-amber-100 text-[12px] tracking-[0.3em]">SERVICE CENTER</p>
             <h1 className="text-5xl font-black text-[#000000]/87 leading-none">LIVE CALLING</h1>
           </div>
           <div className="text-amber-100 text-3xl font-mono font-bold">
@@ -9869,25 +9989,25 @@ function QueueDisplayPage() {
           </div>
         </div>
 
-        <div className="flex-1 grid grid-cols-2 gap-4 p-4 overflow-hidden">
-          <div className={`rounded-3xl bg-white border-4 ${isAnnouncing ? 'animate-border-blink border-orange-500' : 'border-amber-200'} shadow-xl p-6 flex flex-col items-center justify-center`}>
-            <p className="text-amber-600 uppercase tracking-wider text-sm font-bold mb-2">Current Ticket</p>
+        <div className="flex-1 grid grid-cols-2 gap-2 p-4 overflow-hidden">
+          <div className={`rounded-3xl bg-white border-4 ${isAnnouncing ? 'animate-border-blink border-orange-500' : 'border-amber-200'} shadow-xl p-4 flex flex-col items-center justify-center`}>
+            <p className="text-amber-600 uppercase tracking-wider text-[12px] font-bold mb-2">Current Ticket</p>
             {serving.length === 0 ? (
-              <p className="text-gray-400 text-xl">No ticket called</p>
+              <p className="text-gray-400 text-[16px]">No ticket called</p>
             ) : (
               <>
                 <p className="text-[180px] leading-none text-gray-900" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
                 <div className="mt-2 px-8 py-2 rounded-full bg-orange-600 text-[#000000]/87 text-3xl font-black">
                   Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}
                 </div>
-                <p className="mt-3 text-gray-600 text-lg">{serving[0].customer_name}</p>
+                <p className="mt-3 text-gray-600 text-[14px]">{serving[0].customer_name}</p>
               </>
             )}
           </div>
 
-          <div className="flex flex-col gap-4 overflow-hidden">
+          <div className="flex flex-col gap-2 overflow-hidden">
             <div className="rounded-3xl bg-white border border-amber-200 shadow p-4 overflow-hidden">
-              <h2 className="text-amber-700 font-bold text-lg mb-3">Now Serving Windows</h2>
+              <h2 className="text-amber-700 font-bold text-[14px] mb-3">Now Serving Windows</h2>
               <div className="grid grid-cols-2 gap-2">
                 {serving.slice(0, 4).map(ticket => (
                   <div key={ticket.id} className={`rounded-xl bg-amber-100 p-3 ${cardAnimation}`}>
@@ -9900,13 +10020,13 @@ function QueueDisplayPage() {
             </div>
 
             <div className="rounded-3xl bg-white border border-amber-200 shadow p-4 flex-1 overflow-hidden">
-              <h2 className="text-amber-700 font-bold text-lg mb-2">Waiting Queue</h2>
+              <h2 className="text-amber-700 font-bold text-[14px] mb-2">Waiting Queue</h2>
               <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-full pr-1">
                 {waiting.length === 0 ? (
-                  <p className="text-gray-400 text-sm col-span-2">No waiting tickets</p>
+                  <p className="text-gray-400 text-[12px] col-span-2">No waiting tickets</p>
                 ) : (
                   waiting.slice(0, 14).map(ticket => (
-                    <div key={ticket.id} className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 flex justify-between">
+                    <div key={ticket.id} className="rounded-md bg-amber-50 border border-amber-200 px-2 py-1.5 flex justify-between">
                       <span className="font-semibold text-gray-800">{ticket.ticket_number}</span>
                       <span className="text-xs text-amber-700">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                     </div>
@@ -9920,8 +10040,8 @@ function QueueDisplayPage() {
         {marqueeText && (
           <div className="h-[48px] bg-orange-600 flex items-center overflow-hidden">
             <div className="animate-marquee whitespace-nowrap">
-              <span className="text-[#000000]/87 text-lg font-semibold mx-8">{marqueeText}</span>
-              <span className="text-[#000000]/87 text-lg font-semibold mx-8">{marqueeText}</span>
+              <span className="text-[#000000]/87 text-[14px] font-semibold mx-8">{marqueeText}</span>
+              <span className="text-[#000000]/87 text-[14px] font-semibold mx-8">{marqueeText}</span>
             </div>
           </div>
         )}
@@ -9939,8 +10059,8 @@ function QueueDisplayPage() {
           </div>
           <div className="text-gray-700 text-2xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         </div>
-        <div className="grid grid-cols-12 gap-4 p-4 flex-1 overflow-hidden">
-          <div className="col-span-8 bg-white border border-gray-200 rounded-2xl p-4 overflow-hidden">
+        <div className="grid grid-cols-12 gap-2 p-4 flex-1 overflow-hidden">
+          <div className="col-span-8 bg-white border border-gray-200 rounded-xl p-4 overflow-hidden">
             <h2 className="text-gray-700 font-medium mb-3">Now Serving</h2>
             <div className="grid grid-cols-2 gap-3 h-[calc(100%-2rem)] overflow-y-auto">
               {serving.length === 0 ? (
@@ -9951,24 +10071,24 @@ function QueueDisplayPage() {
                     <p className="text-xs uppercase text-gray-500">Ticket</p>
                     <p className="text-6xl leading-none text-gray-900 mt-1" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
                     <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm text-gray-600 truncate">{ticket.customer_name}</span>
-                      <span className="text-sm font-semibold text-gray-800">{ticket.teller_window || '-'}</span>
+                      <span className="text-[12px] text-gray-600 truncate">{ticket.customer_name}</span>
+                      <span className="text-[12px] font-semibold text-gray-800">{ticket.teller_window || '-'}</span>
                     </div>
                   </div>
                 ))
               )}
             </div>
           </div>
-          <div className="col-span-4 flex flex-col gap-4 overflow-hidden">
-            <div className="bg-white border border-gray-200 rounded-2xl p-3">
+          <div className="col-span-4 flex flex-col gap-2 overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-xl p-3">
               <h3 className="text-gray-700 font-medium mb-2">Video</h3>
-              <video className="w-full aspect-video object-cover rounded-lg" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
-            <div className={`bg-white border-2 ${isAnnouncing ? 'animate-border-blink border-blue-400' : 'border-gray-200'} rounded-2xl p-4 flex-1 overflow-hidden`}>
+            <div className={`bg-white border-2 ${isAnnouncing ? 'animate-border-blink border-blue-400' : 'border-gray-200'} rounded-xl p-4 flex-1 overflow-hidden`}>
               <h3 className="text-gray-700 font-medium mb-2">Waiting Queue</h3>
               <div className="space-y-2 overflow-y-auto max-h-full">
-                {waiting.length === 0 ? <p className="text-gray-400 text-sm">No waiting tickets</p> : waiting.slice(0, 12).map(ticket => (
-                  <div key={ticket.id} className="flex items-center justify-between border border-gray-100 rounded-lg px-3 py-2">
+                {waiting.length === 0 ? <p className="text-gray-400 text-[12px]">No waiting tickets</p> : waiting.slice(0, 12).map(ticket => (
+                  <div key={ticket.id} className="flex items-center justify-between border border-gray-100 rounded-md px-2 py-1.5">
                     <span className="font-medium text-gray-800">{ticket.ticket_number}</span>
                     <span className="text-xs text-gray-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
@@ -9987,28 +10107,28 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-white">
         <div className="px-8 py-4 border-b border-gray-200 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-gray-900">Now Serving</h1>
-          <div className="text-gray-600 text-xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+          <div className="text-gray-600 text-[16px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         </div>
         <div className="flex-1 grid grid-cols-3 overflow-hidden">
-          <div className="col-span-2 border-r border-gray-200 p-6 overflow-hidden">
+          <div className="col-span-2 border-r border-gray-200 p-4 overflow-hidden">
             {serving.length === 0 ? (
               <div className="h-full flex items-center justify-center text-gray-400">No ticket called</div>
             ) : (
-              <div className={`h-full border border-gray-200 rounded-2xl p-8 flex flex-col justify-center items-center ${isAnnouncing ? 'animate-border-blink border-green-400' : ''}`}>
-                <p className="text-sm text-gray-500 uppercase tracking-wide">Current Ticket</p>
+              <div className={`h-full border border-gray-200 rounded-xl p-4 flex flex-col justify-center items-center ${isAnnouncing ? 'animate-border-blink border-green-400' : ''}`}>
+                <p className="text-[12px] text-gray-500 uppercase tracking-wide">Current Ticket</p>
                 <p className="text-[180px] leading-none text-gray-900" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
                 <p className="text-3xl font-medium text-gray-700">Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}</p>
                 <p className="mt-2 text-gray-500">{serving[0].customer_name}</p>
               </div>
             )}
           </div>
-          <div className="col-span-1 p-4 flex flex-col gap-4 overflow-hidden">
+          <div className="col-span-1 p-4 flex flex-col gap-2 overflow-hidden">
             <div className="border border-gray-200 rounded-xl p-2">
-              <p className="text-gray-600 text-sm mb-2">Video Display</p>
-              <video className="w-full aspect-video object-cover rounded-lg" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+              <p className="text-gray-600 text-[12px] mb-2">Video Display</p>
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
             <div className="border border-gray-200 rounded-xl p-3 flex-1 overflow-hidden">
-              <p className="text-gray-600 text-sm mb-2">Queue List</p>
+              <p className="text-gray-600 text-[12px] mb-2">Queue List</p>
               <div className="space-y-1.5 overflow-y-auto max-h-full">
                 {waiting.slice(0, 16).map(ticket => (
                   <div key={ticket.id} className="flex justify-between bg-gray-50 rounded px-2.5 py-2">
@@ -10016,12 +10136,12 @@ function QueueDisplayPage() {
                     <span className="text-xs text-gray-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
                 ))}
-                {waiting.length === 0 && <p className="text-gray-400 text-sm">No waiting tickets</p>}
+                {waiting.length === 0 && <p className="text-gray-400 text-[12px]">No waiting tickets</p>}
               </div>
             </div>
           </div>
         </div>
-        {marqueeText && <div className="h-[42px] bg-gray-100 text-gray-700 flex items-center overflow-hidden border-t border-gray-200"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
+        {marqueeText && <div className="h-[32px] bg-gray-100 text-gray-700 flex items-center overflow-hidden border-t border-gray-200"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
       </div>
     );
   }
@@ -10031,11 +10151,11 @@ function QueueDisplayPage() {
       <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-[#F8FAFC]">
         <div className="bg-[#0F172A] px-8 py-3 flex items-center justify-between">
           <h1 className="text-2xl font-semibold text-[#000000]/87">Queue Information Panel</h1>
-          <div className="text-slate-200 text-xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+          <div className="text-slate-200 text-[16px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
         </div>
-        <div className="p-4 grid grid-cols-12 gap-4 flex-1 overflow-hidden">
+        <div className="p-4 grid grid-cols-12 gap-2 flex-1 overflow-hidden">
           <div className="col-span-5 bg-white rounded-xl border border-slate-200 p-4 overflow-hidden">
-            <p className="text-sm text-slate-500 mb-2">Main Call</p>
+            <p className="text-[12px] text-slate-500 mb-2">Main Call</p>
             {serving[0] ? (
               <div className={`h-full flex flex-col justify-center items-center ${cardAnimation}`}>
                 <p className="text-[160px] text-slate-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
@@ -10044,24 +10164,24 @@ function QueueDisplayPage() {
             ) : <div className="h-full flex items-center justify-center text-slate-400">No active ticket</div>}
           </div>
           <div className="col-span-4 bg-white rounded-xl border border-slate-200 p-4 overflow-hidden">
-            <p className="text-sm text-slate-500 mb-2">Active Windows</p>
+            <p className="text-[12px] text-slate-500 mb-2">Active Windows</p>
             <div className="space-y-2 overflow-y-auto max-h-full">
               {serving.slice(0, 10).map(ticket => (
-                <div key={ticket.id} className={`rounded-lg border ${isAnnouncing ? 'border-blue-300' : 'border-slate-200'} px-3 py-2 flex items-center justify-between`}>
+                <div key={ticket.id} className={`rounded-md border ${isAnnouncing ? 'border-blue-300' : 'border-slate-200'} px-2 py-1.5 flex items-center justify-between`}>
                   <span className="text-slate-800 font-medium">{ticket.ticket_number}</span>
-                  <span className="text-slate-500 text-sm">{ticket.teller_window || '-'}</span>
+                  <span className="text-slate-500 text-[12px]">{ticket.teller_window || '-'}</span>
                 </div>
               ))}
-              {serving.length === 0 && <p className="text-slate-400 text-sm">No active windows</p>}
+              {serving.length === 0 && <p className="text-slate-400 text-[12px]">No active windows</p>}
             </div>
           </div>
-          <div className="col-span-3 flex flex-col gap-4 overflow-hidden">
+          <div className="col-span-3 flex flex-col gap-2 overflow-hidden">
             <div className="bg-white rounded-xl border border-slate-200 p-3">
-              <p className="text-sm text-slate-500 mb-2">Video</p>
-              <video className="w-full aspect-video object-cover rounded-lg" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+              <p className="text-[12px] text-slate-500 mb-2">Video</p>
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
             </div>
             <div className="bg-white rounded-xl border border-slate-200 p-3 flex-1 overflow-hidden">
-              <p className="text-sm text-slate-500 mb-2">Waiting</p>
+              <p className="text-[12px] text-slate-500 mb-2">Waiting</p>
               <div className="space-y-1.5 overflow-y-auto max-h-full">
                 {waiting.slice(0, 12).map(ticket => (
                   <div key={ticket.id} className="rounded-md bg-slate-50 px-2.5 py-1.5 flex justify-between">
@@ -10069,7 +10189,7 @@ function QueueDisplayPage() {
                     <span className="text-xs text-slate-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
                   </div>
                 ))}
-                {waiting.length === 0 && <p className="text-slate-400 text-sm">No waiting tickets</p>}
+                {waiting.length === 0 && <p className="text-slate-400 text-[12px]">No waiting tickets</p>}
               </div>
             </div>
           </div>
@@ -10091,7 +10211,7 @@ function QueueDisplayPage() {
       <div className="flex flex-1 overflow-hidden">
         <div className="w-[60%] overflow-y-auto p-3 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1]">
           {serving.length === 0 ? (
-            <p className="text-blue-300 text-lg text-center py-10">No tickets being served</p>
+            <p className="text-blue-300 text-[14px] text-center py-10">No tickets being served</p>
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {serving.map(ticket => (
@@ -10121,14 +10241,14 @@ function QueueDisplayPage() {
             </div>
           </div>
 
-          <div className={`flex-1 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1] flex flex-row items-center justify-center p-0 gap-8 ${isAnnouncing ? 'animate-border-blink border-[#3A7CA5]' : 'border-transparent border-4'}`}>
+          <div className={`flex-1 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1] flex flex-row items-center justify-center p-0 gap-2 ${isAnnouncing ? 'animate-border-blink border-[#3A7CA5]' : 'border-transparent border-4'}`}>
             {serving.length === 0 ? (
               <p className="text-blue-300 text-2xl">No ticket called</p>
             ) : (
               <>
                 <div className="flex flex-col items-center">
                   <p className="text-[120px] text-gray-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
-                  {serving[0].is_priority && <span className="mt-2 text-sm font-bold bg-orange-500 text-[#000000]/87 px-4 py-1 rounded-full uppercase">{serving[0].priority_type || 'Priority'}</span>}
+                  {serving[0].is_priority && <span className="mt-2 text-[12px] font-bold bg-orange-500 text-[#000000]/87 px-4 py-1 rounded-full uppercase">{serving[0].priority_type || 'Priority'}</span>}
                 </div>
                 <div className="bg-[#3A7CA5] rounded-xl px-8 py-3 flex flex-col items-center gap-1">
                   <span className="text-xs font-bold text-blue-200 uppercase tracking-widest">Window</span>
@@ -10143,8 +10263,8 @@ function QueueDisplayPage() {
       {marqueeText && (
         <div className="h-[48px] bg-[#81C3D7] flex items-center overflow-hidden">
           <div className="animate-marquee whitespace-nowrap">
-            <span className="text-black text-lg font-medium mx-8">{marqueeText}</span>
-            <span className="text-black text-lg font-medium mx-8">{marqueeText}</span>
+            <span className="text-black text-[14px] font-medium mx-8">{marqueeText}</span>
+            <span className="text-black text-[14px] font-medium mx-8">{marqueeText}</span>
           </div>
         </div>
       )}
@@ -10297,9 +10417,9 @@ function QueueTellerPage({ setCurrentPage }) {
   if (!selectedWindow) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4 mt-[40px]">
-        <div className="bg-white border border-blue-200 rounded-2xl shadow-sm p-8 max-w-md w-full text-center">
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Teller Station</h2>
-          <p className="text-gray-500 text-sm mb-6">Enter your name and select your window to start serving.</p>
+          <p className="text-gray-500 text-[12px] mb-3">Enter your name and select your window to start serving.</p>
           <div className="mb-4">
             <label className="block text-gray-500 text-xs mb-1 text-left">Teller Name</label>
             <input
@@ -10307,7 +10427,7 @@ function QueueTellerPage({ setCurrentPage }) {
               value={tellerName}
               onChange={(e) => setTellerName(e.target.value)}
               placeholder="Enter your name"
-              className="w-full bg-blue-50 border border-blue-200 text-gray-800 px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500 placeholder-gray-400"
+              className="w-full bg-blue-50 border border-blue-200 text-gray-800 px-2.5 py-2 rounded-xl focus:outline-none focus:border-blue-500 placeholder-gray-400"
             />
           </div>
           <div className="space-y-3">
@@ -10316,7 +10436,7 @@ function QueueTellerPage({ setCurrentPage }) {
                 key={teller.id}
                 onClick={() => setSelectedWindow(teller.window_name)}
                 disabled={!tellerName.trim()}
-                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] border border-[#006241] text-white py-4 rounded-xl font-semibold text-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:opacity-100"
+                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] border border-[#006241] text-white py-4 rounded-xl font-semibold text-[14px] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:opacity-100"
               >
                 {teller.window_name}
               </button>
@@ -10324,7 +10444,7 @@ function QueueTellerPage({ setCurrentPage }) {
           </div>
           <button
             onClick={() => setCurrentPage('home')}
-            className="mt-6 text-gray-400 hover:text-blue-700 text-sm transition-all"
+            className="mt-6 text-gray-400 hover:text-blue-700 text-[12px] transition-all"
           >
             ← Back to Home
           </button>
@@ -10337,10 +10457,10 @@ function QueueTellerPage({ setCurrentPage }) {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Teller Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-800">{selectedWindow}</h2>
-          <p className="text-gray-500 text-sm">Teller: {tellerName}</p>
+          <p className="text-gray-500 text-[12px]">Teller: {tellerName}</p>
           <div className="flex flex-wrap gap-1 mt-1">
             {assignedTypes.length > 0
               ? assignedTypes.map(type => (
@@ -10352,7 +10472,7 @@ function QueueTellerPage({ setCurrentPage }) {
         </div>
         <button
           onClick={() => { setSelectedWindow(''); setCurrentTicket(null); }}
-          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-all text-sm flex items-center gap-1.5"
+          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-all text-[12px] flex items-center gap-1.5"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
           Change Window
@@ -10360,11 +10480,11 @@ function QueueTellerPage({ setCurrentPage }) {
       </div>
 
       {/* Two Column Layout */}
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-3">
         {/* Left Side — Teller Controls */}
         <div className="flex-1 min-w-0">
           {/* Stats */}
-          <div className="grid grid-cols-4 gap-2 md:gap-4 mb-6 -mt-[30px]">
+          <div className="grid grid-cols-4 gap-2 md:gap-2 mb-3 -mt-[30px]">
             <div className="flex flex-col items-center gap-1 py-3">
               <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" /></svg>
               <p className="text-2xl font-bold text-gray-900">{completedCount}</p>
@@ -10389,37 +10509,37 @@ function QueueTellerPage({ setCurrentPage }) {
 
           {/* Current Ticket */}
           {currentTicket ? (
-            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-6 -mt-[20px]">
-              <div className="bg-[#274690] px-4 py-2.5">
+            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-3 -mt-[20px]">
+              <div className="bg-[#274690] px-4 py-1.5">
                 <p className="text-black/60 text-xs font-medium uppercase tracking-wider">Now Serving</p>
               </div>
-              <div className="p-5 md:p-8">
-                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-5">
-                  <div className="flex items-center gap-4 md:flex-1">
+              <div className="p-3 md:p-4">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 md:flex-1">
                     <span className="text-4xl md:text-6xl font-black text-[#274690] leading-none">{currentTicket.ticket_number}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 text-lg md:text-xl font-semibold truncate">{currentTicket.customer_name}</p>
-                      <p className="text-gray-400 text-sm">{currentTicket.transaction_type} &bull; {currentTicket.cellphone_number}</p>
+                      <p className="text-gray-900 text-[14px] md:text-[16px] font-semibold truncate">{currentTicket.customer_name}</p>
+                      <p className="text-gray-400 text-[12px]">{currentTicket.transaction_type} &bull; {currentTicket.cellphone_number}</p>
                     </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-2 md:flex md:gap-3 md:justify-center">
                   <button
                     onClick={completeTicket}
-                    className="bg-green-500 hover:bg-green-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all flex items-center justify-center gap-2"
+                    className="bg-green-500 hover:bg-green-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all flex items-center justify-center gap-2"
                   >
                     <Check className="w-4 h-4 md:w-5 md:h-5" />
                     Complete
                   </button>
                   <button
                     onClick={() => setShowTransferModal(true)}
-                    className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
+                    className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all text-center"
                   >
                     Transfer
                   </button>
                   <button
                     onClick={skipTicket}
-                    className="bg-gray-500 hover:bg-gray-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-sm transition-all text-center"
+                    className="bg-gray-500 hover:bg-gray-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all text-center"
                   >
                     Skip
                   </button>
@@ -10427,11 +10547,11 @@ function QueueTellerPage({ setCurrentPage }) {
               </div>
             </div>
           ) : (
-            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-6 -mt-[20px]">
-              <div className="bg-[#274690] px-4 py-2.5">
+            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-3 -mt-[20px]">
+              <div className="bg-[#274690] px-4 py-1.5">
                 <p className="text-black/60 text-xs font-medium uppercase tracking-wider">Now Serving</p>
               </div>
-              <div className="p-5 md:p-8 text-center">
+              <div className="p-3 md:p-4 text-center">
                 <p className="text-gray-400 text-base mb-4">No ticket being served</p>
                 <button
                   onClick={callNext}
@@ -10440,7 +10560,7 @@ function QueueTellerPage({ setCurrentPage }) {
                 >
                   {isLoading ? 'Calling...' : 'Call Next'}
                 </button>
-                {waitingCount === 0 && <p className="text-gray-400 text-sm mt-3">No tickets in the waiting queue</p>}
+                {waitingCount === 0 && <p className="text-gray-400 text-[12px] mt-3">No tickets in the waiting queue</p>}
               </div>
             </div>
           )}
@@ -10448,7 +10568,7 @@ function QueueTellerPage({ setCurrentPage }) {
           {/* Skipped Tickets */}
           {skippedTickets.length > 0 && (
             <div className="bg-white border border-gray-200 shadow-sm overflow-hidden">
-              <div className="bg-[#274690] px-4 py-3 flex items-center justify-between">
+              <div className="bg-[#274690] px-2.5 py-2 flex items-center justify-between">
                 <h3 className="text-[#000000]/87 font-bold text-base">Skipped Tickets</h3>
                 <span className="bg-white shadow-sm text-[#000000]/87 text-xs font-semibold px-2 py-0.5 rounded-full">{skippedTickets.length}</span>
               </div>
@@ -10462,10 +10582,10 @@ function QueueTellerPage({ setCurrentPage }) {
                 </div>
                 <div className="divide-y divide-gray-100 max-h-[40vh] overflow-y-auto">
                   {skippedTickets.map((ticket, index) => (
-                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-2.5 ${index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-1.5 ${index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
                       <span className="w-6 text-center text-xs font-bold bg-red-100 text-red-500 rounded-full leading-5">{index + 1}</span>
-                      <span className="w-16 text-sm font-bold text-gray-900">{ticket.ticket_number}</span>
-                      <span className="text-sm text-gray-700 truncate flex-1">{ticket.customer_name}</span>
+                      <span className="w-16 text-[12px] font-bold text-gray-900">{ticket.ticket_number}</span>
+                      <span className="text-[12px] text-gray-700 truncate flex-1">{ticket.customer_name}</span>
                       <span className="text-xs text-gray-400">{ticket.transaction_type}</span>
                       <button
                         onClick={() => recallTicket(ticket.id)}
@@ -10485,7 +10605,7 @@ function QueueTellerPage({ setCurrentPage }) {
         {/* Right Side — Waiting Queue Grid */}
         <div className="lg:w-80 xl:w-96 flex-shrink-0 -mt-[20px]">
           <div className="bg-white border border-gray-200 shadow-sm overflow-hidden lg:sticky lg:top-6">
-            <div className="bg-[#274690] px-4 py-3 flex items-center justify-between">
+            <div className="bg-[#274690] px-2.5 py-2 flex items-center justify-between">
               <h3 className="text-[#000000]/87 font-bold text-base">Waiting Queue</h3>
               <span className="bg-white shadow-sm text-[#000000]/87 text-xs font-semibold px-2 py-0.5 rounded-full">{waitingTickets.length}</span>
             </div>
@@ -10500,16 +10620,16 @@ function QueueTellerPage({ setCurrentPage }) {
               {waitingTickets.length > 0 ? (
                 <div className="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
                   {waitingTickets.map((ticket, index) => (
-                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${index === 0 ? 'bg-amber-50 border-l-3 border-l-amber-400' : index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-1.5 transition-colors ${index === 0 ? 'bg-amber-50 border-l-3 border-l-amber-400' : index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
                       <span className={`w-6 text-center text-xs font-bold rounded-full leading-5 ${index === 0 ? 'bg-amber-400 text-[#000000]/87' : 'bg-gray-200 text-gray-500'}`}>{index + 1}</span>
-                      <span className="w-16 text-sm font-bold text-gray-900">{ticket.ticket_number}</span>
-                      <span className="text-sm text-gray-700 truncate flex-1">{ticket.customer_name}</span>
+                      <span className="w-16 text-[12px] font-bold text-gray-900">{ticket.ticket_number}</span>
+                      <span className="text-[12px] text-gray-700 truncate flex-1">{ticket.customer_name}</span>
                       <span className="text-xs text-gray-400">{ticket.transaction_type}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-400 text-sm text-center py-8">No tickets waiting</p>
+                <p className="text-gray-400 text-[12px] text-center py-8">No tickets waiting</p>
               )}
             </div>
           </div>
@@ -10519,12 +10639,12 @@ function QueueTellerPage({ setCurrentPage }) {
       {/* Transfer Modal */}
       {showTransferModal && currentTicket && (
         <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 px-4">
-          <div className="bg-white border border-blue-200 rounded-2xl p-6 max-w-sm w-full shadow-xl">
-            <h3 className="text-gray-800 font-bold text-lg mb-2">Transfer Ticket</h3>
-            <p className="text-gray-500 text-sm mb-1">
+          <div className="bg-white border border-blue-200 rounded-xl p-4 max-w-sm w-full shadow-xl">
+            <h3 className="text-gray-800 font-bold text-[14px] mb-2">Transfer Ticket</h3>
+            <p className="text-gray-500 text-[12px] mb-1">
               Transferring <span className="text-[#576CA8] font-bold">{currentTicket.ticket_number}</span> — {currentTicket.customer_name}
             </p>
-            <p className="text-gray-400 text-xs mb-5">Select the destination window:</p>
+            <p className="text-gray-400 text-xs mb-3">Select the destination window:</p>
             <div className="space-y-2">
               {tellers
                 .filter(t => t.window_name !== selectedWindow)
@@ -10540,7 +10660,7 @@ function QueueTellerPage({ setCurrentPage }) {
             </div>
             <button
               onClick={() => setShowTransferModal(false)}
-              className="w-full mt-4 bg-blue-50 hover:bg-blue-100 text-gray-500 py-2.5 rounded-xl text-sm transition-all"
+              className="w-full mt-4 bg-blue-50 hover:bg-blue-100 text-gray-500 py-1.5 rounded-xl text-[12px] transition-all"
             >
               Cancel
             </button>
@@ -10565,9 +10685,9 @@ function GuestCheckinPage({ setCurrentPage }) {
   const [ckReservation, setCkReservation] = React.useState(null);
   const [ckArriving, setCkArriving] = React.useState(false);
 
-  const inputCls = "w-full px-3 py-2.5 rounded-lg text-[#000000]/87 placeholder-black/30 text-sm outline-none transition-all";
+  const inputCls = "w-full px-3 py-1.5 rounded-md text-[#000000]/87 placeholder-black/30 text-[12px] outline-none transition-all";
   const inputStyle = { border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' };
-  const labelCls = "block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-1.5";
+  const labelCls = "block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-1";
 
   const handleLookup = async (e) => {
     if (e) e.preventDefault();
@@ -10612,7 +10732,7 @@ function GuestCheckinPage({ setCurrentPage }) {
               <div className="px-6 py-5 border-b border-black/5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-[#006241] font-bold text-lg tracking-tight">Guest Check-In</h3>
+                    <h3 className="text-[#006241] font-bold text-[14px] tracking-tight">Guest Check-In</h3>
                     <p className="text-black/50 text-xs mt-0.5">Find your reservation to begin check-in</p>
                   </div>
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: '#d4e9e2', border: '1px solid #a8d5c2' }}>
@@ -10625,9 +10745,9 @@ function GuestCheckinPage({ setCurrentPage }) {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4">
                 {/* Method toggle — segmented pill control */}
-                <div className="flex p-1 mb-5 gap-1 rounded-full" style={{ background: '#f2f0eb', border: '1px solid rgba(0,0,0,0.08)' }}>
+                <div className="flex p-1 mb-3 gap-1 rounded-full" style={{ background: '#f2f0eb', border: '1px solid rgba(0,0,0,0.08)' }}>
                   {[
                     { id: 'id', label: 'Confirmation #' },
                     { id: 'email', label: 'Email & Name' },
@@ -10655,7 +10775,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                       onChange={(e) => setCkConfId(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && ckConfId && handleLookup()}
                       placeholder="e.g. 1042"
-                      className={inputCls + " text-xl font-mono font-bold"}
+                      className={inputCls + " text-[16px] font-mono font-bold"}
                       style={inputStyle}
                       onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
                       onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
@@ -10686,7 +10806,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                 )}
 
                 {ckError && (
-                  <div className="mt-4 px-4 py-3 text-[#c82014] text-sm rounded-lg" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>
+                  <div className="mt-4 px-2.5 py-2 text-[#c82014] text-[12px] rounded-md" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>
                     {ckError}
                   </div>
                 )}
@@ -10694,7 +10814,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                 <button
                   onClick={handleLookup}
                   disabled={ckLoading || (ckMethod === 'id' ? !ckConfId : !ckEmail || !ckLastName)}
-                  className="w-full mt-5 text-white font-bold py-3 transition-all text-sm disabled:opacity-40"
+                  className="w-full mt-5 text-white font-bold py-3 transition-all text-[12px] disabled:opacity-40"
                   style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                   onMouseEnter={e => { if (!ckLoading) e.currentTarget.style.background = '#006241'; }}
                   onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
@@ -10707,7 +10827,7 @@ function GuestCheckinPage({ setCurrentPage }) {
             </div>
 
             <div className="text-center mt-5">
-              <button onClick={() => setCurrentPage('home')} className="text-white/50 hover:text-white/80 text-sm transition-colors">
+              <button onClick={() => setCurrentPage('home')} className="text-white/50 hover:text-white/80 text-[12px] transition-colors">
                 ← Back to Home
               </button>
             </div>
@@ -10723,44 +10843,44 @@ function GuestCheckinPage({ setCurrentPage }) {
               <div className="px-6 py-5 border-b border-black/5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-[#006241] font-bold text-lg tracking-tight">Confirm Your Stay</h3>
+                    <h3 className="text-[#006241] font-bold text-[14px] tracking-tight">Confirm Your Stay</h3>
                     <p className="text-black/50 text-xs mt-0.5">Please verify your reservation details</p>
                   </div>
                   <span className="text-[#006241] text-xs px-3 py-1.5 rounded-full font-mono" style={{ background: '#d4e9e2' }}>#{ckReservation.id}</span>
                 </div>
               </div>
 
-              <div className="p-6">
-                <SectionDivider title="Guest" icon={<span className="text-sm">👤</span>} />
+              <div className="p-4">
+                <SectionDivider title="Guest" icon={<span className="text-[12px]">👤</span>} />
                 <div className="rounded-xl p-4 space-y-2 mb-2" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
-                  <div className="flex justify-between text-sm"><span className="text-black/50">Name</span><span className="font-semibold text-[#000000]/87">{ckReservation.full_name}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/50">Email</span><span className="text-black/50">{ckReservation.email}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Name</span><span className="font-semibold text-[#000000]/87">{ckReservation.full_name}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Email</span><span className="text-black/50">{ckReservation.email}</span></div>
                 </div>
 
-                <SectionDivider title="Reservation" icon={<span className="text-sm">🏨</span>} />
+                <SectionDivider title="Reservation" icon={<span className="text-[12px]">🏨</span>} />
                 <div className="rounded-xl p-4 space-y-2" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
-                  <div className="flex justify-between text-sm"><span className="text-black/50">Room Type</span><span className="font-semibold text-[#006241] px-2 py-0.5 rounded text-xs" style={{ background: '#d4e9e2' }}>{ckReservation.room_type}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/50">Check-In</span><span className="text-black/70">{fmtDate(ckReservation.check_in_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/50">Check-Out</span><span className="text-black/70">{fmtDate(ckReservation.check_out_date)}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-black/50">Duration</span><span className="text-black/70">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Room Type</span><span className="font-semibold text-[#006241] px-2 py-0.5 rounded text-xs" style={{ background: '#d4e9e2' }}>{ckReservation.room_type}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Check-In</span><span className="text-black/70">{fmtDate(ckReservation.check_in_date)}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Check-Out</span><span className="text-black/70">{fmtDate(ckReservation.check_out_date)}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Duration</span><span className="text-black/70">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
                   {ckReservation.number_of_guests && (
-                    <div className="flex justify-between text-sm"><span className="text-black/50">Guests</span><span className="text-black/70">{ckReservation.number_of_guests}</span></div>
+                    <div className="flex justify-between text-[12px]"><span className="text-black/50">Guests</span><span className="text-black/70">{ckReservation.number_of_guests}</span></div>
                   )}
                 </div>
 
                 {ckReservation.special_requests && (
-                  <div className="mt-4 rounded-xl px-4 py-3" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                  <div className="mt-4 rounded-xl px-2.5 py-2" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
                     <div className="text-xs font-bold text-amber-600/80 uppercase tracking-widest mb-1">Special Requests</div>
-                    <p className="text-amber-800/70 text-sm italic">"{ckReservation.special_requests}"</p>
+                    <p className="text-amber-800/70 text-[12px] italic">"{ckReservation.special_requests}"</p>
                   </div>
                 )}
 
                 {ckError && (
-                  <div className="mt-4 px-4 py-3 text-[#c82014] text-sm rounded-lg" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>{ckError}</div>
+                  <div className="mt-4 px-2.5 py-2 text-[#c82014] text-[12px] rounded-md" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>{ckError}</div>
                 )}
 
                 <button onClick={handleArrive} disabled={ckArriving}
-                  className="w-full mt-5 text-white font-bold py-3 transition-all text-sm disabled:opacity-40"
+                  className="w-full mt-5 text-white font-bold py-3 transition-all text-[12px] disabled:opacity-40"
                   style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                   onMouseEnter={e => { if (!ckArriving) e.currentTarget.style.background = '#006241'; }}
                   onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
@@ -10770,7 +10890,7 @@ function GuestCheckinPage({ setCurrentPage }) {
                   {ckArriving ? 'Checking you in...' : "Yes, I'm here — Check Me In ✓"}
                 </button>
                 <button onClick={() => { setCkStep(1); setCkReservation(null); setCkError(''); }}
-                  className="w-full mt-2 text-black/40 hover:text-black/60 font-semibold py-2.5 rounded-xl transition-colors text-sm"
+                  className="w-full mt-2 text-black/40 hover:text-black/60 font-semibold py-1.5 rounded-xl transition-colors text-[12px]"
                 >
                   Not my reservation
                 </button>
@@ -10787,7 +10907,7 @@ function GuestCheckinPage({ setCurrentPage }) {
             <div className="px-6 py-5 border-b border-black/5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-[#006241] font-bold text-lg tracking-tight">You&apos;re Checked In!</h3>
+                  <h3 className="text-[#006241] font-bold text-[14px] tracking-tight">You&apos;re Checked In!</h3>
                   <p className="text-black/50 text-xs mt-0.5">Please proceed to the front desk for your key</p>
                 </div>
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.30)' }}>
@@ -10800,7 +10920,7 @@ function GuestCheckinPage({ setCurrentPage }) {
               </div>
             </div>
 
-            <div className="p-6 text-center">
+            <div className="p-4 text-center">
               {/* Checkmark */}
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#d4e9e2', border: '2px solid #00754A' }}>
                 <svg className="w-8 h-8 text-[#006241]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -10809,13 +10929,13 @@ function GuestCheckinPage({ setCurrentPage }) {
               </div>
 
               <h2 className="text-2xl font-black text-[#006241] mb-1">Welcome, {firstName(ckReservation.full_name)}!</h2>
-              <p className="text-black/50 text-sm mb-6">You are now in our system.</p>
+              <p className="text-black/50 text-[12px] mb-3">You are now in our system.</p>
 
               {/* Key instructions */}
-              <div className="rounded-xl px-5 py-4 mb-5 text-left" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+              <div className="rounded-xl px-5 py-4 mb-3 text-left" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-2xl">🔑</span>
-                  <span className="text-[#006241] font-bold text-sm">Please head to the front desk</span>
+                  <span className="text-[#006241] font-bold text-[12px]">Please head to the front desk</span>
                 </div>
                 <p className="text-black/50 text-xs leading-relaxed">
                   Our staff will verify your ID, assign your room, and hand you your key. Your stay is all set!
@@ -10823,14 +10943,14 @@ function GuestCheckinPage({ setCurrentPage }) {
               </div>
 
               {/* Summary */}
-              <div className="rounded-xl p-4 space-y-2 text-left mb-5" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
-                <div className="flex justify-between text-sm"><span className="text-black/50">Confirmation #</span><span className="font-mono font-bold text-[#006241]">#{ckReservation.id}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-black/50">Room Type</span><span className="text-black/60">{ckReservation.room_type}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-black/50">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
+              <div className="rounded-xl p-4 space-y-2 text-left mb-3" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                <div className="flex justify-between text-[12px]"><span className="text-black/50">Confirmation #</span><span className="font-mono font-bold text-[#006241]">#{ckReservation.id}</span></div>
+                <div className="flex justify-between text-[12px]"><span className="text-black/50">Room Type</span><span className="text-black/60">{ckReservation.room_type}</span></div>
+                <div className="flex justify-between text-[12px]"><span className="text-black/50">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
               </div>
 
               <button onClick={() => setCurrentPage('home')}
-                className="w-full text-white font-bold py-3 transition-all text-sm"
+                className="w-full text-white font-bold py-3 transition-all text-[12px]"
                 style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#006241'}
                 onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
@@ -11530,13 +11650,13 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     setExtendSubmitting(false);
   };
 
-  const updateStatus = async (id, status) => {
+  const updateStatus = async (id, status, roomNumber) => {
     setStatusUpdating(id);
     try {
       await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, room_number: roomNumber }),
       });
       fetchArrivals(arrivalDate);
       if (fdView === 'inhouse') fetchInHouse();
@@ -11596,7 +11716,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           check_in_date: wkCheckIn, check_out_date: wkCheckOut,
           eta: wkEta, number_of_guests: wkAdults + wkChildren, room_number: wkRoomNumber.trim(),
           purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: wkGuaranteeAmount || 0,
-          payment_collected: wkPayment, special_requests: wkSpecialReq.trim(), notes: wkNotes.trim(),
+          payment_collected: wkPayment, special_requests: wkSpecialReq.trim(), notes: wkNotes.trim(), add_to_profile: wkAddToProfile, is_vip: wkVipGuest, is_repeat: wkRepeatGuest,
         }),
       });
       let data;
@@ -11776,7 +11896,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         className={`relative rounded-xl border ${cfg.border} ${cfg.bg} p-3 text-left transition-all hover:scale-[1.03] hover:shadow-lg active:scale-100 w-full aspect-square flex flex-col justify-between`}
       >
         <div>
-          <div className={`text-xl font-black font-mono ${cfg.text} leading-none`}>{r.room_number}</div>
+          <div className={`text-[16px] font-black font-mono ${cfg.text} leading-none`}>{r.room_number}</div>
           <div className="text-black/60 text-[10px] mt-0.5 truncate">{r.room_type || 'Room'}</div>
         </div>
         <div>
@@ -11812,7 +11932,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           background: isSelected ? 'rgba(255,255,255,0.12)' : 'transparent',
         }}
       >
-        <span className="text-[12px] font-semibold text-[#000000]/87 truncate">{r.full_name}</span>
+        <span className="text-[12px] font-semibold text-[#000000]/87 truncate">{r.full_name}{r.is_vip && <span className="text-[10px] text-yellow-600 font-bold ml-1.5 whitespace-nowrap" title="VIP Guest">★ VIP</span>}{r.is_repeat && <span className="text-[10px] text-blue-600 font-bold ml-1.5 whitespace-nowrap" title="Repeat Guest">↺ REPEAT</span>}</span>
         <span className="text-[12px] text-black/60 truncate">{r.room_type_name || r.room_type}</span>
         <span className="text-[12px] text-black/60 font-mono">{fmtDate(r.check_in_date)}</span>
         <span className="text-[12px] text-black/60 text-center">{nights}n</span>
@@ -11853,12 +11973,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-black/5">
             <div>
-              <div className="text-[#000000]/87 font-semibold text-sm">Guest Profile</div>
+              <div className="text-[#000000]/87 font-semibold text-[12px]">Guest Profile</div>
               <div className="text-black/60 text-[11px] mt-0.5">
                 Room {gpRes.room_number || '—'} &middot; {gpRes.room_type_name || gpRes.room_type} &middot; {fmtDate(gpRes.check_in_date)} – {fmtDate(gpRes.check_out_date)} ({nights} nights)
               </div>
             </div>
-            <button onClick={() => setGpOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-lg leading-none transition-colors">&times;</button>
+            <button onClick={() => setGpOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-[14px] leading-none transition-colors">&times;</button>
           </div>
 
           {/* Scrollable body */}
@@ -12110,15 +12230,15 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     };
 
     return (
-      <div className="grid items-center gap-x-3 px-3 py-2.5 transition-all"
+      <div className="grid items-center gap-x-3 px-3 py-1.5 transition-all"
         style={{ gridTemplateColumns: '3rem 1fr 6rem 5.5rem 5.5rem 6rem 2.5rem 6rem', borderBottom: `1px solid ${isOverdue ? 'rgba(239,68,68,0.2)' : isDueOut ? 'rgba(251,191,36,0.2)' : 'rgba(0,0,0,0.05)'}`, background: isOverdue ? 'rgba(239,68,68,0.04)' : isDueOut ? 'rgba(251,191,36,0.04)' : '#ffffff' }}>
         {/* Room */}
-        <span className="font-mono font-bold text-sm text-[#000000]/87">
+        <span className="font-mono font-bold text-[12px] text-[#000000]/87">
           {r.room_number || '—'}
         </span>
         {/* Name */}
         <div className="flex items-center gap-2 min-w-0">
-          <span className="font-semibold text-sm truncate text-[#000000]/87">{r.full_name}</span>
+          <span className="font-semibold text-[12px] truncate text-[#000000]/87">{r.full_name}{r.is_vip && <span className="text-[10px] text-yellow-600 font-bold ml-1.5 whitespace-nowrap" title="VIP Guest">★ VIP</span>}{r.is_repeat && <span className="text-[10px] text-blue-600 font-bold ml-1.5 whitespace-nowrap" title="Repeat Guest">↺ REPEAT</span>}</span>
         </div>
         {/* Room type */}
         <span className="text-xs text-black/60 truncate">{r.room_type_name || r.room_type}</span>
@@ -12151,7 +12271,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         <div className="flex-1 p-4 flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-[#000000]/87 text-sm">{r.full_name}</span>
+              <span className="font-semibold text-[#000000]/87 text-[12px]">{r.full_name}{r.is_vip && <span className="text-[10px] text-yellow-600 font-bold ml-1.5 whitespace-nowrap" title="VIP Guest">★ VIP</span>}{r.is_repeat && <span className="text-[10px] text-blue-600 font-bold ml-1.5 whitespace-nowrap" title="Repeat Guest">↺ REPEAT</span>}</span>
               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
             </div>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
@@ -12165,10 +12285,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           </div>
           <div className="flex-shrink-0">
             {(r.status === 'pending' || r.status === 'confirmed') && (
-              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors">Check In</button>
+              <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition-colors">Check In</button>
             )}
             {r.status === 'checked_in' && (
-              <button onClick={() => setCheckoutConfirmId(r.id)} className="bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs px-3 py-1.5 rounded-lg font-semibold transition-all">Check Out</button>
+              <button onClick={() => setCheckoutConfirmId(r.id)} className="bg-red-500/15 hover:bg-red-500/25 border border-red-400/30 text-red-300 text-xs px-3 py-1.5 rounded-md font-semibold transition-all">Check Out</button>
             )}
           </div>
         </div>
@@ -12180,7 +12300,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
   const WizardStepBar = () => {
     const steps = ['Guest ID', 'Reservation', 'Room', 'Payment'];
     return (
-      <div className="flex items-center gap-0 mb-6">
+      <div className="flex items-center gap-0 mb-3">
         {steps.map((label, idx) => {
           const num = idx + 1;
           const active = num === wizardStep;
@@ -12194,7 +12314,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 <span className={`text-xs mt-1 whitespace-nowrap ${active ? 'text-[#576CA8] font-semibold' : done ? 'text-green-600' : 'text-gray-400'}`}>{label}</span>
               </div>
               {idx < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-1 mb-5 transition-all ${done ? 'bg-green-400' : 'bg-gray-200'}`} />
+                <div className={`flex-1 h-0.5 mx-1 mb-3 transition-all ${done ? 'bg-green-400' : 'bg-gray-200'}`} />
               )}
             </React.Fragment>
           );
@@ -12210,38 +12330,38 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         <h3 className="font-semibold text-gray-900 mb-1">Verify Guest Identity</h3>
         <p className="text-xs text-gray-500 mb-4">Review all guest profile details and verify against their government-issued ID.</p>
 
-        <div className="bg-gray-50 rounded-xl border border-gray-200 p-5 mb-4">
+        <div className="bg-gray-50 rounded-xl border border-gray-200 p-3 mb-4">
           <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-200 pb-2">Profile Information</h4>
           <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Full Name</span><span className="font-medium text-gray-900 text-sm">{r.title ? `${r.title} ` : ''}{r.full_name}</span></div>
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Confirmation #</span><span className="font-mono text-[#576CA8] font-bold text-sm">{r.id}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Full Name</span><span className="font-medium text-gray-900 text-[12px]">{r.title ? `${r.title} ` : ''}{r.full_name}{r.is_vip && <span className="text-[10px] text-yellow-600 font-bold ml-1.5 whitespace-nowrap" title="VIP Guest">★ VIP</span>}{r.is_repeat && <span className="text-[10px] text-blue-600 font-bold ml-1.5 whitespace-nowrap" title="Repeat Guest">↺ REPEAT</span>}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Confirmation #</span><span className="font-mono text-[#576CA8] font-bold text-[12px]">{r.id}</span></div>
 
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Email</span><span className="font-medium text-gray-900 text-sm">{r.email || '-'}</span></div>
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Phone</span><span className="font-medium text-gray-900 text-sm">{r.phone_number || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Email</span><span className="font-medium text-gray-900 text-[12px]">{r.email || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Phone</span><span className="font-medium text-gray-900 text-[12px]">{r.phone_number || '-'}</span></div>
 
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Date of Birth</span><span className="font-medium text-gray-900 text-sm">{r.date_of_birth ? new Date(r.date_of_birth).toLocaleDateString() : '-'}</span></div>
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Gender</span><span className="font-medium text-gray-900 text-sm capitalize">{r.gender || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Date of Birth</span><span className="font-medium text-gray-900 text-[12px]">{r.date_of_birth ? new Date(r.date_of_birth).toLocaleDateString() : '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Gender</span><span className="font-medium text-gray-900 text-[12px] capitalize">{r.gender || '-'}</span></div>
 
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Nationality</span><span className="font-medium text-gray-900 text-sm">{r.nationality || '-'}</span></div>
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Country</span><span className="font-medium text-gray-900 text-sm">{r.country || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Nationality</span><span className="font-medium text-gray-900 text-[12px]">{r.nationality || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Country</span><span className="font-medium text-gray-900 text-[12px]">{r.country || '-'}</span></div>
 
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">ID Type</span><span className="font-medium text-gray-900 text-sm">{r.id_type || '-'}</span></div>
-            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">ID Number</span><span className="font-medium text-gray-900 text-sm">{r.id_number || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">ID Type</span><span className="font-medium text-gray-900 text-[12px]">{r.id_type || '-'}</span></div>
+            <div className="flex flex-col"><span className="text-[10px] text-gray-500 uppercase tracking-wide">ID Number</span><span className="font-medium text-gray-900 text-[12px]">{r.id_number || '-'}</span></div>
 
-            <div className="flex flex-col col-span-2"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Address</span><span className="font-medium text-gray-900 text-sm">{[r.address, r.city].filter(Boolean).join(', ') || '-'}</span></div>
-            <div className="flex flex-col col-span-2"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Purpose of Visit</span><span className="font-medium text-gray-900 text-sm">{r.purpose_of_visit || '-'}</span></div>
+            <div className="flex flex-col col-span-2"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Address</span><span className="font-medium text-gray-900 text-[12px]">{[r.address, r.city].filter(Boolean).join(', ') || '-'}</span></div>
+            <div className="flex flex-col col-span-2"><span className="text-[10px] text-gray-500 uppercase tracking-wide">Purpose of Visit</span><span className="font-medium text-gray-900 text-[12px]">{r.purpose_of_visit || '-'}</span></div>
           </div>
         </div>
 
         <button onClick={() => wizardReservation && openGuestProfile(wizardReservation)}
-          className="w-full mb-4 py-2.5 text-sm text-[#576CA8] border border-[#576CA8]/30 bg-white rounded-xl hover:bg-[#576CA8]/5 transition-colors font-semibold flex items-center justify-center gap-2">
+          className="w-full mb-4 py-1.5 text-[12px] text-[#576CA8] border border-[#576CA8]/30 bg-white rounded-xl hover:bg-[#576CA8]/5 transition-colors font-semibold flex items-center justify-center gap-2">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
           Complete / Edit Guest Profile
         </button>
         <label className="flex items-start gap-3 cursor-pointer group">
           <input type="checkbox" checked={wizardIdVerified} onChange={(e) => setWizardIdVerified(e.target.checked)}
             className="mt-0.5 w-4 h-4 accent-[#576CA8] cursor-pointer" />
-          <span className="text-sm text-gray-700 group-hover:text-gray-900">
+          <span className="text-[12px] text-gray-700 group-hover:text-gray-900">
             I have verified the guest&apos;s identity document and it matches the reservation.
           </span>
         </label>
@@ -12256,16 +12376,16 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         <h3 className="font-semibold text-gray-900 mb-1">Review Reservation</h3>
         <p className="text-xs text-gray-500 mb-4">Confirm all reservation details with the guest.</p>
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-2 mb-4">
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Check-In</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_in_date)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Guests</span><span className="font-medium text-gray-900">{wizardReservation?.number_of_guests || 1}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Check-In</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_in_date)}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Guests</span><span className="font-medium text-gray-900">{wizardReservation?.number_of_guests || 1}</span></div>
         </div>
         {wizardReservation?.special_requests && (
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3">
             <div className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-1">Special Requests</div>
-            <p className="text-sm text-amber-800 italic">&ldquo;{wizardReservation.special_requests}&rdquo;</p>
+            <p className="text-[12px] text-amber-800 italic">&ldquo;{wizardReservation.special_requests}&rdquo;</p>
           </div>
         )}
       </div>
@@ -12283,7 +12403,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         <h3 className="font-semibold text-gray-900 mb-1">Assign Room</h3>
         <p className="text-xs text-gray-500 mb-4">Select an available room for this guest.</p>
         <div className="mb-4">
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Room Number</label>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Room Number</label>
           {typeRooms.length === 0 ? (
             <input
               type="text"
@@ -12291,7 +12411,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               onChange={(e) => setWizardRoomNumber(e.target.value)}
               placeholder="e.g. 201"
               autoComplete="off"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-lg font-mono font-bold outline-none transition-all"
+              className="w-full px-2.5 py-2 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-[14px] font-mono font-bold outline-none transition-all"
               autoFocus
             />
           ) : (
@@ -12300,7 +12420,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 value={wizardRoomNumber}
                 onChange={(e) => setWizardRoomNumber(e.target.value)}
                 style={{ background: '#f8fafc' }}
-                className={`w-full px-4 py-3 rounded-xl border ${isBlocked ? 'border-red-300 bg-red-50' : 'border-gray-300'} focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-base font-mono font-bold outline-none transition-all`}
+                className={`w-full px-2.5 py-2 rounded-xl border ${isBlocked ? 'border-red-300 bg-red-50' : 'border-gray-300'} focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-base font-mono font-bold outline-none transition-all`}
                 autoFocus
               >
                 <option value="" style={{ background: '#f8fafc', color: '#9ca3af' }}>— select room —</option>
@@ -12329,13 +12449,13 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           )}
         </div>
         <div>
-          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Front Desk Notes (optional)</label>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Front Desk Notes (optional)</label>
           <textarea
             value={wizardNotes}
             onChange={(e) => setWizardNotes(e.target.value)}
             placeholder="Any notes for housekeeping or other staff..."
             rows={3}
-            className="w-full px-3 py-2.5 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-sm outline-none transition-all resize-none"
+            className="w-full px-3 py-1.5 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 text-[12px] outline-none transition-all resize-none"
           />
         </div>
       </div>
@@ -12349,17 +12469,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         <h3 className="font-semibold text-gray-900 mb-1">Payment &amp; Confirmation</h3>
         <p className="text-xs text-gray-500 mb-4">Collect payment and complete the check-in process.</p>
         <div className="bg-gray-50 rounded-xl border border-gray-200 p-4 space-y-2 mb-4">
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Guest</span><span className="font-medium text-gray-900">{wizardReservation?.full_name}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Room Assigned</span><span className="font-bold text-[#576CA8] font-mono">{wizardRoomNumber || '—'}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
-          <div className="flex justify-between text-sm"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
-          {wizardNotes && <div className="flex justify-between text-sm"><span className="text-gray-500">Notes</span><span className="text-gray-700 text-right max-w-[60%]">{wizardNotes}</span></div>}
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Guest</span><span className="font-medium text-gray-900">{wizardReservation?.full_name}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Room Assigned</span><span className="font-bold text-[#576CA8] font-mono">{wizardRoomNumber || '—'}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Room Type</span><span className="font-medium text-gray-900">{wizardReservation?.room_type_name || wizardReservation?.room_type}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Check-Out</span><span className="font-medium text-gray-900">{fmtDate(wizardReservation?.check_out_date)}</span></div>
+          <div className="flex justify-between text-[12px]"><span className="text-gray-500">Nights</span><span className="font-medium text-gray-900">{nights}</span></div>
+          {wizardNotes && <div className="flex justify-between text-[12px]"><span className="text-gray-500">Notes</span><span className="text-gray-700 text-right max-w-[60%]">{wizardNotes}</span></div>}
         </div>
         <label className="flex items-start gap-3 cursor-pointer group">
           <input type="checkbox" checked={wizardPayment} onChange={(e) => setWizardPayment(e.target.checked)}
             className="mt-0.5 w-4 h-4 accent-[#576CA8] cursor-pointer" />
-          <span className="text-sm text-gray-700 group-hover:text-gray-900">
+          <span className="text-[12px] text-gray-700 group-hover:text-gray-900">
             Payment has been collected / verified for this stay.
           </span>
         </label>
@@ -12372,16 +12492,16 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-bounce">
         <span className="text-3xl">✓</span>
       </div>
-      <h3 className="text-xl font-bold text-gray-900 mb-1">Check-In Complete!</h3>
-      <p className="text-sm text-gray-500 mb-5">{wizardReservation?.full_name} is now checked in.</p>
-      <div className="bg-green-50 border border-green-200 rounded-2xl px-8 py-4 mb-4">
+      <h3 className="text-[16px] font-bold text-gray-900 mb-1">Check-In Complete!</h3>
+      <p className="text-[12px] text-gray-500 mb-3">{wizardReservation?.full_name} is now checked in.</p>
+      <div className="bg-green-50 border border-green-200 rounded-xl px-8 py-4 mb-4">
         <div className="text-4xl font-mono font-black text-green-800">{wizardRoomNumber}</div>
         <div className="text-xs text-green-600 font-semibold uppercase tracking-widest mt-1">Room Number</div>
       </div>
-      <span className="inline-block bg-gradient-to-br from-[#00754A] to-[#006241] text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide mb-6">
+      <span className="inline-block bg-gradient-to-br from-[#00754A] to-[#006241] text-white text-xs font-bold px-4 py-1.5 rounded-full tracking-wide mb-3">
         KEY READY
       </span>
-      <button onClick={closeWizard} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-full transition-colors">
+      <button onClick={closeWizard} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 rounded-full transition-colors">
         Close
       </button>
     </div>
@@ -12396,9 +12516,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
             {/* Header bar */}
             <div className="px-6 pt-0.5 pb-0" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
               {/* Title row */}
-              <div className="flex items-center justify-between gap-4 mb-2">
+              <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="shrink-0">
-                  <h3 className="text-[#000000]/87 font-bold text-lg tracking-tight leading-tight">Front Desk</h3>
+                  <h3 className="text-[#000000]/87 font-bold text-[14px] tracking-tight leading-tight">Front Desk</h3>
                   <p className="text-black/60 text-xs">Guest management</p>
                 </div>
                 <div className="flex items-center gap-2 bg-white shadow-sm px-3 py-1.5 rounded-full shrink-0">
@@ -12424,7 +12544,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                   const active = fdView === v.id;
                   return (
                     <button key={v.id} onClick={() => setFdView(v.id)}
-                      className="flex items-center gap-2 px-5 py-2.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all shrink-0"
+                      className="flex items-center gap-2 px-5 py-1.5 text-[10px] font-black uppercase tracking-[0.15em] whitespace-nowrap transition-all shrink-0"
                       style={{
                         borderRadius: '50px',
                         border: active ? '1px solid #00754A' : '1px solid rgba(0,0,0,0.12)',
@@ -12442,21 +12562,21 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 })}
               </div>
             </div>
-            <div className="p-6 md:p-8 flex-1 flex flex-col min-h-0 overflow-y-auto">
+            <div className="p-4 md:p-4 flex-1 flex flex-col min-h-0 overflow-y-auto">
 
               {/* ── Arrivals View ── */}
               {fdView === 'arrivals' && (
                 <div className="flex-1 flex flex-col min-h-0">
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5 shrink-0">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-black/5 shrink-0">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-semibold text-black/60 uppercase tracking-wider">Date</span>
                       <input
                         type="date"
                         value={arrivalDate}
                         onChange={(e) => setArrivalDate(e.target.value)}
-                        className="px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none"
+                        className="px-2 py-1.5 rounded-md border border-black/5 bg-white shadow-sm text-[#000000]/87 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-[12px] outline-none"
                       />
-                      <div className="flex items-center gap-4 ml-2 pl-3 border-l border-black/5">
+                      <div className="flex items-center gap-2 ml-2 pl-3 border-l border-black/5">
                         {[
                           { label: 'Total', value: arrivalStats.total, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M2 4h10M2 7h10M2 10h6" /></svg> },
                           { label: 'Checked In', value: arrivalStats.checkedIn, color: 'text-[#000000]/87', svg: <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 7l3.5 3.5L12 4" /></svg> },
@@ -12465,19 +12585,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         ].map((s) => (
                           <div key={s.label} className="flex flex-col items-center text-black/60">
                             {s.svg}
-                            <span className={`text-lg font-bold leading-tight ${s.color}`}>{s.value}</span>
+                            <span className={`text-[14px] font-bold leading-tight ${s.color}`}>{s.value}</span>
                             <span className="text-[10px] text-black/60 font-medium">{s.label}</span>
                           </div>
                         ))}
                       </div>
                     </div>
-                    <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-lg transition-all">
+                    <button onClick={() => fetchArrivals(arrivalDate)} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-md transition-all">
                       ↻ Refresh
                     </button>
                   </div>
 
                   {/* Arrivals Toolbar */}
-                  <div className="p-4 border-b border-black/5 bg-white flex items-center justify-between gap-4 rounded-t-xl mt-4 border border-black/5 border-b-0 shadow-sm shrink-0">
+                  <div className="p-4 border-b border-black/5 bg-white flex items-center justify-between gap-2 rounded-t-xl mt-4 border border-black/5 border-b-0 shadow-sm shrink-0">
                     <div className="flex items-center gap-3 flex-1">
                       <div className="relative w-[320px]">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -12488,13 +12608,13 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           placeholder="Search guest name, email, or confirmation no."
                           value={arrivalSearchQuery}
                           onChange={e => setArrivalSearchQuery(e.target.value)}
-                          className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm"
+                          className="pl-9 pr-4 py-2 border border-black/10 rounded-md text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm"
                         />
                       </div>
                       <select
                         value={arrivalFilterStatus}
                         onChange={e => setArrivalFilterStatus(e.target.value)}
-                        className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
+                        className="border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
                       >
                         <option>All Status</option>
                         <option value="confirmed">Confirmed</option>
@@ -12504,17 +12624,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                       <select
                         value={arrivalFilterChannel}
                         onChange={e => setArrivalFilterChannel(e.target.value)}
-                        className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
+                        className="border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
                       >
                         <option>All Channels</option>
                         <option value="Direct Website">Direct Website</option>
                       </select>
-                      <button className="flex items-center gap-2 border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                      <button className="flex items-center gap-2 border border-black/10 rounded-md text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
                         More Filters
                       </button>
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                    <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-md text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                       Export
                     </button>
@@ -12661,7 +12781,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                     </button>
 
                                     {openArrivalDropdown === res.id && (
-                                      <div className="absolute right-8 top-10 mt-1 w-40 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+                                      <div className="absolute right-8 top-10 mt-1 w-40 bg-white border border-black/10 rounded-md shadow-lg z-50 py-1 overflow-hidden">
                                         {(res.status === 'pending' || res.status === 'confirmed') && (
                                           <button
                                             onClick={() => { openWizard(res); setOpenArrivalDropdown(null); }}
@@ -12712,8 +12832,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                       <div className="text-black/50 font-medium">
                         Showing 1 to {filteredArrivals.length} of {filteredArrivals.length} entries
                       </div>
-                      <div className="flex items-center gap-4">
-                        <select className="border border-black/10 rounded-lg px-2 py-1 outline-none text-black/80 font-medium bg-white shadow-sm">
+                      <div className="flex items-center gap-2">
+                        <select className="border border-black/10 rounded-md px-2 py-1 outline-none text-black/80 font-medium bg-white shadow-sm">
                           <option>10 per page</option>
                         </select>
                       </div>
@@ -12733,7 +12853,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           <div className="flex items-start justify-between gap-3">
                             <div>
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-[#000000]/87 text-base">{r.full_name}</span>
+                                <span className="font-bold text-[#000000]/87 text-base">{r.full_name}{r.is_vip && <span className="text-[10px] text-yellow-600 font-bold ml-1.5 whitespace-nowrap" title="VIP Guest">★ VIP</span>}{r.is_repeat && <span className="text-[10px] text-blue-600 font-bold ml-1.5 whitespace-nowrap" title="Repeat Guest">↺ REPEAT</span>}</span>
                                 <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sc.bg} ${sc.text}`}>{statusLabel(r.status)}</span>
                                 {r.guest_arrived_at && <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-green-500 text-[#000000]/87">ARRIVED</span>}
                               </div>
@@ -12797,26 +12917,26 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 </div>
                               </div>
                               {r.special_requests && (
-                                <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-lg px-2.5 py-1.5 italic">
+                                <div className="mt-2 text-xs text-amber-200 bg-amber-500/15 border border-amber-400/25 rounded-md px-2.5 py-1.5 italic">
                                   "{r.special_requests}"
                                 </div>
                               )}
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               {(r.status === 'pending' || r.status === 'confirmed') && (
-                                <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors whitespace-nowrap">
+                                <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition-colors whitespace-nowrap">
                                   Check In
                                 </button>
                               )}
                               {r.status !== 'checked_in' && r.status !== 'checked_out' && (
-                                <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-black/5 rounded-lg px-2 py-1.5 bg-white shadow-sm text-black/60 cursor-pointer">
+                                <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-black/5 rounded-md px-2 py-1.5 bg-white shadow-sm text-black/60 cursor-pointer">
                                   <option value="pending">Pending</option>
                                   <option value="confirmed">Confirmed</option>
                                   <option value="cancelled">Cancel</option>
                                   <option value="no_show">No Show</option>
                                 </select>
                               )}
-                              <button onClick={() => setSelectedArrival(null)} className="text-black/60 hover:text-black/60 text-lg leading-none px-1">×</button>
+                              <button onClick={() => setSelectedArrival(null)} className="text-black/60 hover:text-black/60 text-[14px] leading-none px-1">×</button>
                             </div>
                           </div>
                         </div>
@@ -12840,9 +12960,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               {/* ── In-House View ── */}
               {fdView === 'inhouse' && (
                 <div className="flex-1 flex flex-col min-h-0">
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-black/5">
                     <div>
-                      <span className="text-sm font-semibold text-[#000000]/87">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
+                      <span className="text-[12px] font-semibold text-[#000000]/87">{inHouseGuests.length} Guest{inHouseGuests.length !== 1 ? 's' : ''} In-House</span>
                       <span className="text-xs text-black/60 ml-2">as of now</span>
                     </div>
                     <button onClick={fetchInHouse} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">
@@ -12860,7 +12980,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                   ) : (
                     <>
                       {/* In-House Toolbar */}
-                      <div className="p-4 border-b border-black/5 bg-white flex items-center justify-between gap-4 rounded-t-xl mt-4 border border-black/5 border-b-0 shadow-sm shrink-0">
+                      <div className="p-4 border-b border-black/5 bg-white flex items-center justify-between gap-2 rounded-t-xl mt-4 border border-black/5 border-b-0 shadow-sm shrink-0">
                         <div className="flex items-center gap-3 flex-1">
                           <div className="relative w-[320px]">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -12871,24 +12991,24 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               placeholder="Search guest name, room #, email, or confirmation no."
                               value={inHouseSearchQuery}
                               onChange={e => setInHouseSearchQuery(e.target.value)}
-                              className="pl-9 pr-4 py-2 border border-black/10 rounded-lg text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm"
+                              className="pl-9 pr-4 py-2 border border-black/10 rounded-md text-[13px] w-full outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] bg-white font-medium text-black/80 placeholder-black/40 shadow-sm"
                             />
                           </div>
                           <select
                             value={inHouseFilterStatus}
                             onChange={e => setInHouseFilterStatus(e.target.value)}
-                            className="border border-black/10 rounded-lg text-[13px] px-3 py-2 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
+                            className="border border-black/10 rounded-md text-[13px] px-2 py-1.5 outline-none text-black/80 font-medium bg-white pr-8 shadow-sm cursor-pointer"
                           >
                             <option>All Status</option>
                             <option value="Checked In">Checked In</option>
                             <option value="Due Out">Due Out</option>
                           </select>
-                          <button className="flex items-center gap-2 border border-black/10 rounded-lg text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                          <button className="flex items-center gap-2 border border-black/10 rounded-md text-[13px] px-4 py-2 font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" /></svg>
                             More Filters
                           </button>
                         </div>
-                        <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-lg text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
+                        <button className="flex items-center gap-2 px-4 py-2 border border-black/10 rounded-md text-[13px] font-medium text-black/80 hover:bg-gray-50 bg-white shadow-sm transition-colors">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
                           Export
                         </button>
@@ -13034,7 +13154,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                         </div>
 
                                         {openInHouseDropdown === res.id && (
-                                          <div className="absolute right-8 top-10 mt-1 w-44 bg-white border border-black/10 rounded-lg shadow-lg z-50 py-1 overflow-hidden">
+                                          <div className="absolute right-8 top-10 mt-1 w-44 bg-white border border-black/10 rounded-md shadow-lg z-50 py-1 overflow-hidden">
                                             <button
                                               onClick={() => { openGuestProfile(res); setOpenInHouseDropdown(null); }}
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
@@ -13110,8 +13230,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           <div className="text-black/50 font-medium">
                             Showing 1 to {filteredInHouse.length} of {filteredInHouse.length} entries
                           </div>
-                          <div className="flex items-center gap-4">
-                            <select className="border border-black/10 rounded-lg px-2 py-1 outline-none text-black/80 font-medium bg-white shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <select className="border border-black/10 rounded-md px-2 py-1 outline-none text-black/80 font-medium bg-white shadow-sm">
                               <option>10 per page</option>
                             </select>
                           </div>
@@ -13125,14 +13245,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               {/* ── Search View ── */}
               {fdView === 'search' && (
                 <div>
-                  <div className="relative mb-5">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/60 text-sm">🔍</span>
+                  <div className="relative mb-3">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-black/60 text-[12px]">🔍</span>
                     <input
                       type="text"
                       value={searchQ}
                       onChange={(e) => setSearchQ(e.target.value)}
                       placeholder="Name, email, phone, or confirmation # …"
-                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-sm outline-none transition-all"
+                      className="w-full pl-10 pr-4 py-3 rounded-xl border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 focus:border-black/5 focus:ring-2 focus:ring-white/20 text-[12px] outline-none transition-all"
                       autoFocus
                     />
                     {searchLoading && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-black/60 text-xs animate-pulse">Searching…</span>}
@@ -13140,7 +13260,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                   {searchQ.trim() === '' ? (
                     <div className="text-center py-10 text-black/60">
                       <div className="text-3xl mb-3">🔍</div>
-                      <div className="text-sm font-medium text-black/60 mb-4">Look up any reservation to check in a guest</div>
+                      <div className="text-[12px] font-medium text-black/60 mb-4">Look up any reservation to check in a guest</div>
                       <div className="flex flex-col gap-2 text-xs text-black/60 items-center">
                         <span>Type a <strong className="text-black/60">confirmation #</strong> — e.g. <span className="font-mono text-black/60">42</span></span>
                         <span>Or search by <strong className="text-black/60">name</strong>, <strong className="text-black/60">email</strong>, or <strong className="text-black/60">phone</strong></span>
@@ -13162,132 +13282,132 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
               {/* ── Walk-In View ── */}
               {fdView === 'walkin' && (
-                <div className="flex gap-6 items-start h-full p-4 overflow-y-auto" style={{ background: '#f8f9fa' }}>
+                <div className="flex gap-2 items-start h-full p-4 overflow-y-auto" style={{ background: '#f8f9fa' }}>
                   {wkSuccess && wkResult ? (
                     <div className="flex flex-col items-center justify-center py-16 text-center w-full">
-                      <div className="w-20 h-20 rounded-full bg-[#00754A]/20 border border-[#00754A]/30 flex items-center justify-center mb-6">
+                      <div className="w-20 h-20 rounded-full bg-[#00754A]/20 border border-[#00754A]/30 flex items-center justify-center mb-3">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                       </div>
                       <h3 className="text-3xl font-bold text-[#1E3932] mb-2">Reservation Complete!</h3>
-                      <p className="text-lg text-black/60 mb-8">{wkResult.full_name} has been checked in successfully.</p>
-                      <div className="bg-[#00754A]/10 border border-[#00754A]/20 rounded-2xl px-12 py-6 mb-6 w-full max-w-sm">
+                      <p className="text-[14px] text-black/60 mb-4">{wkResult.full_name} has been checked in successfully.</p>
+                      <div className="bg-[#00754A]/10 border border-[#00754A]/20 rounded-xl px-12 py-6 mb-3 w-full max-w-sm">
                         <div className="text-6xl font-mono font-black text-[#00754A]">{wkResult.room_number}</div>
-                        <div className="text-sm text-[#00754A]/80 font-bold uppercase tracking-widest mt-2">Room Assigned</div>
+                        <div className="text-[12px] text-[#00754A]/80 font-bold uppercase tracking-widest mt-2">Room Assigned</div>
                       </div>
-                      <div className="text-sm text-black/60 mb-8 font-mono bg-white px-4 py-2 rounded-lg border border-black/5 shadow-sm">Confirmation #{wkResult.id}</div>
-                      <button onClick={resetWalkin} className="w-full max-w-sm bg-[#00754A] hover:bg-[#006241] text-white font-bold py-4 rounded-xl shadow-md transition-all text-lg">
+                      <div className="text-[12px] text-black/60 mb-4 font-mono bg-white px-4 py-2 rounded-md border border-black/5 shadow-sm">Confirmation #{wkResult.id}</div>
+                      <button onClick={resetWalkin} className="w-full max-w-sm bg-[#00754A] hover:bg-[#006241] text-white font-bold py-4 rounded-xl shadow-md transition-all text-[14px]">
                         + New Walk-In Reservation
                       </button>
                     </div>
                   ) : (
                     <>
                       {/* LEFT FORM COLUMN */}
-                      <div className="flex-1 min-w-0 flex flex-col gap-6">
+                      <div className="flex-1 min-w-0 flex flex-col gap-2">
                         {/* Header */}
                         <div>
                           <h2 className="text-2xl font-bold text-[#1E3932] mb-1">New Reservation</h2>
-                          <p className="text-sm text-black/60">Create a new reservation</p>
+                          <p className="text-[12px] text-black/60">Create a new reservation</p>
                         </div>
 
                         {/* Section 1: Guest Information */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
-                          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-black/5">
-                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">1</div>
-                            <h3 className="text-xl font-bold text-[#1E3932]">Guest Information</h3>
+                        <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4">
+                          <div className="flex items-center gap-3 mb-3 pb-2 border-b border-black/5">
+                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-[12px]">1</div>
+                            <h3 className="text-[16px] font-bold text-[#1E3932]">Guest Information</h3>
                           </div>
 
-                          <div className="mb-6">
-                            <label className="block text-xs font-semibold text-black/60 mb-1.5">Search Existing Guest</label>
+                          <div className="mb-3">
+                            <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Search Existing Guest</label>
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/40">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                               </span>
                               <input type="text" value={wkSearchGuest} onChange={e => setWkSearchGuest(e.target.value)} placeholder="Search by name, email or phone number"
-                                className="w-full pl-10 pr-4 py-2.5 bg-[#f8f9fa] border border-black/10 rounded-lg text-sm focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none transition-all" />
+                                className="w-full pl-10 pr-4 py-1.5 bg-[#f8f9fa] border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none transition-all" />
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-5">
+                          <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-3">
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">First Name *</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">First Name *</label>
                               <input type="text" value={wkFirstName} onChange={e => setWkFirstName(e.target.value)} placeholder="Juan"
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Last Name *</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Last Name *</label>
                               <input type="text" value={wkLastName} onChange={e => setWkLastName(e.target.value)} placeholder="dela Cruz"
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Email Address</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Email Address</label>
                               <input type="email" value={wkEmail} onChange={e => setWkEmail(e.target.value)} placeholder="juan@example.com"
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Phone Number</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Phone Number</label>
                               <div className="flex">
-                                <div className="flex items-center gap-1.5 px-3 border border-r-0 border-black/10 rounded-l-lg bg-[#f8f9fa] text-sm text-black/70">
+                                <div className="flex items-center gap-1.5 px-3 border border-r-0 border-black/10 rounded-l-lg bg-[#f8f9fa] text-[12px] text-black/70">
                                   <span>🇵🇭</span> <span>+63</span>
                                 </div>
                                 <input type="tel" value={wkPhone} onChange={e => setWkPhone(e.target.value)} placeholder="912 345 6789"
-                                  className="flex-1 px-3 py-2.5 bg-white border border-black/10 rounded-r-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="flex-1 px-3 py-1.5 bg-white border border-black/10 rounded-r-lg text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">ID Type</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">ID Type</label>
                                 <select value={wkIdType} onChange={e => setWkIdType(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                   {['Passport', "Driver's License", 'National ID', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
                               </div>
                               <div>
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">ID / Passport No.</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">ID / Passport No.</label>
                                 <input type="text" value={wkIdNumber} onChange={e => setWkIdNumber(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Nationality</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Nationality</label>
                                 <input type="text" value={wkNationality} onChange={e => setWkNationality(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                               <div>
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Date of Birth</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Date of Birth</label>
                                 <input type="date" value={wkBirthDate} onChange={e => setWkBirthDate(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Gender</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Gender</label>
                                 <select value={wkGender} onChange={e => setWkGender(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                   {['Male', 'Female', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
                               </div>
                               <div>
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Address</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Address</label>
                                 <input type="text" value={wkAddress} onChange={e => setWkAddress(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Company</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Company</label>
                               <input type="text" value={wkCompany} onChange={e => setWkCompany(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-black/5">
+                          <div className="flex items-center gap-2 mt-4 pt-4 border-t border-black/5">
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input type="checkbox" checked={wkAddToProfile} onChange={e => setWkAddToProfile(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
-                              <span className="text-sm font-medium text-black/80">Add to guest profile</span>
+                              <span className="text-[12px] font-medium text-black/80">Add to guest profile</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
                               <input type="checkbox" checked={wkVipGuest} onChange={e => setWkVipGuest(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
@@ -13301,34 +13421,34 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         </div>
 
                         {/* Section 2: Stay Information */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
-                          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-black/5">
-                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">2</div>
-                            <h3 className="text-xl font-bold text-[#1E3932]">Stay Information</h3>
+                        <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4">
+                          <div className="flex items-center gap-3 mb-3 pb-2 border-b border-black/5">
+                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-[12px]">2</div>
+                            <h3 className="text-[16px] font-bold text-[#1E3932]">Stay Information</h3>
                           </div>
 
-                          <div className="grid grid-cols-5 gap-x-4 gap-y-5 mb-5">
+                          <div className="grid grid-cols-5 gap-x-4 gap-y-5 mb-3">
                             <div className="col-span-2">
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Check-in Date *</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Check-in Date *</label>
                               <div className="flex gap-2">
                                 <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
-                                  className="w-2/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="w-2/3 px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                 <input type="time" value={wkCheckInTime} onChange={e => setWkCheckInTime(e.target.value)}
-                                  className="w-1/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="w-1/3 px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
                             <div className="col-span-2">
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Check-out Date *</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Check-out Date *</label>
                               <div className="flex gap-2">
-                                <input type="date" value={wkCheckOut} min={wkCheckIn || today} onChange={e => setWkCheckOut(e.target.value)}
-                                  className="w-2/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                <input type="date" value={wkCheckOut} min={wkCheckIn ? new Date(new Date(wkCheckIn).getTime() + 86400000).toISOString().split('T')[0] : new Date(new Date().getTime() + 86400000).toISOString().split('T')[0]} onChange={e => setWkCheckOut(e.target.value)}
+                                  className="w-2/3 px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                 <input type="time" value={wkCheckOutTime} onChange={e => setWkCheckOutTime(e.target.value)}
-                                  className="w-1/3 px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                  className="w-1/3 px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                               </div>
                             </div>
                             <div className="col-span-1">
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Nights</label>
-                              <div className="w-full px-3 py-2.5 bg-[#f8f9fa] border border-black/5 rounded-lg text-sm font-semibold text-black/70 flex items-center justify-center">
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Nights</label>
+                              <div className="w-full px-3 py-1.5 bg-[#f8f9fa] border border-black/5 rounded-md text-[12px] font-semibold text-black/70 flex items-center justify-center">
                                 {(() => {
                                   if (!wkCheckIn || !wkCheckOut) return '-';
                                   const diff = Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
@@ -13338,92 +13458,100 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             </div>
 
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Adults</label>
-                              <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Adults</label>
+                              <div className="flex items-center border border-black/10 rounded-md overflow-hidden shadow-sm">
                                 <button onClick={() => setWkAdults(Math.max(1, wkAdults - 1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
-                                <input type="text" readOnly value={wkAdults} className="w-full h-9 text-center text-sm font-semibold outline-none" />
+                                <input type="text" readOnly value={wkAdults} className="w-full h-9 text-center text-[12px] font-semibold outline-none" />
                                 <button onClick={() => setWkAdults(wkAdults + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
                               </div>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Children</label>
-                              <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Children</label>
+                              <div className="flex items-center border border-black/10 rounded-md overflow-hidden shadow-sm">
                                 <button onClick={() => setWkChildren(Math.max(0, wkChildren - 1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
-                                <input type="text" readOnly value={wkChildren} className="w-full h-9 text-center text-sm font-semibold outline-none" />
+                                <input type="text" readOnly value={wkChildren} className="w-full h-9 text-center text-[12px] font-semibold outline-none" />
                                 <button onClick={() => setWkChildren(wkChildren + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
                               </div>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Rooms</label>
-                              <div className="flex items-center border border-black/10 rounded-lg overflow-hidden shadow-sm">
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Rooms</label>
+                              <div className="flex items-center border border-black/10 rounded-md overflow-hidden shadow-sm">
                                 <button onClick={() => setWkNumRooms(Math.max(1, wkNumRooms - 1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
-                                <input type="text" readOnly value={wkNumRooms} className="w-full h-9 text-center text-sm font-semibold outline-none" />
+                                <input type="text" readOnly value={wkNumRooms} className="w-full h-9 text-center text-[12px] font-semibold outline-none" />
                                 <button onClick={() => setWkNumRooms(wkNumRooms + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
                               </div>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Purpose of Stay</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Purpose of Stay</label>
                               <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                 {['Leisure', 'Business', 'Event', 'Other'].map(t => <option key={t} value={t}>{t}</option>)}
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Source / Channel</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Source / Channel</label>
                               <select value={wkSource} onChange={e => setWkSource(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                 {['Direct Booking', 'Walk-in', 'OTA', 'Corporate', 'Agent'].map(t => <option key={t} value={t}>{t}</option>)}
                               </select>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-6">
+                          <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Special Requests</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Special Requests</label>
                               <textarea rows="3" value={wkSpecialReq} onChange={e => setWkSpecialReq(e.target.value)} placeholder="Any special requests..."
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm resize-none"></textarea>
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm resize-none"></textarea>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Remarks / Notes</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Remarks / Notes</label>
                               <textarea rows="3" value={wkNotes} onChange={e => setWkNotes(e.target.value)} placeholder="Internal remarks..."
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm resize-none"></textarea>
+                                className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm resize-none"></textarea>
                             </div>
                           </div>
                         </div>
 
                         {/* Section 3: Room & Rate */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
-                          <div className="flex items-center justify-between mb-6 pb-4 border-b border-black/5">
+                        <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4">
+                          <div className="flex items-center justify-between mb-3 pb-2 border-b border-black/5">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">3</div>
-                              <h3 className="text-xl font-bold text-[#1E3932]">Room & Rate</h3>
+                              <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-[12px]">3</div>
+                              <h3 className="text-[16px] font-bold text-[#1E3932]">Room & Rate</h3>
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-4 gap-4 mb-5">
+                          <div className="grid grid-cols-5 gap-2 mb-4">
                             <div className="col-span-1">
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Room Type</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Room Type</label>
                               <select value={wkRoomType} onChange={e => { setWkRoomType(e.target.value); setWkRoomNumber(''); }}
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                 {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name}>{rt.name}</option>)}
                               </select>
                             </div>
                             <div className="col-span-1">
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Room Preference</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Rate Plan</label>
+                                <select value={wkRateCode} onChange={e => setWkRateCode(e.target.value)}
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  <option value="">Standard Rate</option>
+                                  {wkRateCodes.map(rc => <option key={rc.id} value={rc.code}>{rc.name} ({rc.code})</option>)}
+                                </select>
+                              </div>
+                              <div className="col-span-1">
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Room Preference</label>
                               <select value={wkRoomPreference} onChange={e => setWkRoomPreference(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                 {['Any', 'High Floor', 'Low Floor', 'Near Elevator', 'Quiet Room'].map(t => <option key={t} value={t}>{t}</option>)}
                               </select>
                             </div>
                             <div className="col-span-1">
-                              <label className="block text-xs font-semibold text-black/60 mb-1.5">Bed Type</label>
+                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Bed Type</label>
                               <select value={wkBedType} onChange={e => setWkBedType(e.target.value)}
-                                className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                 {['Any', 'King Bed', 'Queen Bed', 'Twin Beds'].map(t => <option key={t} value={t}>{t}</option>)}
                               </select>
                             </div>
                             <div className="col-span-1 flex items-end">
-                              <button className="w-full h-[42px] bg-[#f8f9fa] border border-black/10 hover:bg-black/5 text-black/80 font-bold rounded-lg text-sm transition-all shadow-sm">
+                              <button className="w-full h-[32px] bg-[#f8f9fa] border border-black/10 hover:bg-black/5 text-black/80 font-bold rounded-md text-[12px] transition-all shadow-sm">
                                 Check Availability
                               </button>
                             </div>
@@ -13443,9 +13571,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <tr>
                                   <td className="pr-2">
                                     <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
-                                      className="w-full px-3 py-2 bg-white border border-black/10 rounded-lg text-sm font-semibold focus:border-[#00754A] outline-none shadow-sm">
+                                      className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-semibold focus:border-[#00754A] outline-none shadow-sm">
                                       <option value="">Select...</option>
-                                      {rooms.filter(r => r.room_type === wkRoomType && r.computed_status !== 'occupied' && r.computed_status !== 'arriving').map(r => (
+                                      {rooms.filter(r => r.room_type === wkRoomType && r.computed_status !== 'occupied' && r.computed_status !== 'arriving' && r.computed_status !== 'out_of_order').map(r => (
                                         <option key={r.room_number} value={r.room_number}>{r.room_number}</option>
                                       ))}
                                     </select>
@@ -13453,16 +13581,16 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   <td className="pr-2">
                                     {(() => {
                                       const rt = wkRoomTypes.find(r => r.name === wkRoomType);
-                                      return <div className="text-sm font-semibold">₱{rt ? Number(rt.price_per_night).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</div>;
+                                      return <div className="text-[12px] font-semibold">₱{rt ? Number(rt.price_per_night).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</div>;
                                     })()}
                                   </td>
                                   <td className="pr-2 flex gap-2">
-                                    <div className="flex items-center bg-white border border-black/10 rounded-lg shadow-sm overflow-hidden flex-1">
-                                      <input type="number" value={wkDiscountPct} onChange={e => setWkDiscountPct(e.target.value)} className="w-full px-2 py-2 text-sm text-center outline-none" />
-                                      <span className="pr-2 text-sm text-black/60">%</span>
+                                    <div className="flex items-center bg-white border border-black/10 rounded-md shadow-sm overflow-hidden flex-1">
+                                      <input type="number" value={wkDiscountPct} onChange={e => setWkDiscountPct(e.target.value)} className="w-full px-2 py-2 text-[12px] text-center outline-none" />
+                                      <span className="pr-2 text-[12px] text-black/60">%</span>
                                     </div>
                                     <input type="text" value={wkDiscountCode} onChange={e => setWkDiscountCode(e.target.value)} placeholder="Promo Code"
-                                      className="w-2/3 px-3 py-2 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none shadow-sm uppercase placeholder:normal-case" />
+                                      className="w-2/3 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none shadow-sm uppercase placeholder:normal-case" />
                                   </td>
                                   <td className="text-right flex items-center justify-end gap-2">
                                     {(() => {
@@ -13472,7 +13600,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                       const net = price * (1 - disc / 100);
                                       return (
                                         <>
-                                          <div className="text-sm font-bold text-[#1E3932]">₱{net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                          <div className="text-[12px] font-bold text-[#1E3932]">₱{net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                                           <div className="w-5 h-5 rounded-full bg-[#00754A] flex items-center justify-center">
                                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                           </div>
@@ -13484,7 +13612,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               </tbody>
                             </table>
 
-                            <div className="mt-4 pt-4 border-t border-black/10 flex justify-between items-center text-sm">
+                            <div className="mt-4 pt-4 border-t border-black/10 flex justify-between items-center text-[12px]">
                               {(() => {
                                 const nights = (!wkCheckIn || !wkCheckOut) ? 0 : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
                                 const rt = wkRoomTypes.find(r => r.name === wkRoomType);
@@ -13497,7 +13625,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 return (
                                   <>
                                     <div className="font-semibold text-black/60">Total Nights: <span className="text-[#1E3932]">{nights}</span></div>
-                                    <div className="flex gap-6">
+                                    <div className="flex gap-2">
                                       <div className="text-black/60">Sub Total: <span className="font-semibold text-black/80 ml-1">₱{subTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
                                       <div className="text-black/60">Taxes & Fees: <span className="font-semibold text-black/80 ml-1">₱{tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
                                       <div className="text-[#1E3932] font-bold text-base">Estimated Total: <span className="ml-1">₱{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
@@ -13510,60 +13638,60 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         </div>
 
                         {/* Section 4: Payment & Guarantee */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 p-7">
-                          <div className="flex items-center gap-3 mb-6 pb-4 border-b border-black/5">
-                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-sm">4</div>
-                            <h3 className="text-xl font-bold text-[#1E3932]">Payment & Guarantee</h3>
+                        <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4">
+                          <div className="flex items-center gap-3 mb-3 pb-2 border-b border-black/5">
+                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-[12px]">4</div>
+                            <h3 className="text-[16px] font-bold text-[#1E3932]">Payment & Guarantee</h3>
                           </div>
 
-                          <div className="grid grid-cols-2 gap-8">
+                          <div className="grid grid-cols-2 gap-2">
                             {/* Left: Payment details */}
                             <div>
                               <div className="mb-4">
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Payment Method</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Payment Method</label>
                                 <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                   {['Credit Card', 'Cash', 'Bank Transfer', 'Other'].map(m => <option key={m} value={m}>{m}</option>)}
                                 </select>
                               </div>
 
                               {wkPaymentMethod === 'Credit Card' && (
                                 <div className="space-y-4">
-                                  <div className="flex gap-4">
+                                  <div className="flex gap-2">
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType === 'Visa'} onChange={() => setWkCardType('Visa')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Visa</span>
+                                      <input type="radio" name="cardType" checked={wkCardType === 'Visa'} onChange={() => setWkCardType('Visa')} className="accent-[#00754A]" /> <span className="text-[12px] font-semibold">Visa</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType === 'Mastercard'} onChange={() => setWkCardType('Mastercard')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Mastercard</span>
+                                      <input type="radio" name="cardType" checked={wkCardType === 'Mastercard'} onChange={() => setWkCardType('Mastercard')} className="accent-[#00754A]" /> <span className="text-[12px] font-semibold">Mastercard</span>
                                     </label>
                                     <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType === 'Amex'} onChange={() => setWkCardType('Amex')} className="accent-[#00754A]" /> <span className="text-sm font-semibold">Amex</span>
+                                      <input type="radio" name="cardType" checked={wkCardType === 'Amex'} onChange={() => setWkCardType('Amex')} className="accent-[#00754A]" /> <span className="text-[12px] font-semibold">Amex</span>
                                     </label>
                                   </div>
 
                                   <div>
-                                    <label className="block text-xs font-semibold text-black/60 mb-1.5">Card Number</label>
+                                    <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Card Number</label>
                                     <input type="text" value={wkCardNumberFull} onChange={e => setWkCardNumberFull(e.target.value)} placeholder="0000 0000 0000 0000"
-                                      className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                      className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                   </div>
 
-                                  <div className="flex gap-4">
+                                  <div className="flex gap-2">
                                     <div className="w-1/2">
-                                      <label className="block text-xs font-semibold text-black/60 mb-1.5">Expiry Date</label>
+                                      <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Expiry Date</label>
                                       <input type="text" value={wkCardExpiry} onChange={e => setWkCardExpiry(e.target.value)} placeholder="MM/YY"
-                                        className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                        className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                     </div>
                                     <div className="w-1/2">
-                                      <label className="block text-xs font-semibold text-black/60 mb-1.5">CVV</label>
+                                      <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">CVV</label>
                                       <input type="text" value={wkCardCvv} onChange={e => setWkCardCvv(e.target.value)} placeholder="123"
-                                        className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                        className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                     </div>
                                   </div>
 
                                   <div>
-                                    <label className="block text-xs font-semibold text-black/60 mb-1.5">Cardholder Name</label>
+                                    <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Cardholder Name</label>
                                     <input type="text" value={wkCardholder} onChange={e => setWkCardholder(e.target.value)} placeholder="Juan dela Cruz"
-                                      className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                      className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                   </div>
                                 </div>
                               )}
@@ -13572,24 +13700,24 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             {/* Right: Guarantee */}
                             <div>
                               <div className="mb-4">
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Guarantee Type</label>
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Guarantee Type</label>
                                 <select value={wkGuaranteeType} onChange={e => setWkGuaranteeType(e.target.value)}
-                                  className="w-full px-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm">
+                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
                                   {['Guarantee by Credit Card', 'Company Guarantee', 'Deposit Paid', 'Non-Guaranteed'].map(m => <option key={m} value={m}>{m}</option>)}
                                 </select>
                               </div>
-                              <div className="mb-6">
-                                <label className="block text-xs font-semibold text-black/60 mb-1.5">Amount Guaranteed</label>
+                              <div className="mb-3">
+                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Amount Guaranteed</label>
                                 <div className="relative">
                                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 font-semibold">₱</span>
                                   <input type="number" value={wkGuaranteeAmount} onChange={e => setWkGuaranteeAmount(e.target.value)} placeholder="0.00"
-                                    className="w-full pl-8 pr-3 py-2.5 bg-white border border-black/10 rounded-lg text-sm focus:border-[#00754A] outline-none transition-all shadow-sm" />
+                                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                 </div>
                               </div>
                               <div className="pt-4 border-t border-black/5">
                                 <label className="flex items-center gap-2 cursor-pointer">
                                   <input type="checkbox" checked={wkSendConfirmEmail} onChange={e => setWkSendConfirmEmail(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
-                                  <span className="text-sm font-medium text-black/80">Send confirmation email to guest</span>
+                                  <span className="text-[12px] font-medium text-black/80">Send confirmation email to guest</span>
                                 </label>
                               </div>
                             </div>
@@ -13598,7 +13726,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                         {/* Error message */}
                         {wkError && (
-                          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm text-red-700 text-sm font-medium mb-4">
+                          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm text-red-700 text-[12px] font-medium mb-4">
                             {wkError}
                           </div>
                         )}
@@ -13606,7 +13734,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                       </div>
 
                       {/* RIGHT SIDEBAR */}
-                      <div className="w-[340px] xl:w-[380px] flex-shrink-0 flex flex-col gap-5 sticky top-0 pb-4 max-h-full overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                      <div className="w-[340px] xl:w-[380px] flex-shrink-0 flex flex-col gap-3 sticky top-0 pb-2 max-h-full overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
 
                         {/* Status tag */}
                         <div className="flex justify-end mb-1">
@@ -13614,51 +13742,51 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         </div>
 
                         {/* Reservation Summary */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex-shrink-0">
+                        <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden flex-shrink-0">
                           <div className="bg-[#1E3932] text-white p-4">
-                            <h3 className="font-bold text-lg mb-1">Reservation Summary</h3>
+                            <h3 className="font-bold text-[14px] mb-1">Reservation Summary</h3>
                             <p className="text-white/70 text-xs">Review details before confirming</p>
                           </div>
 
-                          <div className="p-5">
-                            <div className="flex gap-4 pb-4 border-b border-black/5">
+                          <div className="p-3">
+                            <div className="flex gap-2 pb-2 border-b border-black/5">
                               <div className="w-12 h-12 rounded-full bg-[#f8f9fa] border border-black/10 flex items-center justify-center flex-shrink-0 text-[#1E3932]">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                               </div>
                               <div>
                                 <div className="text-xs text-black/50 font-semibold mb-0.5">Guest Name</div>
-                                <div className="font-bold text-[#1E3932] leading-tight text-lg">{(wkFirstName || wkLastName) ? `${wkFirstName} ${wkLastName}` : 'Pending'}</div>
+                                <div className="font-bold text-[#1E3932] leading-tight text-[14px]">{(wkFirstName || wkLastName) ? `${wkFirstName} ${wkLastName}` : 'Pending'}</div>
                               </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-y-4 gap-x-2 py-4 border-b border-black/5">
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-in</div>
-                                <div className="font-semibold text-sm">{wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
+                                <div className="font-semibold text-[12px]">{wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
                               </div>
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-out</div>
-                                <div className="font-semibold text-sm">{wkCheckOut ? new Date(wkCheckOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
+                                <div className="font-semibold text-[12px]">{wkCheckOut ? new Date(wkCheckOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
                               </div>
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Nights</div>
-                                <div className="font-semibold text-sm">{(!wkCheckIn || !wkCheckOut) ? '-' : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000))}</div>
+                                <div className="font-semibold text-[12px]">{(!wkCheckIn || !wkCheckOut) ? '-' : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000))}</div>
                               </div>
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Room Type</div>
-                                <div className="font-semibold text-sm">{wkRoomType || '-'}</div>
+                                <div className="font-semibold text-[12px]">{wkRoomType || '-'}</div>
                               </div>
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Room No.</div>
-                                <div className="font-semibold text-sm">{wkRoomNumber || '-'}</div>
+                                <div className="font-semibold text-[12px]">{wkRoomNumber || '-'}</div>
                               </div>
                               <div>
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Guests</div>
-                                <div className="font-semibold text-sm">{wkAdults} Adults{wkChildren > 0 ? `, ${wkChildren} Children` : ''}</div>
+                                <div className="font-semibold text-[12px]">{wkAdults} Adults{wkChildren > 0 ? `, ${wkChildren} Children` : ''}</div>
                               </div>
                               <div className="col-span-2">
                                 <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Rate Plan</div>
-                                <div className="font-semibold text-sm text-[#00754A]">{wkRateCode || 'Standard Rate'}</div>
+                                <div className="font-semibold text-[12px] text-[#00754A]">{wkRateCode || 'Standard Rate'}</div>
                               </div>
                             </div>
 
@@ -13674,15 +13802,15 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 const total = subTotal + tax;
                                 return (
                                   <>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-[12px]">
                                       <span className="text-black/60">Sub Total</span>
                                       <span className="font-semibold">₱{subTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
-                                    <div className="flex justify-between text-sm">
+                                    <div className="flex justify-between text-[12px]">
                                       <span className="text-black/60">Taxes & Fees </span>
                                       <span className="font-semibold">₱{tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
-                                    <div className="flex justify-between text-lg font-bold pt-2 border-t border-black/5 mt-1 text-[#1E3932]">
+                                    <div className="flex justify-between text-[14px] font-bold pt-2 border-t border-black/5 mt-1 text-[#1E3932]">
                                       <span>Estimated Total</span>
                                       <span>₱{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                     </div>
@@ -13694,7 +13822,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         </div>
 
                         {/* Room Availability */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-black/5 overflow-hidden flex flex-col flex-shrink-0" style={{ maxHeight: '300px' }}>
+                        <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden flex flex-col flex-shrink-0" style={{ maxHeight: '300px' }}>
                           <div className="p-4 border-b border-black/5 flex justify-between items-center bg-[#f8f9fa]">
                             <h3 className="font-bold text-[#1E3932]">Room Availability</h3>
                             <div className="text-xs font-semibold text-black/50 bg-white px-2 py-1 rounded shadow-sm border border-black/5">
@@ -13704,7 +13832,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           </div>
 
                           <div className="overflow-y-auto p-4 flex-1">
-                            <table className="w-full text-left text-sm">
+                            <table className="w-full text-left text-[12px]">
                               <thead>
                                 <tr>
                                   <th className="pb-2 text-xs font-semibold text-black/50 uppercase tracking-wider">Room Type</th>
@@ -13718,16 +13846,16 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   const selected = rt.name === wkRoomType;
                                   return (
                                     <tr key={rt.id} className={selected ? 'bg-[#00754A]/5' : ''} onClick={() => setWkRoomType(rt.name)} style={{ cursor: 'pointer' }}>
-                                      <td className="py-2.5 font-medium flex items-center gap-2">
+                                      <td className="py-1.5 font-medium flex items-center gap-2">
                                         {rt.name}
                                         {selected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
                                       </td>
-                                      <td className="py-2.5 text-center">
+                                      <td className="py-1.5 text-center">
                                         <span className={`inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-bold ${avail > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                                           {avail}
                                         </span>
                                       </td>
-                                      <td className="py-2.5 text-right font-semibold">
+                                      <td className="py-1.5 text-right font-semibold">
                                         ₱{Number(rt.price_per_night).toLocaleString()}
                                       </td>
                                     </tr>
@@ -13743,10 +13871,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                         {/* Actions */}
                         <div className="flex flex-col gap-3 mt-auto">
-                          <button className="w-full py-3 rounded-xl border border-[#1E3932] text-[#1E3932] font-bold hover:bg-[#1E3932]/5 transition-all text-sm">
+                          <button className="w-full py-3 rounded-xl border border-[#1E3932] text-[#1E3932] font-bold hover:bg-[#1E3932]/5 transition-all text-[12px]">
                             Save as Draft
                           </button>
-                          <button onClick={resetWalkin} className="w-full py-3 rounded-xl text-black/60 font-semibold hover:text-black/80 hover:bg-black/5 transition-all text-sm">
+                          <button onClick={resetWalkin} className="w-full py-3 rounded-xl text-black/60 font-semibold hover:text-black/80 hover:bg-black/5 transition-all text-[12px]">
                             Clear Form
                           </button>
                           <button onClick={submitWalkin} disabled={wkSubmitting}
@@ -13765,7 +13893,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               {fdView === 'rooms' && (
                 <div>
                   {/* Toolbar */}
-                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-black/5">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-black/5">
                     {(() => {
                       const counts = rooms.reduce((acc, r) => { acc[r.computed_status] = (acc[r.computed_status] || 0) + 1; return acc; }, {});
                       const stats = [
@@ -13783,7 +13911,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             const active = roomFilter === s.key;
                             return (
                               <button key={s.label} onClick={() => setRoomFilter(s.key)}
-                                className={`flex flex-col items-center px-2.5 py-1 rounded-lg transition-all ${active ? 'bg-white shadow-sm text-[#000000]/87' : 'text-black/60 hover:text-black/60 hover:bg-white shadow-sm'}`}>
+                                className={`flex flex-col items-center px-2.5 py-1 rounded-md transition-all ${active ? 'bg-white shadow-sm text-[#000000]/87' : 'text-black/60 hover:text-black/60 hover:bg-white shadow-sm'}`}>
                                 {s.svg}
                                 <span className="text-base font-bold leading-tight">{s.value}</span>
                                 <span className="text-[10px] font-medium">{s.label}</span>
@@ -13796,7 +13924,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                     <div className="flex items-center gap-2">
                       <button onClick={fetchRooms} className="text-xs font-semibold text-black/60 hover:text-[#000000]/87 bg-white shadow-sm hover:bg-white shadow-sm px-3 py-1.5 rounded-full transition-all">↻ Refresh</button>
                       <button onClick={() => { setAddRoomOpen(v => !v); if (!newRoomType && wkRoomTypes.length > 0) setNewRoomType(wkRoomTypes[0].name); }}
-                        className="text-xs font-semibold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-3 py-1.5 rounded-lg transition-all">
+                        className="text-xs font-semibold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-3 py-1.5 rounded-md transition-all">
                         + Add Room
                       </button>
                     </div>
@@ -13804,19 +13932,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                   {/* Add Room Form */}
                   {addRoomOpen && (
-                    <div className="mb-5 rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="mb-3 rounded-xl border border-black/5 p-4" style={{ background: 'rgba(255,255,255,0.06)' }}>
                       <div className="text-xs font-semibold text-black/60 uppercase tracking-widest mb-3">New Room</div>
                       <div className="grid grid-cols-4 gap-3 mb-3">
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Room Number *</label>
                           <input type="text" value={newRoomNumber} onChange={e => setNewRoomNumber(e.target.value)}
                             placeholder="e.g. 201" autoComplete="off"
-                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-sm font-mono font-bold outline-none focus:border-black/5" />
+                            className="w-full px-2 py-1.5 rounded-md border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-[12px] font-mono font-bold outline-none focus:border-black/5" />
                         </div>
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Room Type</label>
                           <select value={newRoomType} onChange={e => setNewRoomType(e.target.value)}
-                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5">
+                            className="w-full px-2 py-1.5 rounded-md border border-black/5 bg-white shadow-sm text-[#000000]/87 text-[12px] outline-none focus:border-black/5">
                             <option value="">— select —</option>
                             {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name}>{rt.name}</option>)}
                           </select>
@@ -13824,7 +13952,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Floor</label>
                           <input type="number" min="1" max="99" value={newRoomFloor} onChange={e => setNewRoomFloor(parseInt(e.target.value) || 1)}
-                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5" />
+                            className="w-full px-2 py-1.5 rounded-md border border-black/5 bg-white shadow-sm text-[#000000]/87 text-[12px] outline-none focus:border-black/5" />
                         </div>
                         <div>
                           <label className="block text-xs text-black/60 mb-1">Bed Config / Notes</label>
@@ -13840,7 +13968,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 setNewRoomNotes(val);
                               }
                             }}
-                            className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 text-sm outline-none focus:border-black/5 mb-1.5"
+                            className="w-full px-2 py-1.5 rounded-md border border-black/5 bg-white shadow-sm text-[#000000]/87 text-[12px] outline-none focus:border-black/5 mb-1"
                           >
                             <option value="1 single bed">1 single bed</option>
                             <option value="1 queen bed">1 queen bed</option>
@@ -13855,14 +13983,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               value={newRoomNotes}
                               onChange={e => setNewRoomNotes(e.target.value)}
                               placeholder="specify custom config..."
-                              className="w-full px-3 py-2 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]"
+                              className="w-full px-2 py-1.5 rounded-md border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]"
                             />
                           )}
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <button onClick={addRoom} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs font-bold px-4 py-2 rounded-full transition-all">Save Room</button>
-                        <button onClick={() => setAddRoomOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-xs font-semibold px-4 py-2 rounded-lg bg-white shadow-sm transition-all">Cancel</button>
+                        <button onClick={() => setAddRoomOpen(false)} className="text-black/60 hover:text-[#000000]/87 text-xs font-semibold px-4 py-2 rounded-md bg-white shadow-sm transition-all">Cancel</button>
                       </div>
                     </div>
                   )}
@@ -13875,14 +14003,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                       <div className="text-4xl mb-3">🏨</div>
                       <div className="font-semibold text-black/60 mb-1">No rooms tracked yet</div>
                       <div className="text-xs text-black/60 mb-4">Rooms appear here automatically after check-in, or add them manually.</div>
-                      <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-4 py-2 rounded-lg">+ Add Room</button>
+                      <button onClick={() => setAddRoomOpen(true)} className="text-xs font-bold text-white bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 px-4 py-2 rounded-md">+ Add Room</button>
                     </div>
                   ) : (
                     <div>
                       {(() => {
                         const filtered = roomFilter === 'all' ? rooms : rooms.filter(r => r.computed_status === roomFilter);
                         if (filtered.length === 0) return (
-                          <div className="text-center py-10 text-black/60 text-sm">No rooms match this filter.</div>
+                          <div className="text-center py-10 text-black/60 text-[12px]">No rooms match this filter.</div>
                         );
                         const byFloor = filtered.reduce((acc, r) => {
                           const f = r.floor || 1;
@@ -13891,7 +14019,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           return acc;
                         }, {});
                         return Object.keys(byFloor).sort((a, b) => a - b).map(floor => (
-                          <div key={floor} className="mb-6">
+                          <div key={floor} className="mb-3">
                             <div className="flex items-center gap-2 mb-3">
                               <span className="text-xs font-bold text-black/60 uppercase tracking-widest">Floor {floor}</span>
                               <div className="flex-1 h-px bg-white shadow-sm" />
@@ -14041,10 +14169,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                       const clr = TC[effStatus] || TC.confirmed;
                       const nights = Math.round((new Date(coLocal + 'T00:00:00') - new Date(ciLocal + 'T00:00:00')) / 86400000);
                       return (
-                        <div className="mb-3 px-3 py-2 rounded border flex items-center justify-between gap-3"
+                        <div className="mb-3 px-2 py-1.5 rounded border flex items-center justify-between gap-3"
                           style={{ background: clr.bg, borderColor: 'rgba(255,255,255,0.15)' }}>
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className="text-xs font-bold" style={{ color: clr.text }}>{r.full_name}</span>
+                            <span className="text-xs font-bold" style={{ color: clr.text }}>{r.full_name}{r.is_vip && <span className="text-[10px] text-yellow-600 font-bold ml-1.5 whitespace-nowrap" title="VIP Guest">★ VIP</span>}{r.is_repeat && <span className="text-[10px] text-blue-600 font-bold ml-1.5 whitespace-nowrap" title="Repeat Guest">↺ REPEAT</span>}</span>
                             <span className="text-[11px] font-mono" style={{ color: clr.text, opacity: 0.8 }}>Rm {r.room_number}</span>
                             <span className="text-[11px]" style={{ color: clr.text, opacity: 0.75 }}>
                               {new Date(ciLocal + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -14062,9 +14190,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                     {/* ── Chart ── */}
                     {tcLoading ? (
-                      <div className="text-center py-12 text-black/60 text-sm">Loading chart...</div>
+                      <div className="text-center py-12 text-black/60 text-[12px]">Loading chart...</div>
                     ) : tcRooms.length === 0 ? (
-                      <div className="text-center py-12 text-black/60 text-sm">No room types found — add room types in Admin → Settings → Rooms first.</div>
+                      <div className="text-center py-12 text-black/60 text-[12px]">No room types found — add room types in Admin → Settings → Rooms first.</div>
                     ) : (
                       <>
                         {tcTypeView && (
@@ -14254,7 +14382,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               {/* ── Room Detail Panel ── */}
               {selectedRoom && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => { setSelectedRoom(null); setEditRoomOpen(false); }}>
-                  <div className="bg-white border border-black/10 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden"
+                  <div className="bg-white border border-black/10 rounded-xl shadow-2xl w-full max-w-sm overflow-hidden"
                     onClick={e => e.stopPropagation()}>
                     {/* Header */}
                     {(() => {
@@ -14272,27 +14400,27 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${cfg.pill} bg-white shadow-sm`}>{cfg.label}</span>
                                 </div>
                               </div>
-                              <button onClick={() => { setSelectedRoom(null); setEditRoomOpen(false); }} className="text-white/60 hover:text-white text-lg font-bold leading-none mt-1">✕</button>
+                              <button onClick={() => { setSelectedRoom(null); setEditRoomOpen(false); }} className="text-white/60 hover:text-white text-[14px] font-bold leading-none mt-1">✕</button>
                             </div>
                           </div>
-                          <div className="p-5">
+                          <div className="p-3">
                             {editRoomOpen ? (
                               <div className="space-y-4 text-left">
                                 <div>
-                                  <label className="block text-xs font-semibold text-black/60 uppercase tracking-wider mb-1.5">Room Type</label>
+                                  <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wider mb-1">Room Type</label>
                                   <select value={editRoomType} onChange={e => setEditRoomType(e.target.value)}
-                                    className="w-full px-3 py-2.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 text-sm outline-none focus:border-[#00754A]">
+                                    className="w-full px-3 py-1.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 text-[12px] outline-none focus:border-[#00754A]">
                                     <option value="">— select —</option>
                                     {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name}>{rt.name}</option>)}
                                   </select>
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-semibold text-black/60 uppercase tracking-wider mb-1.5">Floor</label>
+                                  <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wider mb-1">Floor</label>
                                   <input type="number" min="1" max="99" value={editRoomFloor} onChange={e => setEditRoomFloor(parseInt(e.target.value) || 1)}
-                                    className="w-full px-3 py-2.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 text-sm outline-none focus:border-[#00754A]" />
+                                    className="w-full px-3 py-1.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 text-[12px] outline-none focus:border-[#00754A]" />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-semibold text-black/60 uppercase tracking-wider mb-1.5">Bed Config / Notes</label>
+                                  <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wider mb-1">Bed Config / Notes</label>
                                   <select
                                     value={editIsOthersBed ? 'others' : editRoomNotes}
                                     onChange={e => {
@@ -14305,7 +14433,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                         setEditRoomNotes(val);
                                       }
                                     }}
-                                    className="w-full px-3 py-2.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 text-sm outline-none focus:border-[#00754A] mb-2"
+                                    className="w-full px-3 py-1.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 text-[12px] outline-none focus:border-[#00754A] mb-2"
                                   >
                                     <option value="1 single bed">1 single bed</option>
                                     <option value="1 queen bed">1 queen bed</option>
@@ -14320,17 +14448,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                       value={editRoomNotes}
                                       onChange={e => setEditRoomNotes(e.target.value)}
                                       placeholder="specify custom config..."
-                                      className="w-full px-3 py-2.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]"
+                                      className="w-full px-3 py-1.5 rounded-xl border border-black/12 bg-white text-[#000000]/87 placeholder-white/30 text-xs outline-none focus:border-[#00754A]"
                                     />
                                   )}
                                 </div>
                                 <div className="flex gap-2 pt-2">
                                   <button onClick={saveEditedRoom}
-                                    className="flex-1 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold py-2.5 rounded-xl transition-all">
+                                    className="flex-1 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold py-1.5 rounded-xl transition-all">
                                     Save Changes
                                   </button>
                                   <button onClick={() => setEditRoomOpen(false)}
-                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-black/60 text-xs font-semibold py-2.5 rounded-xl transition-all">
+                                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-black/60 text-xs font-semibold py-1.5 rounded-xl transition-all">
                                     Cancel
                                   </button>
                                 </div>
@@ -14374,7 +14502,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                         <button key={status}
                                           onClick={() => updateHkStatus(selectedRoom.room_number, status)}
                                           disabled={hkUpdating === selectedRoom.room_number}
-                                          className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/5 bg-gray-50 text-black/60 hover:bg-gray-100 hover:text-[#000000]/87'}`}>
+                                          className={`px-2 py-1.5 rounded-xl border text-xs font-semibold transition-all ${isCurrent ? active : 'border-black/5 bg-gray-50 text-black/60 hover:bg-gray-100 hover:text-[#000000]/87'}`}>
                                           {label}
                                         </button>
                                       );
@@ -14387,19 +14515,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                   <div className="flex gap-2">
                                     <button
                                       onClick={() => startEditRoom(selectedRoom)}
-                                      className="flex-1 bg-[#00754A]/10 hover:bg-[#00754A]/20 text-[#00754A] text-xs font-bold py-2.5 rounded-xl transition-all">
+                                      className="flex-1 bg-[#00754A]/10 hover:bg-[#00754A]/20 text-[#00754A] text-xs font-bold py-1.5 rounded-xl transition-all">
                                       ✏️ Edit Room Details
                                     </button>
                                     <button
                                       onClick={() => removeRoom(selectedRoom.room_number)}
-                                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 text-xs font-semibold py-2.5 rounded-xl transition-all">
+                                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 text-xs font-semibold py-1.5 rounded-xl transition-all">
                                       🗑️ Delete Room
                                     </button>
                                   </div>
                                   {((selectedRoom.computed_status === 'occupied' || selectedRoom.computed_status === 'due_out') && selectedRoom.reservation_id) && (
                                     <button
                                       onClick={() => { setCheckoutConfirmId(selectedRoom.reservation_id); setSelectedRoom(null); }}
-                                      className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-xl transition-all">
+                                      className="w-full bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1.5 rounded-xl transition-all">
                                       Check Out Guest
                                     </button>
                                   )}
@@ -14418,11 +14546,11 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               {wizardOpen && wizardReservation && ReactDOM.createPortal(
                 <div className="fixed inset-0 z-[100] bg-gray-100 overflow-y-auto">
                   <div className="min-h-screen flex flex-col lg:pl-[260px]">
-                    <div className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-8 flex flex-col">
-                      <div className="flex items-center justify-between mb-6 px-2">
+                    <div className="flex-1 w-full max-w-5xl mx-auto p-4 sm:p-4 flex flex-col">
+                      <div className="flex items-center justify-between mb-3 px-2">
                         <div>
-                          <h2 className="text-xl font-bold text-[#000000]/87 tracking-tight">Check-In Wizard</h2>
-                          <p className="text-sm text-black/60 font-medium mt-0.5">{wizardReservation.full_name} &bull; Confirmation #{wizardReservation.id}</p>
+                          <h2 className="text-[16px] font-bold text-[#000000]/87 tracking-tight">Check-In Wizard</h2>
+                          <p className="text-[12px] text-black/60 font-medium mt-0.5">{wizardReservation.full_name} &bull; Confirmation #{wizardReservation.id}</p>
                         </div>
                         {!wizardSuccess && (
                           <button onClick={closeWizard} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 transition-colors">
@@ -14430,7 +14558,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           </button>
                         )}
                       </div>
-                      <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-6 sm:p-8 flex-1">
+                      <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 sm:p-4 flex-1">
                         {wizardSuccess ? (
                           <WizardSuccessCard />
                         ) : (
@@ -14441,7 +14569,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             {wizardStep === 3 && <WizardStep3 />}
                             {wizardStep === 4 && <WizardStep4 />}
                             {wizardError && (
-                              <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium">
+                              <div className="mt-4 bg-red-50 border border-red-200 rounded-xl px-2.5 py-2 text-[12px] text-red-600 font-medium">
                                 {wizardError}
                               </div>
                             )}
@@ -14449,7 +14577,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               {wizardStep > 1 && (
                                 <button
                                   onClick={() => { setWizardStep(s => s - 1); setWizardError(''); }}
-                                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
+                                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 rounded-xl transition-colors"
                                 >
                                   Back
                                 </button>
@@ -14458,7 +14586,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <button
                                   onClick={() => { setWizardStep(s => s + 1); setWizardError(''); }}
                                   disabled={wizardStep === 1 && !wizardIdVerified}
-                                  className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-2.5 rounded-xl transition-colors"
+                                  className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:bg-gray-200 disabled:text-gray-400 text-white font-semibold py-1.5 rounded-xl transition-colors"
                                 >
                                   Next
                                 </button>
@@ -14466,7 +14594,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <button
                                   onClick={submitCheckin}
                                   disabled={!wizardPayment || wizardSubmitting}
-                                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-full transition-colors"
+                                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-1.5 rounded-full transition-colors"
                                 >
                                   {wizardSubmitting ? 'Processing...' : 'Complete Check-In'}
                                 </button>
@@ -14483,22 +14611,22 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               {/* ── Checkout Confirm Modal ── */}
               {checkoutConfirmId && ReactDOM.createPortal(
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-                    <div className="text-center mb-5">
+                  <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-4">
+                    <div className="text-center mb-3">
                       <div className="text-4xl mb-3">🔑</div>
-                      <h3 className="text-lg font-bold text-gray-900">Confirm Check-Out</h3>
-                      <p className="text-sm text-gray-500 mt-1">Are you sure you want to check out this guest? This action cannot be undone.</p>
+                      <h3 className="text-[14px] font-bold text-gray-900">Confirm Check-Out</h3>
+                      <p className="text-[12px] text-gray-500 mt-1">Are you sure you want to check out this guest? This action cannot be undone.</p>
                     </div>
                     {/* Folio balance */}
                     {checkoutFolioBalance === null ? (
                       <div className="mb-4 text-center text-xs text-gray-400">Checking folio balance...</div>
                     ) : checkoutFolioBalance <= 0 ? (
-                      <div className="mb-4 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
-                        <span className="text-green-600 text-sm font-semibold">Folio settled</span>
+                      <div className="mb-4 flex items-center justify-center gap-2 bg-green-50 border border-green-200 rounded-xl px-4 py-1.5">
+                        <span className="text-green-600 text-[12px] font-semibold">Folio settled</span>
                       </div>
                     ) : (
-                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                        <div className="text-center text-sm font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
+                      <div className="mb-4 bg-amber-50 border border-amber-200 rounded-xl px-2.5 py-2">
+                        <div className="text-center text-[12px] font-bold text-amber-700">Outstanding Balance: ₱{Number(checkoutFolioBalance).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
                         <div className="text-center text-xs text-amber-600 mt-0.5">Please settle folio before checkout</div>
 
                         {corporateAccounts.length > 0 && (
@@ -14510,12 +14638,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 checked={chargeToCorporate}
                                 onChange={(e) => setChargeToCorporate(e.target.checked)}
                               />
-                              <span className="text-sm font-medium text-amber-800">Charge to Corporate Account</span>
+                              <span className="text-[12px] font-medium text-amber-800">Charge to Corporate Account</span>
                             </label>
 
                             {chargeToCorporate && (
                               <select
-                                className="w-full text-sm border-amber-300 rounded-lg bg-white/80 focus:ring-amber-500 focus:border-amber-500"
+                                className="w-full text-[12px] border-amber-300 rounded-md bg-white/80 focus:ring-amber-500 focus:border-amber-500"
                                 value={selectedCorpId}
                                 onChange={(e) => setSelectedCorpId(e.target.value)}
                               >
@@ -14533,14 +14661,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                       <button
                         onClick={() => setCheckoutConfirmId(null)}
                         disabled={checkoutSubmitting}
-                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 rounded-xl transition-colors"
+                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-1.5 rounded-xl transition-colors"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => submitCheckout(checkoutConfirmId)}
                         disabled={checkoutSubmitting || (checkoutFolioBalance > 0 && !(chargeToCorporate && selectedCorpId))}
-                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-2.5 rounded-xl transition-colors"
+                        className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 text-[#000000]/87 font-bold py-1.5 rounded-xl transition-colors"
                       >
                         {checkoutSubmitting ? 'Processing...' : 'Check Out'}
                       </button>
@@ -14565,7 +14693,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
         return (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => !extendSubmitting && setExtendGuest(null)}>
-            <div className="bg-white rounded-2xl border border-black/10 shadow-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-xl border border-black/10 shadow-2xl w-full max-w-sm overflow-hidden" onClick={e => e.stopPropagation()}>
 
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-black/5" style={{ background: 'linear-gradient(135deg,#f0fdf8 0%,#f8fffe 100%)' }}>
@@ -14584,22 +14712,22 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               </div>
 
               {/* Body */}
-              <div className="px-6 py-5 flex flex-col gap-4">
+              <div className="px-6 py-5 flex flex-col gap-2">
                 {/* Current checkout */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-black/[0.03] border border-black/5">
                   <span className="text-xs font-medium text-black/50">Current Check-Out</span>
-                  <span className="text-sm font-bold text-black">{fmtD(extendGuest.check_out_date)}</span>
+                  <span className="text-[12px] font-bold text-black">{fmtD(extendGuest.check_out_date)}</span>
                 </div>
 
                 {/* New date picker */}
                 <div>
-                  <label className="block text-xs font-semibold text-black/60 mb-1.5">New Check-Out Date</label>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">New Check-Out Date</label>
                   <input
                     type="date"
                     min={minDate}
                     value={extendNewDate}
                     onChange={e => { setExtendNewDate(e.target.value); setExtendError(''); setExtendConflict(''); setExtendSuccess(''); }}
-                    className="w-full border border-black/15 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00754A]/40 focus:border-[#00754A]"
+                    className="w-full border border-black/15 rounded-xl px-3 py-1.5 text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-[#00754A]/40 focus:border-[#00754A]"
                   />
                 </div>
 
@@ -14642,7 +14770,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 <button
                   onClick={() => setExtendGuest(null)}
                   disabled={extendSubmitting}
-                  className="flex-1 py-2.5 rounded-xl border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors disabled:opacity-40"
+                  className="flex-1 py-1.5 rounded-xl border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors disabled:opacity-40"
                 >
                   {extendSuccess && extendConflict ? 'Close' : 'Cancel'}
                 </button>
@@ -14650,7 +14778,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                   <button
                     onClick={submitExtend}
                     disabled={extendSubmitting || !extendNewDate || additionalNights <= 0}
-                    className="flex-1 py-2.5 rounded-xl bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40"
+                    className="flex-1 py-1.5 rounded-xl bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40"
                   >
                     {extendSubmitting ? 'Extending…' : extendConflict ? 'Extend Anyway' : 'Confirm Extension'}
                   </button>
@@ -14666,36 +14794,36 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       {transferGuest && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => setTransferGuest(null)}>
           <div
-            className="bg-white rounded-2xl border border-black/10 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-xl border border-black/10 shadow-2xl w-full max-w-md overflow-hidden max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between px-6 py-5 border-b border-black/5 bg-gray-50">
               <div>
-                <div className="text-[#000000]/87 font-bold text-lg tracking-tight">Room Transfer / Upgrade</div>
+                <div className="text-[#000000]/87 font-bold text-[14px] tracking-tight">Room Transfer / Upgrade</div>
                 <div className="text-black/60 text-xs mt-0.5">Assign a new room for this guest</div>
               </div>
-              <button onClick={() => setTransferGuest(null)} className="text-black/60 hover:text-[#000000]/87 text-lg font-bold transition-colors leading-none">✕</button>
+              <button onClick={() => setTransferGuest(null)} className="text-black/60 hover:text-[#000000]/87 text-[14px] font-bold transition-colors leading-none">✕</button>
             </div>
             {transferSuccess ? (
               <div className="px-6 py-12 text-center">
                 <div className="w-14 h-14 rounded-full bg-green-500/25 flex items-center justify-center mx-auto mb-4">
                   <span className="text-2xl text-green-300 font-bold">✓</span>
                 </div>
-                <div className="text-[#000000]/87 font-bold text-lg mb-1">{transferSuccess}</div>
-                <div className="text-black/60 text-sm">Previous room marked dirty for housekeeping</div>
-                <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-[#000000]/87 font-semibold py-2.5 rounded-xl transition-colors text-sm">Close</button>
+                <div className="text-[#000000]/87 font-bold text-[14px] mb-1">{transferSuccess}</div>
+                <div className="text-black/60 text-[12px]">Previous room marked dirty for housekeeping</div>
+                <button onClick={() => setTransferGuest(null)} className="mt-6 w-full bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-[#000000]/87 font-semibold py-1.5 rounded-xl transition-colors text-[12px]">Close</button>
               </div>
             ) : (
-              <div className="p-6 space-y-5">
+              <div className="p-4 space-y-5">
                 {/* Current guest info */}
                 <div
-                  className="border border-black/5 bg-gray-50 rounded-xl px-4 py-3 flex items-center justify-between"
+                  className="border border-black/5 bg-gray-50 rounded-xl px-2.5 py-2 flex items-center justify-between"
                 >
                   <div>
                     <div className="text-[10px] text-black/60 font-semibold uppercase tracking-wide mb-0.5">
                       Current Assignment
                     </div>
-                    <div className="font-semibold text-[#000000]/87 text-sm">{transferGuest?.full_name}</div>
+                    <div className="font-semibold text-[#000000]/87 text-[12px]">{transferGuest?.full_name}</div>
                     <div className="text-xs text-black/60 mt-0.5">
                       {transferGuest?.room_type} · Check-out {fmtDate(transferGuest?.check_out_date)}
                     </div>
@@ -14704,7 +14832,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                 {/* Room Type Filter */}
                 <div>
-                  <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wide mb-2">
                     Room Type Filter
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -14713,7 +14841,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         setTransferRoomType('');
                         setTransferRoomNumber('');
                       }}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${transferRoomType === ''
+                      className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-all ${transferRoomType === ''
                         ? 'bg-[#00754A] border-[#00754A] text-white shadow-sm'
                         : 'bg-white shadow-sm border-black/10 text-black/60 hover:border-black/20 hover:text-[#000000]/87'
                         }`}
@@ -14730,7 +14858,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             setTransferRoomType(rt.name);
                             setTransferRoomNumber('');
                           }}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${isSelected
+                          className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-all ${isSelected
                             ? 'bg-[#00754A] border-[#00754A] text-white shadow-sm'
                             : 'bg-white shadow-sm border-black/10 text-black/60 hover:border-black/20 hover:text-[#000000]/87'
                             }`}
@@ -14749,7 +14877,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                 {/* Room selection */}
                 <div>
-                  <label className="block text-xs font-semibold text-black/60 uppercase tracking-wide mb-2">
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wide mb-2">
                     Select Room
                   </label>
                   {(() => {
@@ -14766,7 +14894,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             onChange={(e) => setTransferRoomNumber(e.target.value)}
                             placeholder="Enter room number (e.g. 301)"
                             autoComplete="off"
-                            className="w-full px-3 py-2.5 rounded-lg border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 text-sm font-mono font-bold outline-none focus:border-black/5 focus:ring-2 focus:ring-white/20 transition-all"
+                            className="w-full px-3 py-1.5 rounded-md border border-black/5 bg-white shadow-sm text-[#000000]/87 placeholder-white/40 text-[12px] font-mono font-bold outline-none focus:border-black/5 focus:ring-2 focus:ring-white/20 transition-all"
                           />
                           <div className="text-xs text-black/60 mt-2 italic">
                             {transferRoomType
@@ -14801,7 +14929,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               disabled={!isAvailable || isCurrent}
                               onClick={() => setTransferRoomNumber(isSelected ? '' : r.room_number)}
                               title={`Room ${r.room_number} — ${cfg.label}`}
-                              className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all text-left ${isSelected
+                              className={`relative w-full flex items-center gap-3 px-3 py-1.5 rounded-md border transition-all text-left ${isSelected
                                 ? 'bg-green-50 border-[#00754A]/30'
                                 : isCurrent
                                   ? 'bg-gray-50 border-black/5 opacity-50 cursor-not-allowed'
@@ -14813,7 +14941,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColors[r.computed_status] || 'bg-gray-300'}`} />
                               <div className="flex-1">
                                 <span
-                                  className={`font-mono font-bold text-sm ${isSelected ? 'text-[#000000]/87' : isCurrent || !isAvailable ? 'text-black/60' : 'text-[#000000]/87'
+                                  className={`font-mono font-bold text-[12px] ${isSelected ? 'text-[#000000]/87' : isCurrent || !isAvailable ? 'text-black/60' : 'text-[#000000]/87'
                                     }`}
                                 >
                                   Room {r.room_number}
@@ -14837,7 +14965,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 {/* Transfer summary */}
                 {transferRoomNumber && (
                   <div
-                    className="border border-[#00754A]/20 rounded-xl px-5 py-3 flex items-center gap-4 bg-green-50"
+                    className="border border-[#00754A]/20 rounded-xl px-5 py-3 flex items-center gap-2 bg-green-50"
                   >
                     <div className="text-center min-w-[3rem]">
                       <div className="text-[10px] text-black/60 uppercase tracking-wide font-medium">From</div>
@@ -14857,7 +14985,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
                 {/* Error message */}
                 {transferError && (
-                  <div className="bg-red-500/15 border border-red-400/30 rounded-xl px-4 py-3 text-sm text-red-300">
+                  <div className="bg-red-500/15 border border-red-400/30 rounded-xl px-2.5 py-2 text-[12px] text-red-300">
                     {transferError}
                   </div>
                 )}
@@ -14866,14 +14994,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 <div className="flex gap-3 pt-2">
                   <button
                     onClick={() => setTransferGuest(null)}
-                    className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 text-sm font-semibold py-2.5 rounded-xl transition-all"
+                    className="flex-1 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 text-black/60 hover:text-[#000000]/87 text-[12px] font-semibold py-1.5 rounded-xl transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={submitTransfer}
                     disabled={!transferRoomNumber?.trim() || transferSubmitting}
-                    className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:opacity-40 text-white text-sm font-bold py-2.5 rounded-full transition-all"
+                    className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 disabled:opacity-40 text-white text-[12px] font-bold py-1.5 rounded-full transition-all"
                   >
                     {transferSubmitting
                       ? 'Moving…'
@@ -14947,18 +15075,18 @@ function GuestsTab() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-black/5 p-8 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+      <div className="rounded-xl border border-black/5 p-4 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
         <div className="flex justify-between items-center mb-10">
           <div>
             <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Guest Directory</h2>
-            <p className="text-black/60 text-sm font-medium mt-1">Universal guest profiles and historical stay records</p>
+            <p className="text-black/60 text-[12px] font-medium mt-1">Universal guest profiles and historical stay records</p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-2">
             <div className="relative group">
-              <input type="text" value={guestSearch} onChange={e => setGuestSearch(e.target.value)} placeholder="Search name or email..." className="w-80 px-5 py-3.5 bg-white shadow-sm border border-black/5 rounded-2xl text-[#000000]/87 text-sm outline-none focus:border-[#00754A]/50 transition-all pl-12" />
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-black/60 text-lg group-focus-within:text-[#00754A] transition-colors">🔍</span>
+              <input type="text" value={guestSearch} onChange={e => setGuestSearch(e.target.value)} placeholder="Search name or email..." className="w-80 px-5 py-3.5 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] outline-none focus:border-[#00754A]/50 transition-all pl-12" />
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-black/60 text-[14px] group-focus-within:text-[#00754A] transition-colors">🔍</span>
             </div>
-            <button onClick={() => fetchGuests(guestSearch)} className="px-5 py-3.5 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 rounded-2xl text-black/60 hover:text-[#000000]/87 transition-all">↻</button>
+            <button onClick={() => fetchGuests(guestSearch)} className="px-5 py-3.5 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 rounded-xl text-black/60 hover:text-[#000000]/87 transition-all">↻</button>
           </div>
         </div>
 
@@ -14976,11 +15104,11 @@ function GuestsTab() {
               const isLoading = historyLoading === g.email;
               return (
                 <div key={g.email} className={`rounded-3xl border transition-all duration-300 overflow-hidden ${isExpanded ? 'bg-white/[0.08] border-black/5 shadow-2xl' : 'bg-white/[0.03] border-black/5 hover:border-black/5'}`}>
-                  <div className="flex items-center justify-between p-6 cursor-pointer" onClick={() => toggleHistory(g.email)}>
-                    <div className="flex items-center gap-5">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl shadow-inner border border-black/5">👤</div>
+                  <div className="flex items-center justify-between p-4 cursor-pointer" onClick={() => toggleHistory(g.email)}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center text-2xl shadow-inner border border-black/5">👤</div>
                       <div>
-                        <div className="text-lg font-black text-[#000000]/87">{g.full_name}</div>
+                        <div className="text-[14px] font-black text-[#000000]/87">{g.full_name}</div>
                         <div className="text-black/60 text-xs font-medium flex items-center gap-2 mt-1">
                           <span>{g.email}</span>
                           <span className="w-1 h-1 rounded-full bg-white shadow-sm"></span>
@@ -14991,11 +15119,11 @@ function GuestsTab() {
                     <div className="flex items-center gap-12">
                       <div className="text-right">
                         <div className="text-[10px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">Total Stays</div>
-                        <div className="text-xl font-black text-[#00754A]">{g.total_bookings}</div>
+                        <div className="text-[16px] font-black text-[#00754A]">{g.total_bookings}</div>
                       </div>
                       <div className="text-right">
                         <div className="text-[10px] text-black/60 font-black uppercase tracking-[0.2em] mb-1">Last Stay</div>
-                        <div className="text-sm font-bold text-black/60">{fmtDate(g.last_booking)}</div>
+                        <div className="text-[12px] font-bold text-black/60">{fmtDate(g.last_booking)}</div>
                       </div>
                       <div className={`text-2xl transition-transform duration-300 ${isExpanded ? 'rotate-180 text-[#00754A]' : 'text-black/60'}`}>▾</div>
                     </div>
@@ -15003,7 +15131,7 @@ function GuestsTab() {
 
                   {isExpanded && (
                     <div className="px-8 pb-8 animate-in fade-in slide-in-from-top-4 duration-300">
-                      <div className="h-px bg-white shadow-sm mb-8"></div>
+                      <div className="h-px bg-white shadow-sm mb-4"></div>
                       {isLoading ? (
                         <div className="py-12 flex flex-col items-center gap-3">
                           <div className="w-8 h-8 border-2 border-[#00754A]/20 border-t-[#00754A] rounded-full animate-spin"></div>
@@ -15013,28 +15141,28 @@ function GuestsTab() {
                         <p className="text-xs text-black/60 italic py-4">No historical records found for this identity.</p>
                       ) : (
                         <div className="space-y-6">
-                          <div className="flex flex-wrap gap-6 p-5 rounded-2xl bg-white/[0.02] border border-black/5">
+                          <div className="flex flex-wrap gap-3 p-3 rounded-xl bg-white/[0.02] border border-black/5">
                             <div className="flex flex-col gap-1">
                               <span className="text-[9px] text-black/60 font-black uppercase tracking-widest">Email Identity</span>
-                              <span className="text-sm font-bold text-black/60">{g.email}</span>
+                              <span className="text-[12px] font-bold text-black/60">{g.email}</span>
                             </div>
                             <div className="flex flex-col gap-1">
                               <span className="text-[9px] text-black/60 font-black uppercase tracking-widest">Contact Phone</span>
-                              <span className="text-sm font-bold text-black/60 font-mono">{g.phone_number || '—'}</span>
+                              <span className="text-[12px] font-bold text-black/60 font-mono">{g.phone_number || '—'}</span>
                             </div>
                             <div className="flex flex-col gap-1">
                               <span className="text-[9px] text-black/60 font-black uppercase tracking-widest">First Registration</span>
-                              <span className="text-sm font-bold text-black/60">{fmtDate(g.first_booking)}</span>
+                              <span className="text-[12px] font-bold text-black/60">{fmtDate(g.first_booking)}</span>
                             </div>
                           </div>
 
-                          <div className="rounded-2xl border border-black/5 overflow-hidden bg-white/[0.01]">
-                            <div className="grid gap-4 px-6 py-3 bg-white/[0.03] border-b border-black/5 text-[9px] font-black text-black/60 uppercase tracking-[0.15em]" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
+                          <div className="rounded-xl border border-black/5 overflow-hidden bg-white/[0.01]">
+                            <div className="grid gap-2 px-6 py-3 bg-white/[0.03] border-b border-black/5 text-[9px] font-black text-black/60 uppercase tracking-[0.15em]" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
                               <span>Ref #</span><span>Room Category</span><span>Room</span><span>Arrival</span><span>Departure</span><span>Stay</span><span className="text-right">Status</span>
                             </div>
                             <div className="divide-y divide-white/[0.03]">
                               {history.map(bk => (
-                                <div key={bk.id} className="grid gap-4 px-6 py-4 text-xs items-center hover:bg-white/[0.02] transition-all" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
+                                <div key={bk.id} className="grid gap-2 px-6 py-4 text-xs items-center hover:bg-white/[0.02] transition-all" style={{ gridTemplateColumns: '80px 1.5fr 80px 100px 100px 60px 120px' }}>
                                   <span className="text-[#00754A] font-mono font-black">#{bk.id}</span>
                                   <span className="text-[#000000]/87 font-bold truncate">{bk.room_type}</span>
                                   <span className="text-black/60 font-mono">{bk.room_number || '—'}</span>
@@ -15042,7 +15170,7 @@ function GuestsTab() {
                                   <span className="text-black/60">{fmtDate(bk.check_out_date)}</span>
                                   <span className="text-black/60 text-[10px] font-bold uppercase">{nightsCount(bk)}</span>
                                   <div className="flex justify-end gap-2">
-                                    <button onClick={() => openFolio(bk)} className="px-3 py-1 bg-white shadow-sm hover:bg-white shadow-sm text-[9px] font-black uppercase tracking-widest text-[#00754A] rounded-lg transition-all border border-[#00754A]/10">Ledger</button>
+                                    <button onClick={() => openFolio(bk)} className="px-3 py-1 bg-white shadow-sm hover:bg-white shadow-sm text-[9px] font-black uppercase tracking-widest text-[#00754A] rounded-md transition-all border border-[#00754A]/10">Ledger</button>
                                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${statusColors[bk.status]?.bg} ${statusColors[bk.status]?.text}`}>{statusLabel(bk.status)}</span>
                                   </div>
                                 </div>
@@ -15160,7 +15288,7 @@ function FolioModal({
         {/* Top Bar */}
         <div className="flex items-center justify-between px-6 py-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.09)', background: '#fff' }}>
           <button onClick={() => setFolioOpen(false)}
-            className="flex items-center gap-2 text-sm font-medium text-black hover:text-black transition-colors">
+            className="flex items-center gap-2 text-[12px] font-medium text-black hover:text-black transition-colors">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <path d="M10 12L6 8l4-4" />
             </svg>
@@ -15168,12 +15296,12 @@ function FolioModal({
           </button>
           <div className="flex items-center gap-2">
             <button onClick={printFolio}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-lg text-black hover:bg-black/5 transition-colors">
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-md text-black hover:bg-black/5 transition-colors">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M4 6V2h8v4M4 12H3a1.5 1.5 0 01-1.5-1.5v-3A1.5 1.5 0 013 6h10a1.5 1.5 0 011.5 1.5v3A1.5 1.5 0 0113 12h-1M4 10h8v4H4z" /></svg>
               Print
             </button>
             <button onClick={sendFolioEmail} disabled={folioEmailSending}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-lg text-black hover:bg-black/5 transition-colors disabled:opacity-40">
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-black/15 rounded-md text-black hover:bg-black/5 transition-colors disabled:opacity-40">
               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><rect x="1" y="3" width="14" height="10" rx="1.5" /><path d="M1 4l7 5 7-5" /></svg>
               {folioEmailSending ? 'Sending…' : 'Email Folio'}
             </button>
@@ -15182,20 +15310,20 @@ function FolioModal({
 
         {/* Guest Header */}
         <div className="px-8 pt-5 pb-0" style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-[14px] flex-shrink-0"
               style={{ background: 'linear-gradient(135deg,#1E3932,#00754A)' }}>
               {initials}
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-xl font-bold text-black tracking-tight">{folioRes.full_name}</span>
+              <span className="text-[16px] font-bold text-black tracking-tight">{folioRes.full_name}</span>
               <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${isOverdue ? 'bg-red-100 text-red-700' : isDueOut ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
                 {isOverdue ? 'Overdue' : isDueOut ? 'Due Out' : 'In-House'}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-6 mb-5">
+          <div className="flex items-center gap-3 mb-3">
             {[
               { label: `Room ${folioRes.room_number || '—'}`, sub: folioRes.room_type_name || folioRes.room_type },
               { label: 'Check-In', sub: fmtDate(folioRes.check_in_date) },
@@ -15218,7 +15346,7 @@ function FolioModal({
           <div className="flex items-end gap-1">
             {['Profile', 'Stay Details', 'Folio', 'Payments', 'Documents', 'Notes'].map(tab => (
               <button key={tab}
-                className={`px-4 py-2 text-sm border-b-2 transition-colors ${tab === 'Folio' ? 'border-[#00754A] text-[#00754A] font-semibold' : 'border-transparent text-black hover:text-black'}`}>
+                className={`px-4 py-2 text-[12px] border-b-2 transition-colors ${tab === 'Folio' ? 'border-[#00754A] text-[#00754A] font-semibold' : 'border-transparent text-black hover:text-black'}`}>
                 {tab}
               </button>
             ))}
@@ -15236,14 +15364,14 @@ function FolioModal({
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-black">Total Charges</span>
-                  <span className="text-sm font-semibold text-black">{fmtA(folioTotals.charges)}</span>
+                  <span className="text-[12px] font-semibold text-black">{fmtA(folioTotals.charges)}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-black">Total Payments</span>
-                  <span className="text-sm font-semibold text-black">{fmtA(folioTotals.payments)}</span>
+                  <span className="text-[12px] font-semibold text-black">{fmtA(folioTotals.payments)}</span>
                 </div>
                 <div className="pt-2 border-t border-black/8 flex justify-between items-center">
-                  <span className="text-sm font-bold text-black">Balance</span>
+                  <span className="text-[12px] font-bold text-black">Balance</span>
                   <span className={`text-base font-black ${'text-[#00754A]'}`}>{fmtA(folioTotals.balance)}</span>
                 </div>
               </div>
@@ -15260,7 +15388,7 @@ function FolioModal({
                   { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 1v7M3 5l3 3 3-3M1 10h10" /></svg>, label: 'Download Folio (PDF)', fn: printFolio },
                 ].map(a => (
                   <button key={a.label} onClick={a.fn}
-                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-medium text-black hover:bg-black/[0.04] transition-colors text-left">
+                    className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs font-medium text-black hover:bg-black/[0.04] transition-colors text-left">
                     <span className="text-[#00754A]">{a.icon}</span>
                     {a.label}
                   </button>
@@ -15274,10 +15402,10 @@ function FolioModal({
           {/* Right: Transactions table */}
           <div className="flex-1 flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-5 py-3" style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
-              <span className="text-sm font-bold text-black">Folio Transactions</span>
+              <span className="text-[12px] font-bold text-black">Folio Transactions</span>
               <div className="flex gap-2">
                 <button onClick={() => setAddChargeOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-lg transition-colors">
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-md transition-colors">
                   <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" /></svg>
                   Add Charge
                 </button>
@@ -15293,7 +15421,7 @@ function FolioModal({
               ) : ledgerWithBalance.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24 text-black">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-3 opacity-40"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 9h6M9 12h6M9 15h3" /></svg>
-                  <div className="text-sm font-semibold">No Transactions</div>
+                  <div className="text-[12px] font-semibold">No Transactions</div>
                   <div className="text-xs mt-1 opacity-70">Add a charge to get started</div>
                 </div>
               ) : (
@@ -15360,7 +15488,7 @@ function FolioModal({
             </div>
 
             {/* Bottom totals bar */}
-            <div className="flex items-center gap-8 px-6 py-4" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+            <div className="flex items-center gap-2 px-6 py-4" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
               {[
                 { label: 'TOTAL CHARGES', value: fmtA(folioTotals.charges), color: 'text-black' },
                 { label: 'TOTAL PAYMENTS', value: fmtA(folioTotals.payments), color: 'text-black' },
@@ -15389,7 +15517,7 @@ function FolioModal({
         <div className="w-80 flex-shrink-0 flex flex-col" style={{ background: '#fff', borderLeft: '1px solid rgba(0,0,0,0.10)', boxShadow: '-6px 0 24px rgba(0,0,0,0.07)' }}>
           <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
             <span className="font-bold text-black">Add Charge</span>
-            <button onClick={() => setAddChargeOpen(false)} className="text-black hover:text-black text-xl leading-none transition-colors">×</button>
+            <button onClick={() => setAddChargeOpen(false)} className="text-black hover:text-black text-[16px] leading-none transition-colors">×</button>
           </div>
 
           <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{ scrollbarWidth: 'thin' }}>
@@ -15420,54 +15548,54 @@ function FolioModal({
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Date</label>
                     <input type="date" value={chargeDate} onChange={e => setChargeDate(e.target.value)}
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Time</label>
                     <input type="time" value={chargeTime} onChange={e => setChargeTime(e.target.value)}
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-black mb-1">Description</label>
                   <input type="text" value={chargeDesc} onChange={e => setChargeDesc(e.target.value)} placeholder={`e.g. ${chargeType}`}
-                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                    className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Quantity</label>
                     <input type="number" min="1" value={chargeQty} onChange={e => setChargeQty(e.target.value)}
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Rate (₱)</label>
                     <input type="number" min="0" step="0.01" value={chargeRate} onChange={e => setChargeRate(e.target.value)} placeholder="0.00"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Amount (₱)</label>
                     <input type="text" readOnly placeholder="0.00"
                       value={chargeRate && chargeQty ? (parseFloat(chargeRate || 0) * parseFloat(chargeQty || 1)).toFixed(2) : ''}
-                      className="w-full text-xs border border-black/10 rounded-lg px-2.5 py-1.5 bg-black/[0.025] text-black font-mono cursor-default" />
+                      className="w-full text-xs border border-black/10 rounded-md px-2.5 py-1.5 bg-black/[0.025] text-black font-mono cursor-default" />
                   </div>
                 </div>
                 <div>
                   <label className="block text-[10px] font-semibold text-black mb-1">Reference (Optional)</label>
                   <input type="text" value={chargeRef} onChange={e => setChargeRef(e.target.value)} placeholder="e.g. Invoice #, Remarks, etc."
-                    className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                    className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Department</label>
                     <select value={chargeDept} onChange={e => setChargeDept(e.target.value)}
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white text-black">
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white text-black">
                       {['Front Office', 'Housekeeping', 'Restaurant', 'Bar', 'Spa', 'Maintenance', 'Accounting'].map(d => <option key={d}>{d}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Notes (Optional)</label>
                     <input type="text" value={chargeNotes} onChange={e => setChargeNotes(e.target.value)} placeholder="e.g. Room charge for Jul 4"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                 </div>
               </div>
@@ -15478,7 +15606,7 @@ function FolioModal({
                 <span className="w-5 h-5 rounded-full bg-[#00754A] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
                 <span className="text-xs font-bold text-black">Apply Charge To</span>
               </div>
-              <label className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-black/[0.02]">
+              <label className="flex items-center gap-2.5 cursor-pointer p-2 rounded-md hover:bg-black/[0.02]">
                 <span className="w-4 h-4 rounded-full border-2 border-[#00754A] flex items-center justify-center flex-shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />
                 </span>
@@ -15489,11 +15617,11 @@ function FolioModal({
 
           <div className="px-5 py-4 flex gap-2" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
             <button onClick={() => setAddChargeOpen(false)}
-              className="flex-1 py-2 rounded-lg border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+              className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
               Cancel
             </button>
             <button onClick={handleAddCharge} disabled={fcSaving || !chargeRate}
-              className="flex-1 py-2 rounded-lg bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
+              className="flex-1 py-2 rounded-md bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
               {fcSaving ? 'Saving…' : 'Add Charge'}
             </button>
           </div>
@@ -15515,7 +15643,7 @@ function FolioModal({
           <div className="w-80 flex-shrink-0 flex flex-col" style={{ background: '#fff', borderLeft: '1px solid rgba(0,0,0,0.10)', boxShadow: '-6px 0 24px rgba(0,0,0,0.07)' }}>
             <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
               <span className="font-bold text-black">Record Payment</span>
-              <button onClick={() => setAddPayOpen(false)} className="text-black hover:text-black text-xl leading-none transition-colors">×</button>
+              <button onClick={() => setAddPayOpen(false)} className="text-black hover:text-black text-[16px] leading-none transition-colors">×</button>
             </div>
 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5" style={{ scrollbarWidth: 'thin' }}>
@@ -15546,28 +15674,28 @@ function FolioModal({
                     <div>
                       <label className="block text-[10px] font-semibold text-black mb-1">Date</label>
                       <input type="date" value={payDate} onChange={e => setPayDate(e.target.value)}
-                        className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                        className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                     </div>
                     <div>
                       <label className="block text-[10px] font-semibold text-black mb-1">Time</label>
                       <input type="time" value={payTime} onChange={e => setPayTime(e.target.value)}
-                        className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                        className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Amount (₱)</label>
                     <input type="number" min="0" step="0.01" value={payAmount} onChange={e => setPayAmount(e.target.value)} placeholder="0.00"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white font-mono" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Reference No. (Optional)</label>
                     <input type="text" value={payRef} onChange={e => setPayRef(e.target.value)} placeholder="e.g. Receipt #, Trans ID, etc."
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                   <div>
                     <label className="block text-[10px] font-semibold text-black mb-1">Notes (Optional)</label>
                     <input type="text" value={payNotes} onChange={e => setPayNotes(e.target.value)} placeholder="e.g. GCash payment by guest"
-                      className="w-full text-xs border border-black/15 rounded-lg px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
+                      className="w-full text-xs border border-black/15 rounded-md px-2.5 py-1.5 outline-none focus:border-[#00754A] bg-white" />
                   </div>
                 </div>
               </div>
@@ -15577,7 +15705,7 @@ function FolioModal({
                   <span className="w-5 h-5 rounded-full bg-[#00754A] text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">3</span>
                   <span className="text-xs font-bold text-black">Apply Payment To</span>
                 </div>
-                <label className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-black/[0.02]">
+                <label className="flex items-center gap-2.5 cursor-pointer p-2 rounded-md hover:bg-black/[0.02]">
                   <span className="w-4 h-4 rounded-full border-2 border-[#00754A] flex items-center justify-center flex-shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />
                   </span>
@@ -15588,15 +15716,15 @@ function FolioModal({
 
             <div className="px-5 py-4 flex flex-col gap-2" style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
               {fpError && (
-                <div className="text-xs text-red-500 font-medium bg-red-50 border border-red-200 rounded-lg px-3 py-2">{fpError}</div>
+                <div className="text-xs text-red-500 font-medium bg-red-50 border border-red-200 rounded-md px-2 py-1.5">{fpError}</div>
               )}
               <div className="flex gap-2">
                 <button onClick={() => setAddPayOpen(false)}
-                  className="flex-1 py-2 rounded-lg border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+                  className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
                   Cancel
                 </button>
                 <button onClick={handleAddPayment} disabled={fpSaving || !payAmount}
-                  className="flex-1 py-2 rounded-lg bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
+                  className="flex-1 py-2 rounded-md bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40">
                   {fpSaving ? 'Saving…' : 'Post Payment'}
                 </button>
               </div>

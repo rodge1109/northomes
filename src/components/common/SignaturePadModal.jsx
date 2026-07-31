@@ -85,7 +85,7 @@ export default function SignaturePadModal({ isOpen, onClose, onSave }) {
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col">
+      <div className="bg-white rounded-xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-black/5 bg-[#f8f9fa]">
@@ -102,7 +102,7 @@ export default function SignaturePadModal({ isOpen, onClose, onSave }) {
         </div>
 
         {/* Canvas Area */}
-        <div className="p-6 bg-gray-50 flex-1 relative flex flex-col items-center">
+        <div className="p-4 bg-gray-50 flex-1 relative flex flex-col items-center">
           <div className="w-full bg-white border-2 border-dashed border-gray-300 rounded-xl overflow-hidden shadow-inner relative" style={{ height: '400px' }}>
             <canvas
               ref={canvasRef}
@@ -126,7 +126,7 @@ export default function SignaturePadModal({ isOpen, onClose, onSave }) {
         <div className="px-6 py-4 border-t border-black/5 bg-white flex items-center justify-between">
           <button 
             onClick={clearSignature}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-black/10 text-black/60 font-bold text-sm hover:bg-gray-50 hover:text-black transition-all"
+            className="flex items-center gap-2 px-5 py-1.5 rounded-xl border border-black/10 text-black/60 font-bold text-[12px] hover:bg-gray-50 hover:text-black transition-all"
           >
             <Eraser size={18} />
             Clear
@@ -134,7 +134,7 @@ export default function SignaturePadModal({ isOpen, onClose, onSave }) {
           
           <button 
             onClick={handleSave}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#005530] text-white font-bold text-sm hover:bg-[#004420] transition-all shadow-md hover:-translate-y-0.5"
+            className="flex items-center gap-2 px-6 py-1.5 rounded-xl bg-[#005530] text-white font-bold text-[12px] hover:bg-[#004420] transition-all shadow-md hover:-translate-y-0.5"
           >
             <Check size={18} strokeWidth={3} />
             Save Signature

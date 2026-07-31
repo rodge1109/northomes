@@ -36,7 +36,7 @@ export default function ContactMapSection() {
   }
 
   return (
-    <div className="mt-8 flex flex-col gap-4">
+    <div className="mt-8 flex flex-col gap-2">
       {/* Map */}
       <div className="bg-white rounded-3xl shadow-sm h-[600px] lg:h-[700px] overflow-hidden">
         <iframe
@@ -51,11 +51,11 @@ export default function ContactMapSection() {
       </div>
 
       {/* Button below map */}
-      <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 flex flex-col md:flex-row items-center justify-between gap-2">
         <div>
-          <h3 className="text-lg font-bold text-[#000000]/87">Get Directions</h3>
-          <p className="text-black/60 text-sm">Pin your current location to see the route to Northomes Pensione.</p>
-          {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+          <h3 className="text-[14px] font-bold text-[#000000]/87">Get Directions</h3>
+          <p className="text-black/60 text-[12px]">Pin your current location to see the route to Northomes Pensione.</p>
+          {error && <p className="text-red-500 text-[12px] mt-1">{error}</p>}
         </div>
         <button 
           onClick={handlePinLocation}

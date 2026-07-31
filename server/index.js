@@ -1901,6 +1901,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
       title, middle_name, gender, birth_date, nationality, country,
       address, city, id_type, id_number, purpose, eta,
       payment_method, deposit_amount,
+      add_to_profile, is_vip, is_repeat
     } = req.body;
     if (!full_name || !room_type || !check_in_date || !check_out_date || !room_number) {
       return res.status(400).json({ success: false, message: 'Missing required fields.' });
@@ -1945,13 +1946,32 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     const checkInDate = new Date(check_in_date + 'T00:00:00');
     const isToday = checkInDate.toDateString() === new Date().toDateString();
     const isFuture = checkInDate > new Date();
-    const initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';
+    let initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';
+
+      // 3. Current Occupant Check - if room is still occupied by someone who hasn't checked out yet
+      const currentOccupant = await pool.query(
+        `SELECT id FROM hotel_reservations WHERE room_number = $1 AND status = 'checked_in'`,
+        [room_number]
+      );
+      if (currentOccupant.rows.length > 0 && initialStatus === 'checked_in') {
+        initialStatus = 'confirmed'; // Auto fallback to confirmed so we don't double-check-in
+      }
     // Find or create the guest profile in hotel_guests
-    const guestId = await findOrCreateGuest(null, {
-      title, full_name, middle_name, gender, date_of_birth: birth_date,
-      nationality, country, address, city, email, phone_number: phone,
-      id_type, id_number, purpose_of_visit: purpose
-    });
+    let guestId = null;
+    if (add_to_profile !== false) {
+      guestId = await findOrCreateGuest(null, {
+        title, full_name, middle_name, gender, date_of_birth: birth_date,
+        nationality, country, address, city, email, phone_number: phone,
+        id_type, id_number, purpose_of_visit: purpose,
+        is_vip, is_repeat
+      });
+      if (guestId) {
+        await pool.query(
+          `UPDATE hotel_guests SET is_vip = $1, is_repeat = $2 WHERE id = $3`,
+          [is_vip ? true : false, is_repeat ? true : false, guestId]
+        );
+      }
+    }
 
     const result = await pool.query(
       `INSERT INTO hotel_reservations
@@ -1960,11 +1980,11 @@ app.post('/api/front-desk/walkin', async (req, res) => {
           front_desk_notes, rate_code, status, checked_in_at, guest_arrived_at,
           title, middle_name, gender, date_of_birth, nationality, country,
           address, city, id_type, id_number, purpose_of_visit, eta,
-          payment_method, deposit_amount, guest_id)
+          payment_method, deposit_amount, guest_id, is_vip, is_repeat)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$27,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
-               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28)
+               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28, $29, $30)
        RETURNING *`,
       [
         full_name, email || '', phone || '', room_type,
@@ -1975,7 +1995,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
         birth_date || null, nationality || '', country || '',
         address || '', city || '', id_type || '', id_number || '',
         purpose || '', eta || '', payment_method || '', deposit_amount || 0,
-        initialStatus, guestId
+        initialStatus, guestId, is_vip ? true : false, is_repeat ? true : false
       ]
     );
     // Auto-upsert room record
@@ -2635,14 +2655,24 @@ app.post('/api/reservations/:id/checkout', async (req, res) => {
 app.patch('/api/reservations/:id/status', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, room_number } = req.body;
     const allowed = ['pending', 'confirmed', 'cancelled', 'no_show'];
     if (!allowed.includes(status))
       return res.status(400).json({ success: false, message: `Invalid status. Allowed: ${allowed.join(', ')}` });
-    const result = await pool.query(
-      'UPDATE hotel_reservations SET status = $1 WHERE id = $2 RETURNING *',
-      [status, id]
-    );
+      
+    let query = 'UPDATE hotel_reservations SET status = $1 WHERE id = $2 RETURNING *';
+    let params = [status, id];
+
+    if (status === 'confirmed' && room_number !== undefined) {
+      if (room_number === '') {
+        query = 'UPDATE hotel_reservations SET status = $1, room_number = NULL WHERE id = $2 RETURNING *';
+      } else {
+        query = 'UPDATE hotel_reservations SET status = $1, room_number = $3 WHERE id = $2 RETURNING *';
+        params.push(room_number);
+      }
+    }
+
+    const result = await pool.query(query, params);
     if (result.rows.length === 0)
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
     res.json({ success: true, reservation: result.rows[0] });
@@ -2652,7 +2682,55 @@ app.patch('/api/reservations/:id/status', async (req, res) => {
   }
 });
 
+// GET /api/rooms/occupied?checkIn=YYYY-MM-DD&checkOut=YYYY-MM-DD
+app.get('/api/rooms/occupied', async (req, res) => {
+  try {
+    const { checkIn, checkOut, ignoreReservationId } = req.query;
+    if (!checkIn || !checkOut) return res.status(400).json({ success: false, message: 'checkIn and checkOut required' });
+
+    let query = `
+      SELECT room_number 
+      FROM hotel_reservations 
+      WHERE room_number IS NOT NULL 
+        AND status NOT IN ('cancelled', 'no_show') 
+        AND check_in_date < $2 
+        AND check_out_date > $1
+    `;
+    let params = [checkIn, checkOut];
+
+    if (ignoreReservationId) {
+      query += ` AND id != $3`;
+      params.push(ignoreReservationId);
+    }
+
+    const result = await pool.query(query, params);
+    const occupiedRooms = result.rows.map(r => r.room_number);
+    res.json({ success: true, occupiedRooms });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: 'Failed to fetch occupied rooms' });
+  }
+});
 // PATCH /api/reservations/:id/edit
+
+app.delete('/api/reservations/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const check = await pool.query('SELECT status FROM hotel_reservations WHERE id = $1', [id]);
+    if (check.rows.length === 0) return res.status(404).json({ success: false, message: 'Reservation not found.' });
+    if (check.rows[0].status !== 'cancelled') return res.status(400).json({ success: false, message: 'Only cancelled reservations can be deleted.' });
+
+    await pool.query('DELETE FROM hotel_folio_items WHERE reservation_id = $1', [id]);
+    await pool.query('DELETE FROM hotel_folio_payments WHERE reservation_id = $1', [id]);
+    await pool.query('DELETE FROM hotel_reservations WHERE id = $1', [id]);
+    
+    res.json({ success: true, message: 'Reservation deleted.' });
+  } catch (err) {
+    console.error('Delete error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 app.patch('/api/reservations/:id/edit', async (req, res) => {
   try {
     const { id } = req.params;

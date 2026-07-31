@@ -29,7 +29,7 @@ export default function LocationRoutingBox() {
   };
 
   return (
-    <div className="mt-8 flex flex-col gap-6">
+    <div className="mt-8 flex flex-col gap-3">
       <button 
         onClick={handlePinLocation}
         disabled={loading}
@@ -39,7 +39,7 @@ export default function LocationRoutingBox() {
         {loading ? 'Locating...' : 'Pin your location'}
       </button>
 
-      {error && <p className="text-red-500 text-sm font-medium text-center">{error}</p>}
+      {error && <p className="text-red-500 text-[12px] font-medium text-center">{error}</p>}
 
       {userLocation && (
         <div className="w-full">

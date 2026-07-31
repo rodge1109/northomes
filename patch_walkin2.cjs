@@ -1,16 +1,9 @@
 const fs = require('fs');
 let content = fs.readFileSync('server/index.js', 'utf8');
 
-const targetStr = `      const checkInDate = new Date(check_in_date + 'T00:00:00');
-      const isToday = checkInDate.toDateString() === new Date().toDateString();
-      const isFuture = checkInDate > new Date();
-      const initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';
-      // Find or create the guest profile in hotel_guests`;
+const targetStr = `const initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';`;
 
-const replacementStr = `      const checkInDate = new Date(check_in_date + 'T00:00:00');
-      const isToday = checkInDate.toDateString() === new Date().toDateString();
-      const isFuture = checkInDate > new Date();
-      let initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';
+const replacementStr = `let initialStatus = (isToday || !isFuture) ? 'checked_in' : 'confirmed';
 
       // 3. Current Occupant Check - if room is still occupied by someone who hasn't checked out yet
       const currentOccupant = await pool.query(
@@ -19,9 +12,7 @@ const replacementStr = `      const checkInDate = new Date(check_in_date + 'T00:
       );
       if (currentOccupant.rows.length > 0 && initialStatus === 'checked_in') {
         initialStatus = 'confirmed'; // Auto fallback to confirmed so we don't double-check-in
-      }
-
-      // Find or create the guest profile in hotel_guests`;
+      }`;
 
 if (content.includes(targetStr)) {
   content = content.replace(targetStr, replacementStr);
