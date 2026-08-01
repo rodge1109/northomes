@@ -1989,12 +1989,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
         id_type, id_number, purpose_of_visit: purpose,
         is_vip, is_repeat
       });
-      if (guestId) {
-        await pool.query(
-          `UPDATE hotel_guests SET is_vip = $1, is_repeat = $2 WHERE id = $3`,
-          [is_vip ? true : false, is_repeat ? true : false, guestId]
-        );
-      }
+      // Removed invalid UPDATE hotel_guests for is_vip/is_repeat
     }
 
     const result = await pool.query(
@@ -2004,11 +1999,11 @@ app.post('/api/front-desk/walkin', async (req, res) => {
           front_desk_notes, rate_code, status, checked_in_at, guest_arrived_at,
           title, middle_name, gender, date_of_birth, nationality, country,
           address, city, id_type, id_number, purpose_of_visit, eta,
-          payment_method, deposit_amount, guest_id, is_vip, is_repeat)
+          payment_method, deposit_amount, guest_id)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$27,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
-               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28, $29, $30)
+               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28)
        RETURNING *`,
       [
         full_name, email || '', phone || '', room_type,
@@ -2019,7 +2014,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
         birth_date || null, nationality || '', country || '',
         address || '', city || '', id_type || '', id_number || '',
         purpose || '', eta || '', payment_method || '', deposit_amount || 0,
-        initialStatus, guestId, is_vip ? true : false, is_repeat ? true : false
+        initialStatus, guestId
       ]
     );
     // Auto-upsert room record
@@ -5408,14 +5403,17 @@ app.get('/api/reports/shift', async (req, res) => {
     const start = startDate || new Date().toISOString().split('T')[0];
     const end = endDate || start;
 
+    const startTime = start.includes('T') ? start : `${start} 00:00:00`;
+    const endTime = end.includes('T') ? end : `${end} 23:59:59`;
+
     let query = `
       SELECT p.*, r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
-      WHERE DATE(p.posted_at) BETWEEN $1 AND $2 AND p.voided = false
+      WHERE p.posted_at >= $1 AND p.posted_at <= $2 AND p.voided = false
         AND (r.status IS NULL OR r.status != 'pending')
     `;
-    const params = [start, end];
+    const params = [startTime, endTime];
 
     if (staff && staff !== 'All Staff') {
       params.push(staff);
