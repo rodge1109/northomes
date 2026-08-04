@@ -569,14 +569,12 @@ export default function RestaurantApp() {
   const [latestPromo, setLatestPromo] = useState(null);
 
   useEffect(() => {
-    if (sessionStorage.getItem('promo_popup_shown')) return;
     fetch(`${API_BASE_URL}/api/promos`)
       .then(res => res.json())
       .then(data => {
         if (data.success && data.promos && data.promos.length > 0) {
           setLatestPromo(data.promos[0]);
           setShowPromoPopup(true);
-          sessionStorage.setItem('promo_popup_shown', 'true');
         }
       })
       .catch(err => console.error('Error fetching promo for popup:', err));
