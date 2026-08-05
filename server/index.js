@@ -3262,13 +3262,15 @@ app.post('/api/admin/login', async (req, res) => {
 
     if (username === adminUser && password === adminPass) {
       const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      sessions.set(token, { username, permissions: ['all'], loginTime: new Date() });
+      sessions.set(token, { username, full_name: 'Administrator', permissions: ['all'], loginTime: new Date() });
 
       return res.json({
         success: true,
         message: 'Login successful',
         token,
-        permissions: ['all']
+        permissions: ['all'],
+        username,
+        full_name: 'Administrator'
       });
     }
 
@@ -3283,14 +3285,15 @@ app.post('/api/admin/login', async (req, res) => {
         let permissions = [];
         try { permissions = typeof staff.permissions === 'string' ? JSON.parse(staff.permissions) : staff.permissions; } catch (e) {}
         
-        sessions.set(token, { username, permissions, staff_id: staff.id, loginTime: new Date() });
+        sessions.set(token, { username, full_name: staff.full_name, permissions, staff_id: staff.id, loginTime: new Date() });
 
         return res.json({
           success: true,
           message: 'Login successful',
           token,
           permissions,
-          username
+          username,
+          full_name: staff.full_name
         });
       }
     }
@@ -3314,7 +3317,7 @@ app.get('/api/admin/verify', (req, res) => {
 
   if (token && sessions.has(token)) {
     const sessionData = sessions.get(token);
-    res.json({ success: true, valid: true, permissions: sessionData.permissions || [], username: sessionData.username || 'admin' });
+    res.json({ success: true, valid: true, permissions: sessionData.permissions || [], username: sessionData.username || 'admin', full_name: sessionData.full_name || sessionData.username || 'admin' });
   } else {
     res.status(401).json({ success: false, valid: false });
   }

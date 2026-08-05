@@ -1069,7 +1069,7 @@ export default function RestaurantApp() {
           </nav>
           {/* Sign out */}
           <div style={{ padding: '12px 6px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-            <button onClick={() => { localStorage.removeItem('adminToken'); localStorage.removeItem('adminTokenExpiry'); setCurrentPage('home'); }} style={{ width: '100%', fontSize: '7.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.30)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '10px 4px', borderRadius: '10px', transition: 'all 0.2s ease' }}
+            <button onClick={() => { localStorage.removeItem('adminToken'); localStorage.removeItem('adminTokenExpiry'); localStorage.removeItem('adminFullName'); setCurrentPage('home'); }} style={{ width: '100%', fontSize: '7.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.30)', background: 'transparent', border: 'none', cursor: 'pointer', padding: '10px 4px', borderRadius: '10px', transition: 'all 0.2s ease' }}
               onMouseEnter={e => { e.currentTarget.style.color = '#c82014'; e.currentTarget.style.background = 'rgba(200,32,20,0.08)'; }}
               onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.30)'; e.currentTarget.style.background = 'transparent'; }}
             >Sign Out</button>
@@ -1321,7 +1321,7 @@ function AppointmentForm({ onSuccess }) {
     lastName: '',
     email: '',
     phoneNumber: '',
-    roomType: sessionStorage.getItem('northomes_roomtype') || '',
+    roomSelections: [{ roomType: sessionStorage.getItem('northomes_roomtype') || '', numberOfRooms: '1' }],
     checkInDate: sessionStorage.getItem('northomes_checkin') || '',
     checkOutDate: sessionStorage.getItem('northomes_checkout') || '',
     adults: '1',
@@ -1407,20 +1407,27 @@ function AppointmentForm({ onSuccess }) {
     ));
   })();
 
-  const selectedRoomInfo = availability[formData.roomType] || roomTypes.find(rt => rt.name === formData.roomType);
-  const pricePerNight = selectedRoomInfo ? parseFloat(selectedRoomInfo.price_per_night) : 0;
-  const effectivePricePerNight = appliedPromo ? parseFloat(appliedPromo.discountedPrice) : pricePerNight;
-  const totalPrice = effectivePricePerNight * nights;
+  const totalPrice = formData.roomSelections.reduce((sum, sel) => {
+    if (!sel.roomType) return sum;
+    const roomInfo = availability[sel.roomType] || roomTypes.find(rt => rt.name === sel.roomType);
+    const pricePerNight = roomInfo ? parseFloat(roomInfo.price_per_night) : 0;
+    const isPromoApplicable = appliedPromo && appliedPromo.roomType === sel.roomType;
+    const effectivePrice = isPromoApplicable ? parseFloat(appliedPromo.discountedPrice) : pricePerNight;
+    return sum + (effectivePrice * nights * (parseInt(sel.numberOfRooms) || 1));
+  }, 0);
 
   useEffect(() => {
-    if (appliedPromo) {
+    // Check if the promo roomType is still in selections
+    const hasPromoRoom = formData.roomSelections.some(sel => sel.roomType === appliedPromo?.roomType);
+    if (appliedPromo && !hasPromoRoom) {
       setAppliedPromo(null);
       setPromoMessage({ type: '', text: '' });
     }
-  }, [formData.roomType]);
+  }, [formData.roomSelections]);
 
   const validatePromoCode = async () => {
-    if (!promoCodeInput.trim() || !formData.roomType) return;
+    const primaryRoomType = formData.roomSelections[0]?.roomType;
+    if (!promoCodeInput.trim() || !primaryRoomType) return;
 
     if (formData.checkInDate) {
       const today = new Date();
@@ -1440,13 +1447,14 @@ function AppointmentForm({ onSuccess }) {
       const res = await fetch(`${API_BASE_URL}/api/promos/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: promoCodeInput, roomType: formData.roomType })
+        body: JSON.stringify({ code: promoCodeInput, roomType: primaryRoomType })
       });
       const data = await res.json();
       if (data.success) {
         setAppliedPromo({
           code: promoCodeInput.trim().toUpperCase(),
-          discountedPrice: data.discountedPrice
+          discountedPrice: data.discountedPrice,
+          roomType: primaryRoomType
         });
         setPromoMessage({ type: 'success', text: 'Promo code applied!' });
       } else {
@@ -1495,6 +1503,31 @@ function AppointmentForm({ onSuccess }) {
     });
   };
 
+  const handleRoomSelectionChange = (index, field, value) => {
+    setFormData(prev => {
+      const newSelections = [...prev.roomSelections];
+      newSelections[index] = { ...newSelections[index], [field]: value };
+      if (field === 'roomType') {
+        newSelections[index].numberOfRooms = '1';
+      }
+      return { ...prev, roomSelections: newSelections };
+    });
+  };
+
+  const addRoomSelection = () => {
+    setFormData(prev => ({
+      ...prev,
+      roomSelections: [...prev.roomSelections, { roomType: '', numberOfRooms: '1' }]
+    }));
+  };
+
+  const removeRoomSelection = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      roomSelections: prev.roomSelections.filter((_, i) => i !== index)
+    }));
+  };
+
   const minDeposit = appliedPromo ? totalPrice : Math.ceil(totalPrice * 0.5);
   const depositOk = !totalPrice || parseFloat(depositAmount) >= minDeposit;
 
@@ -1515,48 +1548,72 @@ function AppointmentForm({ onSuccess }) {
     setIsSubmitting(true);
     setSubmitStatus({ type: '', message: '' });
 
-    const payload = {
-      fullName: `${formData.title} ${formData.firstName} ${formData.lastName}`.trim(),
-      email: formData.email,
-      phoneNumber: formData.phoneNumber,
-      roomType: formData.roomType,
-      checkInDate: formData.checkInDate,
-      checkOutDate: formData.checkOutDate,
-      numberOfGuests: parseInt(formData.adults) + parseInt(formData.children),
-      specialRequests: formData.specialRequests,
-      promoCode: appliedPromo ? appliedPromo.code : '',
-    };
+    const totalRoomsToBook = formData.roomSelections.reduce((sum, sel) => sum + (parseInt(sel.numberOfRooms) || 1), 0);
+    const depositPerRoom = parseFloat(depositAmount) / totalRoomsToBook;
+    const createdReservations = [];
+    let hasError = false;
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/reservations`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+    for (let selectionIdx = 0; selectionIdx < formData.roomSelections.length; selectionIdx++) {
+      const sel = formData.roomSelections[selectionIdx];
+      const numRoomsToBook = parseInt(sel.numberOfRooms) || 1;
 
-      const data = await response.json();
-      if (data.success) {
-        // Automatically add deposit payment to folio
-        await fetch(`${API_BASE_URL}/api/folio/${data.reservation.id}/payment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            payment_method: depositMethod,
-            amount: parseFloat(depositAmount),
-            reference: depositRef.trim() || 'Online Deposit'
-          }),
-        });
+      for (let i = 0; i < numRoomsToBook; i++) {
+        const payload = {
+          fullName: `${formData.title} ${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          roomType: sel.roomType,
+          checkInDate: formData.checkInDate,
+          checkOutDate: formData.checkOutDate,
+          numberOfGuests: parseInt(formData.adults) + parseInt(formData.children),
+          specialRequests: formData.specialRequests + (totalRoomsToBook > 1 ? ` (Room ${createdReservations.length + 1} of ${totalRoomsToBook})` : ''),
+          promoCode: appliedPromo && appliedPromo.roomType === sel.roomType ? appliedPromo.code : '',
+        };
 
-        if (onSuccess) onSuccess(data);
-        else { setSubmitStatus({ type: 'success', message: 'Reservation and deposit processed!' }); setFormData(emptyForm); setStep(1); }
-      } else {
-        setSubmitStatus({ type: 'error', message: data.message });
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/reservations`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            createdReservations.push(data.reservation);
+            await fetch(`${API_BASE_URL}/api/folio/${data.reservation.id}/payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                payment_method: depositMethod,
+                amount: depositPerRoom,
+                reference: depositRef.trim() || 'Online Deposit'
+              }),
+            });
+          } else {
+            hasError = true;
+            setSubmitStatus({ type: 'error', message: data.message });
+            break;
+          }
+        } catch {
+          hasError = true;
+          setSubmitStatus({ type: 'error', message: 'Unable to reach the server.' });
+          break;
+        }
       }
-    } catch {
-      setSubmitStatus({ type: 'error', message: 'Unable to reach the server.' });
-    } finally {
-      setIsSubmitting(false);
+      if (hasError) break;
     }
+
+    if (!hasError && createdReservations.length > 0) {
+      if (onSuccess) {
+        onSuccess({ success: true, message: `Your bookings have been successfully created. You have booked ${totalRoomsToBook} room(s).`, reservation: createdReservations[0] });
+      } else {
+        setSubmitStatus({ type: 'success', message: 'Reservation and deposit processed!' });
+        setFormData(emptyForm);
+        setStep(1);
+      }
+    }
+
+    setIsSubmitting(false);
   };
 
   const handleProceedToStep2 = (e) => {
@@ -1621,23 +1678,53 @@ function AppointmentForm({ onSuccess }) {
                 </div>
               )}
 
-              <div>
-                <label className={labelCls}>Room Type</label>
-                <select name="roomType" value={formData.roomType} onChange={handleChange} required
-                  className="w-full px-3 py-1.5 rounded-md border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 transition-all text-[12px] text-black bg-white">
-                  <option value="">Select a room type</option>
-                  {roomTypes.map(rt => {
-                    const avail = availability[rt.name];
-                    const soldOut = avail && avail.available === 0;
-                    const roomsLeft = avail ? avail.available : rt.total_rooms;
-                    const availNote = avail ? (soldOut ? ' · FULLY BOOKED' : roomsLeft <= 3 ? ` · Only ${roomsLeft} left!` : ` · ${roomsLeft} available`) : '';
-                    return (
-                      <option key={rt.id} value={rt.name} disabled={soldOut}>
-                        {rt.name} — ₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')}/night{availNote}
-                      </option>
-                    );
-                  })}
-                </select>
+              <div className="space-y-3">
+                {formData.roomSelections.map((sel, index) => (
+                  <div key={index} className="bg-[#f8f9fa] border border-black/5 p-3 rounded-md relative group">
+                    {formData.roomSelections.length > 1 && (
+                      <button type="button" onClick={() => removeRoomSelection(index)}
+                        className="absolute top-2 right-2 text-red-500 bg-red-50 hover:bg-red-100 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelCls}>Room Type {index + 1}</label>
+                        <select name="roomType" value={sel.roomType} onChange={(e) => handleRoomSelectionChange(index, 'roomType', e.target.value)} required
+                          className="w-full px-3 py-1.5 rounded-md border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 transition-all text-[12px] text-black bg-white">
+                          <option value="">Select a room type</option>
+                          {roomTypes.map(rt => {
+                            const avail = availability[rt.name];
+                            const soldOut = avail && avail.available === 0;
+                            const roomsLeft = avail ? avail.available : rt.total_rooms;
+                            const availNote = avail ? (soldOut ? ' · FULLY BOOKED' : roomsLeft <= 3 ? ` · Only ${roomsLeft} left!` : ` · ${roomsLeft} available`) : '';
+                            const isAlreadySelected = formData.roomSelections.some((s, i) => i !== index && s.roomType === rt.name);
+                            return (
+                              <option key={rt.id} value={rt.name} disabled={soldOut || isAlreadySelected}>
+                                {rt.name} — ₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')}/night{availNote} {isAlreadySelected ? '(Selected)' : ''}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
+                      {sel.roomType && (
+                        <div>
+                          <label className={labelCls}>Number of Rooms</label>
+                          <select name="numberOfRooms" value={sel.numberOfRooms} onChange={(e) => handleRoomSelectionChange(index, 'numberOfRooms', e.target.value)} required
+                            className="w-full px-3 py-1.5 rounded-md border border-black/10 focus:outline-none focus:ring-2 focus:ring-[#00754A]/20 transition-all text-[12px] text-black bg-white">
+                            {Array.from({ length: availability[sel.roomType] ? availability[sel.roomType].available : (roomTypes.find(rt => rt.name === sel.roomType)?.total_rooms || 1) }).map((_, i) => (
+                              <option key={i + 1} value={String(i + 1)}>{i + 1} {i === 0 ? 'Room' : 'Rooms'}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <button type="button" onClick={addRoomSelection}
+                  className="w-full py-2 border-2 border-dashed border-black/10 text-black/50 font-bold text-xs uppercase tracking-widest rounded-md hover:border-[#00754A]/50 hover:text-[#00754A] transition-colors">
+                  + Add Another Room Type
+                </button>
               </div>
             </div>
 
@@ -2346,7 +2433,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       <div class="footer-row">
         <div>CHECK IN DATE: <span style="text-decoration:underline;">&nbsp; &nbsp; ${fmtD(res.check_in_date)} &nbsp; &nbsp;</span> &nbsp; &nbsp; TIME: <span style="text-decoration:underline;">&nbsp; &nbsp; ${res.check_in_time || '14:00'} &nbsp; &nbsp;</span></div>
         <div style="text-align:center; width:200px;">
-          <div style="border-bottom:1px solid #222; height:18px; font-weight:bold; font-size:9px;">Maria Santos</div>
+          <div style="border-bottom:1px solid #222; height:18px; font-weight:bold; font-size:9px;">${localStorage.getItem('adminFullName') || localStorage.getItem('adminUser') || 'Front Desk'}</div>
           <div style="font-size:8px; text-transform:uppercase; color:#666; margin-top:3px;">Front Desk Officer</div>
         </div>
       </div>
@@ -2530,6 +2617,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         setUserPermissions(data.permissions || []);
         localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
         if (data.username) localStorage.setItem('adminUser', data.username);
+        if (data.full_name) localStorage.setItem('adminFullName', data.full_name);
         window.dispatchEvent(new Event('authChanged'));
         fetchReservations();
       } else {
@@ -2563,6 +2651,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         setUserPermissions(data.permissions || []);
         localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
         if (data.username) localStorage.setItem('adminUser', data.username);
+        if (data.full_name) localStorage.setItem('adminFullName', data.full_name);
         window.dispatchEvent(new Event('authChanged'));
         fetchReservations();
       } else {
