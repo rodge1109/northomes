@@ -135,10 +135,12 @@ function AdminBillingTab({
 
   const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const handleAddCharge = () => {
-    addCharge(fcType, fcDesc || fcType, fcQty, fcPrice);
-    setAddChargeOpen(false);
-    setFcDesc(''); setFcPrice(''); setFcQty(1);
+  const handleAddCharge = async () => {
+    const ok = await addCharge(fcType, fcDesc || fcType, fcQty, fcPrice);
+    if (ok !== false) {
+      setAddChargeOpen(false);
+      setFcDesc(''); setFcPrice(''); setFcQty(1);
+    }
   };
 
   const handleAddPayment = () => {
@@ -1991,7 +1993,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setFolioLoading(true);
     setFolioError('');
     try {
-      const res = await fetch(`${API_BASE_URL}/api/folio/${reservationId}`);
+      const res = await fetch(`${API_BASE_URL}/api/folio/${reservationId}?t=${Date.now()}`);
       const data = await res.json();
       if (data.success) {
         setFolioItems(data.items);
@@ -2022,7 +2024,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     const desc = overrideDesc || fcDesc;
     const qty = overrideQty || fcQty;
     const price = overridePrice || fcPrice;
-    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return; }
+    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return false; }
     setFcSaving(true); setFcError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
@@ -2031,10 +2033,16 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price }),
       });
       const data = await res.json();
-      if (data.success) { fetchFolio(folioRes.id); setFcDesc(''); setFcQty(1); setFcPrice(''); }
-      else setFcError(data.message || 'Failed');
+      if (data.success) { 
+        await fetchFolio(folioRes.id); 
+        setFcDesc(''); setFcQty(1); setFcPrice(''); 
+        setFcSaving(false);
+        return true;
+      }
+      else { setFcError(data.message || 'Failed'); }
     } catch (e) { setFcError('Server error'); }
     setFcSaving(false);
+    return false;
   };
 
   const addPayment = async (overrideMethod, overrideAmount, overrideRef, overrideDate, overrideTime, overrideNotes) => {
@@ -5420,6 +5428,8 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
   const [loading, setLoading] = React.useState(true);
   const [fromDate, setFromDate] = React.useState(initialFromDate || new Date().toISOString().split('T')[0]);
   const [toDate, setToDate] = React.useState(initialToDate || new Date().toISOString().split('T')[0]);
+  const [fromTime, setFromTime] = React.useState('00:00');
+  const [toTime, setToTime] = React.useState('23:59');
   const [shiftStaff, setShiftStaff] = React.useState('All Staff');
   const [staffList, setStaffList] = React.useState([]);
 
@@ -5441,7 +5451,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
       else if (report.title === "Departure Report") endpoint = `/api/reports/front-office/departures?startDate=${fromDate}&endDate=${toDate}`;
       else if (report.title === "In-House Guest Report") endpoint = `/api/reports/front-office/in-house`;
       else if (report.title === "Room Status Report") endpoint = `/api/reports/front-office/room-status`;
-      else if (report.title === "Cashier Shift Report") endpoint = `/api/reports/shift?startDate=${fromDate}&endDate=${toDate}&staff=${encodeURIComponent(shiftStaff)}`;
+      else if (report.title === "Cashier Shift Report") endpoint = `/api/reports/shift?startDate=${fromDate}T${fromTime}:00&endDate=${toDate}T${toTime}:59&staff=${encodeURIComponent(shiftStaff)}`;
       else if (report.title === "Revenue Report") endpoint = `/api/reports/revenue?startDate=${fromDate}&endDate=${toDate}`;
       else if (report.title === "Payment Collection Report") endpoint = `/api/reports/payments?startDate=${fromDate}&endDate=${toDate}`;
       else if (report.title === "Guest Ledger Report") endpoint = `/api/reports/guest-ledger?startDate=${fromDate}&endDate=${toDate}`;
@@ -5473,7 +5483,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
       console.error("Failed to fetch report:", e);
     }
     setLoading(false);
-  }, [report, fromDate, toDate, shiftStaff]);
+  }, [report, fromDate, toDate, shiftStaff, fromTime, toTime]);
 
   React.useEffect(() => {
     fetchReportData();
@@ -6217,10 +6227,16 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
                 <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md focus-within:border-[#00754A] transition-colors">
                   <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
                   <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium" />
+                  {report.title === "Cashier Shift Report" && (
+                    <input type="time" value={fromTime} onChange={e => setFromTime(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium border-l border-black/10 pl-2 ml-1" />
+                  )}
                 </div>
                 <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md focus-within:border-[#00754A] transition-colors">
                   <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
                   <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium" />
+                  {report.title === "Cashier Shift Report" && (
+                    <input type="time" value={toTime} onChange={e => setToTime(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium border-l border-black/10 pl-2 ml-1" />
+                  )}
                 </div>
               </div>
             )}
@@ -11477,7 +11493,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     setFolioLoading(true);
     setFolioError('');
     try {
-      const res = await fetch(`${API_BASE_URL}/api/folio/${reservationId}`);
+      const res = await fetch(`${API_BASE_URL}/api/folio/${reservationId}?t=${Date.now()}`);
       const data = await res.json();
       if (data.success) {
         setFolioItems(data.items);
@@ -11508,7 +11524,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     const desc = overrideDesc || fcDesc;
     const qty = overrideQty || fcQty;
     const price = overridePrice || fcPrice;
-    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return; }
+    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return false; }
     setFcSaving(true); setFcError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
@@ -11517,10 +11533,16 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
         body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price }),
       });
       const data = await res.json();
-      if (data.success) { fetchFolio(folioRes.id); setFcDesc(''); setFcQty(1); setFcPrice(''); }
-      else setFcError(data.message || 'Failed');
+      if (data.success) { 
+        await fetchFolio(folioRes.id); 
+        setFcDesc(''); setFcQty(1); setFcPrice(''); 
+        setFcSaving(false);
+        return true;
+      }
+      else { setFcError(data.message || 'Failed'); }
     } catch (e) { setFcError('Server error'); }
     setFcSaving(false);
+    return false;
   };
 
   const addPayment = async (overrideMethod, overrideAmount, overrideRef, overrideDate, overrideTime, overrideNotes) => {
@@ -15355,10 +15377,12 @@ function FolioModal({
     { id: 'Other', label: 'Other', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10" /><path d="M8 12h8M12 8v8" /></svg> },
   ];
 
-  const handleAddCharge = () => {
-    addCharge(chargeType, chargeDesc || chargeType, chargeQty, chargeRate);
-    setAddChargeOpen(false);
-    setChargeDesc(''); setChargeRate(''); setChargeQty(1); setChargeRef(''); setChargeNotes('');
+  const handleAddCharge = async () => {
+    const ok = await addCharge(chargeType, chargeDesc || chargeType, chargeQty, chargeRate);
+    if (ok !== false) {
+      setAddChargeOpen(false);
+      setChargeDesc(''); setChargeRate(''); setChargeQty(1); setChargeRef(''); setChargeNotes('');
+    }
   };
 
   const handleAddPayment = async () => {
