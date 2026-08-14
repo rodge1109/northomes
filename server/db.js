@@ -20,8 +20,9 @@ if (
 const pool = new Pool(poolConfig);
 
 // Test the connection
-pool.on('connect', () => {
+pool.on('connect', (client) => {
   console.log('Connected to PostgreSQL database');
+  client.query("SET TIME ZONE 'Asia/Manila'").catch(err => console.error('Timezone set error:', err));
 });
 
 pool.on('error', (err) => {

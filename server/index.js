@@ -1695,16 +1695,22 @@ app.get('/api/folio/:reservationId', async (req, res) => {
 app.post('/api/folio/:reservationId/charge', async (req, res) => {
   try {
     const { reservationId } = req.params;
-    const { charge_type, description, quantity, unit_price } = req.body;
+    const { charge_type, description, quantity, unit_price, date, time } = req.body;
     if (!charge_type || !unit_price)
       return res.status(400).json({ success: false, message: 'charge_type and unit_price are required.' });
     const qty = parseInt(quantity) || 1;
     const price = parseFloat(unit_price);
     const amount = qty * price;
+    
+    let customPostedAt = null;
+    if (date && time) {
+      customPostedAt = `${date}T${time}:00`;
+    }
+    
     const result = await pool.query(
-      `INSERT INTO hotel_folio_items (reservation_id, charge_type, description, quantity, unit_price, amount)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [reservationId, charge_type, description || '', qty, price, amount]
+      `INSERT INTO hotel_folio_items (reservation_id, charge_type, description, quantity, unit_price, amount, posted_at)
+       VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7::timestamp, CURRENT_TIMESTAMP)) RETURNING *`,
+      [reservationId, charge_type, description || '', qty, price, amount, customPostedAt]
     );
     res.json({ success: true, item: result.rows[0] });
   } catch (err) {

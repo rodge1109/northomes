@@ -2019,7 +2019,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     fetchFolio(r.id);
   }, [fetchFolio]);
 
-  const addCharge = async (overrideType, overrideDesc, overrideQty, overridePrice) => {
+  const addCharge = async (overrideType, overrideDesc, overrideQty, overridePrice, overrideDate, overrideTime) => {
     const type = overrideType || fcType;
     const desc = overrideDesc || fcDesc;
     const qty = overrideQty || fcQty;
@@ -2030,7 +2030,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price }),
+        body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price, date: overrideDate, time: overrideTime }),
       });
       const data = await res.json();
       if (data.success) { 
@@ -11519,7 +11519,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     fetchFolio(r.id);
   };
 
-  const addCharge = async (overrideType, overrideDesc, overrideQty, overridePrice) => {
+  const addCharge = async (overrideType, overrideDesc, overrideQty, overridePrice, overrideDate, overrideTime) => {
     const type = overrideType || fcType;
     const desc = overrideDesc || fcDesc;
     const qty = overrideQty || fcQty;
@@ -11530,7 +11530,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price }),
+        body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price, date: overrideDate, time: overrideTime }),
       });
       const data = await res.json();
       if (data.success) { 
@@ -15378,7 +15378,7 @@ function FolioModal({
   ];
 
   const handleAddCharge = async () => {
-    const ok = await addCharge(chargeType, chargeDesc || chargeType, chargeQty, chargeRate);
+    const ok = await addCharge(chargeType, chargeDesc || chargeType, chargeQty, chargeRate, chargeDate, chargeTime);
     if (ok !== false) {
       setAddChargeOpen(false);
       setChargeDesc(''); setChargeRate(''); setChargeQty(1); setChargeRef(''); setChargeNotes('');
