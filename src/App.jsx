@@ -123,6 +123,11 @@ function AdminBillingTab({
   const [filterStatus, setFilterStatus] = React.useState('In-House');
   const [addChargeOpen, setAddChargeOpen] = React.useState(false);
   const [addPayOpen, setAddPayOpen] = React.useState(false);
+  const [addRefundOpen, setAddRefundOpen] = React.useState(false);
+  const [addDepositOpen, setAddDepositOpen] = React.useState(false);
+  const [addDiscountOpen, setAddDiscountOpen] = React.useState(false);
+  const [voidTransactionOpen, setVoidTransactionOpen] = React.useState(false);
+  const [voidTransactionId, setVoidTransactionId] = React.useState('');
 
   const filteredGuests = reservations.filter(r => {
     if (filterStatus !== 'All' && r.status !== filterStatus) return false;
@@ -148,6 +153,51 @@ function AdminBillingTab({
     setAddPayOpen(false);
     setFpAmount(''); setFpRef('');
   };
+
+  const handleAddRefund = async () => {
+    if (!fpAmount) return;
+    const ok = await addPayment(fpMethod, -Math.abs(parseFloat(fpAmount)), fpRef);
+    if (ok !== false) {
+      setAddRefundOpen(false);
+      setFpAmount(''); setFpRef('');
+    }
+  };
+
+  const handleAddDeposit = async () => {
+    if (!fpAmount) return;
+    const ok = await addPayment('Deposit', fpAmount, fpRef);
+    if (ok !== false) {
+      setAddDepositOpen(false);
+      setFpAmount(''); setFpRef('');
+    }
+  };
+
+  const handleAddDiscount = async () => {
+    if (!fcPrice) return;
+    const ok = await addCharge('Discount', fcDesc || 'Discount / Adjustment', 1, -Math.abs(parseFloat(fcPrice)));
+    if (ok !== false) {
+      setAddDiscountOpen(false);
+      setFcDesc(''); setFcPrice('');
+    }
+  };
+
+  const handleVoidTransaction = async () => {
+    if (!voidTransactionId) return;
+    const isCharge = voidTransactionId.startsWith('c_');
+    const id = voidTransactionId.replace(/^[cp]_/, '');
+    if (isCharge) {
+      await voidCharge(id);
+    } else {
+      await voidPayment(id);
+    }
+    setVoidTransactionOpen(false);
+    setVoidTransactionId('');
+  };
+
+  const currentTransactions = [
+    ...(folioItems || []).filter(i => !i.voided).map(i => ({ id: 'c_' + i.id, label: `Charge: ${i.description || i.charge_type} (₱${parseFloat(i.amount).toLocaleString()})`, date: i.posted_at })),
+    ...(folioPayments || []).filter(p => !p.voided).map(p => ({ id: 'p_' + p.id, label: `${p.amount < 0 ? 'Refund' : 'Payment'}: ${p.payment_method} (₱${parseFloat(p.amount).toLocaleString()})`, date: p.posted_at }))
+  ].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   // Folio logic
   const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
@@ -417,11 +467,11 @@ function AdminBillingTab({
                     <div className="flex-1 space-y-2">
                       <div className="flex justify-between text-xs"><span className="text-black/60">Total Charges</span><span className="font-bold">{fmtA(folioTotals.charges)}</span></div>
                       <div className="flex justify-between text-xs"><span className="text-black/60">Total Payments</span><span className="font-bold">{fmtA(folioTotals.payments)}</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-black/60">Total Refunds</span><span className="font-bold">₱0.00</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Total Refunds</span><span className="font-bold">{fmtA(folioTotals.refunds)}</span></div>
                     </div>
                     <div className="flex-1 space-y-2">
-                      <div className="flex justify-between text-xs"><span className="text-black/60">Deposit</span><span className="font-bold">₱0.00</span></div>
-                      <div className="flex justify-between text-xs"><span className="text-black/60">Adjustments</span><span className="font-bold">₱0.00</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Deposit</span><span className="font-bold">{fmtA(folioTotals.deposits)}</span></div>
+                      <div className="flex justify-between text-xs"><span className="text-black/60">Adjustments</span><span className="font-bold">{fmtA(folioTotals.adjustments)}</span></div>
                     </div>
                     <div className="w-[200px] shrink-0 bg-[#006241] text-white p-4 rounded-xl flex flex-col items-center justify-center shadow-md">
                       <span className="text-[9px] font-bold uppercase tracking-widest opacity-80 mb-1">Outstanding Balance</span>
@@ -452,16 +502,16 @@ function AdminBillingTab({
               <button onClick={() => setAddPayOpen(o => !o)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg> Add Payment
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={() => setAddRefundOpen(true)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg> Refund
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={() => setAddDepositOpen(true)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg> Add Deposit
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={() => setAddDiscountOpen(true)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20V10M18 20V4M6 20v-4" /></svg> Discount / Adjustment
               </button>
-              <button className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
+              <button onClick={() => setVoidTransactionOpen(true)} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
                 <X className="w-4 h-4" /> Void Transaction
               </button>
               <button onClick={sendFolioEmail} className="w-full flex items-center gap-3 p-3 bg-white border border-black/10 text-[#111] rounded-md hover:bg-black/5 transition-colors text-xs font-bold shadow-sm">
@@ -543,6 +593,78 @@ function AdminBillingTab({
               <div className="flex gap-3 pt-4">
                 <button onClick={() => setAddPayOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
                 <button onClick={handleAddPayment} disabled={fpSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving ? 'Saving...' : 'Post Payment'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {addRefundOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4 text-red-600">Post Refund</h3>
+            <div className="space-y-4">
+              <select value={fpMethod} onChange={e => setFpMethod(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
+                {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Maya', 'Bank Transfer'].map(m => <option key={m}>{m}</option>)}
+              </select>
+              <input type="number" placeholder="Refund Amount (₱)" value={fpAmount} onChange={e => setFpAmount(e.target.value)} className="w-full border border-red-200 rounded-md p-2 text-[12px]" />
+              <input type="text" placeholder="Reference No. (Optional)" value={fpRef} onChange={e => setFpRef(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setAddRefundOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddRefund} disabled={fpSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700">{fpSaving ? 'Saving...' : 'Post Refund'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {addDepositOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4">Post Deposit</h3>
+            <div className="space-y-4">
+              <input type="number" placeholder="Deposit Amount (₱)" value={fpAmount} onChange={e => setFpAmount(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <input type="text" placeholder="Reference No. (Optional)" value={fpRef} onChange={e => setFpRef(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setAddDepositOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddDeposit} disabled={fpSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving ? 'Saving...' : 'Post Deposit'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {addDiscountOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4">Add Discount / Adjustment</h3>
+            <div className="space-y-4">
+              <input type="text" placeholder="Description (e.g. Senior Citizen Discount)" value={fcDesc} onChange={e => setFcDesc(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <input type="number" placeholder="Amount to Deduct (₱)" value={fcPrice} onChange={e => setFcPrice(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setAddDiscountOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddDiscount} disabled={fcSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fcSaving ? 'Saving...' : 'Apply Discount'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {voidTransactionOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4 text-red-600">Void Transaction</h3>
+            <div className="space-y-4">
+              <p className="text-xs text-black/60">Select a transaction to void. This will instantly reverse it from the guest's folio.</p>
+              <select value={voidTransactionId} onChange={e => setVoidTransactionId(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
+                <option value="">-- Select Transaction --</option>
+                {currentTransactions.map(tx => (
+                  <option key={tx.id} value={tx.id}>{new Date(tx.date).toLocaleDateString()} - {tx.label}</option>
+                ))}
+              </select>
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setVoidTransactionOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleVoidTransaction} disabled={!voidTransactionId} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">Void Now</button>
               </div>
             </div>
           </div>
@@ -5775,7 +5897,15 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     }
 
     if (report.title === "Cashier Shift Report" && data.payments) {
-      if (data.payments.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No payments collected for this date/staff.</div>;
+      if (data.payments.length === 0 && (!data.discounts || data.discounts.length === 0)) {
+        return <div className="p-4 text-center text-black/40 font-medium">No payments or discounts recorded for this date/staff.</div>;
+      }
+
+      const combinedTransactions = [
+        ...data.payments.map(p => ({ ...p, isDiscount: false })),
+        ...(data.discounts || []).map(d => ({ ...d, isDiscount: true }))
+      ].sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
+
       return (
         <div className="text-black text-[11px] font-sans">
           <div className="mb-3">
@@ -5802,35 +5932,52 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
                 <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room</th>
                 <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Method / Ref</th>
                 <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Discount</th>
               </tr>
             </thead>
             <tbody>
-              {data.payments.map((p, i) => (
+              {combinedTransactions.map((tx, i) => (
                 <tr key={i}>
-                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(p.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
-                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left font-bold text-black">{p.guest_name}</td>
-                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{p.room_number || '-'}</td>
-                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">{p.payment_method} {p.reference ? `(${p.reference})` : ''}</td>
-                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(p.amount).toLocaleString()}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(tx.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left font-bold text-black">{tx.guest_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{tx.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">
+                    {tx.isDiscount ? `DISCOUNT / ADJ (${tx.description || tx.charge_type})` : `${tx.payment_method} ${tx.reference ? `(${tx.reference})` : ''}`}
+                  </td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">
+                    {!tx.isDiscount ? `₱${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                  </td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-red-600">
+                    {tx.isDiscount ? `₱${Math.abs(Number(tx.amount)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                  </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr>
                 <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Cash Collected:</td>
-                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_cash).toLocaleString()}</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_cash).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
               </tr>
               <tr>
                 <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total GCash/Online:</td>
-                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_online).toLocaleString()}</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_online).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
               </tr>
               <tr>
                 <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Card:</td>
-                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_card).toLocaleString()}</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_card).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
               </tr>
-              <tr className="bg-[#f0f0f0]">
-                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Shift Collection:</td>
-                <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.summary.total_collected).toLocaleString()}</td>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">Total Shift Collection:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">₱{Number(data.summary.total_collected).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
+              </tr>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-red-600">Total Discounts Given:</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-red-600">₱{Math.abs(Number(data.summary.total_discounts || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             </tfoot>
           </table>
@@ -15329,6 +15476,131 @@ function FolioModal({
   const [payRef, setPayRef] = React.useState('');
   const [payNotes, setPayNotes] = React.useState('');
 
+  const [addRefundOpen, setAddRefundOpen] = React.useState(false);
+  const [addDepositOpen, setAddDepositOpen] = React.useState(false);
+  const [addDiscountOpen, setAddDiscountOpen] = React.useState(false);
+  const [voidTransactionOpen, setVoidTransactionOpen] = React.useState(false);
+  const [voidTransactionId, setVoidTransactionId] = React.useState('');
+
+  const [activeTab, setActiveTab] = React.useState('Folio');
+
+  // Profile Form State
+  const [profileForm, setProfileForm] = React.useState({});
+  const [profileSaving, setProfileSaving] = React.useState(false);
+  const [profileError, setProfileError] = React.useState('');
+  const [profileSuccess, setProfileSuccess] = React.useState('');
+
+  // Documents State
+  const [documents, setDocuments] = React.useState([]);
+  const [docsLoading, setDocsLoading] = React.useState(false);
+  const [docUploading, setDocUploading] = React.useState(false);
+
+  // Notes State
+  const [notes, setNotes] = React.useState('');
+  const [notesSaving, setNotesSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    if (folioRes) {
+      setProfileForm({
+        title: folioRes.title || '',
+        full_name: folioRes.full_name || '',
+        middle_name: folioRes.middle_name || '',
+        gender: folioRes.gender || '',
+        date_of_birth: folioRes.date_of_birth ? folioRes.date_of_birth.split('T')[0] : '',
+        nationality: folioRes.nationality || '',
+        country: folioRes.country || '',
+        address: folioRes.address || '',
+        city: folioRes.city || '',
+        phone_number: folioRes.phone_number || '',
+        email: folioRes.email || '',
+        id_type: folioRes.id_type || '',
+        id_number: folioRes.id_number || '',
+        purpose_of_visit: folioRes.purpose_of_visit || ''
+      });
+      setNotes(folioRes.front_desk_notes || '');
+      fetchDocuments();
+    }
+  }, [folioRes]);
+
+  const fetchDocuments = async () => {
+    if (!folioRes) return;
+    setDocsLoading(true);
+    try {
+      const res = await fetch(`/api/reservations/${folioRes.id}/documents`);
+      const data = await res.json();
+      if (data.success) setDocuments(data.documents);
+    } catch (err) {
+      console.error(err);
+    }
+    setDocsLoading(false);
+  };
+
+  const handleProfileSave = async () => {
+    setProfileSaving(true);
+    setProfileError(''); setProfileSuccess('');
+    try {
+      const res = await fetch(`/api/reservations/${folioRes.id}/profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setProfileSuccess('Profile saved successfully!');
+        // Update local object to reflect without full reload
+        Object.assign(folioRes, data.reservation);
+        setTimeout(() => setProfileSuccess(''), 3000);
+      } else {
+        setProfileError(data.message || 'Error saving profile');
+      }
+    } catch (err) {
+      setProfileError('Network error');
+    }
+    setProfileSaving(false);
+  };
+
+  const handleNotesSave = async () => {
+    setNotesSaving(true);
+    try {
+      await fetch(`/api/reservations/${folioRes.id}/profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ front_desk_notes: notes })
+      });
+      folioRes.front_desk_notes = notes;
+    } catch (err) {
+      console.error(err);
+    }
+    setNotesSaving(false);
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setDocUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('photos', file);
+      const uploadRes = await fetch('/api/upload', { method: 'POST', body: fd });
+      const uploadData = await uploadRes.json();
+      if (uploadData.success && uploadData.urls.length > 0) {
+        const fileUrl = uploadData.urls[0];
+        const res = await fetch(`/api/reservations/${folioRes.id}/documents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ file_name: file.name, file_url: fileUrl })
+        });
+        const data = await res.json();
+        if (data.success) {
+          setDocuments([data.document, ...documents]);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setDocUploading(false);
+  };
+
   React.useEffect(() => {
     if (addPayOpen) {
       const balance = folioTotals && folioTotals.balance ? Math.max(0, parseFloat(folioTotals.balance)) : 0;
@@ -15388,6 +15660,46 @@ function FolioModal({
   const handleAddPayment = async () => {
     const ok = await addPayment(payMethod, payAmount, payRef, payDate, payTime, payNotes);
     if (ok !== false) setAddPayOpen(false);
+  };
+
+  const handleAddRefund = async () => {
+    if (!payAmount) return;
+    const ok = await addPayment(payMethod, -Math.abs(parseFloat(payAmount)), payRef, payDate, payTime, payNotes);
+    if (ok !== false) {
+      setAddRefundOpen(false);
+      setPayAmount(''); setPayRef(''); setPayNotes('');
+    }
+  };
+
+  const handleAddDeposit = async () => {
+    if (!payAmount) return;
+    const ok = await addPayment('Deposit', payAmount, payRef, payDate, payTime, payNotes);
+    if (ok !== false) {
+      setAddDepositOpen(false);
+      setPayAmount(''); setPayRef(''); setPayNotes('');
+    }
+  };
+
+  const handleAddDiscount = async () => {
+    if (!chargeRate) return;
+    const ok = await addCharge('Discount', chargeDesc || 'Discount / Adjustment', 1, -Math.abs(parseFloat(chargeRate)), chargeDate, chargeTime);
+    if (ok !== false) {
+      setAddDiscountOpen(false);
+      setChargeDesc(''); setChargeRate('');
+    }
+  };
+
+  const handleVoidTransaction = async () => {
+    if (!voidTransactionId) return;
+    const isCharge = voidTransactionId.startsWith('c_');
+    const id = voidTransactionId.replace(/^[cp]_/, '');
+    if (isCharge) {
+      await voidCharge(id);
+    } else {
+      await voidPayment(id);
+    }
+    setVoidTransactionOpen(false);
+    setVoidTransactionId('');
   };
 
   return ReactDOM.createPortal(
@@ -15456,8 +15768,8 @@ function FolioModal({
           {/* Tab nav */}
           <div className="flex items-end gap-1">
             {['Profile', 'Stay Details', 'Folio', 'Payments', 'Documents', 'Notes'].map(tab => (
-              <button key={tab}
-                className={`px-4 py-2 text-[12px] border-b-2 transition-colors ${tab === 'Folio' ? 'border-[#00754A] text-[#00754A] font-semibold' : 'border-transparent text-black hover:text-black'}`}>
+              <button key={tab} onClick={() => setActiveTab(tab)}
+                className={`px-4 py-2 text-[12px] border-b-2 transition-colors ${activeTab === tab ? 'border-[#00754A] text-[#00754A] font-semibold' : 'border-transparent text-black hover:text-black'}`}>
                 {tab}
               </button>
             ))}
@@ -15494,6 +15806,10 @@ function FolioModal({
                 {[
                   { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" /></svg>, label: 'Add Charge', fn: () => { setAddChargeOpen(true); setAddPayOpen(false); } },
                   { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="3" width="10" height="7" rx="1" /><path d="M1 6h10" /></svg>, label: 'Add Payment', fn: () => { setAddPayOpen(true); setAddChargeOpen(false); } },
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>, label: 'Refund', fn: () => setAddRefundOpen(true) },
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>, label: 'Add Deposit', fn: () => setAddDepositOpen(true) },
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20V10M18 20V4M6 20v-4" /></svg>, label: 'Discount / Adj', fn: () => setAddDiscountOpen(true) },
+                  { icon: <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>, label: 'Void Transaction', fn: () => setVoidTransactionOpen(true) },
                   { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="1" y="2" width="10" height="8" rx="1" /><path d="M1 4l5 3.5L11 4" /></svg>, label: 'Email Folio', fn: sendFolioEmail },
                   { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M3 4V2h6v2M3 8H2a1 1 0 01-1-1V5a1 1 0 011-1h8a1 1 0 011 1v2a1 1 0 01-1 1H9M3 7h6v3H3z" /></svg>, label: 'Print Folio', fn: printFolio },
                   { icon: <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 1v7M3 5l3 3 3-3M1 10h10" /></svg>, label: 'Download Folio (PDF)', fn: printFolio },
@@ -15510,10 +15826,12 @@ function FolioModal({
 
           </div>
 
-          {/* Right: Transactions table */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3" style={{ background: '#fff', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
-              <span className="text-[12px] font-bold text-black">Folio Transactions</span>
+          {/* Right Pane */}
+          <div className="flex-1 flex flex-col overflow-hidden bg-white">
+            {activeTab === 'Folio' && (
+              <>
+                <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                  <span className="text-[12px] font-bold text-black">Folio Transactions</span>
               <div className="flex gap-2">
                 <button onClick={() => setAddChargeOpen(true)}
                   className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-md transition-colors">
@@ -15597,6 +15915,191 @@ function FolioModal({
                 </table>
               )}
             </div>
+          </>
+          )}
+
+          {activeTab === 'Profile' && (
+              <div className="flex-1 overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
+                <div className="max-w-2xl">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-sm font-bold text-black">Guest Profile Details</h3>
+                    {profileSuccess && <span className="text-xs text-emerald-600 font-medium">{profileSuccess}</span>}
+                    {profileError && <span className="text-xs text-red-600 font-medium">{profileError}</span>}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="block text-xs font-semibold mb-1 text-black">Title</label><input type="text" value={profileForm.title} onChange={e => setProfileForm({...profileForm, title: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" placeholder="Mr. / Ms." /></div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">Full Name</label><input type="text" value={profileForm.full_name} onChange={e => setProfileForm({...profileForm, full_name: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" /></div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">Phone Number</label><input type="text" value={profileForm.phone_number} onChange={e => setProfileForm({...profileForm, phone_number: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" /></div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">Email</label><input type="email" value={profileForm.email} onChange={e => setProfileForm({...profileForm, email: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" /></div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">Gender</label>
+                      <select value={profileForm.gender} onChange={e => setProfileForm({...profileForm, gender: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]">
+                        <option value="">Select...</option><option value="Male">Male</option><option value="Female">Female</option>
+                      </select>
+                    </div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">Date of Birth</label><input type="date" value={profileForm.date_of_birth} onChange={e => setProfileForm({...profileForm, date_of_birth: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" /></div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">Nationality</label><input type="text" value={profileForm.nationality} onChange={e => setProfileForm({...profileForm, nationality: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" /></div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">ID Type</label><input type="text" value={profileForm.id_type} onChange={e => setProfileForm({...profileForm, id_type: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" placeholder="Passport, Driver's License, etc." /></div>
+                    <div><label className="block text-xs font-semibold mb-1 text-black">ID Number</label><input type="text" value={profileForm.id_number} onChange={e => setProfileForm({...profileForm, id_number: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" /></div>
+                    <div className="col-span-2"><label className="block text-xs font-semibold mb-1 text-black">Address</label><input type="text" value={profileForm.address} onChange={e => setProfileForm({...profileForm, address: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" /></div>
+                  </div>
+                  <div className="mt-6">
+                    <button onClick={handleProfileSave} disabled={profileSaving} className="px-5 py-2 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-md transition-colors disabled:opacity-50">
+                      {profileSaving ? 'Saving...' : 'Save Profile'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Stay Details' && (
+              <div className="flex-1 overflow-y-auto p-6" style={{ scrollbarWidth: 'thin' }}>
+                <div className="max-w-2xl space-y-6">
+                  <h3 className="text-sm font-bold text-black mb-4">Stay & Booking Details</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><div className="text-xs text-black/50 font-semibold mb-1">Check-in Date</div><div className="text-sm text-black font-medium">{fmtDate(folioRes.check_in_date)}</div></div>
+                    <div><div className="text-xs text-black/50 font-semibold mb-1">Check-out Date</div><div className="text-sm text-black font-medium">{fmtDate(folioRes.check_out_date)}</div></div>
+                    <div><div className="text-xs text-black/50 font-semibold mb-1">Room Type</div><div className="text-sm text-black font-medium">{folioRes.room_type_name || folioRes.room_type}</div></div>
+                    <div><div className="text-xs text-black/50 font-semibold mb-1">Room Number</div><div className="text-sm text-black font-medium">{folioRes.room_number || 'Not Assigned'}</div></div>
+                    <div><div className="text-xs text-black/50 font-semibold mb-1">Adults</div><div className="text-sm text-black font-medium">{folioRes.number_of_guests}</div></div>
+                    <div><div className="text-xs text-black/50 font-semibold mb-1">Reservation Status</div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${folioRes.status === 'in_house' ? 'bg-[#00754A]/10 text-[#00754A]' : 'bg-gray-100 text-gray-700'}`}>{folioRes.status.replace('_', ' ').toUpperCase()}</span>
+                    </div>
+                  </div>
+                  <div className="pt-4 border-t border-black/10">
+                    <label className="block text-xs font-semibold mb-1 text-black">Estimated Time of Arrival (ETA)</label>
+                    <input type="text" value={profileForm.eta} onChange={e => setProfileForm({...profileForm, eta: e.target.value})} className="w-full max-w-sm text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A]" placeholder="e.g. 2:00 PM" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold mb-1 text-black">Special Requests</label>
+                    <textarea value={profileForm.special_requests} onChange={e => setProfileForm({...profileForm, special_requests: e.target.value})} className="w-full text-xs px-3 py-2 border rounded border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A] h-20 resize-none" placeholder="Late check-out, extra pillows, etc." />
+                  </div>
+                  <div className="mt-4 flex items-center gap-3">
+                    <button onClick={handleProfileSave} disabled={profileSaving} className="px-5 py-2 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-md transition-colors disabled:opacity-50">
+                      {profileSaving ? 'Saving...' : 'Save Stay Details'}
+                    </button>
+                    {profileSuccess && <span className="text-xs text-emerald-600 font-medium">{profileSuccess}</span>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Payments' && (
+              <div className="flex-1 flex flex-col">
+                <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                  <span className="text-[12px] font-bold text-black">Payment History</span>
+                  <div className="flex gap-2">
+                    <button onClick={() => setAddPayOpen(true)} className="flex items-center gap-1.5 px-3.5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-md transition-colors">
+                      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="6" y1="1" x2="6" y2="11" /><line x1="1" y1="6" x2="11" y2="6" /></svg>
+                      Add Payment
+                    </button>
+                    <button onClick={() => setAddRefundOpen(true)} className="flex items-center gap-1.5 px-3.5 py-1.5 border border-[#00754A] text-[#00754A] hover:bg-[#00754A]/5 text-xs font-semibold rounded-md transition-colors">
+                      Issue Refund
+                    </button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+                  {folioPayments && folioPayments.length > 0 ? (
+                    <table className="w-full text-left border-collapse">
+                      <thead className="sticky top-0 z-10" style={{ background: '#f9f9f9', borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
+                        <tr className="text-[10px] font-bold text-black uppercase tracking-widest">
+                          <th className="px-5 py-3 font-bold">Date</th>
+                          <th className="px-3 py-3 font-bold">Time</th>
+                          <th className="px-3 py-3 font-bold">Method</th>
+                          <th className="px-3 py-3 font-bold">Reference / Notes</th>
+                          <th className="px-3 py-3 text-right font-bold">Amount (₱)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {folioPayments.map((p) => {
+                          const isVoid = p.voided;
+                          return (
+                            <tr key={p.id} className={`group transition-colors ${isVoid ? 'opacity-40' : ''} hover:bg-black/[0.015]`} style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                              <td className="px-5 py-3 text-xs text-black font-medium">{p.posted_at ? new Date(p.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+                              <td className="px-3 py-3 text-xs text-black font-mono">{p.posted_at ? new Date(p.posted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
+                              <td className="px-3 py-3 text-xs text-black font-medium">{p.payment_method} {isVoid && <span className="text-[9px] text-red-500 font-bold ml-2 uppercase">Voided</span>}</td>
+                              <td className="px-3 py-3 text-xs text-black">{p.reference || p.notes || '—'}</td>
+                              <td className="px-3 py-3 text-right text-xs font-mono font-bold text-black">{parseFloat(p.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-24 text-black">
+                      <div className="text-[12px] font-semibold">No Payments Found</div>
+                      <div className="text-xs mt-1 opacity-70">Add a payment to see history here.</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Documents' && (
+              <div className="flex-1 flex flex-col p-6">
+                <div className="max-w-2xl w-full">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-sm font-bold text-black">Guest Documents</h3>
+                    <div>
+                      <input type="file" id="docUpload" className="hidden" onChange={handleFileUpload} />
+                      <label htmlFor="docUpload" className="cursor-pointer px-4 py-2 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-md transition-colors flex items-center gap-2">
+                        {docUploading ? (
+                          <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
+                        )}
+                        {docUploading ? 'Uploading...' : 'Upload Document'}
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {docsLoading ? (
+                    <div className="py-8 text-center text-xs text-black/50">Loading documents...</div>
+                  ) : documents.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {documents.map(doc => (
+                        <a key={doc.id} href={doc.file_url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-lg border border-black/10 hover:border-[#00754A]/50 hover:bg-[#00754A]/5 transition-colors group">
+                          <div className="w-10 h-10 rounded bg-[#00754A]/10 flex items-center justify-center text-[#00754A] flex-shrink-0">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-semibold text-black truncate group-hover:text-[#00754A]">{doc.file_name}</div>
+                            <div className="text-[10px] text-black/50 mt-0.5">{new Date(doc.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-black/10 rounded-xl">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="mb-2 opacity-30"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>
+                      <div className="text-xs font-medium text-black/60">No documents uploaded yet</div>
+                      <div className="text-[10px] mt-1 text-black/40">Upload IDs, contracts, or registration cards here.</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'Notes' && (
+              <div className="flex-1 flex flex-col p-6 overflow-hidden">
+                <div className="max-w-2xl w-full flex-1 flex flex-col">
+                  <h3 className="text-sm font-bold text-black mb-4">Front Desk Notes</h3>
+                  <textarea 
+                    value={notes} 
+                    onChange={(e) => setNotes(e.target.value)} 
+                    className="flex-1 w-full text-sm px-4 py-3 border rounded-lg border-black/10 text-black bg-white focus:outline-none focus:border-[#00754A] resize-none leading-relaxed" 
+                    placeholder="Enter notes about this guest or stay here... These notes are only visible to staff."
+                  />
+                  <div className="mt-4 flex items-center gap-3">
+                    <button onClick={handleNotesSave} disabled={notesSaving} className="px-6 py-2 bg-[#00754A] hover:bg-[#006241] text-white text-xs font-semibold rounded-md transition-colors disabled:opacity-50">
+                      {notesSaving ? 'Saving...' : 'Save Notes'}
+                    </button>
+                    {folioRes.front_desk_notes === notes && !notesSaving && notes !== '' && (
+                      <span className="text-xs text-emerald-600 font-medium">Saved</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Bottom totals bar */}
             <div className="flex items-center gap-2 px-6 py-4" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
@@ -15843,6 +16346,84 @@ function FolioModal({
           </div>
         );
       })()}
+
+      {/* New Modals for Refund, Deposit, Discount, Void */}
+      {addRefundOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4 text-red-600">Post Refund</h3>
+            <div className="space-y-4">
+              <select value={payMethod} onChange={e => setPayMethod(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
+                {['Cash', 'Credit Card', 'Debit Card', 'GCash', 'Maya', 'Bank Transfer'].map(m => <option key={m}>{m}</option>)}
+              </select>
+              <input type="number" placeholder="Refund Amount (₱)" value={payAmount} onChange={e => setPayAmount(e.target.value)} className="w-full border border-red-200 rounded-md p-2 text-[12px]" />
+              <input type="text" placeholder="Reference No. (Optional)" value={payRef} onChange={e => setPayRef(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setAddRefundOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddRefund} disabled={fpSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700">{fpSaving ? 'Saving...' : 'Post Refund'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {addDepositOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4">Post Deposit</h3>
+            <div className="space-y-4">
+              <input type="number" placeholder="Deposit Amount (₱)" value={payAmount} onChange={e => setPayAmount(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <input type="text" placeholder="Reference No. (Optional)" value={payRef} onChange={e => setPayRef(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setAddDepositOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddDeposit} disabled={fpSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fpSaving ? 'Saving...' : 'Post Deposit'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {addDiscountOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4">Add Discount / Adjustment</h3>
+            <div className="space-y-4">
+              <input type="text" placeholder="Description (e.g. Senior Citizen Discount)" value={chargeDesc} onChange={e => setChargeDesc(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <input type="number" placeholder="Amount to Deduct (₱)" value={chargeRate} onChange={e => setChargeRate(e.target.value)} className="w-full border rounded-md p-2 text-[12px]" />
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setAddDiscountOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleAddDiscount} disabled={fcSaving} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-[#00754A] hover:bg-[#006241]">{fcSaving ? 'Saving...' : 'Apply Discount'}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {voidTransactionOpen && (
+        <div className="fixed inset-0 z-[200] bg-black/30 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-4 text-red-600">Void Transaction</h3>
+            <div className="space-y-4">
+              <p className="text-xs text-black/60">Select a transaction to void. This will instantly reverse it from the guest's folio.</p>
+              <select value={voidTransactionId} onChange={e => setVoidTransactionId(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
+                <option value="">-- Select Transaction --</option>
+                {ledgerWithBalance.filter(tx => !tx.voided).map(tx => {
+                  const id = tx.type === 'charge' ? `c_${tx.id}` : `p_${tx.id}`;
+                  const date = new Date(tx.timestamp || Date.now()).toLocaleDateString();
+                  const label = tx.type === 'charge' ? `Charge: ${tx.description || tx.charge_type}` : `${tx.amount < 0 ? 'Refund' : 'Payment'}: ${tx.payment_method}`;
+                  return (
+                    <option key={id} value={id}>{date} - {label} (₱{Math.abs(parseFloat(tx.amount)).toLocaleString()})</option>
+                  );
+                })}
+              </select>
+              <div className="flex gap-3 pt-4">
+                <button onClick={() => setVoidTransactionOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleVoidTransaction} disabled={!voidTransactionId} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">Void Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     , document.body);
 }

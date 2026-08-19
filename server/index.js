@@ -311,6 +311,20 @@ const initStaffTable = async () => {
 };
 initStaffTable().catch(err => console.error('Failed to init staff table:', err));
 
+// Initialize Documents Table
+const initDocumentsTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hotel_reservation_documents (
+      id SERIAL PRIMARY KEY,
+      reservation_id INTEGER NOT NULL REFERENCES hotel_reservations(id) ON DELETE CASCADE,
+      file_name VARCHAR(255) NOT NULL,
+      file_url TEXT NOT NULL,
+      uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+};
+initDocumentsTable().catch(err => console.error('Failed to init documents table:', err));
+
 // ─── Front Desk columns (safe, additive migrations) ───────────────────────────
 const initFrontDeskColumns = async () => {
   const migrations = [
@@ -1673,17 +1687,35 @@ app.get('/api/folio/:reservationId', async (req, res) => {
     if (resResult.rows.length === 0)
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
     const charges = itemsResult.rows
-      .filter(i => !i.voided)
+      .filter(i => !i.voided && parseFloat(i.amount) >= 0)
       .reduce((sum, i) => sum + parseFloat(i.amount), 0);
+    const adjustments = itemsResult.rows
+      .filter(i => !i.voided && parseFloat(i.amount) < 0)
+      .reduce((sum, i) => sum + Math.abs(parseFloat(i.amount)), 0);
+
     const payments = paymentsResult.rows
-      .filter(p => !p.voided)
+      .filter(p => !p.voided && parseFloat(p.amount) >= 0 && p.payment_method !== 'Deposit')
       .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+    const deposits = paymentsResult.rows
+      .filter(p => !p.voided && parseFloat(p.amount) >= 0 && p.payment_method === 'Deposit')
+      .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+    const refunds = paymentsResult.rows
+      .filter(p => !p.voided && parseFloat(p.amount) < 0)
+      .reduce((sum, p) => sum + Math.abs(parseFloat(p.amount)), 0);
+      
     res.json({
       success: true,
       reservation: resResult.rows[0],
       items: itemsResult.rows,
       payments: paymentsResult.rows,
-      totals: { charges, payments, balance: charges - payments },
+      totals: { 
+        charges, 
+        payments, 
+        adjustments, 
+        deposits, 
+        refunds, 
+        balance: (charges - adjustments) - (payments + deposits - refunds) 
+      },
     });
   } catch (err) {
     console.error(err);
@@ -2139,6 +2171,36 @@ app.patch('/api/reservations/:id/profile', async (req, res) => {
   } catch (err) {
     console.error('Profile update error:', err);
     res.status(500).json({ success: false, message: 'Failed to update guest profile.' });
+  }
+});
+
+// GET /api/reservations/:id/documents
+app.get('/api/reservations/:id/documents', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM hotel_reservation_documents WHERE reservation_id = $1 ORDER BY uploaded_at DESC', [id]);
+    res.json({ success: true, documents: result.rows });
+  } catch (err) {
+    console.error('Fetch documents error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch documents.' });
+  }
+});
+
+// POST /api/reservations/:id/documents
+app.post('/api/reservations/:id/documents', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { file_name, file_url } = req.body;
+    if (!file_name || !file_url) return res.status(400).json({ success: false, message: 'Missing file details.' });
+    
+    const result = await pool.query(
+      'INSERT INTO hotel_reservation_documents (reservation_id, file_name, file_url) VALUES ($1, $2, $3) RETURNING *',
+      [id, file_name, file_url]
+    );
+    res.json({ success: true, document: result.rows[0] });
+  } catch (err) {
+    console.error('Save document error:', err);
+    res.status(500).json({ success: false, message: 'Failed to save document record.' });
   }
 });
 
@@ -5433,6 +5495,18 @@ app.get('/api/reports/shift', async (req, res) => {
 
     const result = await pool.query(query, params);
 
+    let discountQuery = `
+      SELECT i.*, r.full_name as guest_name, r.room_number
+      FROM hotel_folio_items i
+      LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
+      WHERE i.posted_at >= $1 AND i.posted_at <= $2 AND i.voided = false
+        AND i.amount < 0
+        AND (r.status IS NULL OR r.status != 'pending')
+    `;
+    if (staff && staff !== 'All Staff') discountQuery += ` AND i.cashier_name = $3`;
+    discountQuery += ` ORDER BY i.posted_at ASC`;
+    const discountsResult = await pool.query(discountQuery, params);
+
     // Compute totals
     let total_cash = 0;
     let total_online = 0;
@@ -5446,14 +5520,21 @@ app.get('/api/reports/shift', async (req, res) => {
       else total_online += amt; // gcash, maya, bank transfer, etc.
     }
 
+    let total_discounts = 0;
+    for (const d of discountsResult.rows) {
+      total_discounts += parseFloat(d.amount) || 0;
+    }
+
     res.json({
       success: true,
       payments: result.rows,
+      discounts: discountsResult.rows,
       summary: {
         total_cash,
         total_online,
         total_card,
-        total_collected: total_cash + total_online + total_card
+        total_collected: total_cash + total_online + total_card,
+        total_discounts
       }
     });
 
