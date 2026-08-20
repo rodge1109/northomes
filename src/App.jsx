@@ -2063,6 +2063,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     setActiveTab('frontdesk');
   };
 
+  const [pendingTransferRes, setPendingTransferRes] = useState(null);
+  const openTransfer = (res) => {
+    setPendingTransferRes(res);
+    setActiveTab('frontdesk');
+  };
+
   // ── Folio & Ledger State (Lifted for global access) ──────────────────────────
   const [folioOpen, setFolioOpen] = useState(false);
   const [folioRes, setFolioRes] = useState(null);
@@ -3607,7 +3613,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
-        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
+        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} pendingTransferRes={pendingTransferRes} setPendingTransferRes={setPendingTransferRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
@@ -11219,7 +11225,7 @@ function GuestCheckinPage({ setCurrentPage }) {
   );
 }
 
-function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, roomTypes = [], rateCodes = [], promos = [] }) {
+function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, pendingTransferRes, setPendingTransferRes, roomTypes = [], rateCodes = [], promos = [] }) {
   const today = new Date().toISOString().split('T')[0];
   const [fdView, setFdView] = React.useState('arrivals');
 
@@ -11842,6 +11848,13 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     fetchRooms();
     fetchWkRoomTypes('', '');
   };
+
+  React.useEffect(() => {
+    if (pendingTransferRes) {
+      openTransfer(pendingTransferRes);
+      setPendingTransferRes(null);
+    }
+  }, [pendingTransferRes]);
 
   const submitTransfer = async () => {
     if (!transferGuest || !transferRoomNumber.trim()) return;
