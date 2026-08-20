@@ -12376,7 +12376,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       },
       { divider: true },
       {
-        label: 'Transfer Room',
+        label: 'Assign/Transfer Room',
         icon: (
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="M2 8h12M10 4l4 4-4 4" />
@@ -13182,9 +13182,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               {(r.status === 'pending' || r.status === 'confirmed') && (
-                                <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition-colors whitespace-nowrap">
-                                  Check In
-                                </button>
+                                <>
+                                  <button onClick={() => openTransfer(r)} className="bg-white border border-[#00754A] text-[#00754A] hover:bg-emerald-50 text-xs px-3 py-1.5 rounded-md font-semibold transition-colors whitespace-nowrap" title="Assign or Change Room">
+                                    Assign Room
+                                  </button>
+                                  <button onClick={() => openWizard(r)} className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition-colors whitespace-nowrap">
+                                    Check In
+                                  </button>
+                                </>
                               )}
                               {r.status !== 'checked_in' && r.status !== 'checked_out' && (
                                 <select value={r.status} disabled={statusUpdating === r.id} onChange={(e) => updateStatus(r.id, e.target.value)} className="text-xs border border-black/5 rounded-md px-2 py-1.5 bg-white shadow-sm text-black/60 cursor-pointer">
@@ -13456,7 +13461,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                               className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
                                             >
                                               <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8h12M10 4l4 4-4 4" /></svg>
-                                              Transfer Room
+                                              Assign/Transfer Room
                                             </button>
                                             <button
                                               onClick={() => { openExtend(res); setOpenInHouseDropdown(null); }}

@@ -2503,10 +2503,12 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
 
     const existing = await pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [id]);
     if (existing.rows.length === 0) return res.status(404).json({ success: false, message: 'Reservation not found.' });
-    if (existing.rows[0].status !== 'checked_in') return res.status(409).json({ success: false, message: 'Guest is not currently checked in.' });
+    if (!['checked_in', 'confirmed', 'pending'].includes(existing.rows[0].status)) {
+      return res.status(409).json({ success: false, message: 'Guest must be checked in, confirmed, or pending.' });
+    }
 
     const oldRoom = existing.rows[0].room_number;
-    const { check_in_date, check_out_date } = existing.rows[0];
+    const { check_in_date, check_out_date, status } = existing.rows[0];
 
     // Conflict check on new room (exclude this reservation)
     const conflict = await pool.query(
@@ -2528,7 +2530,7 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
     );
 
     // Mark old room dirty, upsert new room
-    if (oldRoom && oldRoom !== newRoomNumber) {
+    if (oldRoom && oldRoom !== newRoomNumber && status === 'checked_in') {
       await pool.query(`UPDATE hotel_rooms SET hk_status = 'dirty' WHERE room_number = $1`, [oldRoom]);
     }
     await pool.query(
