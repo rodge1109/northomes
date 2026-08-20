@@ -3601,7 +3601,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         )}
 
         {/* ==================== RESERVATIONS TAB ==================== */}
-        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} deleteReservation={deleteReservation} openConfirmModal={handleOpenConfirmModal} openWizard={handleOpenWizard} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
+        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} deleteReservation={deleteReservation} openConfirmModal={handleOpenConfirmModal} openWizard={handleOpenWizard} openTransfer={openTransfer} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
         {/* ==================== GUESTS TAB ==================== */}
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}

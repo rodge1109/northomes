@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 
-export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openConfirmModal, openWizard, roomTypes = [], rateCodes = [], promos = [] }) {
+export default function AdminOnlineReservationsTab({ reservations = [], stats = {}, updateStatus, openConfirmModal, openWizard, openTransfer, roomTypes = [], rateCodes = [], promos = [] }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterChannel, setFilterChannel] = useState('All Channels');
@@ -315,6 +315,15 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
                                 >
                                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                                   Check In
+                                </button>
+                              )}
+                              {(res.status === 'pending' || res.status === 'Pending' || res.status === 'confirmed' || res.status === 'Confirmed') && openTransfer && (
+                                <button 
+                                  onClick={() => { openTransfer(res.originalRes); setOpenDropdown(null); }}
+                                  className="w-full px-4 py-2 text-left text-[12px] font-medium text-[#00754A] hover:bg-emerald-50 flex items-center gap-2"
+                                >
+                                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M2 8h12M10 4l4 4-4 4" /></svg>
+                                  Assign/Transfer Room
                                 </button>
                               )}
                               {(res.status === 'pending' || res.status === 'Pending') && (
