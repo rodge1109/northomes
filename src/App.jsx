@@ -1236,7 +1236,7 @@ export default function RestaurantApp() {
         {currentPage === 'checkout' && <CheckoutPage setCurrentPage={setCurrentPage} clearCart={clearCart} />}
         {currentPage === 'confirmation' && <ConfirmationPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} paymentStatus={paymentStatus} />}
         {currentPage === 'payment-failed' && <PaymentFailedPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} />}
-        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} />}
+        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} openTransfer={openTransfer} />}
         {currentPage === 'my-appointment' && <MyAppointment setCurrentPage={setCurrentPage} initialToken={appointmentToken} />}
         {currentPage === 'checkin' && <GuestCheckinPage setCurrentPage={setCurrentPage} />}
         {/* Front Desk handled in AdminDashboard */}
@@ -2056,7 +2056,7 @@ function AppointmentForm({ onSuccess }) {
 }
 
 // Admin Dashboard Component
-function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
+function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, openTransfer }) {
   const [pendingCheckInRes, setPendingCheckInRes] = useState(null);
   const handleOpenWizard = (res) => {
     setPendingCheckInRes(res);
