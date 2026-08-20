@@ -2226,6 +2226,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
     const fmtA = (n) => `₱${parseFloat(n).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
     const nights = Math.round((new Date(folioRes.check_out_date) - new Date(folioRes.check_in_date)) / 86400000);
+    const totalCharges = folioItems.filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount), 0);
+    const totalPaid = folioPayments.filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount), 0);
 
     const chargeRows = folioItems.map(i => `
       <tr style="${i.voided ? 'opacity:0.4;text-decoration:line-through;' : ''}">
@@ -2269,14 +2271,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       <table>
         <thead><tr><th>Type</th><th>Description</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Unit Price</th><th style="text-align:right;">Amount</th></tr></thead>
         <tbody>${chargeRows}</tbody>
-        <tfoot><tr class="total-row"><td colspan="4" style="text-align:right;">Total Charges</td><td style="text-align:right;">${fmtA(folioTotals.charges)}</td></tr></tfoot>
+        <tfoot><tr class="total-row"><td colspan="4" style="text-align:right;">Total Charges</td><td style="text-align:right;">${fmtA(totalCharges)}</td></tr></tfoot>
       </table>`}
       <h3 style="margin:0 0 6px;border-bottom:1px solid #ddd;padding-bottom:4px;">Payments</h3>
       ${folioPayments.length === 0 ? '<p style="color:#999;font-size:13px;">No payments recorded.</p>' : `
       <table>
         <thead><tr><th>Method</th><th>Reference</th><th style="text-align:right;">Amount</th><th>Date</th></tr></thead>
         <tbody>${paymentRows}</tbody>
-        <tfoot><tr class="paid-row"><td colspan="2" style="text-align:right;">Total Paid</td><td style="text-align:right;">${fmtA(folioTotals.payments)}</td><td></td></tr></tfoot>
+        <tfoot><tr class="paid-row"><td colspan="2" style="text-align:right;">Total Paid</td><td style="text-align:right;">${fmtA(totalPaid)}</td><td></td></tr></tfoot>
       </table>`}
       <div class="balance ${folioTotals.balance > 0 ? 'bal-due' : 'bal-ok'}">
         ${folioTotals.balance > 0 ? `Balance Due: ${fmtA(folioTotals.balance)}` : 'Folio Settled ✓'}
@@ -11768,8 +11770,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
     const fmtA = (n) => `₱${parseFloat(n).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
     const nights = Math.round((new Date(folioRes.check_out_date) - new Date(folioRes.check_in_date)) / 86400000);
-    const totalCharges = folioTotals.charges;
-    const totalPaid = folioTotals.payments;
+    const totalCharges = folioItems.filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount), 0);
+    const totalPaid = folioPayments.filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount), 0);
     const balance = folioTotals.balance;
 
     const chargeRows = folioItems.map(i => `
@@ -15787,11 +15789,11 @@ function FolioModal({
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-black">Total Charges</span>
-                  <span className="text-[12px] font-semibold text-black">{fmtA(folioTotals.charges)}</span>
+                  <span className="text-[12px] font-semibold text-black">{fmtA(folioItems.filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount), 0))}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-black">Total Payments</span>
-                  <span className="text-[12px] font-semibold text-black">{fmtA(folioTotals.payments)}</span>
+                  <span className="text-[12px] font-semibold text-black">{fmtA(folioPayments.filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount), 0))}</span>
                 </div>
                 <div className="pt-2 border-t border-black/8 flex justify-between items-center">
                   <span className="text-[12px] font-bold text-black">Balance</span>
@@ -16104,8 +16106,8 @@ function FolioModal({
             {/* Bottom totals bar */}
             <div className="flex items-center gap-2 px-6 py-4" style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.08)' }}>
               {[
-                { label: 'TOTAL CHARGES', value: fmtA(folioTotals.charges), color: 'text-black' },
-                { label: 'TOTAL PAYMENTS', value: fmtA(folioTotals.payments), color: 'text-black' },
+                { label: 'TOTAL CHARGES', value: fmtA(folioItems.filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount), 0)), color: 'text-black' },
+                { label: 'TOTAL PAYMENTS', value: fmtA(folioPayments.filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount), 0)), color: 'text-black' },
                 { label: 'OUTSTANDING BALANCE', value: fmtA(folioTotals.balance), color: 'text-[#00754A]' },
               ].map(s => (
                 <div key={s.label} className="flex items-center gap-3">
