@@ -299,6 +299,7 @@ function AdminBillingTab({
                   <option value="In-House">In-House</option>
                   <option value="Checked-Out">Checked-Out</option>
                   <option value="Reserved">Reserved</option>
+                  <option value="cancelled">Cancelled</option>
                 </select>
               </div>
               <div>
