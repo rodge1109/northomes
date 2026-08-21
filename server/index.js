@@ -998,7 +998,15 @@ app.get('/api/room-types/availability', async (req, res) => {
           [rt.name, checkIn, checkOut]
         );
         const bookedCount = parseInt(booked.rows[0].count);
-        return { ...rt, booked: bookedCount, available: Math.max(0, rt.total_rooms - bookedCount) };
+
+        const ooo = await pool.query(
+          `SELECT COUNT(*) as count FROM hotel_rooms WHERE room_type = $1 AND hk_status = 'out_of_order' AND active = true`,
+          [rt.name]
+        );
+        const oooCount = parseInt(ooo.rows[0].count);
+        
+        const effectiveTotal = Math.max(0, rt.total_rooms - oooCount);
+        return { ...rt, booked: bookedCount, available: Math.max(0, effectiveTotal - bookedCount) };
       })
     );
 
