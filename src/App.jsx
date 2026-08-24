@@ -2327,6 +2327,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     const rate = getRoomRate(res.room_type, res.rate_code);
     const totalAmt = nights * rate;
 
+    const displayCheckInTime = res.checked_in_at ? new Date(res.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
+
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
     const payMethod = (res.payment_method || '').toLowerCase();
     const source = (res.source || '').toLowerCase();
@@ -2450,7 +2452,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         </tr>
         <tr>
           <td class="lbl">Check-In Time</td>
-          <td class="val"><div class="line-input">${res.check_in_time || '14:00'}</div></td>
+          <td class="val"><div class="line-input">${displayCheckInTime}</div></td>
           <td class="lbl">Check-Out Time</td>
           <td class="val"><div class="line-input">${res.check_out_time || '12:00'}</div></td>
           <td class="lbl">No. of Guests</td>
@@ -2504,12 +2506,20 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         </div>
       </div>
       
-      <div class="divider" style="margin-top:20px; border-bottom: 1px dashed #666;"></div>
+      <div style="page-break-before: always;"></div>
+      
+      <div class="header" style="margin-top: 20px;">
+        <h1>Northomes Pensione</h1>
+        <p>PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+        <p>TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+      </div>
+      <div class="divider"></div>
       
       <div class="title-row" style="margin-top:10px;">
-        <span style="font-weight:bold;">Guest Name: ${res.full_name}</span>
+        <h2>Guest Folio</h2>
         <div class="doc-no">F1-D-${String(res.id).padStart(4, '0')}</div>
       </div>
+      <div style="margin-bottom: 10px; font-weight:bold; font-size: 11px;">Guest Name: ${res.full_name}</div>
       
       <table class="data-table">
         <thead>
@@ -2570,7 +2580,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       </div>
       
       <div class="footer-row">
-        <div>CHECK IN DATE: <span style="text-decoration:underline;">&nbsp; &nbsp; ${fmtD(res.check_in_date)} &nbsp; &nbsp;</span> &nbsp; &nbsp; TIME: <span style="text-decoration:underline;">&nbsp; &nbsp; ${res.check_in_time || '14:00'} &nbsp; &nbsp;</span></div>
+        <div>CHECK IN DATE: <span style="text-decoration:underline;">&nbsp; &nbsp; ${fmtD(res.check_in_date)} &nbsp; &nbsp;</span> &nbsp; &nbsp; TIME: <span style="text-decoration:underline;">&nbsp; &nbsp; ${displayCheckInTime} &nbsp; &nbsp;</span></div>
         <div style="text-align:center; width:200px;">
           <div style="border-bottom:1px solid #222; height:18px; font-weight:bold; font-size:9px;">${localStorage.getItem('adminFullName') || localStorage.getItem('adminUser') || 'Front Desk'}</div>
           <div style="font-size:8px; text-transform:uppercase; color:#666; margin-top:3px;">Front Desk Officer</div>
