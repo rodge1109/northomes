@@ -1924,7 +1924,7 @@ function AppointmentForm({ onSuccess }) {
                   <button type="button" onClick={() => { setAppliedPromo(null); setPromoCodeInput(''); setPromoMessage({ type: '', text: '' }); }}
                     className="px-4 py-1.5 bg-red-50 text-red-600 rounded-md font-bold text-[12px] border border-red-200 h-[32px]">Remove</button>
                 ) : (
-                  <button type="button" onClick={validatePromoCode} disabled={isVerifyingPromo || !promoCodeInput.trim() || !formData.roomType}
+                  <button type="button" onClick={validatePromoCode} disabled={isVerifyingPromo || !promoCodeInput.trim() || !formData.roomSelections?.[0]?.roomType}
                     className="px-4 py-1.5 bg-slate-900 text-white rounded-md font-bold text-[12px] disabled:opacity-50 h-[32px]">
                     {isVerifyingPromo ? '...' : 'Apply'}
                   </button>
