@@ -2327,7 +2327,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
     const rate = getRoomRate(res.room_type, res.rate_code);
     const totalAmt = nights * rate;
 
-    const displayCheckInTime = res.checked_in_at ? new Date(res.checked_in_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
+    // Remove 'Z' if present to prevent browser from adding local timezone offset to an already-local DB timestamp
+    const safeDateStr = res.checked_in_at && typeof res.checked_in_at === 'string' ? res.checked_in_at.replace(/Z$/, '') : res.checked_in_at;
+    const displayCheckInTime = safeDateStr ? new Date(safeDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
 
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
     const payMethod = (res.payment_method || '').toLowerCase();
