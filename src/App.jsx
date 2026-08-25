@@ -1541,6 +1541,13 @@ function AppointmentForm({ onSuccess }) {
     return sum + (effectivePrice * nights * (parseInt(sel.numberOfRooms) || 1));
   }, 0);
 
+  const originalTotalPrice = formData.roomSelections.reduce((sum, sel) => {
+    if (!sel.roomType) return sum;
+    const roomInfo = availability[sel.roomType] || roomTypes.find(rt => rt.name === sel.roomType);
+    const pricePerNight = roomInfo ? parseFloat(roomInfo.price_per_night) : 0;
+    return sum + (pricePerNight * nights * (parseInt(sel.numberOfRooms) || 1));
+  }, 0);
+
   useEffect(() => {
     // Check if the promo roomType is still in selections
     const hasPromoRoom = formData.roomSelections.some(sel => sel.roomType === appliedPromo?.roomType);
@@ -1938,7 +1945,7 @@ function AppointmentForm({ onSuccess }) {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-black/40 mb-0.5">Total Stay Cost</p>
                   <span className="text-2xl font-black text-[#006241]">₱{totalPrice.toLocaleString('en-PH')}</span>
-                  {appliedPromo && <span className="text-[12px] font-bold text-black/30 line-through ml-2">₱{(pricePerNight * nights).toLocaleString('en-PH')}</span>}
+                  {appliedPromo && <span className="text-[12px] font-bold text-black/30 line-through ml-2">₱{originalTotalPrice.toLocaleString('en-PH')}</span>}
                 </div>
                 <div className="text-right text-xs text-black/50">
                   <p>Deposit required on next step</p>
