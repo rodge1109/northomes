@@ -12010,9 +12010,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           email: wkEmail.trim(), phone: wkPhone.trim(),
           address: wkAddress.trim(), city: wkCity.trim(),
           id_type: wkIdType, id_number: wkIdNumber.trim(),
-          room_type: wkRoomType, rate_code: wkRateCode,
+          room_type: '', rate_code: wkRateCode,
           check_in_date: wkCheckIn, check_out_date: wkCheckOut,
-          eta: wkEta, number_of_guests: wkAdults + wkChildren, room_number: wkRoomNumber.trim(),
+          eta: wkEta, number_of_guests: wkAdults + wkChildren, room_number: '',
           purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: wkGuaranteeAmount || 0,
           payment_collected: wkPayment, special_requests: wkSpecialReq.trim(), notes: wkNotes.trim(), add_to_profile: wkAddToProfile, is_vip: wkVipGuest, is_repeat: wkRepeatGuest,
         }),
@@ -12038,7 +12038,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
     // Reset new fields
     setWkCompany(''); setWkAddToProfile(true); setWkVipGuest(false); setWkRepeatGuest(false);
-    setWkCheckInTime('14:00'); setWkCheckOutTime('12:00'); setWkAdults(2); setWkChildren(1); setWkNumRooms(1);
+    setWkCheckInTime('14:00'); setWkCheckOutTime('12:00'); setWkAdults(2); setWkChildren(1); 
     setWkSource('Direct Booking'); setWkRoomPreference('High Floor'); setWkBedType('Queen Bed');
     setWkDiscountPct(0); setWkDiscountCode(''); setWkCardType('Visa'); setWkCardNumberFull('');
     setWkCardExpiry(''); setWkCardCvv(''); setWkCardholder(''); setWkGuaranteeType('Guarantee by Credit Card');
@@ -13776,14 +13776,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                 <button onClick={() => setWkChildren(wkChildren + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
                               </div>
                             </div>
-                            <div>
-                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Rooms</label>
-                              <div className="flex items-center border border-black/10 rounded-md overflow-hidden shadow-sm">
-                                <button onClick={() => setWkNumRooms(Math.max(1, wkNumRooms - 1))} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">-</button>
-                                <input type="text" readOnly value={wkNumRooms} className="w-full h-9 text-center text-[12px] font-semibold outline-none" />
-                                <button onClick={() => setWkNumRooms(wkNumRooms + 1)} className="w-8 h-9 bg-[#f8f9fa] hover:bg-black/5 flex items-center justify-center text-black/60 font-bold">+</button>
-                              </div>
-                            </div>
+                            
                             <div>
                               <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Purpose of Stay</label>
                               <select value={wkPurpose} onChange={e => setWkPurpose(e.target.value)}
@@ -13824,13 +13817,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           </div>
 
                           <div className="grid grid-cols-5 gap-2 mb-4">
-                            <div className="col-span-1">
-                              <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Room Type</label>
-                              <select value={wkRoomType} onChange={e => { setWkRoomType(e.target.value); setWkRoomNumber(''); }}
-                                className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
-                                {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name}>{rt.name}</option>)}
-                              </select>
-                            </div>
+                            
                             <div className="col-span-1">
                               <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Rate Plan</label>
                                 <select value={wkRateCode} onChange={e => setWkRateCode(e.target.value)}
@@ -13861,312 +13848,78 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                           </div>
 
                           <div className="bg-[#f8f9fa] rounded-xl p-4 border border-black/5">
+                            <div className="flex justify-between items-center mb-3">
+                               <h3 className="text-xs font-semibold text-black/60">Room Selections</h3>
+                               <button type="button" onClick={() => setWkRoomSelections([...wkRoomSelections, { roomType: wkRoomTypes[0]?.name || '', roomNumber: '' }])} className="text-xs font-bold text-[#00754A] border border-[#00754A]/30 px-3 py-1 rounded-md hover:bg-[#00754A]/10 transition-colors">+ Add Room</button>
+                            </div>
                             <table className="w-full text-left">
                               <thead>
                                 <tr>
+                                  <th className="pb-3 text-xs font-semibold text-black/60 w-[25%]">Room Type</th>
                                   <th className="pb-3 text-xs font-semibold text-black/60 w-[20%]">Room Number</th>
                                   <th className="pb-3 text-xs font-semibold text-black/60 w-[20%]">Rate (Per Night)</th>
-                                  <th className="pb-3 text-xs font-semibold text-black/60 w-[35%]">Discount</th>
                                   <th className="pb-3 text-xs font-semibold text-black/60 text-right w-[25%]">Total (Per Night)</th>
+                                  <th className="pb-3 w-[10%]"></th>
                                 </tr>
                               </thead>
-                              <tbody>
-                                <tr>
-                                  <td className="pr-2">
-                                    <select value={wkRoomNumber} onChange={e => setWkRoomNumber(e.target.value)}
+                              <tbody className="divide-y divide-black/5">
+                                {wkRoomSelections.map((sel, idx) => (
+                                <tr key={idx}>
+                                  <td className="py-2 pr-2">
+                                    <select value={sel.roomType} onChange={e => {
+                                      const next = [...wkRoomSelections];
+                                      next[idx].roomType = e.target.value;
+                                      next[idx].roomNumber = '';
+                                      setWkRoomSelections(next);
+                                    }}
+                                      className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none shadow-sm">
+                                      {wkRoomTypes.map(rt => <option key={rt.id} value={rt.name}>{rt.name}</option>)}
+                                    </select>
+                                  </td>
+                                  <td className="py-2 pr-2">
+                                    <select value={sel.roomNumber} onChange={e => {
+                                      const next = [...wkRoomSelections];
+                                      next[idx].roomNumber = e.target.value;
+                                      setWkRoomSelections(next);
+                                    }}
                                       className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-semibold focus:border-[#00754A] outline-none shadow-sm">
                                       <option value="">Select...</option>
-                                      {rooms.filter(r => r.room_type === wkRoomType && r.computed_status !== 'occupied' && r.computed_status !== 'arriving' && r.computed_status !== 'out_of_order').map(r => (
+                                      {rooms.filter(r => r.room_type === sel.roomType && r.computed_status !== 'occupied' && r.computed_status !== 'arriving' && r.computed_status !== 'out_of_order' && !wkRoomSelections.some((s, sIdx) => sIdx !== idx && s.roomNumber === r.room_number)).map(r => (
                                         <option key={r.room_number} value={r.room_number}>{r.room_number}</option>
                                       ))}
                                     </select>
                                   </td>
-                                  <td className="pr-2">
+                                  <td className="py-2 pr-2">
                                     {(() => {
-                                      const rt = wkRoomTypes.find(r => r.name === wkRoomType);
+                                      const rt = wkRoomTypes.find(r => r.name === sel.roomType);
                                       return <div className="text-[12px] font-semibold">₱{rt ? Number(rt.price_per_night).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</div>;
                                     })()}
                                   </td>
-                                  <td className="pr-2 flex gap-2">
-                                    <div className="flex items-center bg-white border border-black/10 rounded-md shadow-sm overflow-hidden flex-1">
-                                      <input type="number" value={wkDiscountPct} onChange={e => setWkDiscountPct(e.target.value)} className="w-full px-2 py-2 text-[12px] text-center outline-none" />
-                                      <span className="pr-2 text-[12px] text-black/60">%</span>
-                                    </div>
-                                    <input type="text" value={wkDiscountCode} onChange={e => setWkDiscountCode(e.target.value)} placeholder="Promo Code"
-                                      className="w-2/3 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none shadow-sm uppercase placeholder:normal-case" />
-                                  </td>
-                                  <td className="text-right flex items-center justify-end gap-2">
+                                  <td className="py-2 text-right flex items-center justify-end gap-2 mt-1.5">
                                     {(() => {
-                                      const rt = wkRoomTypes.find(r => r.name === wkRoomType);
+                                      const rt = wkRoomTypes.find(r => r.name === sel.roomType);
                                       const price = rt ? Number(rt.price_per_night) : 0;
                                       const disc = parseFloat(wkDiscountPct) || 0;
                                       const net = price * (1 - disc / 100);
                                       return (
                                         <>
-                                          <div className="text-[12px] font-bold text-[#1E3932]">₱{net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                          <div className="w-5 h-5 rounded-full bg-[#00754A] flex items-center justify-center">
-                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                          </div>
+                                          {disc > 0 && <div className="text-[10px] line-through text-black/30">₱{price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>}
+                                          <div className="text-[14px] font-bold text-[#006241]">₱{net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                                         </>
                                       );
                                     })()}
                                   </td>
+                                  <td className="py-2 text-right">
+                                      {wkRoomSelections.length > 1 && (
+                                        <button onClick={() => {
+                                          const next = [...wkRoomSelections];
+                                          next.splice(idx, 1);
+                                          setWkRoomSelections(next);
+                                        }} className="w-6 h-6 flex items-center justify-center bg-red-50 text-red-500 rounded-full hover:bg-red-100 transition-colors">✕</button>
+                                      )}
+                                  </td>
                                 </tr>
-                              </tbody>
-                            </table>
-
-                            <div className="mt-4 pt-4 border-t border-black/10 flex justify-between items-center text-[12px]">
-                              {(() => {
-                                const nights = (!wkCheckIn || !wkCheckOut) ? 0 : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
-                                const rt = wkRoomTypes.find(r => r.name === wkRoomType);
-                                const price = rt ? Number(rt.price_per_night) : 0;
-                                const disc = parseFloat(wkDiscountPct) || 0;
-                                const netPerNight = price * (1 - disc / 100);
-                                const subTotal = netPerNight * nights * wkNumRooms;
-                                const tax = subTotal * 0.12;
-                                const total = subTotal + tax;
-                                return (
-                                  <>
-                                    <div className="font-semibold text-black/60">Total Nights: <span className="text-[#1E3932]">{nights}</span></div>
-                                    <div className="flex gap-2">
-                                      <div className="text-black/60">Sub Total: <span className="font-semibold text-black/80 ml-1">₱{subTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-                                      <div className="text-black/60">Taxes & Fees: <span className="font-semibold text-black/80 ml-1">₱{tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-                                      <div className="text-[#1E3932] font-bold text-base">Estimated Total: <span className="ml-1">₱{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-                                    </div>
-                                  </>
-                                );
-                              })()}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Section 4: Payment & Guarantee */}
-                        <div className="bg-white rounded-xl shadow-sm border border-black/5 p-4">
-                          <div className="flex items-center gap-3 mb-3 pb-2 border-b border-black/5">
-                            <div className="w-8 h-8 rounded-full bg-[#1E3932] text-white flex items-center justify-center font-bold text-[12px]">4</div>
-                            <h3 className="text-[16px] font-bold text-[#1E3932]">Payment & Guarantee</h3>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2">
-                            {/* Left: Payment details */}
-                            <div>
-                              <div className="mb-4">
-                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Payment Method</label>
-                                <select value={wkPaymentMethod} onChange={e => setWkPaymentMethod(e.target.value)}
-                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
-                                  {['Credit Card', 'Cash', 'Bank Transfer', 'Other'].map(m => <option key={m} value={m}>{m}</option>)}
-                                </select>
-                              </div>
-
-                              {wkPaymentMethod === 'Credit Card' && (
-                                <div className="space-y-4">
-                                  <div className="flex gap-2">
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType === 'Visa'} onChange={() => setWkCardType('Visa')} className="accent-[#00754A]" /> <span className="text-[12px] font-semibold">Visa</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType === 'Mastercard'} onChange={() => setWkCardType('Mastercard')} className="accent-[#00754A]" /> <span className="text-[12px] font-semibold">Mastercard</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 cursor-pointer">
-                                      <input type="radio" name="cardType" checked={wkCardType === 'Amex'} onChange={() => setWkCardType('Amex')} className="accent-[#00754A]" /> <span className="text-[12px] font-semibold">Amex</span>
-                                    </label>
-                                  </div>
-
-                                  <div>
-                                    <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Card Number</label>
-                                    <input type="text" value={wkCardNumberFull} onChange={e => setWkCardNumberFull(e.target.value)} placeholder="0000 0000 0000 0000"
-                                      className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
-                                  </div>
-
-                                  <div className="flex gap-2">
-                                    <div className="w-1/2">
-                                      <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Expiry Date</label>
-                                      <input type="text" value={wkCardExpiry} onChange={e => setWkCardExpiry(e.target.value)} placeholder="MM/YY"
-                                        className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
-                                    </div>
-                                    <div className="w-1/2">
-                                      <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">CVV</label>
-                                      <input type="text" value={wkCardCvv} onChange={e => setWkCardCvv(e.target.value)} placeholder="123"
-                                        className="w-full px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-mono focus:border-[#00754A] outline-none transition-all shadow-sm" />
-                                    </div>
-                                  </div>
-
-                                  <div>
-                                    <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Cardholder Name</label>
-                                    <input type="text" value={wkCardholder} onChange={e => setWkCardholder(e.target.value)} placeholder="Juan dela Cruz"
-                                      className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Right: Guarantee */}
-                            <div>
-                              <div className="mb-4">
-                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Guarantee Type</label>
-                                <select value={wkGuaranteeType} onChange={e => setWkGuaranteeType(e.target.value)}
-                                  className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm">
-                                  {['Guarantee by Credit Card', 'Company Guarantee', 'Deposit Paid', 'Non-Guaranteed'].map(m => <option key={m} value={m}>{m}</option>)}
-                                </select>
-                              </div>
-                              <div className="mb-3">
-                                <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Amount Guaranteed</label>
-                                <div className="relative">
-                                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/60 font-semibold">₱</span>
-                                  <input type="number" value={wkGuaranteeAmount} onChange={e => setWkGuaranteeAmount(e.target.value)} placeholder="0.00"
-                                    className="w-full pl-8 pr-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
-                                </div>
-                              </div>
-                              <div className="pt-4 border-t border-black/5">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                  <input type="checkbox" checked={wkSendConfirmEmail} onChange={e => setWkSendConfirmEmail(e.target.checked)} className="w-4 h-4 accent-[#00754A]" />
-                                  <span className="text-[12px] font-medium text-black/80">Send confirmation email to guest</span>
-                                </label>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Error message */}
-                        {wkError && (
-                          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded shadow-sm text-red-700 text-[12px] font-medium mb-4">
-                            {wkError}
-                          </div>
-                        )}
-                        <div className="h-4"></div>
-                      </div>
-
-                      {/* RIGHT SIDEBAR */}
-                      <div className="w-[340px] xl:w-[380px] flex-shrink-0 flex flex-col gap-3 sticky top-0 pb-2 max-h-full overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-
-                        {/* Status tag */}
-                        <div className="flex justify-end mb-1">
-                          <span className="bg-[#1E3932]/10 text-[#1E3932] font-bold text-[11px] px-3 py-1.5 rounded-full uppercase tracking-wider">Walk-in Reservation</span>
-                        </div>
-
-                        {/* Reservation Summary */}
-                        <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden flex-shrink-0">
-                          <div className="bg-[#1E3932] text-white p-4">
-                            <h3 className="font-bold text-[14px] mb-1">Reservation Summary</h3>
-                            <p className="text-white/70 text-xs">Review details before confirming</p>
-                          </div>
-
-                          <div className="p-3">
-                            <div className="flex gap-2 pb-2 border-b border-black/5">
-                              <div className="w-12 h-12 rounded-full bg-[#f8f9fa] border border-black/10 flex items-center justify-center flex-shrink-0 text-[#1E3932]">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                              </div>
-                              <div>
-                                <div className="text-xs text-black/50 font-semibold mb-0.5">Guest Name</div>
-                                <div className="font-bold text-[#1E3932] leading-tight text-[14px]">{(wkFirstName || wkLastName) ? `${wkFirstName} ${wkLastName}` : 'Pending'}</div>
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-y-4 gap-x-2 py-4 border-b border-black/5">
-                              <div>
-                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-in</div>
-                                <div className="font-semibold text-[12px]">{wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
-                              </div>
-                              <div>
-                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Check-out</div>
-                                <div className="font-semibold text-[12px]">{wkCheckOut ? new Date(wkCheckOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</div>
-                              </div>
-                              <div>
-                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Nights</div>
-                                <div className="font-semibold text-[12px]">{(!wkCheckIn || !wkCheckOut) ? '-' : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000))}</div>
-                              </div>
-                              <div>
-                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Room Type</div>
-                                <div className="font-semibold text-[12px]">{wkRoomType || '-'}</div>
-                              </div>
-                              <div>
-                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Room No.</div>
-                                <div className="font-semibold text-[12px]">{wkRoomNumber || '-'}</div>
-                              </div>
-                              <div>
-                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Guests</div>
-                                <div className="font-semibold text-[12px]">{wkAdults} Adults{wkChildren > 0 ? `, ${wkChildren} Children` : ''}</div>
-                              </div>
-                              <div className="col-span-2">
-                                <div className="text-[10px] uppercase tracking-wider text-black/50 font-bold mb-1">Rate Plan</div>
-                                <div className="font-semibold text-[12px] text-[#00754A]">{wkRateCode || 'Standard Rate'}</div>
-                              </div>
-                            </div>
-
-                            <div className="pt-4 space-y-2">
-                              {(() => {
-                                const nights = (!wkCheckIn || !wkCheckOut) ? 0 : Math.max(0, Math.ceil((new Date(wkCheckOut) - new Date(wkCheckIn)) / 86400000));
-                                const rt = wkRoomTypes.find(r => r.name === wkRoomType);
-                                const price = rt ? Number(rt.price_per_night) : 0;
-                                const disc = parseFloat(wkDiscountPct) || 0;
-                                const netPerNight = price * (1 - disc / 100);
-                                const subTotal = netPerNight * nights * wkNumRooms;
-                                const tax = subTotal * 0.0;
-                                const total = subTotal + tax;
-                                return (
-                                  <>
-                                    <div className="flex justify-between text-[12px]">
-                                      <span className="text-black/60">Sub Total</span>
-                                      <span className="font-semibold">₱{subTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[12px]">
-                                      <span className="text-black/60">Taxes & Fees </span>
-                                      <span className="font-semibold">₱{tax.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[14px] font-bold pt-2 border-t border-black/5 mt-1 text-[#1E3932]">
-                                      <span>Estimated Total</span>
-                                      <span>₱{total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                    </div>
-                                  </>
-                                );
-                              })()}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Room Availability */}
-                        <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden flex flex-col flex-shrink-0" style={{ maxHeight: '300px' }}>
-                          <div className="p-4 border-b border-black/5 flex justify-between items-center bg-[#f8f9fa]">
-                            <h3 className="font-bold text-[#1E3932]">Room Availability</h3>
-                            <div className="text-xs font-semibold text-black/50 bg-white px-2 py-1 rounded shadow-sm border border-black/5">
-                              {wkCheckIn ? new Date(wkCheckIn).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '-'}
-                              {wkCheckOut && wkCheckOut !== wkCheckIn ? ` - ${new Date(wkCheckOut).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}
-                            </div>
-                          </div>
-
-                          <div className="overflow-y-auto p-4 flex-1">
-                            <table className="w-full text-left text-[12px]">
-                              <thead>
-                                <tr>
-                                  <th className="pb-2 text-xs font-semibold text-black/50 uppercase tracking-wider">Room Type</th>
-                                  <th className="pb-2 text-xs font-semibold text-black/50 uppercase tracking-wider text-center">Avail</th>
-                                  <th className="pb-2 text-xs font-semibold text-black/50 uppercase tracking-wider text-right">Rate</th>
-                                </tr>
-                              </thead>
-                              <tbody className="divide-y divide-black/5">
-                                {wkRoomTypes.map(rt => {
-                                  const avail = rt.available !== undefined ? rt.available : rt.total_rooms;
-                                  const selected = rt.name === wkRoomType;
-                                  return (
-                                    <tr key={rt.id} className={selected ? 'bg-[#00754A]/5' : ''} onClick={() => setWkRoomType(rt.name)} style={{ cursor: 'pointer' }}>
-                                      <td className="py-1.5 font-medium flex items-center gap-2">
-                                        {rt.name}
-                                        {selected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>}
-                                      </td>
-                                      <td className="py-1.5 text-center">
-                                        <span className={`inline-flex w-6 h-6 items-center justify-center rounded-full text-xs font-bold ${avail > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                                          {avail}
-                                        </span>
-                                      </td>
-                                      <td className="py-1.5 text-right font-semibold">
-                                        ₱{Number(rt.price_per_night).toLocaleString()}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                                {wkRoomTypes.length === 0 && (
-                                  <tr><td colSpan="3" className="py-4 text-center text-black/50 text-xs">No rooms available for selected dates</td></tr>
-                                )}
+                                ))}
                               </tbody>
                             </table>
                           </div>
@@ -14407,8 +14160,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                   if (isOccupied(room, day)) return;
                   const co = new Date(day + 'T00:00:00');
                   co.setDate(co.getDate() + 1);
-                  setWkRoomType(room.room_type);
-                  if (!tcTypeView) setWkRoomNumber(room.room_number);
+                  setWkRoomSelections([{ roomType: room.room_type, roomNumber: tcTypeView ? "" : room.room_number }]);
                   setWkCheckIn(day);
                   setWkCheckOut(co.toISOString().slice(0, 10));
                   setFdView('walkin');
