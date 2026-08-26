@@ -13924,9 +13924,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                     }}
                                       className="w-full px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-semibold focus:border-[#00754A] outline-none shadow-sm">
                                       <option value="">Select...</option>
-                                      {rooms.filter(r => r.room_type === sel.roomType && r.computed_status !== 'occupied' && r.computed_status !== 'arriving' && r.computed_status !== 'out_of_order' && !wkRoomSelections.some((s, sIdx) => sIdx !== idx && s.roomNumber === r.room_number)).map(r => (
-                                        <option key={r.room_number} value={r.room_number}>{r.room_number}</option>
-                                      ))}
+                                      {(() => {
+                                        const rt = wkRoomTypes.find(r => r.name === sel.roomType);
+                                        if (rt && rt.availableRooms) {
+                                          return rt.availableRooms.filter(rn => !wkRoomSelections.some((s, sIdx) => sIdx !== idx && s.roomNumber === rn)).map(rn => (
+                                            <option key={rn} value={rn}>{rn}</option>
+                                          ));
+                                        }
+                                        return rooms.filter(r => r.room_type === sel.roomType && r.computed_status !== 'occupied' && r.computed_status !== 'arriving' && r.computed_status !== 'out_of_order' && !wkRoomSelections.some((s, sIdx) => sIdx !== idx && s.roomNumber === r.room_number)).map(r => (
+                                          <option key={r.room_number} value={r.room_number}>{r.room_number}</option>
+                                        ));
+                                      })()}
                                     </select>
                                   </td>
                                   <td className="py-2 pr-2">

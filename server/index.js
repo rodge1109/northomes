@@ -988,27 +988,44 @@ app.get('/api/room-types/availability', async (req, res) => {
     );
 
     const availability = await Promise.all(
-      roomTypes.rows.map(async (rt) => {
-        const booked = await pool.query(
-          `SELECT COUNT(*) as count FROM hotel_reservations
-           WHERE room_type = $1
-             AND status NOT IN ('cancelled', 'checked_out', 'no_show')
-             AND check_in_date < $3
-             AND check_out_date > $2`,
-          [rt.name, checkIn, checkOut]
-        );
-        const bookedCount = parseInt(booked.rows[0].count);
+        roomTypes.rows.map(async (rt) => {
+          const booked = await pool.query(
+            `SELECT room_number FROM hotel_reservations
+             WHERE room_type = $1
+               AND status NOT IN ('cancelled', 'checked_out', 'no_show')
+               AND check_in_date < $3
+               AND check_out_date > $2
+               AND room_number IS NOT NULL AND room_number != ''`,
+            [rt.name, checkIn, checkOut]
+          );
+          const bookedRoomNumbers = booked.rows.map(r => r.room_number);
+          const bookedCount = booked.rows.length;
 
-        const ooo = await pool.query(
-          `SELECT COUNT(*) as count FROM hotel_rooms WHERE room_type = $1 AND hk_status = 'out_of_order' AND active = true`,
-          [rt.name]
-        );
-        const oooCount = parseInt(ooo.rows[0].count);
-        
-        const effectiveTotal = Math.max(0, rt.total_rooms - oooCount);
-        return { ...rt, booked: bookedCount, available: Math.max(0, effectiveTotal - bookedCount) };
-      })
-    );
+          const ooo = await pool.query(
+            `SELECT room_number FROM hotel_rooms WHERE room_type = $1 AND hk_status = 'out_of_order' AND active = true`,
+            [rt.name]
+          );
+          const oooRoomNumbers = ooo.rows.map(r => r.room_number);
+          const oooCount = ooo.rows.length;
+          
+          const allRooms = await pool.query(
+            `SELECT room_number FROM hotel_rooms WHERE room_type = $1 AND active = true`,
+            [rt.name]
+          );
+          
+          const availableRooms = allRooms.rows
+            .map(r => r.room_number)
+            .filter(rn => !bookedRoomNumbers.includes(rn) && !oooRoomNumbers.includes(rn));
+          
+          const effectiveTotal = Math.max(0, rt.total_rooms - oooCount);
+          return { 
+            ...rt, 
+            booked: bookedCount, 
+            available: Math.max(0, effectiveTotal - bookedCount),
+            availableRooms
+          };
+        })
+      );
 
     res.json({ success: true, availability });
   } catch (error) {
