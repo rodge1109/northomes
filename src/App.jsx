@@ -13927,8 +13927,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col gap-3 mt-auto">
-                          <button className="w-full py-3 rounded-xl border border-[#1E3932] text-[#1E3932] font-bold hover:bg-[#1E3932]/5 transition-all text-[12px]">
+                          <div className="flex flex-col gap-3 mt-auto">
+                            {wkError && <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-[12px] font-bold rounded-lg">{wkError}</div>}
+                            <button className="w-full py-3 rounded-xl border border-[#1E3932] text-[#1E3932] font-bold hover:bg-[#1E3932]/5 transition-all text-[12px]">
                             Save as Draft
                           </button>
                           <button onClick={resetWalkin} className="w-full py-3 rounded-xl text-black/60 font-semibold hover:text-black/80 hover:bg-black/5 transition-all text-[12px]">
