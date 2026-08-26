@@ -11424,6 +11424,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
 
   // Walk-In state
   const [wkRoomTypes, setWkRoomTypes] = React.useState([]);
+  const [wkRoomSelections, setWkRoomSelections] = React.useState([{ roomType: '', roomNumber: '' }]);
   const [wkRateCodes, setWkRateCodes] = React.useState([]);
   const [wkRateCode, setWkRateCode] = React.useState('');
   const [wkLastName, setWkLastName] = React.useState('');
