@@ -11430,11 +11430,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
   const [wkFirstName, setWkFirstName] = React.useState('');
   const [wkEmail, setWkEmail] = React.useState('');
   const [wkPhone, setWkPhone] = React.useState('');
-  const [wkRoomType, setWkRoomType] = React.useState('');
   const [wkCheckIn, setWkCheckIn] = React.useState(today);
   const [wkCheckOut, setWkCheckOut] = React.useState('');
   const [wkGuests, setWkGuests] = React.useState(1);
-  const [wkRoomNumber, setWkRoomNumber] = React.useState('');
   const [wkSpecialReq, setWkSpecialReq] = React.useState('');
   const [wkPayment, setWkPayment] = React.useState(false);
   const [wkNotes, setWkNotes] = React.useState('');
@@ -11466,7 +11464,6 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
   const [wkCheckOutTime, setWkCheckOutTime] = React.useState('12:00');
   const [wkAdults, setWkAdults] = React.useState(2);
   const [wkChildren, setWkChildren] = React.useState(1);
-  const [wkNumRooms, setWkNumRooms] = React.useState(1);
   const [wkSource, setWkSource] = React.useState('Direct Booking');
   const [wkRoomPreference, setWkRoomPreference] = React.useState('High Floor');
   const [wkBedType, setWkBedType] = React.useState('Queen Bed');
@@ -11966,7 +11963,16 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
       const data = await res.json();
       const list = data.availability || data.roomTypes || [];
       setWkRoomTypes(list);
-      if (list.length > 0) setWkRoomType(rt => rt || list[0].name);
+      if (list.length > 0) {
+        setWkRoomSelections(prev => {
+          if (!prev[0].roomType) {
+            const next = [...prev];
+            next[0].roomType = list[0].name;
+            return next;
+          }
+          return prev;
+        });
+      }
     } catch (e) { console.error(e); }
   }, []);
 
@@ -11985,7 +11991,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
   }, [fdView]);
 
   const submitWalkin = async () => {
-    if (!wkLastName.trim() || !wkFirstName.trim() || !wkRoomType || !wkCheckIn || !wkCheckOut || !wkRoomNumber.trim()) {
+    const hasEmptyRoom = wkRoomSelections.some(r => !r.roomType || !r.roomNumber);
+    if (!wkLastName.trim() || !wkFirstName.trim() || !wkCheckIn || !wkCheckOut || hasEmptyRoom) {
       setWkError('Please fill in all required fields (last name, first name, room type, dates, room number).'); return;
     }
     if (new Date(wkCheckOut) <= new Date(wkCheckIn)) {
@@ -12023,8 +12030,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
     setWkGender(''); setWkBirthDate(''); setWkNationality(''); setWkCountry('');
     setWkEmail(''); setWkPhone(''); setWkAddress(''); setWkCity('');
     setWkIdType(''); setWkIdNumber('');
-    setWkRoomType(wkRoomTypes[0]?.name || ''); setWkRateCode('');
-    setWkCheckIn(today); setWkCheckOut(''); setWkEta(''); setWkGuests(1); setWkRoomNumber('');
+    setWkRoomSelections([{ roomType: wkRoomTypes[0]?.name || '', roomNumber: '' }]); setWkRateCode('');
+    setWkCheckIn(today); setWkCheckOut(''); setWkEta(''); setWkGuests(1);
     setWkPurpose(''); setWkPaymentMethod('Cash'); setWkDepositAmount('');
     setWkPayment(false); setWkSpecialReq(''); setWkNotes('');
     setWkSuccess(false); setWkResult(null); setWkError('');
