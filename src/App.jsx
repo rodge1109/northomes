@@ -12043,6 +12043,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
               check_in_date: wkCheckIn, check_out_date: wkCheckOut,
               eta: wkEta, number_of_guests: guestsPerRoom, room_number: sel.roomNumber,
               purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: i === 0 ? (wkGuaranteeAmount || 0) : 0,
+              company: wkCompany.trim(),
               payment_collected: wkPayment, special_requests: wkSpecialReq.trim(), notes: wkNotes.trim(), add_to_profile: wkAddToProfile, is_vip: wkVipGuest, is_repeat: wkRepeatGuest,
             }),
           });

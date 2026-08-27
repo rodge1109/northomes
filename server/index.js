@@ -327,13 +327,14 @@ initDocumentsTable().catch(err => console.error('Failed to init documents table:
 
 // ─── Front Desk columns (safe, additive migrations) ───────────────────────────
 const initFrontDeskColumns = async () => {
-  const migrations = [
+    const migrations = [
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS room_number TEXT`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMPTZ`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_out_at TIMESTAMPTZ`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS id_verified BOOLEAN DEFAULT false`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS payment_collected BOOLEAN DEFAULT false`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS front_desk_notes TEXT DEFAULT ''`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS company TEXT DEFAULT ''`,
     // Guest profile extended fields
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS title TEXT DEFAULT ''`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS middle_name TEXT DEFAULT ''`,
@@ -641,7 +642,6 @@ const findOrCreateGuest = async (client, data) => {
       data.nationality || '', data.country || '', data.address || data.address_line_1 || '', data.city || '', data.email || '', phone,
       data.id_type || '', data.id_number || '', data.purpose_of_visit || '', data.expiry_date || null, data.issuing_country || '',
       data.telephone || '', data.address_line_1 || '', data.address_line_2 || '', data.province_state || '', data.zip_postal_code || '',
-      data.preferred_room_type || '', data.preferred_floor || '', data.bed_type || '', data.smoking_preference || '', data.pillow_type || '',
       data.language || '', data.special_requests_notes || '', data.vip_status || 'Standard', data.source || '', data.market_segment || '', data.referred_by || '', data.tags || '', data.notes || ''
     ]);
     guestId = insertRes.rows[0].id;
@@ -1987,7 +1987,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
       room_number, payment_collected, special_requests, notes, rate_code,
       title, middle_name, gender, birth_date, nationality, country,
       address, city, id_type, id_number, purpose, eta,
-      payment_method, deposit_amount,
+      payment_method, deposit_amount, company,
       add_to_profile, is_vip, is_repeat
     } = req.body;
     if (!full_name || !room_type || !check_in_date || !check_out_date || !room_number) {
@@ -2062,11 +2062,11 @@ app.post('/api/front-desk/walkin', async (req, res) => {
           front_desk_notes, rate_code, status, checked_in_at, guest_arrived_at,
           title, middle_name, gender, date_of_birth, nationality, country,
           address, city, id_type, id_number, purpose_of_visit, eta,
-          payment_method, deposit_amount, guest_id)
+          payment_method, deposit_amount, guest_id, company)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$27,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
                CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
-               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28)
+               $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28, $29)
        RETURNING *`,
       [
         full_name, email || '', phone || '', room_type,
@@ -2077,7 +2077,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
         birth_date || null, nationality || '', country || '',
         address || '', city || '', id_type || '', id_number || '',
         purpose || '', eta || '', payment_method || '', deposit_amount || 0,
-        initialStatus, guestId
+          initialStatus, guestId, company || ''
       ]
     );
     // Auto-upsert room record
