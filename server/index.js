@@ -2584,13 +2584,16 @@ app.patch('/api/reservations/:id/extend', async (req, res) => {
     const currentCheckout = new Date(resv.check_out_date);
     const newCheckout = new Date(new_checkout_date);
 
-    if (newCheckout <= currentCheckout) {
-      return res.status(400).json({ success: false, message: 'New check-out date must be after the current check-out date.' });
-    }
+    if (newCheckout <= new Date(resv.check_in_date)) {
+        return res.status(400).json({ success: false, message: 'New check-out date must be after the check-in date.' });
+      }
+      if (newCheckout.getTime() === currentCheckout.getTime()) {
+        return res.status(400).json({ success: false, message: 'New check-out date must be different from current check-out date.' });
+      }
 
     // Soft conflict check — same room, overlapping dates (excluding this reservation)
     let warning = null;
-    if (resv.room_number) {
+      if (resv.room_number && newCheckout > currentCheckout) {
       const conflict = await pool.query(
         `SELECT id, full_name, check_in_date FROM hotel_reservations
          WHERE room_number = $1 AND id != $2

@@ -14794,7 +14794,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
           : 0;
         const fmtD = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         // min date = day after current checkout
-        const minDate = (() => { const d = new Date(currentCheckout); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
+        const minDate = (() => { const d = new Date(extendGuest.check_in_date); d.setDate(d.getDate() + 1); return d.toISOString().slice(0, 10); })();
 
         return (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={() => !extendSubmitting && setExtendGuest(null)}>
@@ -14807,8 +14807,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                       <rect x="1" y="2" width="14" height="13" rx="1.5" /><path d="M1 6h14" /><path d="M11 9v4M9 11h4" /><path d="M4 4V2M12 4V2" />
                     </svg>
-                    Extend Stay
-                  </div>
+                    Adjust Checkout</div>
                   <div className="text-xs text-black/50 mt-0.5">{extendGuest.full_name} · Room {extendGuest.room_number}</div>
                 </div>
                 <button onClick={() => setExtendGuest(null)} className="w-7 h-7 rounded-full flex items-center justify-center text-black/40 hover:bg-black/10 hover:text-black transition-colors">
@@ -14837,13 +14836,18 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 </div>
 
                 {/* Additional nights badge */}
-                {additionalNights > 0 && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-[#f0fdf8] border border-[#00754A]/20">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2"><path d="M12 2v10l4 4" /><circle cx="12" cy="12" r="10" /></svg>
-                    <span className="text-xs font-semibold text-[#00754A]">+{additionalNights} additional night{additionalNights !== 1 ? 's' : ''}</span>
-                    <span className="text-xs text-black/40 ml-auto">Remember to post charges manually</span>
-                  </div>
-                )}
+                {additionalNights !== 0 && (
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-[#f0fdf8] border border-[#00754A]/20">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="2"><path d="M12 2v10l4 4" /><circle cx="12" cy="12" r="10" /></svg>
+                      <span className="text-xs font-semibold text-[#00754A]">
+                        {additionalNights > 0 
+                          ? `+${additionalNights} additional night${additionalNights !== 1 ? 's' : ''}`
+                          : `${additionalNights} night${additionalNights !== -1 ? 's' : ''} (Shortened)`
+                        }
+                      </span>
+                      <span className="text-xs text-black/40 ml-auto">Remember to adjust charges manually</span>
+                    </div>
+                  )}
 
                 {/* Conflict warning */}
                 {extendConflict && (
@@ -14882,7 +14886,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                 {!(extendSuccess && !extendConflict) && (
                   <button
                     onClick={submitExtend}
-                    disabled={extendSubmitting || !extendNewDate || additionalNights <= 0}
+                    disabled={extendSubmitting || !extendNewDate || additionalNights === 0}
                     className="flex-1 py-1.5 rounded-xl bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40"
                   >
                     {extendSubmitting ? 'Extending…' : extendConflict ? 'Extend Anyway' : 'Confirm Extension'}
