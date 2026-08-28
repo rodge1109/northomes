@@ -495,7 +495,8 @@ const initGuestProfileMigration = async () => {
         id_number        TEXT DEFAULT '',
         purpose_of_visit TEXT DEFAULT '',
         created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          company          TEXT DEFAULT ''
     )
   `);
   
@@ -585,6 +586,8 @@ const initGuestProfileMigration = async () => {
       await pool.query('UPDATE hotel_reservations SET guest_id = $1 WHERE id = $2', [guestId, r.id]);
     }
     console.log('Backfill migration to dedicated guests table completed successfully.');
+    }
+    await pool.query('ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS company TEXT DEFAULT \'\'');
   }
 };
 initGuestProfileMigration().catch(err => console.error('Guest profile migration failed:', err));
