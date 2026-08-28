@@ -588,7 +588,6 @@ const initGuestProfileMigration = async () => {
     console.log('Backfill migration to dedicated guests table completed successfully.');
     }
     await pool.query('ALTER TABLE hotel_guests ADD COLUMN IF NOT EXISTS company TEXT DEFAULT \'\'');
-  }
 };
 initGuestProfileMigration().catch(err => console.error('Guest profile migration failed:', err));
 
@@ -645,6 +644,7 @@ const findOrCreateGuest = async (client, data) => {
       data.nationality || '', data.country || '', data.address || data.address_line_1 || '', data.city || '', data.email || '', phone,
       data.id_type || '', data.id_number || '', data.purpose_of_visit || '', data.expiry_date || null, data.issuing_country || '',
       data.telephone || '', data.address_line_1 || '', data.address_line_2 || '', data.province_state || '', data.zip_postal_code || '',
+      data.preferred_room_type || '', data.preferred_floor || '', data.bed_type || '', data.smoking_preference || '', data.pillow_type || '',
       data.language || '', data.special_requests_notes || '', data.vip_status || 'Standard', data.source || '', data.market_segment || '', data.referred_by || '', data.tags || '', data.notes || ''
     ]);
     guestId = insertRes.rows[0].id;
@@ -5536,7 +5536,8 @@ app.get('/api/reports/shift', async (req, res) => {
         AND i.amount < 0
         AND (r.status IS NULL OR r.status != 'pending')
     `;
-    if (staff && staff !== 'All Staff') discountQuery += ` AND i.cashier_name = $3`;
+    // Removed staff filter because hotel_folio_items doesn't have cashier_name column
+    // if (staff && staff !== 'All Staff') discountQuery += ` AND i.cashier_name = $3`;
     discountQuery += ` ORDER BY i.posted_at ASC`;
     const discountsResult = await pool.query(discountQuery, params);
 
