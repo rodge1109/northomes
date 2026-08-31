@@ -1,0 +1,9812 @@
+const printGuestDataSheet = (res) => {
+    if (!res) return;
+    const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const fmtCurrency = (n) => `₱${parseFloat(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // Parse name parts using robust parser
+    const parsedName = parseFullName(res.full_name);
+    const { last, first, mi } = parsedName;
+
+    const nights = Math.max(1, Math.round((new Date(res.check_out_date || res.check_in_date) - new Date(res.check_in_date)) / 86400000));
+    const getRoomRate = (roomTypeName, rateCodeCode) => {
+      if (rateCodeCode) {
+        const matchedRc = adminRateCodes.find(rc => rc.code === rateCodeCode);
+        if (matchedRc && matchedRc.prices) {
+          const priceObj = matchedRc.prices.find(p => p.room_type_name === roomTypeName);
+          if (priceObj && priceObj.price_per_night) {
+            return parseFloat(priceObj.price_per_night);
+          }
+        }
+      }
+      const matched = adminRoomTypes.find(rt => rt.name === roomTypeName);
+      if (matched) return parseFloat(matched.price_per_night);
+      const type = (roomTypeName || '').toLowerCase();
+      if (type.includes('presidential')) return 25000;
+      if (type.includes('suite')) return 9000;
+      if (type.includes('family')) return 6500;
+      if (type.includes('deluxe')) return 4500;
+      return 2500; // Standard Room and fallback
+    };
+    const rate = getRoomRate(res.room_type, res.rate_code);
+    const totalAmt = nights * rate;
+
+    // Remove 'Z' if present to prevent browser from adding local timezone offset to an already-local DB timestamp
+    const safeDateStr = res.checked_in_at && typeof res.checked_in_at === 'string' ? res.checked_in_at.replace(/Z$/, '') : res.checked_in_at;
+    const displayCheckInTime = safeDateStr ? new Date(safeDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
+
+    // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
+    const payMethod = (res.payment_method || '').toLowerCase();
+    const source = (res.source || '').toLowerCase();
+
+    const isCash = payMethod.includes('cash') || source.includes('cash') ? 'checked' : '';
+    const isBank = payMethod.includes('bank') || payMethod.includes('transfer') ? 'checked' : '';
+    const isGcash = payMethod.includes('gcash') ? 'checked' : '';
+    const isMaya = payMethod.includes('maya') || payMethod.includes('paymaya') ? 'checked' : '';
+    const isOther = !isCash && !isBank && !isGcash && !isMaya ? 'checked' : '';
+
+    const win = window.open('', '_blank', 'width=800,height=900');
+    win.document.write(`<!DOCTYPE html><html><head><title>Guest Data Sheet — ${res.full_name}</title>
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 750px; margin: 20px auto; padding: 0 10px; color: #222; font-size: 11px; line-height: 1.3; }
+        .header { text-align: center; margin-bottom: 16px; background-color: #1E3932; color: white; padding: 24px; border-radius: 8px 8px 0 0; }
+        .header h1 { margin: 0; font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; color: white; }
+        .header p { margin: 4px 0 0 0; font-size: 10px; color: rgba(255,255,255,0.8); font-weight: 500; }
+        .divider { border-bottom: 2px solid #222; margin: 8px 0; }
+        .title-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; padding: 0 4px; }
+        .title-row h2 { margin: 0; font-size: 14px; font-weight: bold; text-transform: uppercase; }
+        .doc-no { font-weight: bold; font-size: 11px; color: #b91c1c; }
+        
+        .section-title { font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 12px 0 6px 0; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+        
+        .grid-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+        .grid-table td { padding: 4px 6px; border: 1px solid #ddd; vertical-align: middle; }
+        .lbl { font-weight: bold; color: #333; width: 12%; font-size: 9px; text-transform: uppercase; background: #fafafa; }
+        .val { width: 21%; }
+        .line-input { border-bottom: 1px solid #222; min-height: 14px; padding-left: 4px; }
+        
+        .checkbox-group { display: flex; gap: 15px; align-items: center; margin-top: 4px; }
+        .checkbox-group label { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 9px; }
+        
+        .ack-box { border: 1px solid #888; padding: 8px; margin: 10px 0; font-size: 9.5px; line-height: 1.4; background: #fafafa; border-radius: 4px; }
+        .sig-row { display: flex; justify-content: space-between; margin-top: 15px; }
+        .sig-col { width: 45%; text-align: center; }
+        .sig-line { border-bottom: 1px solid #222; margin-bottom: 4px; height: 18px; }
+        
+        .data-table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+        .data-table th { border: 1px solid #222; padding: 5px; font-weight: bold; text-align: center; background: #f0f0f0; font-size: 9px; }
+        .data-table td { border: 1px solid #222; padding: 4px; font-size: 10px; }
+        .data-table td.center { text-align: center; }
+        .data-table td.right { text-align: right; }
+        
+        .footer-row { display: flex; justify-content: space-between; margin-top: 20px; font-size: 10px; }
+        
+        @media print {
+          body { margin: 10px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .header { border-radius: 0; }
+          button { display: none; }
+        }
+      </style></head><body>
+      <div class="header">
+        <h1>Northomes Pensione</h1>
+        <p>PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+        <p>TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+      </div>
+      <div class="divider"></div>
+      
+      <div class="title-row">
+        <h2>Guest Data Sheet</h2>
+        <div class="doc-no">F1-D-${String(res.id).padStart(4, '0')}</div>
+      </div>
+      
+      <table class="grid-table">
+        <tr>
+          <td class="lbl">Last Name</td>
+          <td class="val"><div class="line-input">${last}</div></td>
+          <td class="lbl">First Name</td>
+          <td class="val"><div class="line-input">${first}</div></td>
+          <td class="lbl">M.I.</td>
+          <td class="val"><div class="line-input">${mi}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Company Name</td>
+          <td class="val" colspan="3"><div class="line-input">${res.company || '—'}</div></td>
+          <td class="lbl">T.I.N.</td>
+          <td class="val"><div class="line-input">—</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Address</td>
+          <td class="val" colspan="5"><div class="line-input">${res.address || '—'}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Date of Birth</td>
+          <td class="val"><div class="line-input">${fmtD(res.date_of_birth)}</div></td>
+          <td class="lbl">Citizenship</td>
+          <td class="val"><div class="line-input">${res.nationality || 'Filipino'}</div></td>
+          <td class="lbl">Contact No.</td>
+          <td class="val"><div class="line-input">${res.phone_number || '—'}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Email Add</td>
+          <td class="val" colspan="5"><div class="line-input">${res.email || '—'}</div></td>
+        </tr>
+      </table>
+      
+      <div class="section-title">In case of emergency please notify</div>
+      <table class="grid-table">
+        <tr>
+          <td class="lbl" style="width:15%;">Name</td>
+          <td style="width:35%;"><div class="line-input">—</div></td>
+          <td class="lbl" style="width:15%;">Contact No.</td>
+          <td style="width:35%;"><div class="line-input">—</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Address</td>
+          <td colspan="3"><div class="line-input">—</div></td>
+        </tr>
+      </table>
+      
+      <div class="section-title">Booking Details</div>
+      <table class="grid-table">
+        <tr>
+          <td class="lbl">Check-In Date</td>
+          <td class="val"><div class="line-input">${fmtD(res.check_in_date)}</div></td>
+          <td class="lbl">Check-Out Date</td>
+          <td class="val"><div class="line-input">${fmtD(res.check_out_date)}</div></td>
+          <td class="lbl">No. of Nights</td>
+          <td class="val"><div class="line-input">${nights}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Check-In Time</td>
+          <td class="val"><div class="line-input">${displayCheckInTime}</div></td>
+          <td class="lbl">Check-Out Time</td>
+          <td class="val"><div class="line-input">${res.check_out_time || '12:00'}</div></td>
+          <td class="lbl">No. of Guests</td>
+          <td class="val"><div class="line-input">${res.number_of_guests || 1}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Accommodation</td>
+          <td class="val"><div class="line-input">Room ${res.room_number || '—'}</div></td>
+          <td class="lbl">Rate Per Night</td>
+          <td class="val"><div class="line-input">${fmtCurrency(rate)}</div></td>
+          <td class="lbl">Room Charges</td>
+          <td class="val"><div class="line-input">${fmtCurrency(totalAmt)}</div></td>
+        </tr>
+        <tr>
+          <td class="lbl">Inclusions</td>
+          <td class="val" colspan="3"><div class="line-input">Standard Room Amenities</div></td>
+          <td class="lbl">Other Charges</td>
+          <td class="val"><div class="line-input">₱0.00</div></td>
+        </tr>
+        <tr>
+          <td class="lbl" colspan="4" style="text-align:right; font-weight:bold; background:#fafafa;">Total Amount Due:</td>
+          <td class="val" colspan="2" style="font-weight:bold;"><div class="line-input">${fmtCurrency(totalAmt)}</div></td>
+        </tr>
+      </table>
+      
+      <div style="margin-top:6px;">
+        <span style="font-weight:bold; font-size:9px; text-transform:uppercase;">Payment Method:</span>
+        <div class="checkbox-group">
+          <label><input type="checkbox" ${isCash}> CASH</label>
+          <label><input type="checkbox" ${isBank}> BANK TRANSFER</label>
+          <label><input type="checkbox" ${isGcash}> GCASH</label>
+          <label><input type="checkbox" ${isMaya}> MAYA</label>
+          <label><input type="checkbox" ${isOther}> OTHER</label>
+        </div>
+      </div>
+      
+      <div class="section-title">Guest Acknowledgement & Confirmation</div>
+      <div class="ack-box">
+        I, <strong>${res.full_name}</strong>, affirm that the above information is true and correct. I have read and understood the house rules and agree to abide by them. Additionally, I have reviewed and confirmed the billing details, acknowledging that all charges are accurate.
+      </div>
+      
+      <div class="sig-row">
+        <div class="sig-col">
+          <div class="sig-line"></div>
+          <div style="font-size:9px;">Guest Signature</div>
+          <div style="font-size:8px; color:#666;">(Signature over printed name)</div>
+        </div>
+        <div class="sig-col">
+          <div class="sig-line" style="width:100px; margin-left:auto; margin-right:auto;"></div>
+          <div style="font-size:9px;">Date</div>
+        </div>
+      </div>
+      
+      <div style="page-break-before: always;"></div>
+      
+      <div class="header" style="margin-top: 20px;">
+        <h1>Northomes Pensione</h1>
+        <p>PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+        <p>TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+      </div>
+      <div class="divider"></div>
+      
+      <div class="title-row" style="margin-top:10px;">
+        <h2>Guest Folio</h2>
+        <div class="doc-no">F1-D-${String(res.id).padStart(4, '0')}</div>
+      </div>
+      <div style="margin-bottom: 10px; font-weight:bold; font-size: 11px;">Guest Name: ${res.full_name}</div>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:20%;">DATE</th>
+            <th style="width:15%;">RM#</th>
+            <th style="width:20%;">RATE</th>
+            <th style="width:15%;"># OF DAYS</th>
+            <th style="width:30%;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="center">${fmtD(res.check_in_date)}</td>
+            <td class="center">${res.room_number || '—'}</td>
+            <td class="right">${fmtCurrency(rate)}</td>
+            <td class="center">${nights}</td>
+            <td class="right">${fmtCurrency(totalAmt)}</td>
+          </tr>
+          <tr><td colspan="4" style="text-align:right; font-weight:bold;">Total PhP</td><td class="right" style="font-weight:bold;">${fmtCurrency(totalAmt)}</td></tr>
+        </tbody>
+      </table>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:20%;">DATE</th>
+            <th style="width:15%;">O.S. #</th>
+            <th style="width:35%;">DETAILS</th>
+            <th style="width:30%;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td colspan="3" style="text-align:right; font-weight:bold;">Total PhP</td><td class="right" style="font-weight:bold;">₱0.00</td></tr>
+        </tbody>
+      </table>
+      
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:20%;">DATE</th>
+            <th style="width:15%;">REF. #</th>
+            <th style="width:35%;">DETAILS</th>
+            <th style="width:30%;">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td style="height:14px;"></td><td></td><td></td><td></td></tr>
+          <tr><td colspan="3" style="text-align:right; font-weight:bold;">Total PhP ( &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; )</td><td class="right" style="font-weight:bold;">₱0.00</td></tr>
+        </tbody>
+      </table>
+      
+      <div style="display:flex; justify-content:flex-end; font-weight:bold; font-size:12px; margin-top:8px; border-top:1px solid #222; padding-top:6px;">
+        TOTAL AMOUNT DUE: &nbsp; <span style="text-decoration: underline; text-underline-offset: 3px;">${fmtCurrency(totalAmt)}</span>
+      </div>
+      
+      <div class="footer-row">
+        <div>CHECK IN DATE: <span style="text-decoration:underline;">&nbsp; &nbsp; ${fmtD(res.check_in_date)} &nbsp; &nbsp;</span> &nbsp; &nbsp; TIME: <span style="text-decoration:underline;">&nbsp; &nbsp; ${displayCheckInTime} &nbsp; &nbsp;</span></div>
+        <div style="text-align:center; width:200px;">
+          <div style="border-bottom:1px solid #222; height:18px; font-weight:bold; font-size:9px;">${localStorage.getItem('adminFullName') || localStorage.getItem('adminUser') || 'Front Desk'}</div>
+          <div style="font-size:8px; text-transform:uppercase; color:#666; margin-top:3px;">Front Desk Officer</div>
+        </div>
+      </div>
+      
+      <script>window.onload=()=>{window.print();}</script>
+    </body></html>`);
+    win.document.close();
+  };
+
+  // Auth state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userPermissions, setUserPermissions] = useState([]);
+  const [loginError, setLoginError] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(!!localStorage.getItem('adminToken'));
+
+  // Dashboard state
+  const [reservations, setReservations] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const [updatingId, setUpdatingId] = useState(null);
+
+  // Search & Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  // Reschedule state
+  const [editModal, setEditModal] = useState(null);
+
+  const [confirmModal, setConfirmModal] = React.useState(null);
+  const [confirmRoomNumber, setConfirmRoomNumber] = React.useState('');
+  const [confirmOccupiedRooms, setConfirmOccupiedRooms] = React.useState([]);
+  const [confirmAllRooms, setConfirmAllRooms] = React.useState([]);
+
+  const handleOpenConfirmModal = async (res) => {
+    setConfirmModal(res);
+    setConfirmRoomNumber(res.room_number || '');
+    try {
+      const checkIn = res.check_in_date ? res.check_in_date.slice(0, 10) : res.preferred_date;
+      const checkOut = res.check_out_date ? res.check_out_date.slice(0, 10) : res.preferred_date;
+      
+      const [occResp, roomsResp] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/rooms/occupied?checkIn=${checkIn}&checkOut=${checkOut}&ignoreReservationId=${res.id || res.dbId || ''}`),
+        fetch(`${API_BASE_URL}/api/rooms`)
+      ]);
+      
+      const occData = await occResp.json();
+      if (occData.success) {
+        setConfirmOccupiedRooms(occData.occupiedRooms);
+      }
+      
+      const roomsData = await roomsResp.json();
+      if (roomsData.rooms) {
+        setConfirmAllRooms(roomsData.rooms);
+      }
+    } catch (e) {
+      console.error(e);
+      setConfirmOccupiedRooms([]);
+      setConfirmAllRooms([]);
+    }
+  };
+
+  const submitConfirmBooking = () => {
+    if (!confirmModal) return;
+    const id = confirmModal.id || confirmModal.dbId;
+    updateStatus(id, 'confirmed', confirmRoomNumber);
+    setConfirmModal(null);
+  };
+
+  const [newDate, setNewDate] = useState('');
+  const [newTime, setNewTime] = useState('');
+  const [newRoomNumber, setNewRoomNumber] = useState('');
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Calendar state
+  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth() + 1);
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear());
+  const [calendarData, setCalendarData] = useState({ reservations: [], blockedDates: [] });
+
+  // Reports state
+  const [reportStats, setReportStats] = useState(null);
+  const [reportStartDate, setReportStartDate] = useState('');
+  const [reportEndDate, setReportEndDate] = useState('');
+  // Hotel reports sub-tab
+  const [reportsSubTab, setReportsSubTab] = useState('reservations');
+  const [hotelRptStart, setHotelRptStart] = useState('');
+  const [hotelRptEnd, setHotelRptEnd] = useState('');
+  const [hotelRptLoading, setHotelRptLoading] = useState(false);
+  const [mgmtData, setMgmtData] = useState(null);
+  const [finData, setFinData] = useState(null);
+  const [finView, setFinView] = useState('daily');
+  const [finYear, setFinYear] = useState(new Date().getFullYear());
+  const [dailyRevData, setDailyRevData] = useState([]);
+  const [monthlyRevData, setMonthlyRevData] = useState([]);
+
+  // Settings state
+  const [blockedDates, setBlockedDates] = useState([]);
+  const [newBlockedDate, setNewBlockedDate] = useState('');
+  const [newBlockedReason, setNewBlockedReason] = useState('');
+  const [doctors, setDoctors] = useState([]);
+  const [newDoctorName, setNewDoctorName] = useState('');
+  const [newDoctorSpec, setNewDoctorSpec] = useState('');
+  const [services, setServices] = useState([]);
+  const [newServiceName, setNewServiceName] = useState('');
+  const [newServiceDuration, setNewServiceDuration] = useState(30);
+  const [newServicePrice, setNewServicePrice] = useState(0);
+
+  // Print modal
+  const [printAppointment, setPrintAppointment] = useState(null);
+
+  // Hotel Settings sub-tab & form state
+  const [settingsSubTab, setSettingsSubTab] = useState('property');
+  const [hotelSettings, setHotelSettings] = useState({
+    hotel_name: '', hotel_address: '', hotel_phone: '', hotel_email: '',
+    hotel_website: '', check_in_time: '14:00', check_out_time: '12:00',
+    currency: 'PHP', min_stay_nights: '1', max_stay_nights: '30',
+    advance_booking_days: '365', cancellation_policy: '',
+    deposit_required: 'false', deposit_percentage: '50', auto_post_room_charge: 'false',
+    sms_sender_name: '', email_sender_name: '', hero_images: '[]', gallery_images: '[]', about_us_content: ''
+  });
+  const [heroFiles, setHeroFiles] = useState([]);
+  const [galleryFiles, setGalleryFiles] = useState([]);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSavedMsg, setSettingsSavedMsg] = useState('');
+  const [adminRoomTypes, setAdminRoomTypes] = useState([]);
+  const [newRoomForm, setNewRoomForm] = useState({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '' });
+  const [newRoomFiles, setNewRoomFiles] = useState([]);
+  const [editRoomId, setEditRoomId] = useState(null);
+  const [editRoomForm, setEditRoomForm] = useState({});
+  const [editRoomFiles, setEditRoomFiles] = useState([]);
+  // Rate Codes admin state
+  const [adminRateCodes, setAdminRateCodes] = useState([]);
+  const [adminPromos, setAdminPromos] = useState([]);
+  const [adminRoomTypesForRates, setAdminRoomTypesForRates] = useState([]);
+  const [rcLoading, setRcLoading] = useState(false);
+  const [rcNewForm, setRcNewForm] = useState({ code: '', name: '', description: '' });
+  const [rcEditId, setRcEditId] = useState(null);
+  const [rcPriceEdit, setRcPriceEdit] = useState(null); // rate_code_id being edited for prices
+  const [rcPrices, setRcPrices] = useState({}); // { room_type_id: price }
+  const [rcSaving, setRcSaving] = useState(false);
+  const [rcMsg, setRcMsg] = useState('');
+
+  // Staff admin state
+  const [adminStaffList, setAdminStaffList] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
+  const [staffNewForm, setStaffNewForm] = useState({ username: '', password: '', full_name: '', permissions: [] });
+  const [staffMsg, setStaffMsg] = useState('');
+
+  const fetchStaff = useCallback(async () => {
+    setStaffLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/staff`);
+      const data = await res.json();
+      if (data.success) setAdminStaffList(data.staff);
+    } catch (e) { console.error('Failed to fetch staff'); }
+    setStaffLoading(false);
+  }, []);
+
+  // Check for existing session
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+      verifyToken(token);
+    } else {
+      setIsVerifying(false);
+    }
+  }, []);
+
+  const verifyToken = async (token) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/verify`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await response.json();
+      if (data.valid) {
+        setIsLoggedIn(true);
+        setUserPermissions(data.permissions || []);
+        localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
+        if (data.username) localStorage.setItem('adminUser', data.username);
+        if (data.full_name) localStorage.setItem('adminFullName', data.full_name);
+        window.dispatchEvent(new Event('authChanged'));
+        fetchReservations();
+      } else {
+        localStorage.removeItem('adminToken');
+        window.dispatchEvent(new Event('authChanged'));
+      }
+    } catch (error) {
+      localStorage.removeItem('adminToken');
+      window.dispatchEvent(new Event('authChanged'));
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setLoginError('');
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('adminToken', data.token);
+        setIsLoggedIn(true);
+        setUserPermissions(data.permissions || []);
+        localStorage.setItem('adminPerms', JSON.stringify(data.permissions || []));
+        if (data.username) localStorage.setItem('adminUser', data.username);
+        if (data.full_name) localStorage.setItem('adminFullName', data.full_name);
+        window.dispatchEvent(new Event('authChanged'));
+        fetchReservations();
+      } else {
+        setLoginError(data.message || 'Invalid credentials');
+      }
+    } catch (error) {
+      setLoginError('Login failed. Please try again.');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem('adminToken');
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminPerms');
+    window.dispatchEvent(new Event('authChanged'));
+    setIsLoggedIn(false);
+    setUserPermissions([]);
+    setUsername('');
+    setPassword('');
+  };
+
+  const fetchReservations = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const params = new URLSearchParams();
+      if (searchQuery) params.append('query', searchQuery);
+      if (startDate) params.append('startDate', startDate);
+      if (endDate) params.append('endDate', endDate);
+      if (filter !== 'all') params.append('status', filter);
+
+      const url = params.toString()
+        ? `${API_BASE_URL}/api/reservations/search?${params}`
+        : `${API_BASE_URL}/api/reservations`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+      if (data.success) {
+        setReservations(data.reservations);
+      }
+    } catch (error) {
+      console.error('Error fetching reservations:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchQuery, startDate, endDate, filter]);
+
+  // Fetch all reservations once on login
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchReservations();
+    }
+  }, [isLoggedIn]);
+
+  
+  const deleteReservation = async (id) => {
+    if (!window.confirm("Are you sure you want to permanently delete this cancelled booking?")) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}`, { method: 'DELETE' });
+      const data = await response.json();
+      if (data.success) {
+        setReservations(prev => prev.filter(apt => apt.id !== id));
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error deleting:', error);
+    }
+  };
+
+
+  const updateStatus = async (id, newStatus, roomNumber) => {
+    setUpdatingId(id);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, room_number: roomNumber })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setReservations(prev => prev.map(apt =>
+          apt.id === id ? { ...apt, status: newStatus } : apt
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating status:', error);
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  // Edit Booking function
+  const openEditModal = async (apt) => {
+    setEditModal(apt);
+    const initialDate = apt.check_in_date ? apt.check_in_date.slice(0, 10) : apt.preferred_date;
+    setNewDate(initialDate);
+    setNewTime(apt.preferred_time || '');
+    setNewRoomNumber(apt.room_number || '');
+    // Fetch available slots for current date (kept for backwards compatibility if needed)
+    await fetchAvailableSlots(initialDate);
+  };
+
+  const fetchAvailableSlots = async (date) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/available-slots?date=${date}`);
+      const data = await response.json();
+      if (data.success) {
+        // Include the current time slot as it's the appointment's own slot
+        const slots = [...data.availableSlots];
+        if (rescheduleModal && rescheduleModal.preferred_date === date) {
+          if (!slots.includes(rescheduleModal.preferred_time)) {
+            slots.push(rescheduleModal.preferred_time);
+            slots.sort();
+          }
+        }
+        setAvailableSlots(slots);
+      }
+    } catch (error) {
+      console.error('Error fetching slots:', error);
+    }
+  };
+
+  const handleDateChange = async (date) => {
+    setNewDate(date);
+    setNewTime('');
+    await fetchAvailableSlots(date);
+  };
+
+  const handleEditBooking = async () => {
+    if (!newDate) return;
+
+    setIsEditing(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${editModal.id}/edit`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ check_in_date: newDate, check_in_time: newTime, room_number: newRoomNumber })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setReservations(prev => prev.map(apt =>
+          apt.id === editModal.id
+            ? { ...apt, check_in_date: newDate, preferred_date: newDate, preferred_time: newTime, room_number: newRoomNumber }
+            : apt
+        ));
+        setEditModal(null);
+      } else {
+        alert(data.message || 'Failed to edit booking');
+      }
+    } catch (error) {
+      console.error('Edit error:', error);
+      alert('Failed to edit booking');
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+      case 'confirmed': return 'bg-[#00754A]/10 text-[#00754A] border-[#00754A]/20';
+      case 'completed': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+      case 'cancelled': return 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+      default: return 'bg-white shadow-sm text-black/60 border-black/5';
+    }
+  };
+
+  // Client-side filtering
+  const filteredReservations = reservations.filter(apt => {
+    // Search filter
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch =
+        (apt.full_name && apt.full_name.toLowerCase().includes(q)) ||
+        (apt.phone_number && apt.phone_number.includes(q)) ||
+        (apt.email && apt.email.toLowerCase().includes(q));
+      if (!matchesSearch) return false;
+    }
+    // Status filter
+    if (filter !== 'all' && apt.status !== filter) return false;
+    // Date range filter
+    if (startDate && apt.preferred_date && apt.preferred_date.slice(0, 10) < startDate) return false;
+    if (endDate && apt.preferred_date && apt.preferred_date.slice(0, 10) > endDate) return false;
+    return true;
+  });
+
+  const stats = useMemo(() => {
+    if (!reservations) return { total: 0, pending: 0, confirmed: 0, completed: 0, cancelled: 0, arrivals_today: 0 };
+    return {
+      total: reservations.length,
+      pending: reservations.filter(a => a.status === 'pending').length,
+      confirmed: reservations.filter(a => a.status === 'confirmed').length,
+      completed: reservations.filter(a => a.status === 'completed').length,
+      cancelled: reservations.filter(a => a.status === 'cancelled').length,
+      arrivals_today: reservations.filter(a => a.status === 'confirmed' && a.preferred_date === new Date().toISOString().split('T')[0]).length,
+    };
+  }, [reservations]);
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setStartDate('');
+    setEndDate('');
+    setFilter('all');
+  };
+
+  // Fetch calendar data
+  const fetchCalendarData = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/calendar?month=${calendarMonth}&year=${calendarYear}`
+      );
+      const data = await response.json();
+      if (data.success) {
+        setCalendarData(data);
+      }
+    } catch (error) {
+      console.error('Error fetching calendar:', error);
+    }
+  }, [calendarMonth, calendarYear]);
+
+  // Fetch reports
+  const fetchReports = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (reportStartDate) params.append('startDate', reportStartDate);
+      if (reportEndDate) params.append('endDate', reportEndDate);
+
+      const response = await fetch(`${API_BASE_URL}/api/reports/stats?${params}`);
+      const data = await response.json();
+      if (data.success) {
+        setReportStats(data.stats);
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    }
+  }, [reportStartDate, reportEndDate]);
+
+  const fetchManagementReport = async () => {
+    setHotelRptLoading(true);
+    const params = new URLSearchParams();
+    if (hotelRptStart) params.append('startDate', hotelRptStart);
+    if (hotelRptEnd) params.append('endDate', hotelRptEnd);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reports/hotel/management?${params}`);
+      const data = await res.json();
+      if (data.success) setMgmtData(data);
+    } catch (e) { console.error(e); }
+    setHotelRptLoading(false);
+  };
+
+  const fetchFinancialReport = async () => {
+    setHotelRptLoading(true);
+    const params = new URLSearchParams();
+    if (hotelRptStart) params.append('startDate', hotelRptStart);
+    if (hotelRptEnd) params.append('endDate', hotelRptEnd);
+    try {
+      const [finRes, dailyRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/reports/hotel/financial?${params}`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/reports/hotel/daily?${params}`).then(r => r.json()),
+      ]);
+      if (finRes.success) setFinData(finRes);
+      if (dailyRes.success) setDailyRevData(dailyRes.daily);
+    } catch (e) { console.error(e); }
+    setHotelRptLoading(false);
+  };
+
+  const fetchMonthlyReport = async () => {
+    setHotelRptLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reports/hotel/monthly?year=${finYear}`);
+      const data = await res.json();
+      if (data.success) setMonthlyRevData(data.monthly);
+    } catch (e) { console.error(e); }
+    setHotelRptLoading(false);
+  };
+
+  // Fetch blocked dates
+  const fetchBlockedDates = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/blocked-dates`);
+      const data = await response.json();
+      if (data.success) {
+        setBlockedDates(data.blockedDates);
+      }
+    } catch (error) {
+      console.error('Error fetching blocked dates:', error);
+    }
+  }, []);
+
+  // Add blocked date
+  const addBlockedDate = async () => {
+    if (!newBlockedDate) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/blocked-dates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blockedDate: newBlockedDate, reason: newBlockedReason })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setBlockedDates([...blockedDates, data.blockedDate]);
+        setNewBlockedDate('');
+        setNewBlockedReason('');
+      }
+    } catch (error) {
+      console.error('Error adding blocked date:', error);
+    }
+  };
+
+  // Delete blocked date
+  const deleteBlockedDate = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/blocked-dates/${id}`, { method: 'DELETE' });
+      setBlockedDates(blockedDates.filter(d => d.id !== id));
+    } catch (error) {
+      console.error('Error deleting blocked date:', error);
+    }
+  };
+
+  // Fetch doctors
+  const fetchDoctors = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/doctors`);
+      const data = await response.json();
+      if (data.success) {
+        setDoctors(data.doctors);
+      }
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+    }
+  }, []);
+
+  // Add doctor
+  const addDoctor = async () => {
+    if (!newDoctorName) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/doctors`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newDoctorName, specialization: newDoctorSpec })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setDoctors([...doctors, data.doctor]);
+        setNewDoctorName('');
+        setNewDoctorSpec('');
+      }
+    } catch (error) {
+      console.error('Error adding doctor:', error);
+    }
+  };
+
+  // Delete doctor
+  const deleteDoctor = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/doctors/${id}`, { method: 'DELETE' });
+      setDoctors(doctors.filter(d => d.id !== id));
+    } catch (error) {
+      console.error('Error deleting doctor:', error);
+    }
+  };
+
+  // Fetch services
+  const fetchServices = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/services`);
+      const data = await response.json();
+      if (data.success) {
+        setServices(data.services);
+      }
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  }, []);
+
+  // Add service
+  const addService = async () => {
+    if (!newServiceName) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/services`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newServiceName, duration: newServiceDuration, price: newServicePrice })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setServices([...services, data.service]);
+        setNewServiceName('');
+        setNewServiceDuration(30);
+        setNewServicePrice(0);
+      }
+    } catch (error) {
+      console.error('Error adding service:', error);
+    }
+  };
+
+  // Delete service
+  const deleteService = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/services/${id}`, { method: 'DELETE' });
+      setServices(services.filter(s => s.id !== id));
+    } catch (error) {
+      console.error('Error deleting service:', error);
+    }
+  };
+
+  // Hotel Settings
+  const fetchHotelSettings = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/hotel-settings`);
+      const data = await response.json();
+      if (data.success) setHotelSettings(prev => ({ ...prev, ...data.settings }));
+    } catch (error) {
+      console.error('Error fetching hotel settings:', error);
+    }
+  }, []);
+
+  const saveHotelSettings = async () => {
+    setSavingSettings(true);
+    setSettingsSavedMsg('');
+    try {
+      let updatedSettings = { ...hotelSettings };
+
+      if (heroFiles && heroFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(heroFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          const currentImages = JSON.parse(updatedSettings.hero_images || '[]');
+          updatedSettings.hero_images = JSON.stringify([...currentImages, ...uploadData.urls]);
+          setHotelSettings(updatedSettings);
+          setHeroFiles([]);
+        }
+      }
+
+      if (galleryFiles && galleryFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(galleryFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          const currentImages = JSON.parse(updatedSettings.gallery_images || '[]');
+          updatedSettings.gallery_images = JSON.stringify([...currentImages, ...uploadData.urls]);
+          setHotelSettings(updatedSettings);
+          setGalleryFiles([]);
+        }
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/hotel-settings`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ settings: updatedSettings })
+      });
+      const data = await response.json();
+      if (data.success) setSettingsSavedMsg('Settings saved successfully!');
+      else setSettingsSavedMsg('Failed to save settings.');
+    } catch (error) {
+      setSettingsSavedMsg('Error saving settings.');
+    } finally {
+      setSavingSettings(false);
+      setTimeout(() => setSettingsSavedMsg(''), 3000);
+    }
+  };
+
+  // Admin Room Types CRUD
+  const fetchAdminRoomTypes = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types`);
+      const data = await response.json();
+      if (data.success) setAdminRoomTypes(data.roomTypes);
+    } catch (error) {
+      console.error('Error fetching room types:', error);
+    }
+  }, []);
+
+  const fetchAdminRateCodes = useCallback(async () => {
+    setRcLoading(true);
+    try {
+      const [rcRes, rtRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/admin/rate-codes`),
+        fetch(`${API_BASE_URL}/api/admin/room-types`),
+      ]);
+      const rcData = await rcRes.json();
+      const rtData = await rtRes.json();
+      if (rcData.rateCodes) setAdminRateCodes(rcData.rateCodes);
+      if (rtData.roomTypes) setAdminRoomTypesForRates(rtData.roomTypes);
+      // Also fetch promos so reservation totals can use promo prices
+      try {
+        const promoRes = await fetch(`${API_BASE_URL}/api/promos`);
+        const promoData = await promoRes.json();
+        if (promoData.success) setAdminPromos(promoData.promos || []);
+      } catch (e) { /* ignore */ }
+    } catch (e) { console.error(e); }
+    setRcLoading(false);
+  }, []);
+
+  const saveRcPrices = async (rcId) => {
+    setRcSaving(true);
+    const prices = adminRoomTypesForRates.map(rt => ({
+      room_type_id: rt.id,
+      price_per_night: rcPrices[rt.id] !== undefined && rcPrices[rt.id] !== '' ? rcPrices[rt.id] : null,
+    }));
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/rate-codes/${rcId}/prices`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prices }),
+      });
+      setRcMsg('Prices saved.');
+      setRcPriceEdit(null);
+      fetchAdminRateCodes();
+    } catch (e) { setRcMsg('Save failed.'); }
+    setRcSaving(false);
+    setTimeout(() => setRcMsg(''), 3000);
+  };
+
+  const addRoomType = async () => {
+    if (!newRoomForm.name || !newRoomForm.price_per_night) return;
+    try {
+      let uploadedImages = [];
+      if (newRoomFiles && newRoomFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(newRoomFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          uploadedImages = uploadData.urls;
+        }
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newRoomForm.name,
+          description: newRoomForm.description,
+          totalRooms: parseInt(newRoomForm.total_rooms),
+          pricePerNight: parseFloat(newRoomForm.price_per_night),
+          maxGuests: parseInt(newRoomForm.max_guests),
+          amenities: newRoomForm.amenities,
+          floor: parseInt(newRoomForm.floor) || 1,
+          area: newRoomForm.area,
+          images: uploadedImages
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAdminRoomTypes([...adminRoomTypes, data.roomType]);
+        setNewRoomForm({ name: '', description: '', total_rooms: 1, price_per_night: '', max_guests: 2, amenities: '', floor: 1, area: '', images: [] });
+        setNewRoomFiles([]);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('Error adding room type:', error);
+    }
+  };
+
+  const saveRoomEdit = async (id) => {
+    try {
+      let currentImages = editRoomForm.images || [];
+      if (editRoomFiles && editRoomFiles.length > 0) {
+        const formData = new FormData();
+        Array.from(editRoomFiles).forEach(file => formData.append('photos', file));
+        const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+          method: 'POST',
+          body: formData
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) {
+          currentImages = [...currentImages, ...uploadData.urls];
+        }
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: editRoomForm.name,
+          description: editRoomForm.description,
+          totalRooms: parseInt(editRoomForm.total_rooms),
+          pricePerNight: parseFloat(editRoomForm.price_per_night),
+          maxGuests: parseInt(editRoomForm.max_guests),
+          amenities: editRoomForm.amenities,
+          floor: parseInt(editRoomForm.floor) || 1,
+          area: editRoomForm.area,
+          images: currentImages
+        })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAdminRoomTypes(adminRoomTypes.map(rt => rt.id === id ? data.roomType : rt));
+        setEditRoomId(null);
+        setEditRoomFiles([]);
+      }
+    } catch (error) {
+      console.error('Error updating room type:', error);
+    }
+  };
+
+  const deactivateRoomType = async (id) => {
+    if (!confirm('Deactivate this room type? It will no longer appear in bookings.')) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/admin/room-types/${id}`, { method: 'DELETE' });
+      setAdminRoomTypes(adminRoomTypes.map(rt => rt.id === id ? { ...rt, active: false } : rt));
+    } catch (error) {
+      console.error('Error deactivating room type:', error);
+    }
+  };
+
+  const reactivateRoomType = async (id) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/admin/room-types/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: true })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAdminRoomTypes(adminRoomTypes.map(rt => rt.id === id ? { ...rt, active: true } : rt));
+      }
+    } catch (error) {
+      console.error('Error reactivating room type:', error);
+    }
+  };
+
+  // Export to CSV
+  const exportToCSV = () => {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    if (filter !== 'all') params.append('status', filter);
+    window.open(`${API_BASE_URL}/api/export/reservations?${params}`, '_blank');
+  };
+
+  // Send SMS
+  const sendSMSReminder = async (apt) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/send-sms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointmentId: res.id })
+      });
+      const data = await response.json();
+      alert(data.message);
+    } catch (error) {
+      alert('Failed to send SMS');
+    }
+  };
+
+  // Print appointment slip
+  const printSlip = (apt) => {
+    setPrintAppointment(apt);
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
+
+  // Load data when tab changes
+  useEffect(() => {
+    if (isLoggedIn) {
+      if (activeTab === 'dashboard') fetchReservations();
+      if (activeTab === 'calendar') fetchCalendarData();
+      if (activeTab === 'reports') fetchReports();
+      if (activeTab === 'rooms') fetchAdminRoomTypes();
+      // Fetch room types & rate codes for any tab that displays pricing
+      if (['reservations', 'frontdesk', 'rooms', 'settings'].includes(activeTab)) {
+        fetchAdminRoomTypes();
+        fetchAdminRateCodes();
+      }
+      if (activeTab === 'settings') {
+        fetchBlockedDates();
+        fetchDoctors();
+        fetchServices();
+        fetchHotelSettings();
+        fetchStaff();
+      }
+    }
+  }, [activeTab, isLoggedIn, calendarMonth, calendarYear]);
+
+  // Login Page
+  if (isVerifying) return <div className="min-h-screen bg-[#1E3932] flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div></div>;
+  if (!isLoggedIn) {
+    const inputCls = "w-full px-2.5 py-2 rounded-xl border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-2 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-[12px]";
+    const labelCls = "block text-[10px] uppercase font-bold tracking-wider text-black/50 uppercase tracking-wide mb-1";
+
+    return (
+      <div className="min-h-screen bg-[#1E3932] pt-[70px] md:pt-0 flex items-center justify-center relative overflow-hidden">
+        {/* Subtle texture overlay */}
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 25% 25%, #00754A 0%, transparent 50%), radial-gradient(circle at 75% 75%, #006241 0%, transparent 50%)' }} />
+        <div className="w-full max-w-md px-6 relative z-10">
+          {/* Logo / Brand */}
+          <div className="text-center mb-4">
+            <div className="w-16 h-16 bg-[#00754A] rounded-xl flex items-center justify-center mx-auto mb-3" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 16px rgba(0,0,0,0.24)' }}>
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h4 className="text-white/50 text-[10px] font-black uppercase tracking-[0.2em] mb-2">Northomes Pensionne</h4>
+            <h2 className="text-3xl font-bold text-white tracking-tight">Admin Portal</h2>
+            <p className="text-white/50 mt-2 text-[12px]">Secure access for hotel management</p>
+          </div>
+
+          <div className="rounded-xl p-4" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
+            <form onSubmit={handleLogin} className="space-y-5">
+              {loginError && (
+                <div style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }} className="text-[#c82014] px-2.5 py-2 rounded-md text-xs font-medium">
+                  {loginError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-[10px] font-black text-black/60 uppercase tracking-[0.15em] mb-2">Username</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-2.5 py-2 rounded-md text-[#000000]/87 text-[12px] outline-none transition-all"
+                  style={{ border: '1px solid rgba(0,0,0,0.15)', background: '#ffffff' }}
+                  onFocus={e => e.target.style.borderColor = '#00754A'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.15)'}
+                  placeholder="Enter your username"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-black/60 uppercase tracking-[0.15em] mb-2">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-2.5 py-2 rounded-md text-[#000000]/87 text-[12px] outline-none transition-all"
+                  style={{ border: '1px solid rgba(0,0,0,0.15)', background: '#ffffff' }}
+                  onFocus={e => e.target.style.borderColor = '#00754A'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.15)'}
+                  placeholder="Enter your password"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3.5 text-white font-bold text-[12px] uppercase tracking-[0.1em] transition-all disabled:opacity-50"
+                style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                onMouseEnter={e => { if (!isLoggingIn) e.currentTarget.style.background = '#006241'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = '#00754A'; }}
+                onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+              >
+                {isLoggingIn ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Verifying...</span>
+                  </div>
+                ) : 'Sign In'}
+              </button>
+            </form>
+
+            <button
+              onClick={() => setCurrentPage('home')}
+              className="w-full mt-5 py-1.5 text-black/40 hover:text-[#00754A] text-xs font-bold transition-all uppercase tracking-[0.1em]"
+            >
+              ← Back to Main Website
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const nightsCount = (r) => {
+    if (!r || !r.check_in_date || !r.check_out_date) return 0;
+    const d1 = new Date(r.check_in_date), d2 = new Date(r.check_out_date);
+    return Math.round((d2 - d1) / 86400000);
+  };
+
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+
+  // Dashboard
+  return (
+    <div className="bg-[#1E3932] min-h-screen pt-[70px] pb-24 print:p-0 print:min-h-0">
+      {activeTab === 'queue' && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 10, pointerEvents: 'none', mixBlendMode: 'screen' }}>
+          <Orb hoverIntensity={2} rotateOnHover hue={0} forceHoverState={false} backgroundColor="#000000" />
+        </div>
+      )}
+      <div className="w-full px-4 md:px-8 py-6 print:p-0">
+
+        {/* ==================== DASHBOARD TAB ==================== */}
+        {activeTab === 'dashboard' && (
+          <AdminDashboardTab reservations={reservations} stats={stats} />
+        )}
+
+        {/* ==================== RESERVATIONS TAB ==================== */}
+        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} deleteReservation={deleteReservation} openConfirmModal={handleOpenConfirmModal} openWizard={handleOpenWizard} openTransfer={openTransfer} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
+
+        {/* ==================== GUESTS TAB ==================== */}
+        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
+
+        {/* ==================== FRONT DESK TAB ==================== */}
+        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} pendingTransferRes={pendingTransferRes} setPendingTransferRes={setPendingTransferRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
+
+        {/* ==================== ROOMS TAB ==================== */}
+        {activeTab === 'rooms' && (
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-[14px] tracking-tight leading-tight">Room Inventory</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Manage room types, pricing models, and global availability</p>
+                    </div>
+                    <button
+                      onClick={() => { setActiveTab('settings'); setSettingsSubTab('property'); }}
+                      className="px-6 py-1.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
+                      style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#006241'}
+                      onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                      onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                      onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                    >
+                      Configure Room Types
+                    </button>
+                  </div>
+                </div>
+                <div className="p-4 md:p-4 flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {adminRoomTypes.map(rt => (
+                      <div key={rt.id} className="rounded-xl p-4 border border-black/5 bg-[#f9f9f9] hover:bg-white hover:shadow-md transition-all group cursor-default" style={{ boxShadow: '0 0 0.5px rgba(0,0,0,0.08)' }}>
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-bold text-[#006241] text-[14px]">{rt.name}</h4>
+                          <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${rt.active ? 'bg-[#d4e9e2] text-[#006241] border-[#d4e9e2]' : 'bg-[#f9f9f9] text-black/40 border-black/10'}`}>
+                            {rt.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </div>
+                        <div className="space-y-3 mb-4">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Total Inventory</span>
+                            <span className="text-[12px] font-black text-[#000000]/87">{rt.total_rooms} Rooms</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Base Rate</span>
+                            <span className="text-[12px] font-black text-[#006241]">₱{Number(rt.price_per_night).toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-[10px] font-black text-black/40 uppercase tracking-[0.15em]">Max Guests</span>
+                            <span className="text-[12px] font-black text-[#000000]/87">{rt.max_guests} Persons</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 pt-6 border-t border-black/5">
+                          <button className="flex-1 py-1.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                          >Inventory</button>
+                          <button className="flex-1 py-1.5 text-[10px] font-black text-[#006241] uppercase tracking-[0.12em] transition-all hover:bg-[#d4e9e2]" style={{ borderRadius: '50px', border: '1px solid #00754A', background: 'transparent' }}
+                            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                          >Rates</button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== HOUSEKEEPING TAB ==================== */}
+        {activeTab === 'housekeeping' && (
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-[14px] tracking-tight leading-tight">Housekeeping</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Real-time room status monitoring and staff assignment</p>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'clean').length} Clean</span>
+                      </div>
+                      <div className="px-4 py-2 bg-[#f9f9f9] border border-black/5 rounded-xl flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span className="text-[10px] font-bold text-black/60 uppercase tracking-widest">{hkRooms.filter(r => r.hk_status === 'dirty').length} Dirty</span>
+                      </div>
+                      <button
+                        className="px-6 py-1.5 text-white font-bold text-[10px] uppercase tracking-[0.1em] transition-all"
+                        style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#006241'}
+                        onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                        onMouseDown={e => e.currentTarget.style.transform = 'scale(0.95)'}
+                        onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        + Assign Task
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 md:p-4 flex-1 overflow-y-auto">
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {hkRooms.map((r) => {
+                      const status = r.hk_status || 'clean';
+                      const isClean = status === 'clean';
+                      const isDirty = status === 'dirty';
+                      const isInspected = status === 'inspected';
+
+                      const displayStatus = isClean ? 'Clean' : isDirty ? 'Dirty' : isInspected ? 'Inspected' : 'O.O.O.';
+
+                      const dotColor = isClean ? '#10B981' : isDirty ? '#c82014' : isInspected ? '#006241' : '#f59e0b';
+                      const textColor = isClean ? 'text-emerald-600' : isDirty ? 'text-[#c82014]' : isInspected ? 'text-[#006241]' : 'text-amber-600';
+                      const bg = isClean ? 'bg-emerald-50 border-emerald-200' : isDirty ? 'bg-red-50 border-red-200' : isInspected ? 'bg-[#d4e9e2] border-[#d4e9e2]' : 'bg-amber-50 border-amber-200';
+
+                      const toggleStatus = () => {
+                        if (status === 'clean') updateHkStatus(r.room_number, 'dirty');
+                        else if (status === 'dirty') updateHkStatus(r.room_number, 'inspected');
+                        else if (status === 'inspected') updateHkStatus(r.room_number, 'clean');
+                        else updateHkStatus(r.room_number, 'clean');
+                      };
+
+                      return (
+                        <div key={r.room_number} onClick={toggleStatus} className={`border rounded-xl p-4 hover:scale-[1.02] transition-all cursor-pointer ${bg}`}>
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-black text-black/50 text-[9px] uppercase tracking-widest">Room</span>
+                            <div className="w-2 h-2 rounded-full" style={{ background: dotColor }}></div>
+                          </div>
+                          <p className="text-2xl font-black text-[#1E3932]">{r.room_number}</p>
+                          <p className={`text-[9px] font-black uppercase tracking-widest mt-1.5 ${textColor}`}>{displayStatus}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== BILLING TAB ==================== */}
+        {activeTab === 'billing' && (
+          <AdminBillingTab
+            reservations={reservations}
+            openFolio={openFolio}
+            folioOpen={folioOpen} setFolioOpen={setFolioOpen} folioRes={folioRes}
+            fmtDate={fmtDate} nightsCount={nightsCount} printFolio={printFolio}
+            sendFolioEmail={sendFolioEmail} folioEmailSending={folioEmailSending} folioEmailMsg={folioEmailMsg}
+            folioLoading={folioLoading} folioError={folioError} folioTotals={folioTotals} folioItems={folioItems}
+            voidCharge={voidCharge} fcType={fcType} setFcType={setFcType} fcDesc={fcDesc} setFcDesc={setFcDesc}
+            fcQty={fcQty} setFcQty={setFcQty} fcPrice={fcPrice} setFcPrice={setFcPrice} addCharge={addCharge} fcSaving={fcSaving} fcError={fcError}
+            folioPayments={folioPayments} voidPayment={voidPayment} fpMethod={fpMethod} setFpMethod={setFpMethod} fpAmount={fpAmount} setFpAmount={setFpAmount}
+            fpRef={fpRef} setFpRef={setFpRef} addPayment={addPayment} fpSaving={fpSaving} fpError={fpError}
+            stats={stats}
+          />
+        )}
+
+        {/* ==================== CALENDAR TAB ==================== */}
+        {activeTab === 'calendar' && (
+          <div className="rounded-xl border border-black/5 p-4 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-black text-[#000000]/87 tracking-tight">Reservation Calendar</h2>
+                <p className="text-black/60 text-[12px] font-medium mt-1">Track stay occupancy and blocked dates</p>
+              </div>
+              <div className="flex items-center gap-3 bg-white shadow-sm p-1 rounded-xl border border-black/5">
+                <button
+                  onClick={() => {
+                    if (calendarMonth === 1) {
+                      setCalendarMonth(12);
+                      setCalendarYear(calendarYear - 1);
+                    } else {
+                      setCalendarMonth(calendarMonth - 1);
+                    }
+                  }}
+                  className="w-10 h-10 flex items-center justify-center bg-white shadow-sm hover:bg-white shadow-sm text-[#000000]/87 rounded-xl transition-all"
+                >
+                  ←
+                </button>
+                <span className="text-[#000000]/87 font-black text-[10px] uppercase tracking-widest px-4">
+                  {new Date(calendarYear, calendarMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </span>
+                <button
+                  onClick={() => {
+                    if (calendarMonth === 12) {
+                      setCalendarMonth(1);
+                      setCalendarYear(calendarYear + 1);
+                    } else {
+                      setCalendarMonth(calendarMonth + 1);
+                    }
+                  }}
+                  className="w-10 h-10 flex items-center justify-center bg-white shadow-sm hover:bg-white shadow-sm text-[#000000]/87 rounded-xl transition-all"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+
+            {/* Calendar Grid */}
+            <div className="grid grid-cols-7 gap-2">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                <div key={day} className="text-center text-black/60 text-[10px] font-black uppercase tracking-[0.2em] py-3">
+                  {day}
+                </div>
+              ))}
+              {(() => {
+                const firstDay = new Date(calendarYear, calendarMonth - 1, 1).getDay();
+                const daysInMonth = new Date(calendarYear, calendarMonth, 0).getDate();
+                const days = [];
+
+                for (let i = 0; i < firstDay; i++) {
+                  days.push(<div key={`empty-${i}`} className="p-2"></div>);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                  const dateStr = `${calendarYear}-${String(calendarMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                  const dayReservations = calendarData.reservations?.filter(a => a.preferred_date === dateStr) || [];
+                  const isBlocked = calendarData.blockedDates?.some(b => b.blocked_date === dateStr);
+                  const isToday = dateStr === new Date().toISOString().split('T')[0];
+
+                  days.push(
+                    <div
+                      key={day}
+                      className={`min-h-[100px] p-2 rounded-xl border transition-all ${isBlocked ? 'bg-rose-500/10 border-rose-500/30' :
+                        isToday ? 'bg-[#00754A]/10 border-[#00754A]' :
+                          'bg-white/[0.03] border-black/5 hover:border-black/5'
+                        }`}
+                    >
+                      <div className={`text-xs font-black mb-2 ${isToday ? 'text-[#00754A]' : isBlocked ? 'text-rose-400' : 'text-black/60'}`}>
+                        {String(day).padStart(2, '0')}
+                      </div>
+                      {isBlocked && (
+                        <div className="text-[9px] font-black uppercase tracking-widest text-rose-400 bg-rose-400/10 px-2 py-0.5 rounded-md text-center">Blocked</div>
+                      )}
+                      {dayReservations.slice(0, 3).map((res, idx) => (
+                        <div
+                          key={idx}
+                          className={`text-[9px] font-bold uppercase tracking-wide truncate px-2 py-1 rounded-md mb-1 ${res.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-400' :
+                            res.status === 'pending' ? 'bg-amber-500/10 text-amber-400' :
+                              res.status === 'completed' ? 'bg-[#00754A]/10 text-[#00754A]' :
+                                'bg-white shadow-sm text-black/60'
+                            }`}
+                        >
+                          {res.full_name}
+                        </div>
+                      ))}
+                      {dayReservations.length > 3 && (
+                        <div className="text-[9px] font-black text-black/60 px-2 mt-1">+{dayReservations.length - 3} MORE</div>
+                      )}
+                    </div>
+                  );
+                }
+                return days;
+              })()}
+            </div>
+          </div>
+        )}
+
+        {/* ==================== REPORTS TAB ==================== */}
+        {activeTab === 'reports' && <AdminReportsTab />}
+        {/* ==================== INBOX TAB ==================== */}
+        {activeTab === 'inbox' && <AdminInboxTab />}
+
+        {/* ==================== SETTINGS TAB ==================== */}
+        {activeTab === 'settings' && (
+          <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+                {/* Header bar */}
+                <div className="px-6 py-4 border-b border-black/5 bg-white shrink-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="shrink-0">
+                      <h2 className="text-[#000000]/87 font-bold text-[14px] tracking-tight leading-tight">System Settings</h2>
+                      <p className="text-black/60 text-xs mt-0.5">Configure property details, rooms, and integrations</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-4 md:p-4 flex-1 overflow-y-auto space-y-8">
+                  {/* Settings sub-tab navigation */}
+                  <div className="flex overflow-x-auto gap-1 mb-3 bg-white rounded-xl p-1.5 border border-blue-200 shadow-sm">
+                    {[
+                      { id: 'property', label: 'Property' },
+                      { id: 'rooms', label: 'Rooms & Inventory' },
+                      { id: 'rate-codes', label: 'Rate Codes' },
+                      { id: 'reservations', label: 'Reservations' },
+                      { id: 'availability', label: 'Availability' },
+                      { id: 'notifications', label: 'Notifications' },
+                      { id: 'payment-options', label: 'Payment Options' },
+                      { id: 'about-us', label: 'About Us' },
+                      { id: 'staff', label: 'Staff & Permissions' },
+                      { id: 'corporate', label: 'Corporate Accounts' },
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setSettingsSubTab(tab.id)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-md text-[12px] font-medium transition-all ${settingsSubTab === tab.id
+                          ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white shadow-sm'
+                          : 'text-gray-500 hover:text-gray-800 hover:bg-blue-50'
+                          }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* ── Property ── */}
+                  {settingsSubTab === 'corporate' && <CorporateSettingsTab />}
+                  {settingsSubTab === 'property' && (
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Property Information</h3>
+                          <p className="text-black/60 text-xs mt-1">Global settings for your hotel identity and guest communication</p>
+                        </div>
+                        {settingsSavedMsg && (
+                          <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                            {settingsSavedMsg}
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {[
+                          { key: 'hotel_name', label: 'Hotel Name', type: 'text', placeholder: 'Grand Hotel' },
+                          { key: 'hotel_address', label: 'Address', type: 'text', placeholder: '123 Main Street, City' },
+                          { key: 'hotel_phone', label: 'Phone Number', type: 'text', placeholder: '+63 912 345 6789' },
+                          { key: 'hotel_email', label: 'Email Address', type: 'email', placeholder: 'info@grandhotel.com' },
+                          { key: 'hotel_website', label: 'Website', type: 'text', placeholder: 'www.grandhotel.com' },
+                          { key: 'currency', label: 'Currency Code', type: 'text', placeholder: 'PHP' },
+                          { key: 'check_in_time', label: 'Check-in Time', type: 'time', placeholder: '' },
+                          { key: 'check_out_time', label: 'Check-out Time', type: 'time', placeholder: '' },
+                        ].map(field => (
+                          <div key={field.key} className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
+                            <input
+                              type={field.type}
+                              value={hotelSettings[field.key] || ''}
+                              onChange={(e) => setHotelSettings(prev => ({ ...prev, [field.key]: e.target.value }))}
+                              placeholder={field.placeholder}
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                            />
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="pt-6 border-t border-black/5 space-y-4">
+                        <div>
+                          <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Hero Images</h4>
+                          <p className="text-black/60 text-[10px] mb-3">Upload photos for the homepage carousel. Select multiple files.</p>
+
+                          {/* Existing Images Gallery */}
+                          {(() => {
+                            let parsed = [];
+                            try { parsed = JSON.parse(hotelSettings.hero_images || '[]'); } catch (e) { }
+                            if (parsed && parsed.length > 0) {
+                              return (
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                  {parsed.map((imgUrl, idx) => (
+                                    <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
+                                      <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Hero ${idx}`} className="w-full h-full object-cover" />
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          const newArr = [...parsed];
+                                          newArr.splice(idx, 1);
+                                          setHotelSettings({ ...hotelSettings, hero_images: JSON.stringify(newArr) });
+                                        }}
+                                        title="Remove Image"
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
+                                      >
+                                        &times;
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => setHeroFiles(Array.from(e.target.files))}
+                            className="w-full max-w-md px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                          />
+                          {heroFiles.length > 0 && (
+                            <div className="text-xs text-[#00754A] font-medium mt-2">
+                              {heroFiles.length} file(s) selected
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="pt-6 border-t border-black/5 space-y-4">
+                        <div>
+                          <h4 className="text-xs font-black text-[#000000]/87 uppercase tracking-[0.2em] mb-1">Gallery Images</h4>
+                          <p className="text-black/60 text-[10px] mb-3">Upload photos for the website gallery section. Select multiple files.</p>
+
+                          {/* Existing Gallery Images */}
+                          {(() => {
+                            let parsed = [];
+                            try { parsed = JSON.parse(hotelSettings.gallery_images || '[]'); } catch (e) { }
+                            if (parsed && parsed.length > 0) {
+                              return (
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                  {parsed.map((imgUrl, idx) => (
+                                    <div key={idx} className="relative w-24 h-16 rounded-md overflow-hidden shadow-sm group border border-black/10">
+                                      <img src={imgUrl.startsWith('http') ? imgUrl : `${API_BASE_URL}${imgUrl}`} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                                      <button
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          const newArr = [...parsed];
+                                          newArr.splice(idx, 1);
+                                          setHotelSettings({ ...hotelSettings, gallery_images: JSON.stringify(newArr) });
+                                        }}
+                                        title="Remove Image"
+                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs font-bold shadow-md"
+                                      >
+                                        &times;
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => setGalleryFiles(Array.from(e.target.files))}
+                            className="w-full max-w-md px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                          />
+                          {galleryFiles.length > 0 && (
+                            <div className="text-xs text-[#00754A] font-medium mt-2">
+                              {galleryFiles.length} file(s) selected
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-end pt-4 border-t border-black/5">
+                        <button
+                          onClick={saveHotelSettings}
+                          disabled={savingSettings}
+                          className="px-10 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.3)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30"
+                        >
+                          {savingSettings ? 'Synchronizing...' : 'Commit Changes'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Rooms & Inventory ── */}
+                  {settingsSubTab === 'rooms' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      {/* Add new room type */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div>
+                            <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Room Type</h3>
+                            <p className="text-black/60 text-xs mt-1">Configure a new bookable unit with distinct pricing and rules</p>
+                          </div>
+                          <button
+                            onClick={addRoomType}
+                            className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all"
+                          >
+                            Provision Unit
+                          </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                          {[
+                            { key: 'name', label: 'Room Name', type: 'text', placeholder: 'e.g. Deluxe Room' },
+                            { key: 'description', label: 'Description', type: 'text', placeholder: 'e.g. 1 King Bed · City View' },
+                            { key: 'price_per_night', label: 'Base Rate (₱)', type: 'number', placeholder: '0' },
+                            { key: 'total_rooms', label: 'Total Units', type: 'number', placeholder: '1' },
+                            { key: 'max_guests', label: 'Max Capacity', type: 'number', placeholder: '2' },
+                            { key: 'floor', label: 'Floor Level', type: 'number', placeholder: '1' },
+                            { key: 'area', label: 'Wing / Area', type: 'text', placeholder: 'e.g. East Wing' },
+                            { key: 'amenities', label: 'Amenities', type: 'text', placeholder: 'comma-separated' },
+                          ].map(field => (
+                            <div key={field.key} className="space-y-2">
+                              <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">{field.label}</label>
+                              <input
+                                type={field.type}
+                                value={newRoomForm[field.key]}
+                                onChange={(e) => setNewRoomForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                                placeholder={field.placeholder}
+                                min={field.type === 'number' ? '0' : undefined}
+                                className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-6 space-y-2">
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Room Photos</label>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            onChange={(e) => setNewRoomFiles(Array.from(e.target.files))}
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                          />
+                          {newRoomFiles.length > 0 && (
+                            <div className="text-xs text-[#00754A] font-medium ml-1">
+                              {newRoomFiles.length} file(s) selected
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Room type list */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 border-b border-black/5 pb-6">
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Active Inventory</h3>
+                          <p className="text-black/60 text-xs mt-1">Currently managing {adminRoomTypes.length} bookable tiers</p>
+                        </div>
+                        <div className="space-y-4">
+                          {adminRoomTypes.map(rt => (
+                            <div key={rt.id} className={`rounded-xl border p-4 transition-all group ${rt.active ? 'bg-white/[0.02] border-black/5 hover:border-black/5' : 'bg-white/[0.01] border-black/5 opacity-40'}`}>
+                              {editRoomId === rt.id ? (
+                                <div className="space-y-6">
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                    {[
+                                      { key: 'name', label: 'Name' },
+                                      { key: 'description', label: 'Description' },
+                                      { key: 'price_per_night', label: 'Rate (₱)' },
+                                      { key: 'total_rooms', label: 'Units' },
+                                      { key: 'max_guests', label: 'Capacity' },
+                                      { key: 'floor', label: 'Floor' },
+                                      { key: 'area', label: 'Wing' },
+                                      { key: 'amenities', label: 'Amenities' },
+                                    ].map(f => (
+                                      <div key={f.key}>
+                                        <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">{f.label}</label>
+                                        <input type="text" value={editRoomForm[f.key] || ''} onChange={(e) => setEditRoomForm(p => ({ ...p, [f.key]: e.target.value }))}
+                                          className="w-full px-2 py-1.5 bg-white shadow-sm border border-black/5 rounded-md text-xs text-[#000000]/87" />
+                                      </div>
+                                    ))}
+                                  </div>
+                                  <div className="mt-4">
+                                    <label className="text-[9px] font-black text-black/60 uppercase tracking-widest mb-1 block">Room Photos</label>
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                      {(editRoomForm.images || []).map((img, idx) => (
+                                        <div key={idx} className="relative w-16 h-12 rounded overflow-hidden shadow group border border-black/10">
+                                          <img src={img.startsWith('http') ? img : `${API_BASE_URL}${img}`} alt={`Room ${idx}`} className="w-full h-full object-cover" />
+                                          <button
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              const updated = [...editRoomForm.images];
+                                              updated.splice(idx, 1);
+                                              setEditRoomForm({ ...editRoomForm, images: updated });
+                                            }}
+                                            className="absolute top-0 right-0 bg-red-500 text-white rounded-bl px-1 py-0.5 text-[8px] opacity-0 group-hover:opacity-100 transition-opacity"
+                                          >&times;</button>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <input
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      onChange={(e) => setEditRoomFiles(Array.from(e.target.files))}
+                                      className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 placeholder-white/20 text-xs focus:outline-none focus:border-[#00754A]/50 transition-all font-medium"
+                                    />
+                                    {editRoomFiles.length > 0 && (
+                                      <div className="text-xs text-[#00754A] font-medium ml-1 mt-1">
+                                        {editRoomFiles.length} file(s) selected
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex gap-3 mt-6">
+                                    <button onClick={() => saveRoomEdit(rt.id)} className="px-6 py-2 bg-[#00754A] text-white rounded-md text-[10px] font-black uppercase tracking-widest shadow-lg">Save Changes</button>
+                                    <button onClick={() => setEditRoomId(null)} className="px-6 py-2 bg-white shadow-sm text-black/60 rounded-md text-[10px] font-black uppercase tracking-widest hover:text-[#000000]/87">Cancel</button>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <span className="font-black text-[#000000]/87 tracking-tight uppercase text-[12px] group-hover:text-[#00754A] transition-colors">{rt.name}</span>
+                                      {!rt.active && <span className="text-[9px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded-full uppercase font-black tracking-widest">Inactive</span>}
+                                    </div>
+                                    <p className="text-xs text-black/60 mb-4 line-clamp-2">{rt.description}</p>
+                                    <div className="flex flex-wrap gap-2 text-[9px] font-black uppercase tracking-widest">
+                                      <span className="text-[#00754A] font-mono text-[11px]">₱{parseFloat(rt.price_per_night).toLocaleString('en-PH')} / Night</span>
+                                      <span className="text-black/60">{rt.total_rooms} Units Available</span>
+                                      <span className="text-black/60">Max {rt.max_guests} Guests</span>
+                                      <span className="text-black/60">Level {rt.floor || 1}</span>
+                                      {rt.area && <span className="text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md border border-emerald-400/20">{rt.area}</span>}
+                                    </div>
+                                  </div>
+                                  <div className="flex gap-2 flex-shrink-0">
+                                    <button
+                                      onClick={() => { setEditRoomId(rt.id); setEditRoomForm({ name: rt.name, description: rt.description, price_per_night: rt.price_per_night, total_rooms: rt.total_rooms, max_guests: rt.max_guests, amenities: rt.amenities, floor: rt.floor || 1, area: rt.area || '', images: rt.images || [] }); setEditRoomFiles([]); }}
+                                      className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-black/60 border border-black/5 rounded-xl hover:bg-[#00754A] hover:text-white hover:border-[#00754A] transition-all"
+                                      title="Edit Configuration"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                    </button>
+                                    {rt.active ? (
+                                      <button onClick={() => deactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-rose-400/40 border border-black/5 rounded-xl hover:bg-rose-500 hover:text-[#000000]/87 hover:border-rose-500 transition-all" title="Deactivate Unit">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                      </button>
+                                    ) : (
+                                      <button onClick={() => reactivateRoomType(rt.id)} className="w-10 h-10 flex items-center justify-center bg-white shadow-sm text-emerald-400/40 border border-black/5 rounded-xl hover:bg-emerald-500 hover:text-[#000000]/87 hover:border-emerald-500 transition-all" title="Reactivate Unit">
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                          {adminRoomTypes.length === 0 && (
+                            <div className="py-16 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">Inventory is empty. Use the form above to add room tiers.</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Rate Codes ── */}
+                  {settingsSubTab === 'rate-codes' && (
+                    <div className="space-y-4">
+                      {/* Add new rate code */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 flex items-center justify-between">
+                          <div>
+                            <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Add Rate Code</h3>
+                            <p className="text-black/60 text-xs mt-1">Define a new pricing tier or promotional code</p>
+                          </div>
+                          {rcMsg && <div className="px-4 py-1.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-black uppercase tracking-widest animate-in fade-in zoom-in">{rcMsg}</div>}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Reference Code</label>
+                            <input value={rcNewForm.code} onChange={e => setRcNewForm(f => ({ ...f, code: e.target.value.toUpperCase() }))}
+                              placeholder="e.g. CORP" maxLength={10}
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Display Name</label>
+                            <input value={rcNewForm.name} onChange={e => setRcNewForm(f => ({ ...f, name: e.target.value }))}
+                              placeholder="e.g. Corporate Rate"
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all" />
+                          </div>
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Description</label>
+                            <input value={rcNewForm.description} onChange={e => setRcNewForm(f => ({ ...f, description: e.target.value }))}
+                              placeholder="e.g. Standard corporate discount"
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all" />
+                          </div>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            if (!rcNewForm.code || !rcNewForm.name) return;
+                            try {
+                              const res = await fetch(`${API_BASE_URL}/api/admin/rate-codes`, {
+                                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(rcNewForm),
+                              });
+                              const data = await res.json();
+                              if (data.success) { setRcNewForm({ code: '', name: '', description: '' }); fetchAdminRateCodes(); }
+                              else setRcMsg(data.message || 'Failed.');
+                            } catch { setRcMsg('Error saving.'); }
+                            setTimeout(() => setRcMsg(''), 3000);
+                          }}
+                          className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 transition-all">
+                          Register Rate Code
+                        </button>
+                      </div>
+
+                      {/* Rate codes list */}
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl overflow-hidden ">
+                        <div className="px-8 py-5 border-b border-black/5 flex items-center justify-between bg-white/[0.02]">
+                          <h3 className="text-[10px] font-black text-black/60 uppercase tracking-[0.2em]">Configured Tiers</h3>
+                          <button onClick={fetchAdminRateCodes} className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">Refresh Records</button>
+                        </div>
+                        {rcLoading ? (
+                          <div className="p-16 text-center text-black/60 italic text-xs font-medium animate-pulse">Querying database...</div>
+                        ) : adminRateCodes.length === 0 ? (
+                          <div className="p-16 text-center text-black/60 italic text-xs font-medium">No rate codes defined yet.</div>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-white/[0.01] text-[9px] font-black text-black/60 uppercase tracking-[0.2em] border-b border-black/5">
+                                  <th className="px-8 py-4">Reference</th>
+                                  <th className="px-8 py-4">Descriptor</th>
+                                  <th className="px-8 py-4">Internal Memo</th>
+                                  <th className="px-8 py-4 text-center">Status</th>
+                                  <th className="px-8 py-4 text-right">Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/[0.03]">
+                                {adminRateCodes.map(rc => (
+                                  <React.Fragment key={rc.id}>
+                                    <tr className="hover:bg-white/[0.02] transition-all group">
+                                      <td className="px-8 py-4 text-[#00754A] font-mono text-xs font-black uppercase">{rc.code}</td>
+                                      <td className="px-8 py-4 text-[#000000]/87 font-bold text-xs">{rc.name}</td>
+                                      <td className="px-8 py-4 text-black/60 text-xs">{rc.description || '—'}</td>
+                                      <td className="px-8 py-4 text-center">
+                                        <span className={`text-[9px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest border ${rc.is_active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-white shadow-sm text-black/60 border-black/5'}`}>
+                                          {rc.is_active ? 'Active' : 'Inactive'}
+                                        </span>
+                                      </td>
+                                      <td className="px-8 py-4 text-right">
+                                        <div className="flex items-center justify-end gap-3">
+                                          <button
+                                            onClick={() => {
+                                              if (rcPriceEdit === rc.id) { setRcPriceEdit(null); return; }
+                                              const initPrices = {};
+                                              (rc.prices || []).forEach(p => { initPrices[p.room_type_id] = p.price_per_night; });
+                                              setRcPrices(initPrices);
+                                              setRcPriceEdit(rc.id);
+                                            }}
+                                            className="text-[9px] font-black text-[#00754A] uppercase tracking-widest hover:text-[#000000]/87 transition-colors">
+                                            {rcPriceEdit === rc.id ? 'Close' : 'Set Rates'}
+                                          </button>
+                                          <button
+                                            onClick={async () => {
+                                              await fetch(`${API_BASE_URL}/api/admin/rate-codes/${rc.id}`, {
+                                                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ is_active: !rc.is_active }),
+                                              });
+                                              fetchAdminRateCodes();
+                                            }}
+                                            className={`text-[9px] font-black uppercase tracking-widest transition-colors ${rc.is_active ? 'text-rose-400 hover:text-rose-300' : 'text-emerald-400 hover:text-emerald-300'}`}>
+                                            {rc.is_active ? 'Archive' : 'Restore'}
+                                          </button>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                    {/* Price matrix row */}
+                                    {rcPriceEdit === rc.id && (
+                                      <tr className="bg-white/[0.04]">
+                                        <td colSpan={5} className="px-8 py-8 border-t border-black/5">
+                                          <div className="flex items-center justify-between mb-4">
+                                            <div>
+                                              <h4 className="text-[10px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Price Configuration</h4>
+                                              <p className="text-black/60 text-[10px] mt-1 font-medium italic">Leave blank to inherit global default rates for the selected tier</p>
+                                            </div>
+                                            <button onClick={() => saveRcPrices(rc.id)} disabled={rcSaving}
+                                              className="px-6 py-2 bg-[#00754A] text-white rounded-md font-black text-[9px] uppercase tracking-widest shadow-[0_0_15px_rgba(85,162,245,0.2)] hover:scale-105 transition-all active:scale-95 disabled:opacity-30">
+                                              {rcSaving ? 'Syncing...' : 'Apply Overrides'}
+                                            </button>
+                                          </div>
+                                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                            {adminRoomTypesForRates.filter(rt => rt.active).map(rt => (
+                                              <div key={rt.id} className="flex items-center justify-between group/row">
+                                                <div className="flex flex-col">
+                                                  <span className="text-[10px] font-black text-black/60 uppercase tracking-widest truncate max-w-[180px]">{rt.name}</span>
+                                                  <span className="text-[9px] text-black/60 font-medium">Standard: ₱{Number(rt.price_per_night).toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                  <span className="text-black/60 text-[10px] font-mono">₱</span>
+                                                  <input
+                                                    type="number" min="0" placeholder="Inherit"
+                                                    value={rcPrices[rt.id] ?? ''}
+                                                    onChange={e => setRcPrices(p => ({ ...p, [rt.id]: e.target.value }))}
+                                                    className="w-32 px-4 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-xs focus:border-[#00754A]/50 outline-none transition-all placeholder:text-black/60"
+                                                  />
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    )}
+                                  </React.Fragment>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Reservations ── */}
+                  {settingsSubTab === 'reservations' && (
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Reservation Rules</h3>
+                          <p className="text-black/60 text-xs mt-1">Define stay limits, booking window, and cancellation policy</p>
+                        </div>
+                        {settingsSavedMsg && (
+                          <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                            {settingsSavedMsg}
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Minimum Stay (nights)</label>
+                          <input
+                            type="number"
+                            value={hotelSettings.min_stay_nights || '1'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, min_stay_nights: e.target.value }))}
+                            min="1"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Maximum Stay (nights)</label>
+                          <input
+                            type="number"
+                            value={hotelSettings.max_stay_nights || '30'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, max_stay_nights: e.target.value }))}
+                            min="1"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Advance Booking Window (days)</label>
+                          <input
+                            type="number"
+                            value={hotelSettings.advance_booking_days || '365'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, advance_booking_days: e.target.value }))}
+                            min="1"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Required</label>
+                          <select
+                            value={hotelSettings.deposit_required || 'false'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_required: e.target.value }))}
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all appearance-none"
+                          >
+                            <option value="false" className="bg-[#1A1F2C]">No</option>
+                            <option value="true" className="bg-[#1A1F2C]">Yes</option>
+                          </select>
+                        </div>
+                        {hotelSettings.deposit_required === 'true' && (
+                          <div className="md:col-span-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Deposit Percentage (%)</label>
+                            <input
+                              type="number"
+                              value={hotelSettings.deposit_percentage || '50'}
+                              onChange={(e) => setHotelSettings(prev => ({ ...prev, deposit_percentage: e.target.value }))}
+                              min="1" max="100"
+                              className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Auto-Post Room Charge on Check-in</label>
+                          <select
+                            value={hotelSettings.auto_post_room_charge || 'false'}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, auto_post_room_charge: e.target.value }))}
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all appearance-none"
+                          >
+                            <option value="false">No (Manual Billing)</option>
+                            <option value="true">Yes (Automatic Billing)</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Cancellation Policy</label>
+                        <textarea
+                          value={hotelSettings.cancellation_policy || ''}
+                          onChange={(e) => setHotelSettings(prev => ({ ...prev, cancellation_policy: e.target.value }))}
+                          rows={4}
+                          placeholder="e.g. Free cancellation up to 24 hours before check-in."
+                          className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all resize-none"
+                        />
+                      </div>
+                      <div className="flex justify-end pt-4">
+                        <button
+                          onClick={saveHotelSettings}
+                          disabled={savingSettings}
+                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                        >
+                          {savingSettings ? 'Synchronizing...' : 'Save Reservation Policy'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Availability ── */}
+                  {settingsSubTab === 'availability' && (
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Blackout Periods / Holidays</h3>
+                          <p className="text-black/60 text-xs mt-1">Restrict availability for maintenance or seasonal holidays</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2 items-end">
+                        <div className="flex-1 min-w-[200px]">
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Blackout Date</label>
+                          <input
+                            type="date"
+                            value={newBlockedDate}
+                            onChange={(e) => setNewBlockedDate(e.target.value)}
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
+                          />
+                        </div>
+                        <div className="flex-[2] min-w-[300px]">
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Internal Reason / Memo</label>
+                          <input
+                            type="text"
+                            value={newBlockedReason}
+                            onChange={(e) => setNewBlockedReason(e.target.value)}
+                            placeholder="e.g. Annual HVAC Maintenance"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-xs outline-none focus:border-[#00754A]/50 transition-all"
+                          />
+                        </div>
+                        <button
+                          onClick={addBlockedDate}
+                          className="px-8 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all"
+                        >
+                          Commit Blackout
+                        </button>
+                      </div>
+
+                      <div className="space-y-3">
+                        <h4 className="text-[9px] font-black text-black/60 uppercase tracking-[0.2em] mb-4">Current Restricted Dates</h4>
+                        {blockedDates.map(bd => (
+                          <div key={bd.id} className="flex items-center justify-between bg-white/[0.03] border border-black/5 rounded-xl p-4 group hover:bg-white shadow-sm transition-all">
+                            <div className="flex items-center gap-3">
+                              <span className="text-[#000000]/87 font-mono text-[12px] font-bold">{bd.blocked_date}</span>
+                              {bd.reason && <span className="text-black/60 text-xs font-medium tracking-wide">— {bd.reason}</span>}
+                            </div>
+                            <button
+                              onClick={() => deleteBlockedDate(bd.id)}
+                              className="text-rose-400/30 hover:text-rose-400 text-[10px] font-black uppercase tracking-widest transition-all"
+                            >
+                              Release
+                            </button>
+                          </div>
+                        ))}
+                        {blockedDates.length === 0 && (
+                          <div className="py-12 text-center text-black/60 italic text-xs font-medium border border-dashed border-black/5 rounded-xl">
+                            No restricted dates in the registry.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Notifications ── */}
+                  {settingsSubTab === 'notifications' && (
+                    <div className="bg-white/[0.03] rounded-xl p-4 border border-black/5  space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex items-center justify-between flex-wrap gap-2 border-b border-black/5 pb-6">
+                        <div>
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Notification Settings</h3>
+                          <p className="text-black/60 text-xs mt-1">Configure sender identities for automated guest communications</p>
+                        </div>
+                        {settingsSavedMsg && (
+                          <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border animate-in fade-in zoom-in ${settingsSavedMsg.includes('success') ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                            {settingsSavedMsg}
+                          </div>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email Display Name</label>
+                          <input
+                            type="text"
+                            value={hotelSettings.email_sender_name || ''}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, email_sender_name: e.target.value }))}
+                            placeholder="e.g. Grand Horizon Hotel"
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                          <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">This name appears in the "From" field of guest emails</p>
+                        </div>
+                        <div>
+                          <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">SMS Mask / ID</label>
+                          <input
+                            type="text"
+                            value={hotelSettings.sms_sender_name || ''}
+                            onChange={(e) => setHotelSettings(prev => ({ ...prev, sms_sender_name: e.target.value }))}
+                            placeholder="e.g. HOTEL"
+                            maxLength={11}
+                            className="w-full px-2.5 py-2 bg-white shadow-sm border border-black/5 rounded-xl text-[#000000]/87 font-mono text-[12px] font-medium focus:border-[#00754A]/50 outline-none transition-all"
+                          />
+                          <p className="text-[10px] text-black/60 mt-2 ml-1 italic font-medium">Max 11 chars (Semaphore SMS provider standard)</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-end pt-4">
+                        <button
+                          onClick={saveHotelSettings}
+                          disabled={savingSettings}
+                          className="px-10 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(85,162,245,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-30"
+                        >
+                          {savingSettings ? 'Synchronizing...' : 'Save Communication Settings'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── Payment Options ── */}
+                  {settingsSubTab === 'payment-options' && <PaymentOptionsTab hotelSettings={hotelSettings} setHotelSettings={setHotelSettings} />}
+
+                  {/* ── Staff & Permissions ── */}
+                  {settingsSubTab === 'staff' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-4 border-b border-black/5 pb-6">
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">Staff Accounts</h3>
+                          <p className="text-black/60 text-xs mt-1">Register new staff and assign modular permissions.</p>
+                        </div>
+                        {staffMsg && <div className="mb-4 text-[12px] text-[#00754A] font-bold p-3 bg-[#00754A]/10 rounded-xl">{staffMsg}</div>}
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-2 items-end mb-4">
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Username</label>
+                            <input type="text" value={staffNewForm.username} onChange={e => setStaffNewForm({ ...staffNewForm, username: e.target.value })} className="w-full px-2.5 py-2 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Password</label>
+                            <input type="password" value={staffNewForm.password} onChange={e => setStaffNewForm({ ...staffNewForm, password: e.target.value })} className="w-full px-2.5 py-2 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1">Full Name</label>
+                            <input type="text" value={staffNewForm.full_name} onChange={e => setStaffNewForm({ ...staffNewForm, full_name: e.target.value })} className="w-full px-2.5 py-2 rounded-xl border border-black/5 text-xs focus:outline-none" />
+                          </div>
+                          <button
+                            onClick={async () => {
+                              try {
+                                const res = await fetch(`${API_BASE_URL}/api/staff`, {
+                                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify(staffNewForm)
+                                });
+                                const data = await res.json();
+                                if (data.success) {
+                                  setStaffMsg('Staff added successfully.');
+                                  setStaffNewForm({ username: '', password: '', full_name: '', permissions: [] });
+                                  fetchStaff();
+                                } else setStaffMsg(data.message);
+                                setTimeout(() => setStaffMsg(''), 3000);
+                              } catch (e) { }
+                            }}
+                            className="w-full px-2.5 py-2 bg-[#000000] text-white text-xs font-bold rounded-xl hover:bg-[#00754A] transition-colors"
+                          >Add Staff</button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {staffLoading ? <p className="text-xs text-black/40">Loading staff...</p> : adminStaffList.map(s => (
+                            <div key={s.id} className="p-4 border border-black/5 rounded-xl bg-white/[0.01]">
+                              <div className="flex justify-between items-center mb-4">
+                                <div>
+                                  <div className="font-bold text-[12px] text-[#000000]/87">{s.full_name} <span className="text-black/40 text-xs ml-2">@{s.username}</span></div>
+                                </div>
+                                <button onClick={async () => {
+                                  if (window.confirm('Delete staff?')) {
+                                    await fetch(`${API_BASE_URL}/api/staff/${s.id}`, { method: 'DELETE' });
+                                    fetchStaff();
+                                  }
+                                }} className="text-red-500 hover:text-red-700 p-2"><Trash2 size={16} /></button>
+                              </div>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                {['dashboard', 'reservations', 'frontdesk', 'rooms', 'housekeeping', 'billing', 'reports', 'settings'].map(perm => (
+                                  <label key={perm} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-black/5 rounded-md">
+                                    <input type="checkbox" checked={(s.permissions || []).includes(perm) || (s.permissions || []).includes('all')}
+                                      onChange={async (e) => {
+                                        const newPerms = e.target.checked ? [...(s.permissions || []), perm] : (s.permissions || []).filter(p => p !== perm && p !== 'all');
+                                        await fetch(`${API_BASE_URL}/api/staff/${s.id}/permissions`, {
+                                          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                                          body: JSON.stringify({ permissions: newPerms })
+                                        });
+                                        fetchStaff();
+                                      }}
+                                    />
+                                    <span className="text-xs font-medium uppercase">{perm}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── About Us Configuration ── */}
+                  {settingsSubTab === 'about-us' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="bg-white/[0.03] border border-black/5 rounded-xl p-4 ">
+                        <div className="mb-3 border-b border-black/5 pb-6">
+                          <h3 className="text-[12px] font-black text-[#000000]/87 uppercase tracking-[0.2em]">About Us Content</h3>
+                          <p className="text-black/60 text-xs mt-1">Configure the formatted content for your public About Us page.</p>
+                        </div>
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-black/60 text-[10px] font-black uppercase tracking-widest ml-1 mb-2">Formatted Page Content</label>
+                            <div className="bg-white rounded-xl shadow-sm border border-black/10 overflow-hidden text-black flex flex-col">
+                              <div className="flex flex-wrap gap-2 p-2 border-b border-black/10 bg-black/5">
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h1>Heading 1</h1>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H1</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<h2>Heading 2</h2>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">H2</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<b>Bold Text</b>' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Bold</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<i>Italic Text</i>' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Italic</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<p>Paragraph</p>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Paragraph</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<br/>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Line Break</button>
+                                <div className="w-[1px] h-6 bg-black/10 self-center mx-1"></div>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: left;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Left</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: center;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Center</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: right;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Align Right</button>
+                                <button type="button" onClick={() => setHotelSettings(prev => ({ ...prev, about_us_content: (prev.about_us_content || '') + '<div style="text-align: justify;">\\n  \\n</div>\\n' }))} className="px-3 py-1 bg-white border border-black/10 rounded shadow-sm text-xs font-bold hover:bg-gray-50">Justify</button>
+                              </div>
+                              <textarea
+                                value={hotelSettings.about_us_content || ''}
+                                onChange={(e) => setHotelSettings(prev => ({ ...prev, about_us_content: e.target.value }))}
+                                className="w-full min-h-[300px] p-4 text-[12px] font-medium focus:outline-none resize-y"
+                                placeholder="Enter HTML content here..."
+                              />
+                            </div>
+                            <p className="text-xs text-black/40 mt-2 ml-1">You can use basic HTML tags for formatting. This content will be shown on the public-facing About Us page.</p>
+                          </div>
+
+                          <div className="pt-4 flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                setSavingSettings(true);
+                                fetch(`${API_BASE_URL}/api/hotel-settings`, {
+                                  method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ settings: hotelSettings })
+                                }).then(res => res.json()).then(data => {
+                                  setSavingSettings(false);
+                                  if (data.success) {
+                                    setSettingsSavedMsg('About Us content saved successfully');
+                                    setTimeout(() => setSettingsSavedMsg(''), 3000);
+                                  }
+                                });
+                              }}
+                              disabled={savingSettings}
+                              className="px-6 py-3 bg-[#00754A] hover:bg-[#006241] text-white text-[12px] font-bold rounded-xl shadow-md transition-all flex items-center gap-2"
+                            >
+                              {savingSettings ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Check className="w-4 h-4" />}
+                              Save Changes
+                            </button>
+                            {settingsSavedMsg && <span className="text-[12px] font-semibold text-[#00754A] animate-in fade-in">{settingsSavedMsg}</span>}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Edit Booking Modal */}
+      {confirmModal && (() => {
+        const typeRooms = confirmAllRooms.filter(r => r.room_type === (confirmModal.room_type_name || confirmModal.room_type));
+        
+        return (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="px-6 py-5 border-b border-black/5 flex items-center justify-between bg-gray-50/50">
+                <h3 className="font-bold text-gray-900 text-[14px]">Confirm Booking</h3>
+                <button onClick={() => setConfirmModal(null)} className="p-1.5 hover:bg-black/5 rounded-md text-black/40 hover:text-black/60 transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                </button>
+              </div>
+              <div className="p-4 overflow-y-auto">
+                <p className="text-[12px] text-gray-600 mb-3">
+                  You are confirming the booking for <strong className="text-gray-900">{confirmModal.full_name}</strong>. 
+                  You can optionally assign a room number now.
+                </p>
+                <div className="mb-4">
+                  <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">Assign Room (Optional)</label>
+                  {typeRooms.length === 0 ? (
+                    <input
+                      type="text"
+                      value={confirmRoomNumber}
+                      onChange={(e) => setConfirmRoomNumber(e.target.value)}
+                      placeholder="e.g. 201"
+                      className="w-full px-2.5 py-2 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 font-mono outline-none transition-all"
+                    />
+                  ) : (
+                    <select
+                      value={confirmRoomNumber}
+                      onChange={(e) => setConfirmRoomNumber(e.target.value)}
+                      className="w-full px-2.5 py-2 rounded-xl border border-gray-300 focus:border-[#576CA8] focus:ring-2 focus:ring-[#576CA8]/20 text-gray-900 font-mono outline-none transition-all appearance-none cursor-pointer bg-white"
+                    >
+                      <option value="">No Room Assigned Yet</option>
+                      {typeRooms.map(r => {
+                        const isOccupied = confirmOccupiedRooms.includes(r.room_number);
+                        return (
+                          <option key={r.id} value={r.room_number} disabled={isOccupied}>
+                            Room {r.room_number} {isOccupied ? '(Unavailable for these dates)' : ''}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  )}
+                  <p className="text-[11px] text-gray-500 mt-2">
+                    Only showing rooms of type: {confirmModal.room_type_name || confirmModal.room_type}. Rooms that overlap with these dates are disabled.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-black/5 bg-gray-50 flex justify-end gap-3 shrink-0">
+                <button onClick={() => setConfirmModal(null)} className="px-5 py-1.5 rounded-xl text-[12px] font-bold text-gray-600 hover:bg-black/5 transition-colors">
+                  Cancel
+                </button>
+                <button onClick={submitConfirmBooking} className="px-5 py-1.5 rounded-xl text-[12px] font-bold bg-[#00754A] text-white hover:bg-[#006241] shadow-lg shadow-[#00754A]/20 transition-all flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Confirm & Assign
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+      {editModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white shadow-xl rounded-xl p-4 w-full max-w-md border border-[#00754A]/20">
+            <h3 className="text-[16px] font-bold text-gray-800 mb-4">Edit Booking</h3>
+            <p className="text-gray-500 text-[12px] mb-4">
+              Guest: <span className="text-gray-800 font-bold">{editModal.full_name}</span>
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Assign Room #</label>
+                <input
+                  type="text"
+                  value={newRoomNumber}
+                  onChange={(e) => setNewRoomNumber(e.target.value)}
+                  placeholder="e.g. 101"
+                  className="w-full px-2.5 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-[#00754A]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Check-in Date</label>
+                <input
+                  type="date"
+                  value={newDate}
+                  onChange={(e) => handleDateChange(e.target.value)}
+                  className="w-full px-2.5 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-[#00754A]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-500 text-xs font-bold uppercase tracking-widest mb-2">Check-in Time</label>
+                <input
+                  type="time"
+                  value={newTime}
+                  onChange={(e) => setNewTime(e.target.value)}
+                  className="w-full px-2.5 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-[#00754A]"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setEditModal(null)}
+                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-all font-bold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditBooking}
+                disabled={!newDate || isEditing}
+                className="flex-1 py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-bold rounded-md hover:shadow-lg transition-all disabled:opacity-50"
+              >
+                {isEditing ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Print Appointment Slip */}
+      {printAppointment && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 print:bg-white print:p-0">
+          <div className="bg-white rounded-xl p-4 w-full max-w-md print:rounded-none print:shadow-none">
+            <div className="text-center mb-3">
+              <h2 className="text-2xl font-bold text-blue-900">HealthCare Clinic</h2>
+              <p className="text-stone-600 text-[12px]">Cantecson, Gairan, Bogo City, Cebu</p>
+            </div>
+            <div className="border-t border-b border-stone-200 py-4 mb-4">
+              <h3 className="text-[14px] font-semibold text-blue-900 mb-3">Appointment Slip</h3>
+              <div className="space-y-2 text-[12px]">
+                <p><strong>Patient:</strong> {printAppointment.full_name}</p>
+                <p><strong>Service:</strong> {printAppointment.service_type}</p>
+                <p><strong>Date:</strong> {printAppointment.preferred_date}</p>
+                <p><strong>Time:</strong> {printAppointment.preferred_time}</p>
+                <p><strong>Reference #:</strong> {printAppointment.id}</p>
+              </div>
+            </div>
+            <p className="text-xs text-stone-500 text-center">Please arrive 10 minutes before your scheduled time.</p>
+            <div className="mt-6 flex gap-3 print:hidden">
+              <button
+                onClick={() => setPrintAppointment(null)}
+                className="flex-1 py-2 bg-stone-200 text-stone-700 rounded-md"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="flex-1 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-md"
+              >
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// My Appointment Page - Patient Self-Service
+function MyAppointment({ setCurrentPage, initialToken }) {
+  const [email, setEmail] = useState('');
+  const [referenceId, setReferenceId] = useState('');
+  const [appointment, setAppointment] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [cancelSuccess, setCancelSuccess] = useState(false);
+
+  // Auto-fetch if token provided
+  useEffect(() => {
+    if (initialToken) {
+      fetchByToken(initialToken);
+    }
+  }, [initialToken]);
+
+  const fetchByToken = async (token) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/patient/appointment/${token}`);
+      const data = await response.json();
+      if (data.success) {
+        setAppointment(data.appointment);
+      } else {
+        setError(data.message || 'Appointment not found');
+      }
+    } catch (err) {
+      setError('Failed to fetch appointment. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLookup = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setAppointment(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/patient/lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, referenceId: parseInt(referenceId) })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setAppointment(data.appointment);
+      } else {
+        setError(data.message || 'Appointment not found');
+      }
+    } catch (err) {
+      setError('Failed to look up appointment. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!appointment) return;
+
+    setIsCancelling(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/patient/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cancelToken: appointment.cancel_token,
+          reason: cancelReason || 'Cancelled by patient'
+        })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        setCancelSuccess(true);
+        setShowCancelConfirm(false);
+        setAppointment(prev => ({ ...prev, status: 'cancelled' }));
+      } else {
+        setError(data.message || 'Failed to cancel appointment');
+      }
+    } catch (err) {
+      setError('Failed to cancel appointment. Please try again.');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-50 text-yellow-700 border-yellow-300';
+      case 'confirmed': return 'bg-green-50 text-green-700 border-green-300';
+      case 'completed': return 'bg-blue-50 text-blue-700 border-blue-300';
+      case 'cancelled': return 'bg-red-50 text-red-700 border-red-300';
+      default: return 'bg-gray-50 text-gray-700 border-gray-300';
+    }
+  };
+
+  const canCancel = appointment &&
+    appointment.status !== 'cancelled' &&
+    appointment.status !== 'completed' &&
+    new Date(appointment.preferred_date) >= new Date(new Date().setHours(0, 0, 0, 0));
+
+  return (
+    <div className="bg-blue-50 min-h-screen pt-[70px] md:pt-[30px] pb-24">
+      <div className="w-full max-w-2xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#00754A] to-[#006241]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-[#576CA8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">My Appointment</h1>
+          <p className="text-gray-500">View or cancel your appointment</p>
+        </div>
+
+        {/* Success Message */}
+        {cancelSuccess && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-3 text-center">
+            <svg className="w-12 h-12 text-green-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-green-700 font-semibold">Appointment Cancelled Successfully</p>
+            <p className="text-green-600 text-[12px] mt-1">A confirmation email has been sent to you.</p>
+          </div>
+        )}
+
+        {/* Lookup Form (only show if no appointment loaded) */}
+        {!appointment && !isLoading && (
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <h2 className="text-[14px] font-semibold text-gray-800 mb-4">Find Your Appointment</h2>
+
+            <form onSubmit={handleLookup} className="space-y-4">
+              <div>
+                <label className="block text-gray-500 text-[12px] mb-2">Email Address</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  className="w-full px-2.5 py-2 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-500 text-[12px] mb-2">Reference ID</label>
+                <input
+                  type="number"
+                  value={referenceId}
+                  onChange={(e) => setReferenceId(e.target.value)}
+                  placeholder="Enter your reference number (e.g., 123)"
+                  className="w-full px-2.5 py-2 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  required
+                />
+                <p className="text-gray-400 text-xs mt-1">Found in your confirmation email</p>
+              </div>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 px-2.5 py-2 rounded-md text-[12px]">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full py-3 bg-gradient-to-br from-[#00754A] to-[#006241] text-white font-semibold rounded-full hover:bg-[#465a8f] transition-all disabled:opacity-50"
+              >
+                {isLoading ? 'Looking up...' : 'Find Appointment'}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Loading */}
+        {isLoading && (
+          <div className="text-center py-16">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#576CA8] mb-4"></div>
+            <p className="text-gray-500">Loading appointment...</p>
+          </div>
+        )}
+
+        {/* Appointment Details */}
+        {appointment && !isLoading && (
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-[14px] font-semibold text-gray-800">Appointment Details</h2>
+              <span className={`px-3 py-1 rounded-full text-[12px] font-medium border ${getStatusColor(appointment.status)}`}>
+                {appointment.status}
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Patient Name</p>
+                  <p className="text-gray-800 font-medium">{appointment.full_name}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Reference ID</p>
+                  <p className="text-gray-800 font-medium">#{appointment.id}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Service</p>
+                  <p className="text-gray-800">{appointment.service_type}</p>
+                </div>
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Phone</p>
+                  <p className="text-gray-800">{appointment.phone_number}</p>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-[#00754A] to-[#006241]/10 rounded-xl p-4 border border-[#576CA8]/20">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-[#576CA8]/70 text-xs uppercase tracking-wider mb-1">Date</p>
+                    <p className="text-gray-800 font-semibold text-[14px]">{appointment.preferred_date}</p>
+                  </div>
+                  <div>
+                    <p className="text-[#576CA8]/70 text-xs uppercase tracking-wider mb-1">Time</p>
+                    <p className="text-gray-800 font-semibold text-[14px]">{appointment.preferred_time}</p>
+                  </div>
+                </div>
+              </div>
+
+              {appointment.notes && (
+                <div>
+                  <p className="text-gray-500 text-xs uppercase tracking-wider mb-1">Notes</p>
+                  <p className="text-gray-500 text-[12px]">{appointment.notes}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-6 pt-6 border-t border-blue-200 flex gap-3">
+              <button
+                onClick={() => {
+                  setAppointment(null);
+                  setEmail('');
+                  setReferenceId('');
+                  setCancelSuccess(false);
+                }}
+                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all"
+              >
+                Look Up Another
+              </button>
+
+              {canCancel && (
+                <button
+                  onClick={() => setShowCancelConfirm(true)}
+                  className="flex-1 py-3 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-100 transition-all"
+                >
+                  Cancel Appointment
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Back Button */}
+        <button
+          onClick={() => setCurrentPage('home')}
+          className="w-full mt-6 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all text-[12px]"
+        >
+          ← Back to Home
+        </button>
+      </div>
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white shadow-xl rounded-xl p-4 w-full max-w-md border border-blue-200">
+            <div className="text-center mb-4">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-[16px] font-bold text-gray-800">Cancel Appointment?</h3>
+              <p className="text-gray-500 mt-2">This action cannot be undone.</p>
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-gray-500 text-[12px] mb-2">Reason for cancellation (optional)</label>
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Let us know why you're cancelling..."
+                className="w-full px-2.5 py-2 bg-blue-50 border border-blue-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:border-red-500/50 resize-none"
+                rows={3}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="flex-1 py-3 bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-all"
+              >
+                Keep Appointment
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={isCancelling}
+                className="flex-1 py-3 bg-red-500 text-[#000000]/87 font-semibold rounded-full hover:bg-red-600 transition-all disabled:opacity-50"
+              >
+                {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ManagerDailyReportUI({ data, fromDate, toDate }) {
+  if (!data || !data.kpi) return null;
+  return (
+    <div className="bg-[#f8f9fa] text-[#333333] font-sans print:bg-white pb-12">
+      <div className="grid grid-cols-4 gap-2 mb-3">
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-green-100 text-green-700 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">Occupancy</div>
+            <div className=" font-black text-gray-800 truncate">{data.kpi?.occupancy}%</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">{data.kpi?.occupiedRooms} / {data.kpi?.totalRooms} Rooms</div>
+          </div>
+        </div>
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M16 10h.01M8 10h.01M8 14h.01M12 14h.01M16 14h.01" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">ADR</div>
+            <div className=" font-black text-gray-800 truncate">₱{data.kpi?.adr?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">Average Daily Rate</div>
+          </div>
+        </div>
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">REVPAR</div>
+            <div className=" font-black text-gray-800 truncate">₱{data.kpi?.revpar?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">Rev. per Available Rm</div>
+          </div>
+        </div>
+        <div className="bg-white p-3 rounded-xl border border-gray-100 shadow-sm flex items-center print:border-gray-300">
+          <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center mr-4 shrink-0">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8M12 18V6" /></svg>
+          </div>
+          <div className="min-w-0">
+            <div className=" font-bold text-gray-400 uppercase tracking-wider mb-1 truncate">TOTAL REVENUE</div>
+            <div className=" font-black text-gray-800 truncate">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <div className=" font-medium text-gray-500 mt-1 truncate">Room + Other Revenue</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">ROOM STATISTICS</h3>
+          <div className="space-y-4 font-medium">
+            <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.roomStatistics?.totalRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Available Rooms</span><span className="font-bold text-blue-600">{data.roomStatistics?.availableRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Occupied Rooms</span><span className="font-bold text-green-600">{data.roomStatistics?.occupiedRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-orange-500">{data.roomStatistics?.outOfOrderRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Due Out</span><span className="font-bold text-red-600">{data.roomStatistics?.dueOut}</span></div>
+            <div className="pt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Occupancy %</span><span className="font-black text-gray-900">{data.roomStatistics?.occupancyPercentage}%</span></div>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">ARRIVALS & DEPARTURES</h3>
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-green-50 text-green-700 flex items-center justify-center mr-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" /></svg>
+              </div>
+              <div>
+                <div className=" font-bold text-gray-400 uppercase tracking-widest">ARRIVALS</div>
+                <div className=" font-black text-gray-800">{data.arrivalsDepartures?.arrivals}</div>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center mr-3">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /></svg>
+              </div>
+              <div>
+                <div className=" font-bold text-gray-400 uppercase tracking-widest">DEPARTURES</div>
+                <div className=" font-black text-gray-800">{data.arrivalsDepartures?.departures}</div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-6">
+            <div className="flex justify-between"><span className="text-gray-500">Walk-in</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.walkIn}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">On Time</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.onTime}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Reservations</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.reservations}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Late Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.lateCheckout}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">VIP Arrivals</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.vipArrivals}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Early Check-out</span><span className="font-bold text-gray-800">{data.arrivalsDepartures?.earlyCheckout}</span></div>
+          </div>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">GUESTS IN HOUSE</h3>
+          <div className=" font-black text-gray-800 mb-4 mt-2">{data.guestsInHouse?.total}</div>
+          <div className="space-y-4 font-medium mt-auto">
+            <div className="flex justify-between items-center"><span className="text-gray-500">Adults</span><span className="font-bold text-gray-800">{data.guestsInHouse?.adults}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Children</span><span className="font-bold text-gray-800">{data.guestsInHouse?.children}</span></div>
+            <div className="pt-4 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">No. of Rooms</span><span className="font-black text-gray-900">{data.guestsInHouse?.noOfRooms}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-[3fr_2fr] gap-3 mb-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">REVENUE SUMMARY (TODAY)</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3 w-1/2">DEPARTMENT</th>
+                <th className="pb-3 text-right">REVENUE (₱)</th>
+                <th className="pb-3 text-right">% OF TOTAL</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.revenueSummary?.map((item, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-3 font-medium text-gray-600">{item.department}</td>
+                  <td className="py-3 text-right font-medium text-gray-800">{item.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-3 text-right font-bold text-gray-500">{item.pct}%</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50/50">
+                <td className="py-3 font-bold text-green-700">TOTAL REVENUE</td>
+                <td className="py-3 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="py-3 text-right font-bold text-green-700">100%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">REVENUE BREAKDOWN</h3>
+          <div className="flex-1 flex items-center justify-between gap-2 mt-4">
+            <div className="relative w-40 h-40 shrink-0">
+              <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+                {(() => {
+                  let currentOffset = 0;
+                  return data.revenueSummary?.map((item, i) => {
+                    const val = parseFloat(item.pct);
+                    const dasharray = `${val} ${100 - val}`;
+                    const offset = currentOffset;
+                    currentOffset -= val;
+                    return (
+                      <circle
+                        key={i}
+                        cx="50" cy="50" r="15.91549430918954"
+                        fill="transparent"
+                        stroke={item.color}
+                        strokeWidth="8"
+                        strokeDasharray={dasharray}
+                        strokeDashoffset={offset}
+                      />
+                    );
+                  });
+                })()}
+                <circle cx="50" cy="50" r="11" fill="white" />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
+                <span className=" font-black text-gray-800">₱{data.kpi?.totalRevenue?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                <span className=" font-medium text-gray-500">Total Revenue</span>
+              </div>
+            </div>
+            <div className="flex-1 space-y-3 font-medium text-gray-600">
+              {data.revenueSummary?.map((item, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <span className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: item.color }}></span>
+                    {item.department}
+                  </div>
+                  <span className="text-gray-500">{item.pct}%</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">ROOM TYPES PERFORMANCE</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3 w-1/3">ROOM TYPE</th>
+                <th className="pb-3 text-right">OCC</th>
+                <th className="pb-3 text-right">AVAIL</th>
+                <th className="pb-3 text-right">OCC.%</th>
+                <th className="pb-3 text-right">ADR (₱)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.roomTypesPerformance?.map((rt, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-1.5 font-medium text-gray-600">{rt.roomType}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{rt.occupied}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{rt.available}</td>
+                  <td className="py-1.5 text-right font-bold text-gray-500">{rt.occPct}%</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{parseFloat(rt.adr).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50/50">
+                <td className="py-1.5 font-bold text-green-700">TOTAL</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.occupiedRooms}</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.roomStatistics?.availableRooms}</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.occupancy}%</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.adr?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">PAYMENT SUMMARY (TODAY)</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3 w-1/2">PAYMENT METHOD</th>
+                <th className="pb-3 text-right">AMOUNT (₱)</th>
+                <th className="pb-3 text-right">%</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.paymentSummary?.map((ps, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-1.5 font-medium text-gray-600">{ps.method}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{ps.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                  <td className="py-1.5 text-right font-bold text-gray-500">{(data.kpi?.totalRevenue ? (ps.amount / data.kpi.totalRevenue * 100) : 0).toFixed(1)}%</td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50/50">
+                <td className="py-1.5 font-bold text-green-700">TOTAL PAYMENTS</td>
+                <td className="py-1.5 text-right font-bold text-green-700">{data.kpi?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                <td className="py-1.5 text-right font-bold text-green-700">100%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">HOUSEKEEPING SUMMARY</h3>
+          <div className="space-y-4 font-medium mt-6">
+            <div className="flex justify-between items-center"><span className="text-gray-500">Total Rooms</span><span className="font-bold text-gray-800">{data.housekeeping?.totalRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Clean Rooms</span><span className="font-bold text-green-700">{data.housekeeping?.cleanRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Dirty Rooms</span><span className="font-bold text-orange-500">{data.housekeeping?.dirtyRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Inspected Rooms</span><span className="font-bold text-blue-600">{data.housekeeping?.inspectedRooms}</span></div>
+            <div className="flex justify-between items-center"><span className="text-gray-500">Out of Order</span><span className="font-bold text-red-600">{data.housekeeping?.outOfOrderRooms}</span></div>
+            <div className="pt-4 mt-2 border-t border-gray-100 flex justify-between items-center"><span className="text-gray-700 font-bold">Cleanliness %</span><span className="font-black text-green-700">{data.housekeeping?.cleanlinessPct}%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">TOP 5 ROOM REVENUE</h3>
+          <table className="w-full text-left ">
+            <thead>
+              <tr className=" font-black text-gray-400 uppercase tracking-wider border-b border-gray-100">
+                <th className="pb-3">ROOM NO.</th>
+                <th className="pb-3">ROOM TYPE</th>
+                <th className="pb-3 text-right">REVENUE (₱)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {data.topRooms?.map((tr, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="py-1.5 font-bold text-gray-800">{tr.roomNo}</td>
+                  <td className="py-1.5 font-medium text-gray-600">{tr.roomType}</td>
+                  <td className="py-1.5 text-right font-medium text-gray-800">{tr.revenue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">NOTES & REMINDERS</h3>
+          <ul className="space-y-4 font-medium text-gray-600">
+            {data.notes?.map((n, i) => (
+              <li key={i}>{n}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col print:border-gray-300">
+          <h3 className=" font-black text-gray-800 tracking-wider uppercase mb-3">WEATHER</h3>
+          <div className="flex items-center mt-2 mb-4">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ea9f2f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-6"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
+            <div>
+              <div className=" font-black text-gray-800">{data.weather?.temp}</div>
+              <div className=" font-bold text-gray-600 mt-1">{data.weather?.condition}</div>
+            </div>
+          </div>
+          <div className="flex justify-between items-center font-bold text-gray-500 mt-auto pt-4 border-t border-gray-100">
+            <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2770c8" strokeWidth="2" className="mr-1"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" /></svg> Humidity<br /><span className="text-gray-800 ml-4 ">{data.weather?.humidity}</span></div>
+            <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8858a7" strokeWidth="2" className="mr-1"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" /></svg> Wind<br /><span className="text-gray-800 ml-4 ">{data.weather?.wind}</span></div>
+            <div className="flex items-center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#317e3f" strokeWidth="2" className="mr-1"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></svg> Forecast<br /><span className="text-gray-800 ml-4 ">{data.weather?.forecast}</span></div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-8 text-gray-400 italic">* This report is system generated and does not require signature.</div>
+    </div>
+  );
+}
+
+function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
+  const [data, setData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [fromDate, setFromDate] = React.useState(initialFromDate || new Date().toISOString().split('T')[0]);
+  const [toDate, setToDate] = React.useState(initialToDate || new Date().toISOString().split('T')[0]);
+  const [fromTime, setFromTime] = React.useState('00:00');
+  const [toTime, setToTime] = React.useState('23:59');
+  const [shiftStaff, setShiftStaff] = React.useState('All Staff');
+  const [staffList, setStaffList] = React.useState([]);
+
+  React.useEffect(() => {
+    if (report.title === "Cashier Shift Report") {
+      fetch(`${API_BASE_URL || 'http://localhost:5000'}/api/staff`)
+        .then(res => res.json())
+        .then(data => { if (data.success) setStaffList(data.staff || []); })
+        .catch(console.error);
+    }
+  }, [report.title]);
+
+  const fetchReportData = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      let endpoint = '';
+      if (report.title === "Daily Manager's Report") endpoint = `/api/reports/front-office/manager?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Arrival Report") endpoint = `/api/reports/front-office/arrivals?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Departure Report") endpoint = `/api/reports/front-office/departures?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "In-House Guest Report") endpoint = `/api/reports/front-office/in-house`;
+      else if (report.title === "Room Status Report") endpoint = `/api/reports/front-office/room-status`;
+      else if (report.title === "Cashier Shift Report") endpoint = `/api/reports/shift?startDate=${fromDate}T${fromTime}:00&endDate=${toDate}T${toTime}:59&staff=${encodeURIComponent(shiftStaff)}`;
+      else if (report.title === "Revenue Report") endpoint = `/api/reports/revenue?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Payment Collection Report") endpoint = `/api/reports/payments?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Guest Ledger Report") endpoint = `/api/reports/guest-ledger?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Outstanding Balance Report") endpoint = `/api/reports/financial/outstanding-balance`;
+      // Housekeeping
+      else if (report.title === "Housekeeping Assignment") endpoint = `/api/reports/housekeeping/assignment`;
+      else if (report.title === "Dirty Room Report") endpoint = `/api/reports/housekeeping/dirty`;
+      else if (report.title === "Clean Room Report") endpoint = `/api/reports/housekeeping/clean`;
+      else if (report.title === "Out of Order Report") endpoint = `/api/reports/housekeeping/ooo`;
+      // Audit
+      else if (report.title === "Night Audit Report") endpoint = `/api/reports/audit/night-audit?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Void Report") endpoint = `/api/reports/audit/voids?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Discount Report") endpoint = `/api/reports/audit/discounts?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Refund Report") endpoint = `/api/reports/audit/refunds?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Deleted Charges Report") endpoint = `/api/reports/audit/deleted-charges?startDate=${fromDate}&endDate=${toDate}`;
+      else if (report.title === "Rate Override Report") endpoint = `/api/reports/audit/rate-overrides?startDate=${fromDate}&endDate=${toDate}`;
+
+      if (endpoint) {
+        const res = await fetch(`${API_BASE_URL || 'http://localhost:5000'}${endpoint}`);
+        const result = await res.json();
+        if (result.success) {
+          setData(result);
+        } else {
+          console.error("Report failed:", result.message);
+          setData(null);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to fetch report:", e);
+    }
+    setLoading(false);
+  }, [report, fromDate, toDate, shiftStaff, fromTime, toTime]);
+
+  React.useEffect(() => {
+    fetchReportData();
+  }, [fetchReportData]);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const handleExportCSV = () => {
+    if (!data) return;
+    let rows = [];
+    let headers = [];
+
+    if (report.title === "Daily Manager's Report" && data.stats) {
+      headers = ['Metric', 'Value'];
+      rows.push(['Total Arrivals', data.stats.total_arrivals]);
+      rows.push(['Total Departures', data.stats.total_departures]);
+      rows.push(['Total In-House', data.stats.total_in_house]);
+      rows.push(['Total Rooms', data.stats.total_rooms]);
+      rows.push(['Occupancy %', ((data.stats.total_in_house / data.stats.total_rooms) * 100 || 0).toFixed(1) + '%']);
+      rows.push(['Total Room Revenue', data.stats.total_room_revenue]);
+    } else if (report.title === "Arrival Report" && data.arrivals) {
+      headers = ['Guest Name', 'Room Type', 'Room #', 'Check-in', 'Check-out', 'Status', 'Guests'];
+      rows = data.arrivals.map(a => [a.full_name, a.room_type, a.room_number || '-', a.check_in_date, a.check_out_date, a.status, a.number_of_guests]);
+    } else if (report.title === "Departure Report" && data.departures) {
+      headers = ['Guest Name', 'Room Type', 'Room #', 'Check-in', 'Check-out', 'Status', 'Guests'];
+      rows = data.departures.map(d => [d.full_name, d.room_type, d.room_number || '-', d.check_in_date, d.check_out_date, d.status, d.number_of_guests]);
+    } else if (report.title === "In-House Guest Report" && data.inHouse) {
+      headers = ['Guest Name', 'Room Type', 'Room #', 'Check-in', 'Check-out', 'Guests', 'Balance'];
+      rows = data.inHouse.map(h => [h.full_name, h.room_type, h.room_number || '-', h.check_in_date, h.check_out_date, h.number_of_guests, h.balance]);
+    } else if (report.title === "Room Status Report" && data.rooms) {
+      headers = ['Room Number', 'Room Type', 'Occupancy', 'Cleanliness', 'Guest'];
+      rows = data.rooms.map(r => [r.room_number, r.room_type, r.occupancy_status, r.cleanliness, r.guest_name || '-']);
+    } else if (report.title === "Payment Collection Report" && data.payments) {
+      headers = ['Date', 'Payment Method', 'Amount', 'Reference', 'Guest Name', 'Room #', 'Cashier'];
+      rows = data.payments.map(p => [
+        new Date(p.posted_at).toLocaleString(),
+        p.payment_method,
+        p.amount,
+        p.reference_number || '-',
+        p.guest_name || '-',
+        p.room_number || '-',
+        p.cashier_name || '-'
+      ]);
+    } else if (report.title === "Guest Ledger Report" && data.ledger) {
+      headers = ['Guest Name', 'Room #', 'Check-in', 'Check-out', 'Status', 'Total Charges', 'Total Payments', 'Balance'];
+      rows = data.ledger.map(l => [
+        l.full_name, l.room_number || '-', l.check_in_date, l.check_out_date, l.status, l.total_charges, l.total_payments, l.balance
+      ]);
+      rows.push([]);
+      rows.push(['', '', '', '', 'TOTAL', data.summary.totalCharges, data.summary.totalPayments, data.summary.totalBalance]);
+    } else if (report.title === "Outstanding Balance Report" && data.outstanding) {
+      headers = ['Guest Name', 'Room #', 'Check-in', 'Check-out', 'Status', 'Total Charges', 'Total Payments', 'Balance'];
+      rows = data.outstanding.map(l => [
+        l.full_name, l.room_number || '-', l.check_in_date, l.check_out_date, l.status, l.total_charges, l.total_payments, l.balance
+      ]);
+    } else if (["Housekeeping Assignment", "Dirty Room Report", "Clean Room Report", "Out of Order Report"].includes(report.title) && data.rooms) {
+      headers = ['Room Number', 'Room Type', 'Cleanliness', 'Guest', 'Check-out Date', 'Notes'];
+      rows = data.rooms.map(r => [
+        r.room_number, r.room_type, r.cleanliness, r.guest_name || '-', r.check_out_date ? new Date(r.check_out_date).toLocaleDateString() : '-', r.notes || '-'
+      ]);
+    } else if (report.title === "Night Audit Report" && data.logs) {
+      headers = ['Audit Date', 'Run By', 'Total Charges Posted'];
+      rows = data.logs.map(l => [new Date(l.audit_date).toLocaleDateString(), l.run_by, l.total_charges_posted]);
+      rows.push([]);
+      rows.push(['Total Posted (Period)', data.stats.total_posted]);
+      rows.push(['Total Collected (Period)', data.stats.total_collected]);
+    } else if (report.title === "Void Report" && data.voids) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+      rows = data.voids.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
+    } else if (report.title === "Discount Report" && data.discounts) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+      rows = data.discounts.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
+    } else if (report.title === "Refund Report" && data.refunds) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+      rows = data.refunds.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
+    } else if (report.title === "Deleted Charges Report" && data.deleted) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Department', 'Description', 'Amount', 'Void Reason'];
+      rows = data.deleted.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, d.amount, d.void_reason || '-']);
+    } else if (report.title === "Rate Override Report" && data.overrides) {
+      headers = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+      rows = data.overrides.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
+    }
+
+    if (headers.length === 0) return;
+
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + headers.join(',') + '\n'
+      + rows.map(e => e.map(cell => `"${cell}"`).join(",")).join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `${report.title.replace(/\s+/g, '_')}_${fromDate}_to_${toDate}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderTable = () => {
+    if (loading) return <div className="p-4 text-center text-black/40 font-medium">Generating report...</div>;
+    if (!data) return <div className="p-4 text-center text-red-500 font-medium">Failed to load report data.</div>;
+
+    if (report.title === "Daily Manager's Report" && data.stats) {
+      return (
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-black/10 bg-gray-50/50">
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50">Metric</th>
+              <th className="px-6 py-4 text-[11px] font-black uppercase tracking-wider text-black/50 text-right">Value</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-black/5">
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Arrivals</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_arrivals}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Departures</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_departures}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total In-House</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_in_house}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Rooms</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{data.stats.total_rooms}</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Occupancy %</td><td className="px-6 py-4 text-[13px] font-medium text-black/60 text-right">{((data.stats.total_in_house / data.stats.total_rooms) * 100 || 0).toFixed(1)}%</td></tr>
+            <tr className="hover:bg-gray-50/50"><td className="px-6 py-4 text-[13px] font-bold text-black/80">Total Room Revenue</td><td className="px-6 py-4 text-[13px] font-bold text-emerald-600 text-right">₱{Number(data.stats.total_room_revenue || 0).toLocaleString()}</td></tr>
+          </tbody>
+        </table>
+      );
+    }
+
+    if (report.title === "Arrival Report" && data.arrivals) {
+      if (data.arrivals.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No arrivals scheduled for this date.</div>;
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Arrival Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Dates</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.arrivals.map((a, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black">{a.full_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{a.room_type}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{a.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{a.check_in_date} to {a.check_out_date}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">{a.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (report.title === "Departure Report" && data.departures) {
+      if (data.departures.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No departures scheduled for this date.</div>;
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Departure Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room Type</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.departures.map((d, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black">{d.full_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{d.room_type}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{d.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">{d.status.replace('_', ' ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (report.title === "In-House Guest Report" && data.inHouse) {
+      if (data.inHouse.length === 0) return <div className="p-4 text-center text-black/40 font-medium">No guests currently in-house.</div>;
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">In-House Guest Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Departure</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black text-right">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.inHouse.map((h, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black">{h.full_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{h.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{h.check_out_date}</td>
+                  <td className={`border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold ${h.balance > 0 ? 'text-red-700' : 'text-green-700'}`}>₱{Number(h.balance).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (report.title === "Room Status Report" && data.rooms) {
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Room Status Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room Number</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Occupancy</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Cleanliness</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.rooms.map((r, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{r.room_number}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">{r.occupancy_status}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">{r.cleanliness}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{r.guest_name || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    if (report.title === "Cashier Shift Report" && data.payments) {
+      if (data.payments.length === 0 && (!data.discounts || data.discounts.length === 0)) {
+        return <div className="p-4 text-center text-black/40 font-medium">No payments or discounts recorded for this date/staff.</div>;
+      }
+
+      const combinedTransactions = [
+        ...data.payments.map(p => ({ ...p, isDiscount: false })),
+        ...(data.discounts || []).map(d => ({ ...d, isDiscount: true }))
+      ].sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
+
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <div>
+                <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">End of Shift / Cashier Report</h2>
+                <div className="font-bold text-black/60 text-xs mt-1">CASHIER: {shiftStaff.toUpperCase()}</div>
+              </div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          <table className="w-full text-left border-collapse mt-4">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Time</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Method / Ref</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Discount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {combinedTransactions.map((tx, i) => (
+                <tr key={i}>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(tx.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left font-bold text-black">{tx.guest_name}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{tx.room_number || '-'}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">
+                    {tx.isDiscount ? `DISCOUNT / ADJ (${tx.description || tx.charge_type})` : `${tx.payment_method} ${tx.reference ? `(${tx.reference})` : ''}`}
+                  </td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">
+                    {!tx.isDiscount ? `₱${Number(tx.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                  </td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-red-600">
+                    {tx.isDiscount ? `₱${Math.abs(Number(tx.amount)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Cash Collected:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_cash).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
+              </tr>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total GCash/Online:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_online).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
+              </tr>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Card:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_card).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
+              </tr>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">Total Shift Collection:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">₱{Number(data.summary.total_collected).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
+              </tr>
+              <tr>
+                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-red-600">Total Discounts Given:</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-red-600">₱{Math.abs(Number(data.summary.total_discounts || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Received By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (report.title === "Revenue Report" && data.items) {
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Revenue Report (By Department)</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          {/* Revenue Summary Table */}
+          <div className="mb-4 w-[60%] mx-auto">
+            <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Revenue Summary</h3>
+            <table className="w-full text-left border-collapse">
+              <tbody>
+                {data.summary.map((s, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black uppercase">{s.department}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(s.total).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Recognized Revenue:</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Itemized Charges Table */}
+          <h3 className="font-bold uppercase mb-2 text-[12px]">Itemized Charges</h3>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Time</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Department</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Description</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.items.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">No revenue recognized for this date.</td>
+                </tr>
+              ) : (
+                data.items.map((item, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(item.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase font-bold text-black">{item.charge_type}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left text-black">{item.description} {item.quantity > 1 ? `(x${item.quantity})` : ''}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{item.guest_name} {item.room_number ? `(${item.room_number})` : ''}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(item.amount).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (report.title === "Payment Collection Report" && data.payments) {
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Payment Collection Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          {/* Payment Summary Table */}
+          <div className="mb-4 w-[60%] mx-auto">
+            <h3 className="font-bold uppercase mb-2 text-[12px] text-center bg-[#f0f0f0] p-1.5 border border-[#222]">Collection Summary</h3>
+            <table className="w-full text-left border-collapse">
+              <tbody>
+                {data.summary.map((s, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] font-bold text-black uppercase">{s.payment_method}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(s.total).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected:</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.grandTotal).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          {/* Itemized Payments Table */}
+          <h3 className="font-bold uppercase mb-2 text-[12px]">Itemized Payments</h3>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Date & Time</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Guest Name (Room)</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Payment Method</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Reference #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Amount</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Cashier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.payments.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">No payments collected for this date range.</td>
+                </tr>
+              ) : (
+                data.payments.map((p, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">
+                      {new Date(p.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} {new Date(p.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                    </td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{p.guest_name || 'Walk-in'} {p.room_number ? `(${p.room_number})` : ''}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left uppercase font-bold text-black">{p.payment_method}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left text-black">{p.reference_number || '-'}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-black">₱{Number(p.amount).toLocaleString()}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{p.cashier_name || '-'}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (report.title === "Guest Ledger Report" && data.ledger) {
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Guest Ledger Report</h2>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room #</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Check-in</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Check-out</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Status</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Charges</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Payments</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-right text-black">Balance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.ledger.length === 0 ? (
+                <tr>
+                  <td colSpan="8" className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">No guest ledger data found for this date range.</td>
+                </tr>
+              ) : (
+                data.ledger.map((l, i) => (
+                  <tr key={i}>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left uppercase font-bold text-black">{l.full_name}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{l.room_number || '-'}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(l.check_in_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(l.check_out_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black uppercase">{l.status.replace('_', ' ')}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right text-black">₱{Number(l.total_charges).toLocaleString()}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right text-black">₱{Number(l.total_payments).toLocaleString()}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-right font-bold text-[#b91c1c]">₱{Number(l.balance).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {data.ledger.length > 0 && (
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td colSpan="5" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total:</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalCharges).toLocaleString()}</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-black">₱{Number(data.summary.totalPayments).toLocaleString()}</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-right text-[#b91c1c]">₱{Number(data.summary.totalBalance).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const isHousekeeping = ["Housekeeping Assignment", "Dirty Room Report", "Clean Room Report", "Out of Order Report"].includes(report.title);
+    const isAuditItem = ["Void Report", "Discount Report", "Refund Report", "Deleted Charges Report", "Rate Override Report"].includes(report.title);
+
+    if ((isHousekeeping && data.rooms) || (report.title === "Night Audit Report" && data.logs) || (isAuditItem && (data.voids || data.discounts || data.refunds || data.deleted || data.overrides)) || (report.title === "Outstanding Balance Report" && data.outstanding)) {
+      let columns = [];
+      let rowsData = [];
+      let emptyMsg = "No data found.";
+
+      if (isHousekeeping) {
+        columns = ['Room Number', 'Room Type', 'Cleanliness', 'Guest', 'Check-out Date', 'Notes'];
+        rowsData = data.rooms.map(r => [
+          r.room_number, r.room_type, r.cleanliness.replace('_', ' ').toUpperCase(), r.guest_name || '-', r.check_out_date ? new Date(r.check_out_date).toLocaleDateString() : '-', r.notes || '-'
+        ]);
+        emptyMsg = "No rooms match this report.";
+      } else if (report.title === "Outstanding Balance Report") {
+        columns = ['Guest Name', 'Room #', 'Check-in', 'Check-out', 'Status', 'Charges', 'Payments', 'Balance'];
+        rowsData = data.outstanding.map(l => [
+          l.full_name, l.room_number || '-', new Date(l.check_in_date).toLocaleDateString(), new Date(l.check_out_date).toLocaleDateString(), l.status.replace('_', ' '), `₱${Number(l.total_charges).toLocaleString()}`, `₱${Number(l.total_payments).toLocaleString()}`, `₱${Number(l.balance).toLocaleString()}`
+        ]);
+        emptyMsg = "No guests have an outstanding balance.";
+      } else if (report.title === "Night Audit Report") {
+        columns = ['Audit Date', 'Run By', 'Total Charges Posted'];
+        rowsData = data.logs.map(l => [new Date(l.audit_date).toLocaleDateString(), l.run_by, `₱${Number(l.total_charges_posted).toLocaleString()}`]);
+        emptyMsg = "No night audits found for this date range.";
+      } else if (report.title === "Void Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+        rowsData = data.voids.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
+      } else if (report.title === "Discount Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+        rowsData = data.discounts.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
+      } else if (report.title === "Refund Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
+        rowsData = data.refunds.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
+      } else if (report.title === "Deleted Charges Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Department', 'Description', 'Amount', 'Void Reason'];
+        rowsData = data.deleted.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, `₱${Number(d.amount).toLocaleString()}`, d.void_reason || '-']);
+      } else if (report.title === "Rate Override Report") {
+        columns = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
+        rowsData = data.overrides.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
+      }
+
+      return (
+        <div className="text-black text-[11px] font-sans">
+          <div className="mb-3">
+            <div className="bg-[#1E3932] p-4 text-center text-white rounded-t-xl print:rounded-none" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+              <h1 className="m-0 text-2xl font-black uppercase tracking-wider text-white">Northomes Pensione</h1>
+              <p className="m-0 text-[11px] font-medium text-white/80 mt-1.5">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+              <p className="m-0 text-[11px] font-medium text-white/80">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
+            </div>
+            <div className="flex justify-between items-end mt-6 px-2">
+              <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">{report.title}</h2>
+              {!isHousekeeping && <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>}
+            </div>
+            <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
+          </div>
+
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-[#f0f0f0]">
+                {columns.map((col, i) => (
+                  <th key={i} className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rowsData.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="border border-[#222] px-3 py-4 text-center text-black/40 font-medium">{emptyMsg}</td>
+                </tr>
+              ) : (
+                rowsData.map((row, i) => (
+                  <tr key={i}>
+                    {row.map((cell, j) => (
+                      <td key={j} className="border border-[#222] px-3 py-1.5 text-[11px] text-left text-black font-medium">{cell}</td>
+                    ))}
+                  </tr>
+                ))
+              )}
+            </tbody>
+            {report.title === "Night Audit Report" && data.stats && (
+              <tfoot>
+                <tr className="bg-[#f0f0f0]">
+                  <td colSpan="2" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Posted (Period):</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_posted).toLocaleString()}</td>
+                </tr>
+                <tr className="bg-[#f0f0f0]">
+                  <td colSpan="2" className="border border-[#222] px-2 py-1.5 text-[12px] font-black uppercase tracking-wider text-right text-black">Total Collected (Period):</td>
+                  <td className="border border-[#222] px-2 py-1.5 text-[12px] font-black text-left text-[#b91c1c]">₱{Number(data.stats.total_collected).toLocaleString()}</td>
+                </tr>
+              </tfoot>
+            )}
+          </table>
+
+          <div className="mt-16 flex justify-between px-12">
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Prepared By</div>
+            </div>
+            <div className="text-center w-[200px]">
+              <div className="border-b border-black mb-1"></div>
+              <div className="text-[10px] uppercase font-bold text-black">Checked By</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return <div className="p-4 text-center text-black/40 font-medium">Report format not yet implemented.</div>;
+  };
+
+  return (
+    <div className="fixed top-0 left-[120px] right-0 bottom-0 flex flex-col z-10 print:static print:block print:left-0 print:w-full print:h-auto print:overflow-visible print:bg-white">
+      <div className="flex-1 flex flex-col overflow-hidden bg-[#f8f9fa] print:block print:overflow-visible print:bg-white" id="printable-report">
+        <div className="px-8 py-6 border-b border-black/5 bg-white shrink-0 flex items-center justify-between print:hidden">
+          <div className="flex items-center gap-2">
+            <button onClick={onBack} className="p-2 hover:bg-black/5 rounded-full transition-colors text-black/60">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
+            </button>
+            <div>
+              <h2 className="text-[#000000]/87 font-black text-2xl tracking-tight leading-tight">{report.title}</h2>
+              <p className="text-black/60 text-[13px] mt-1 font-medium">{report.desc}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {report.title === "Cashier Shift Report" && (
+              <select value={shiftStaff} onChange={e => setShiftStaff(e.target.value)} className="px-4 py-2 bg-white border border-black/10 rounded-md text-[12px] outline-none focus:border-[#00754A]">
+                <option value="All Staff">All Staff</option>
+                {staffList.map(s => <option key={s.id} value={s.username}>{s.full_name || s.username}</option>)}
+                <option value="admin">admin</option>
+              </select>
+            )}
+            {report.title !== "Room Status Report" && report.title !== "In-House Guest Report" && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md focus-within:border-[#00754A] transition-colors">
+                  <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
+                  <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium" />
+                  {report.title === "Cashier Shift Report" && (
+                    <input type="time" value={fromTime} onChange={e => setFromTime(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium border-l border-black/10 pl-2 ml-1" />
+                  )}
+                </div>
+                <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md focus-within:border-[#00754A] transition-colors">
+                  <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
+                  <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium" />
+                  {report.title === "Cashier Shift Report" && (
+                    <input type="time" value={toTime} onChange={e => setToTime(e.target.value)} className="text-[12px] outline-none bg-transparent cursor-pointer font-medium border-l border-black/10 pl-2 ml-1" />
+                  )}
+                </div>
+              </div>
+            )}
+            <button onClick={handlePrint} className="flex items-center gap-2 px-5 py-1.5 border border-black/10 rounded-md text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></svg>
+              <span>Print</span>
+            </button>
+            <button onClick={handleExportCSV} className="flex items-center gap-2 px-5 py-1.5 bg-[#00754A] hover:bg-[#006241] text-white rounded-md text-xs font-bold shadow-sm transition-colors">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 bg-[#f8f9fa] print:block print:overflow-visible print:p-0 print:bg-white w-full">
+          {report.title === "Daily Manager's Report" && data ? (
+            <div className="max-w-[1400px] mx-auto print:max-w-[1400px] print:mx-auto w-full">
+              <ManagerDailyReportUI data={data} fromDate={fromDate} toDate={toDate} />
+            </div>
+          ) : (
+            <div className="max-w-[794px] min-h-[1123px] mx-auto bg-white shadow-sm border border-black/10 print:shadow-none print:border-none print:p-0 w-full p-4">
+              {renderTable()}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminReportsTab() {
+  const [reportsSubTab, setReportsSubTab] = React.useState('All Reports');
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [selectedReport, setSelectedReport] = React.useState(null);
+  const [fromDate, setFromDate] = React.useState(new Date().toISOString().split('T')[0]);
+  const [toDate, setToDate] = React.useState(new Date().toISOString().split('T')[0]);
+
+  const reportCategories = [
+    {
+      title: 'FRONT OFFICE REPORTS',
+      id: 'Front Office',
+      reports: [
+        { title: "Daily Manager's Report", desc: "Summary of daily hotel operations and performance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-5 5" /><path d="M18 9h-4" /><path d="M18 9v4" /></svg> },
+        { title: "Arrival Report", desc: "List of guests arriving today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 8v6M23 11h-6" /></svg> },
+        { title: "Departure Report", desc: "List of guests departing today.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M17 11h6M20 8l3 3-3 3" /></svg> },
+        { title: "In-House Guest Report", desc: "List of all in-house guests.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-3-3.87" /><path d="M9 21v-2a4 4 0 014-4h2" /><circle cx="9" cy="7" r="4" /><circle cx="16" cy="7" r="3" /></svg> },
+        { title: "Room Status Report", desc: "Current status of all rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M10 13h4" /></svg> }
+      ]
+    },
+    {
+      title: 'FINANCIAL REPORTS',
+      id: 'Financial',
+      reports: [
+        { title: "Revenue Report", desc: "Summary of revenue by department.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M16 8h-6a2 2 0 100 4h4a2 2 0 110 4H8" /><path d="M12 18V6" /></svg> },
+        { title: "Cashier Shift Report", desc: "Summary of cashier shift transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M6 8h12" /><path d="M6 12h12" /><path d="M6 16h4" /></svg> },
+        { title: "Payment Collection Report", desc: "Summary of payments collected by method.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg> },
+        { title: "Outstanding Balance Report", desc: "List of guests with outstanding balance.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="8.5" cy="7" r="4" /><path d="M20 12v6M17 15h6" /></svg> },
+        { title: "Guest Ledger Report", desc: "Detailed ledger of guest accounts.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" /></svg> },
+      ]
+    },
+    {
+      title: 'HOUSEKEEPING REPORTS',
+      id: 'Housekeeping',
+      reports: [
+        { title: "Housekeeping Assignment", desc: "Rooms assigned to housekeeping staff.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M16 13H8" /><path d="M16 17H8" /><path d="M10 9H8" /></svg> },
+        { title: "Dirty Room Report", desc: "List of rooms to be cleaned.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2.5 21.5l14-14M7 21v-4a2 2 0 012-2h2a2 2 0 012 2v4M12 11l5-5" /></svg> },
+        { title: "Clean Room Report", desc: "List of clean and inspected rooms.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16M2 8h18a2 2 0 012 2v10M2 17h20M6 8v9" /></svg> },
+        { title: "Out of Order Report", desc: "Rooms that are out of order.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" /></svg> }
+      ]
+    },
+    {
+      title: 'AUDIT REPORTS',
+      id: 'Audit',
+      reports: [
+        { title: "Night Audit Report", desc: "Summary of end-of-day audit.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg> },
+        { title: "Void Report", desc: "List of voided transactions.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg> },
+        { title: "Discount Report", desc: "Summary of discounts given.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9 15l6-6" /><circle cx="9" cy="9" r="1" /><circle cx="15" cy="15" r="1" /></svg> },
+        { title: "Refund Report", desc: "Summary of refunds issued.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg> },
+        { title: "Deleted Charges Report", desc: "List of deleted charges.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg> },
+        { title: "Rate Override Report", desc: "List of rate overrides.", icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00754A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" /><line x1="7" y1="7" x2="7.01" y2="7" /></svg> }
+      ]
+    }
+  ];
+
+  const tabs = [
+    { id: 'All Reports', label: 'All Reports', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /></svg> },
+    { id: 'Front Office', label: 'Front Office', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" /></svg> },
+    { id: 'Financial', label: 'Financial', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg> },
+    { id: 'Housekeeping', label: 'Housekeeping', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M16 13H8" /><path d="M16 17H8" /><path d="M10 9H8" /></svg> },
+    { id: 'Audit', label: 'Audit', icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg> }
+  ];
+
+  if (selectedReport) {
+    return <ReportViewer report={selectedReport} onBack={() => setSelectedReport(null)} initialFromDate={fromDate} initialToDate={toDate} />;
+  }
+
+  return (
+    <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', zIndex: 10 }}>
+      <div className="flex-1 flex flex-col min-h-0 w-full bg-[#f8f9fa]">
+        <div className="flex-1 flex flex-col min-h-0 border-t border-l border-black/5 overflow-hidden">
+
+          {/* Header bar */}
+          <div className="px-8 py-6 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
+            <div>
+              <h2 className="text-[#000000]/87 font-black text-2xl tracking-tight leading-tight">Reports</h2>
+              <p className="text-black/60 text-[13px] mt-1 font-medium">View and generate hotel reports</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
+                <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">From:</span>
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="outline-none bg-transparent cursor-pointer font-medium" />
+              </div>
+              <div className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-xs text-black shadow-sm font-medium focus-within:border-[#00754A] transition-colors">
+                <span className="text-black/50 font-bold uppercase tracking-wider text-[10px]">To:</span>
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="outline-none bg-transparent cursor-pointer font-medium" />
+              </div>
+            </div>
+          </div>
+
+          {/* Sub Header / Tabs / Search */}
+          <div className="px-8 py-3 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
+            <div className="flex gap-2">
+              {tabs.map(tab => {
+                const active = reportsSubTab === tab.id;
+                return (
+                  <button key={tab.id} onClick={() => setReportsSubTab(tab.id)}
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-[13px] transition-all ${active ? 'bg-[#00754A]/[0.06] text-[#00754A] font-bold' : 'text-black/60 hover:bg-black/5 font-medium'}`}>
+                    {React.cloneElement(tab.icon, { stroke: active ? '#00754A' : 'currentColor' })}
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-black/40" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                </div>
+                <input type="text" placeholder="Search reports..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-4 py-1.5 border border-black/10 rounded-md text-xs w-64 outline-none focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] transition-all bg-white font-medium" />
+              </div>
+              <button className="flex items-center gap-2 px-5 py-1.5 border border-black/10 rounded-md text-xs font-bold text-black/70 hover:bg-black/5 transition-colors bg-white shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/40"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                <span>Favorites</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-y-auto py-6 pr-6 pl-[10px] bg-[#f8f9fa]">
+            <div className="space-y-12 max-w-[1400px]">
+              {reportCategories.filter(cat => reportsSubTab === 'All Reports' || cat.id === reportsSubTab).map(cat => (
+                <div key={cat.id}>
+                  <h3 className="text-[12px] font-black uppercase tracking-[0.1em] text-[#00754A] mb-3">{cat.title}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                    {cat.reports.filter(r => r.title.toLowerCase().includes(searchQuery.toLowerCase()) || r.desc.toLowerCase().includes(searchQuery.toLowerCase())).map((report, i) => (
+                      <div key={i} onClick={() => setSelectedReport(report)} className="group bg-white border border-black/10 rounded-xl hover:border-[#00754A]/30 hover:shadow-[0_8px_24px_rgba(0,117,74,0.08)] transition-all cursor-pointer flex flex-col relative overflow-hidden">
+                        <div className="p-4 flex flex-col gap-2">
+                          <div className="flex items-start justify-between">
+                            <div className="w-10 h-10 rounded-md bg-emerald-50/50 flex items-center justify-center shrink-0 border border-emerald-100/50">
+                              {React.cloneElement(report.icon, { strokeWidth: "2" })}
+                            </div>
+                            <button className="text-black/20 hover:text-amber-400 transition-colors shrink-0" onClick={(e) => e.stopPropagation()}>
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
+                            </button>
+                          </div>
+                          <div className="flex-1 min-w-0 mt-2">
+                            <h4 className="font-bold text-black text-[13px] leading-snug mb-1">{report.title}</h4>
+                            <p className="text-[11px] text-black/50 leading-relaxed font-medium">{report.desc}</p>
+                          </div>
+                        </div>
+                        <div className="mt-auto px-6 py-3.5 border-t border-black/5 bg-white flex items-center justify-between transition-colors">
+                          <span className="text-[11px] font-bold text-black/40 group-hover:text-[#00754A] transition-colors">Generate Report</span>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-black/30 group-hover:text-[#00754A] transition-transform group-hover:translate-x-1"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-20 mb-4 flex items-center justify-center gap-2 text-black/40 text-xs font-medium">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+              <span>All reports can be exported to PDF, Excel, or CSV format.</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminInboxTab() {
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
+
+  const fetchMessages = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('adminToken');
+      const res = await fetch(`${API_BASE_URL}/api/contact`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setMessages(data.messages || []);
+    } catch (e) { }
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchMessages(); }, []);
+
+  const handleSelect = async (msg) => {
+    setSelected(msg);
+    if (!msg.is_read) {
+      try {
+        const token = localStorage.getItem('adminToken');
+        await fetch(`${API_BASE_URL}/api/contact/${msg.id}/read`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: true } : m));
+        setSelected(prev => ({ ...prev, is_read: true }));
+      } catch (e) { }
+    }
+  };
+
+  const unreadCount = messages.filter(m => !m.is_read).length;
+
+  return (
+    <div style={{ position: 'fixed', top: 0, left: '120px', right: 0, bottom: 0, display: 'flex', flexDirection: 'column', zIndex: 10 }}>
+      <div className="flex-1 flex min-h-0" style={{ background: '#f8f9fa' }}>
+        {/* Message List */}
+        <div className="w-[360px] flex-shrink-0 flex flex-col border-r border-black/10 bg-white overflow-hidden">
+          <div className="px-6 py-5 border-b border-black/5 bg-white shrink-0 flex items-center justify-between">
+            <div>
+              <h2 className="text-[14px] font-black text-gray-900 tracking-tight">Inbox</h2>
+              <p className="text-xs text-gray-400 mt-0.5">{messages.length} messages{unreadCount > 0 ? `, ${unreadCount} unread` : ''}</p>
+            </div>
+            <button onClick={fetchMessages} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            {loading ? (
+              <div className="flex items-center justify-center h-32">
+                <div className="w-6 h-6 border-2 border-[#00754A] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-center px-6">
+                <svg className="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H6.911a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661z" /></svg>
+                <p className="text-[12px] text-gray-400 font-medium">No messages yet</p>
+                <p className="text-xs text-gray-300 mt-1">Guest messages will appear here</p>
+              </div>
+            ) : (
+              messages.map(msg => (
+                <button
+                  key={msg.id}
+                  onClick={() => handleSelect(msg)}
+                  className={`w-full text-left px-5 py-4 border-b border-black/5 hover:bg-gray-50 transition-colors ${selected?.id === msg.id ? 'bg-[#00754A]/5 border-l-4 border-l-[#00754A]' : ''} ${!msg.is_read ? 'bg-[#00754A]/3' : ''}`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {!msg.is_read && <span className="w-2 h-2 rounded-full bg-[#00754A] flex-shrink-0 mt-1"></span>}
+                      <span className={`text-[12px] truncate ${!msg.is_read ? 'font-bold text-gray-900' : 'font-medium text-gray-600'}`}>{msg.name}</span>
+                    </div>
+                    <span className="text-[10px] text-gray-400 whitespace-nowrap flex-shrink-0 mt-0.5">
+                      {new Date(msg.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })}
+                    </span>
+                  </div>
+                  <p className={`text-xs mt-1 truncate ${!msg.is_read ? 'font-semibold text-gray-700' : 'text-gray-500'}`}>{msg.subject}</p>
+                  <p className="text-xs text-gray-400 mt-0.5 truncate">{msg.message}</p>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Message View */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-white">
+          {selected ? (
+            <div className="flex-1 flex flex-col overflow-y-auto">
+              {/* Header / Actions */}
+              <div className="px-8 py-4 border-b border-black/5 flex items-center justify-between sticky top-0 bg-white z-10">
+                <div className="flex items-center gap-2">
+                  <button onClick={() => setSelected(null)} className="text-gray-500 hover:text-gray-900 transition-colors p-2 -ml-2 rounded-full hover:bg-gray-100" title="Back to inbox">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+                  </button>
+                </div>
+                <div>
+                  <a
+                    href={`mailto:${selected.email}?subject=Re: ${encodeURIComponent(selected.subject)}`}
+                    className="flex items-center gap-2 px-4 py-2 bg-[#f8f9fa] border border-black/10 text-gray-700 text-[12px] font-semibold rounded-md hover:bg-gray-50 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" /></svg>
+                    Reply
+                  </a>
+                </div>
+              </div>
+
+              {/* Subject */}
+              <div className="px-8 pt-8 pb-6">
+                <h2 className="text-2xl sm:text-3xl font-normal text-gray-900">{selected.subject}</h2>
+              </div>
+
+              {/* Sender Info */}
+              <div className="px-8 pb-6 flex items-start gap-2">
+                <div className="w-12 h-12 rounded-full bg-[#00754A] flex items-center justify-center flex-shrink-0 text-white shadow-sm mt-1">
+                  <span className="font-bold text-[14px]">{selected.name[0].toUpperCase()}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline justify-between flex-wrap gap-2">
+                    <div className="flex items-baseline gap-2 truncate">
+                      <span className="font-bold text-gray-900 text-base">{selected.name}</span>
+                      <span className="text-[12px] text-gray-500">&lt;{selected.email}&gt;</span>
+                    </div>
+                    <span className="text-xs text-gray-500 flex-shrink-0" title={new Date(selected.created_at).toLocaleString('en-PH', { dateStyle: 'full', timeStyle: 'short' })}>
+                      {new Date(selected.created_at).toLocaleString('en-PH', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">to Northomes Pensionne</p>
+                </div>
+              </div>
+
+              {/* Message Content */}
+              <div className="px-8 pb-12 flex-1">
+                <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-[15px]">{selected.message}</div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-6 bg-[#f8f9fa]">
+              <svg className="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" strokeWidth="1" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
+              <p className="text-gray-400 font-medium">Select an item to read</p>
+              <p className="text-gray-400 text-[12px] mt-1">Nothing is selected</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Header Component
+function Header({ currentPage, setCurrentPage, searchQuery, setSearchQuery, setAccommodationFilter }) {
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/room-types`)
+      .then(r => r.json())
+      .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
+      .catch(() => { });
+  }, []);
+
+  const inputCls = "w-full pl-10 pr-4 py-2 rounded-md border border-black/5 bg-white shadow-sm focus:border-black/5 focus:ring-1 focus:ring-white/10 focus:outline-none transition-all text-[#000000]/87 placeholder-white/20 text-[12px]";
+
+  return (
+    <>
+      {/* Top Pre-header Bar */}
+      <div className="sticky top-0 z-[60] h-[50px] w-full bg-[#1E3932] flex items-center justify-between px-4 md:px-8 overflow-hidden">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <a href="mailto:info@northomespensione.com" className="text-white/95 text-[11px] sm:text-xs font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-1.5 whitespace-nowrap">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+            <span>info@northomespensione.com</span>
+          </a>
+          <a href="tel:+639171323715" className="text-white/95 text-[11px] sm:text-xs font-semibold tracking-wide hover:text-white transition-colors flex items-center gap-1.5 whitespace-nowrap">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+            <span>+63 917 132 3715</span>
+          </a>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-3">
+            <a href="https://www.facebook.com/northomespensione" target="_blank" rel="noreferrer" className="text-white/80 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.75z" /></svg>
+            </a>
+            <a href="https://www.instagram.com/northomespensione" target="_blank" rel="noreferrer" className="text-white/80 hover:text-white transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            </a>
+          </div>
+          <div className="text-white/95 text-[11px] sm:text-xs font-semibold tracking-wide flex items-center gap-1.5 border-l border-white/20 pl-4 whitespace-nowrap">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span>Bogo City, Cebu</span>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setIsMobileMenuOpen(!isMobileMenuOpen); }}
+            className="md:hidden text-white/90 hover:text-white p-1 ml-2"
+          >
+            {isMobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      <header className="relative z-50 border-b border-black/5" style={{ background: '#ffffff', backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)' }}>
+        <div className="relative max-w-7xl mx-auto px-6 py-1.5">
+          <div className="flex items-center justify-between gap-2">
+            {/* Logo Left */}
+            <div className="flex items-center cursor-pointer" onClick={() => setCurrentPage('home')}>
+              <img
+                src="/assets/images/hero/logo.jpg"
+                alt="Northomes Pensionne Logo"
+                className="h-[65px] sm:h-[80px] w-auto object-contain"
+              />
+            </div>
+
+            {/* Navigation Center */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {[
+                { name: 'Home', id: 'home' },
+                { name: 'About Us', id: 'about' },
+                { name: 'Accommodations', id: 'accommodations', hasSubmenu: true },
+                { name: 'Dining', id: 'menu' },
+                { name: 'Gallery', id: 'gallery' },
+                { name: ' Promos', id: 'promo' },
+                { name: 'Contact', id: 'contact' },
+              ].map((item) => (
+                <div key={item.id} className="relative group">
+                  <button
+                    onClick={() => {
+                      if (item.id === 'gallery') {
+                        setCurrentPage('home');
+                        setTimeout(() => {
+                          const el = document.getElementById('gallery');
+                          if (el) {
+                            const offset = 80;
+                            const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                            window.scrollTo({ top, behavior: 'smooth' });
+                          }
+                        }, 100);
+                      } else {
+                        if (item.id === 'accommodations') setAccommodationFilter(null);
+                        setCurrentPage(item.id);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    className={`relative font-bold transition-all py-2 px-3 text-xs uppercase tracking-widest flex items-center gap-1 ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery')
+                      ? 'text-[#00754A] after:absolute after:bottom-0 after:left-3 after:right-3 after:h-[2px] after:bg-[#00754A]'
+                      : 'text-black/60 hover:text-[#000000]/87'
+                      }`}
+                  >
+                    {item.name}
+                    {item.hasSubmenu && (
+                      <svg className="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    )}
+                  </button>
+
+                  {item.hasSubmenu && roomTypes.length > 0 && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-48">
+                      <div className="bg-white rounded-xl shadow-lg border border-black/5 overflow-hidden py-1">
+                        {roomTypes.map(rt => (
+                          <button
+                            key={rt.id}
+                            onClick={() => {
+                              setAccommodationFilter(rt.name);
+                              setCurrentPage('accommodations');
+                            }}
+                            className="w-full text-left px-4 py-1.5 text-[11px] font-bold text-black/60 hover:text-[#00754A] hover:bg-[#f2f0eb] transition-colors uppercase tracking-widest"
+                          >
+                            {rt.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
+
+            {/* Book Now Button Right */}
+            <div className="hidden md:block">
+              <button
+                onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="flex items-center gap-2 px-5 py-1.5 bg-[#1E3932] hover:opacity-90 text-white font-bold text-xs uppercase tracking-widest rounded-md transition-all shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Book Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <nav className="md:hidden flex flex-col items-center space-y-4 py-6 bg-white border-t border-black/5 shadow-lg absolute top-full left-0 w-full z-50">
+            {[
+              { name: 'Home', id: 'home' },
+              { name: 'About Us', id: 'about' },
+              { name: 'Accommodations', id: 'accommodations' },
+              { name: 'Dining', id: 'menu' },
+              { name: 'Gallery', id: 'gallery' },
+              { name: ' Promos', id: 'promo' },
+              { name: 'Contact', id: 'contact' },
+            ].map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  if (item.id === 'gallery') {
+                    setCurrentPage('home');
+                    setTimeout(() => {
+                      const el = document.getElementById('gallery');
+                      if (el) {
+                        const offset = 80;
+                        const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                        window.scrollTo({ top, behavior: 'smooth' });
+                      }
+                    }, 100);
+                  } else {
+                    setCurrentPage(item.id);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+                className={`font-bold transition-all py-2 px-3 text-[12px] uppercase tracking-widest ${currentPage === item.id || (currentPage === 'home' && item.id === 'gallery') ? 'text-[#00754A]' : 'text-black/60 hover:text-[#000000]/87'}`}
+              >
+                {item.name}
+              </button>
+            ))}
+          </nav>
+        )}
+      </header>
+    </>
+  );
+}
+
+// Room Card Component with Image Carousel
+function RoomCard({ room, hasCheckedAvailability, setCurrentPage }) {
+  const [currentImg, setCurrentImg] = useState(0);
+
+  const images = (room.images && Array.isArray(room.images) && room.images.length > 0) ? room.images : (room.id % 2 === 0 ? [
+    "/assets/images/rooms/sample_room_2.png",
+    "/assets/images/gallery/bathroom.jpg",
+    "/assets/images/gallery/room_standard.jpg"
+  ] : [
+    "/assets/images/rooms/sample_room_1.png",
+    "/assets/images/gallery/room_standard.jpg",
+    "/assets/images/gallery/bathroom.jpg"
+  ]);
+
+  const nextImg = (e) => {
+    e.stopPropagation();
+    setCurrentImg((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImg = (e) => {
+    e.stopPropagation();
+    setCurrentImg((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  return (
+    <div className="w-full bg-white rounded-3xl shadow-sm border border-black/5 overflow-hidden group flex flex-col">
+      {/* Top Section: Photo Carousel */}
+      <div className="w-full h-[300px] bg-[#f2f0eb] relative overflow-hidden flex items-center justify-center shrink-0">
+        <img
+          src={images[currentImg]}
+          alt={`${room.name} view ${currentImg + 1}`}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          onError={(e) => {
+            e.target.style.display = 'none';
+            e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full bg-black/5 p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Missing Image</span></div>`;
+          }}
+        />
+
+        {/* Navigation Arrows */}
+        {images.length > 1 && (
+          <>
+            <button onClick={prevImg} className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-black/60 hover:text-black hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm border border-black/5">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <button onClick={nextImg} className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-black/60 hover:text-black hover:bg-white transition-all opacity-0 group-hover:opacity-100 z-10 shadow-sm border border-black/5">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+
+            {/* Dots */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+              {images.map((_, idx) => (
+                <div key={idx} onClick={(e) => { e.stopPropagation(); setCurrentImg(idx); }} className={`w-2 h-2 rounded-full cursor-pointer transition-all ${idx === currentImg ? 'bg-white scale-125 shadow-sm' : 'bg-white/50 hover:bg-white/80'}`}></div>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Info Section */}
+      <div className="w-full p-4 md:p-4 flex flex-col items-center text-center bg-white relative grow">
+
+        <h2 className="text-3xl font-bold text-[#006241] tracking-tight mb-2">{room.name}</h2>
+        <div className="text-2xl font-black text-black/80 mb-3">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-[12px] text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
+
+        {hasCheckedAvailability && (
+          <div className={`mb-3 inline-block w-fit px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${room.available > 0 ? 'bg-[#00754A]/5 border-[#00754A]/20 text-[#00754A]' : 'bg-red-500/5 border-red-500/20 text-red-600'}`}>
+            {room.available > 0 ? `${room.available} ${room.available === 1 ? 'Room' : 'Rooms'} Available` : 'Fully Booked for these dates'}
+          </div>
+        )}
+
+        <p className="text-black/60 font-medium leading-relaxed mb-4">{room.description || 'Enjoy a comfortable stay with our premium amenities.'}</p>
+
+        {room.amenities && (
+          <div className="mb-4 px-2 sm:px-4 flex flex-col gap-3">
+            {room.amenities.split(/(?=FEATURES:)/i).map((part, idx) => (
+              <p key={idx} className="text-black/60 text-[11px] sm:text-[12px] text-justify leading-relaxed font-medium">
+                {part.trim()}
+              </p>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={() => { sessionStorage.setItem('northomes_roomtype', room.name); setCurrentPage('booking'); }}
+          disabled={hasCheckedAvailability && room.available === 0}
+          className={`w-fit mt-auto px-8 py-3 rounded-full font-black text-[10px] uppercase tracking-widest transition-all ${hasCheckedAvailability && room.available === 0 ? 'bg-black/5 text-black/30 cursor-not-allowed' : 'bg-gradient-to-br from-[#00754A] to-[#006241] hover:scale-105 active:scale-95 text-white shadow-[0_0_20px_rgba(0,117,74,0.2)]'}`}
+        >
+          {hasCheckedAvailability && room.available === 0 ? 'Sold Out' : 'Book Now'}
+        </button>
+
+        {/* Arrow pointing down into the dark section */}
+        <div className="absolute -bottom-[20px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[20px] border-r-[20px] border-t-[20px] border-l-transparent border-r-transparent border-t-white z-20"></div>
+      </div>
+
+      {/* Dark Bottom Section - Matches User Photo */}
+      <div className={`w-full bg-[#1E3932] p-4 text-white grid gap-3 shrink-0 mt-auto ${/economy/i.test(room.name) ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
+        <div className="flex flex-col items-center text-center gap-2">
+          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Up to {room.max_guests} Guests</span>
+        </div>
+        <div className="flex flex-col items-center text-center gap-2">
+          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Premium Bed</span>
+        </div>
+        <div className="flex flex-col items-center text-center gap-2">
+          <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Free Fast Wi-Fi</span>
+        </div>
+        {!/economy/i.test(room.name) && (
+          <div className="flex flex-col items-center text-center gap-2">
+            <svg className="w-6 h-6 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Flatscreen TV</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
+function ContactPage({ setCurrentPage }) {
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [isSent, setIsSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsSent(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+        setTimeout(() => setIsSent(false), 6000);
+      } else {
+        setError(data.message || 'Failed to send. Please try again.');
+      }
+    } catch (err) {
+      setError('Network error. Please check your connection.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="w-full min-h-screen bg-[#f2f0eb] pb-24">
+      {/* Hero Section */}
+      <div className="relative h-[300px] md:h-[400px] w-full bg-[#1E3932] overflow-hidden flex items-center justify-center shrink-0">
+        <div className="absolute inset-0 opacity-20">
+          <img
+            src="/assets/images/gallery/exterior.jpg"
+            alt="Northomes Exterior"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="relative z-10 text-center px-4 mt-8">
+          <h4 className="text-[#CBA258] text-[12px] font-black uppercase tracking-[0.3em] mb-4">Get In Touch</h4>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">Contact Us</h1>
+          <p className="text-white/80 text-[14px] max-w-xl mx-auto font-medium">
+            We are here to help. Send us a message or call us for any inquiries about your stay.
+          </p>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-6xl mx-auto px-4 -mt-16 md:-mt-24 relative z-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+
+          {/* Left Column: Contact Details */}
+          <div className="lg:col-span-1 flex flex-col gap-2">
+            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 flex flex-col gap-2">
+
+              <div className="flex gap-2 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Our Location</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
+                    Pelaez St.<br />
+                    Bogo City, Cebu<br />
+                    Philippines 6010
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Contact Number</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
+                    Front Desk / Reservations:<br />
+                    <a href="tel:+639276230491" className="text-[#00754A] font-bold hover:underline"> +63 917 132 3715</a>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Email Address</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
+                    General Inquiries:<br />
+                    <a href="mailto:info@northomespensione.com" className="text-[#00754A] font-bold hover:underline">info@northomespensione.com</a>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 items-start">
+                <div className="w-12 h-12 rounded-full bg-[#f2f0eb] flex items-center justify-center shrink-0 text-[#006241]">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-bold text-[#000000]/87 mb-1">Operating Hours</h3>
+                  <p className="text-black/60 text-[12px] leading-relaxed">
+                    Front Desk is open 24/7.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Right Column: Contact Form */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 md:p-4 h-full flex flex-col">
+              <h2 className="text-3xl font-bold text-[#006241] tracking-tight mb-2">Send us a Message</h2>
+              <p className="text-black/60 mb-4">Have a question or special request? Let us know and we'll get back to you as soon as possible.</p>
+
+              {isSent ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-4 bg-[#f2f0eb] rounded-xl border border-[#00754A]/20">
+                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
+                    <svg className="w-10 h-10 text-[#00754A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+                  </div>
+                  <h3 className="text-2xl font-bold text-[#000000]/87 mb-2">Message Sent!</h3>
+                  <p className="text-black/60">Thank you for reaching out. We have received your message and will contact you shortly.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="flex-1 flex flex-col gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Your Name</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                        placeholder="john@example.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Subject</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all"
+                      placeholder="How can we help?"
+                    />
+                  </div>
+
+                  <div className="flex-1 flex flex-col">
+                    <label className="block text-xs font-bold text-black/60 uppercase tracking-widest mb-2">Message</label>
+                    <textarea
+                      required
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      className="w-full px-2.5 py-2 bg-[#f2f0eb] border border-black/5 rounded-xl text-[#000000]/87 focus:outline-none focus:border-[#00754A] focus:bg-white transition-all resize-none flex-1 min-h-[150px]"
+                      placeholder="Type your message here..."
+                    ></textarea>
+                  </div>
+
+                  {error && (
+                    <p className="text-red-500 text-[12px] font-medium text-center">{error}</p>
+                  )}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full px-8 py-4 bg-gradient-to-br from-[#00754A] to-[#006241] text-white rounded-xl font-bold text-[12px] uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-[#00754A]/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+                  >
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Map Section */}
+        <ContactMapSection />
+      </div>
+    </div>
+  );
+}
+
+// Accommodations Page
+function AccommodationsPage({ setCurrentPage, accommodationFilter, setAccommodationFilter }) {
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
+  const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
+  const [isChecking, setIsChecking] = useState(false);
+  const [hasCheckedAvailability, setHasCheckedAvailability] = useState(false);
+
+  const fetchRooms = (url) => {
+    setLoading(true);
+    fetch(url)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setRoomTypes(data.roomTypes || data.availability);
+        }
+        setLoading(false);
+        setIsChecking(false);
+      })
+      .catch(() => {
+        setLoading(false);
+        setIsChecking(false);
+      });
+  };
+
+  useEffect(() => {
+    if (checkIn && checkOut) {
+      setIsChecking(true);
+      setHasCheckedAvailability(true);
+      fetchRooms(`${API_BASE_URL}/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+    } else {
+      fetchRooms(`${API_BASE_URL}/api/room-types`);
+    }
+  }, []);
+
+  const handleCheckAvailability = () => {
+    if (!checkIn || !checkOut) return;
+    sessionStorage.setItem('northomes_checkin', checkIn);
+    sessionStorage.setItem('northomes_checkout', checkOut);
+    setIsChecking(true);
+    setHasCheckedAvailability(true);
+    fetchRooms(`${API_BASE_URL}/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+  };
+
+  if (loading && roomTypes.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center text-[#006241] font-bold tracking-widest uppercase">Loading accommodations...</div>;
+  }
+
+  return (
+    <div className="w-full min-h-screen bg-[#f2f0eb] pb-24">
+      {/* Hero Header */}
+      <div className="w-full pt-16 pb-12 md:pt-24 md:pb-16 bg-white border-b border-black/5 text-center px-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-[#006241] tracking-tight mb-4">Our Accommodations</h1>
+        <p className="text-black/60 max-w-2xl mx-auto font-medium mb-12">Experience comfort and style in the heart of Bogo City. Explore our carefully designed rooms tailored for your perfect stay.</p>
+
+        {/* Availability Bar */}
+        <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-2 justify-center">
+          <div className="flex items-center bg-white border border-black/10 px-2 py-1.5 rounded-sm shadow-sm w-full md:w-auto">
+            <svg className="w-5 h-5 text-[#CBA258] ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <input
+              type="date"
+              value={checkIn}
+              onChange={e => setCheckIn(e.target.value)}
+              className="px-2 py-1.5 text-[12px] font-bold text-black/60 focus:outline-none bg-transparent"
+            />
+            <span className="text-black/20 font-bold">-</span>
+            <input
+              type="date"
+              value={checkOut}
+              onChange={e => setCheckOut(e.target.value)}
+              className="px-2 py-1.5 text-[12px] font-bold text-black/60 focus:outline-none bg-transparent"
+            />
+          </div>
+
+          <button
+            onClick={handleCheckAvailability}
+            disabled={!checkIn || !checkOut || isChecking}
+            className="w-full md:w-auto px-8 py-3.5 bg-[#A98C51] hover:bg-[#8e7644] disabled:opacity-50 text-white rounded-full font-bold text-xs uppercase tracking-[0.15em] transition-all whitespace-nowrap"
+          >
+            {isChecking ? 'Checking...' : 'Check Availability'}
+          </button>
+        </div>
+      </div>
+
+      {/* Category Filter Badge */}
+      {accommodationFilter && (
+        <div className="max-w-7xl mx-auto px-4 mt-8 flex justify-center">
+          <div className="bg-white border border-black/5 rounded-full px-5 py-1.5 inline-flex items-center gap-3 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-widest text-black/60">Filtered by: <span className="text-[#00754A]">{accommodationFilter}</span></span>
+            <button onClick={() => setAccommodationFilter(null)} className="text-black/30 hover:text-red-500 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Room List */}
+      {(() => {
+        const filteredRooms = roomTypes.filter(room => !accommodationFilter || room.name === accommodationFilter);
+        return (
+          <div className={`max-w-7xl mx-auto px-4 mt-10 ${filteredRooms.length === 1 ? 'flex justify-center' : 'grid grid-cols-1 lg:grid-cols-2 gap-12'}`}>
+            {filteredRooms.map((room) => (
+              <div key={room.id} className={filteredRooms.length === 1 ? 'w-full max-w-2xl' : ''}>
+                <RoomCard room={room} hasCheckedAvailability={hasCheckedAvailability} setCurrentPage={setCurrentPage} />
+              </div>
+            ))}
+
+            {filteredRooms.length === 0 && !loading && (
+              <div className="text-center py-20 w-full col-span-full">
+                <h3 className="text-2xl font-bold text-black/40">No rooms available in this category.</h3>
+                {accommodationFilter && (
+                  <button onClick={() => setAccommodationFilter(null)} className="mt-4 px-6 py-2 bg-[#00754A] text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-[#006241] transition-colors">
+                    View All Rooms
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
+    </div>
+  );
+}
+
+// Promo Page
+function PromoPage({ setCurrentPage }) {
+  const [promos, setPromos] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/promos`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setPromos(data.promos || []);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  // Assuming only one active promo to match the design.
+  const promo = promos[0];
+
+  return (
+    <div className="min-h-screen bg-[#FDFCF5] pb-24 pt-32 px-4 font-sans">
+      <div className="max-w-4xl mx-auto">
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="inline-block w-10 h-10 border-4 border-[#16392F] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : !promo ? (
+          <div className="bg-white rounded-3xl p-16 text-center shadow-xl border border-[#D5C294]">
+            <h3 className="text-2xl font-bold text-black/40 mb-4">No active promotions right now.</h3>
+            <p className="text-black/50">Check back later for exciting new offers!</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-[2rem] p-4 md:p-14 shadow-2xl border border-[#EBE3CD] relative">
+
+            {/* Header */}
+            <div className="text-center mb-10">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="h-px bg-[#D5C294] flex-1 max-w-[60px]"></div>
+                <div className="w-10 h-10 rounded-full border border-[#D5C294] flex items-center justify-center text-[#A98C51]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rotate-45"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                </div>
+                <div className="h-px bg-[#D5C294] flex-1 max-w-[60px]"></div>
+              </div>
+
+              <h1 className="text-5xl md:text-6xl font-bold text-[#16392F] mb-2 tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>{promo.name}</h1>
+              <p className="text-gray-500 text-[14px] md:text-[16px] mb-4">{promo.description || 'Seasonal Promo Rate'}</p>
+
+              <div className="inline-flex items-center justify-center bg-[#FDFCF5] border border-dashed border-[#D5C294] rounded-md px-8 py-3">
+                <span className="text-gray-500 font-semibold tracking-wider mr-4 uppercase text-[12px]">Use Promo Code:</span>
+                <span className="text-3xl font-bold text-[#A98C51]">{promo.code}</span>
+              </div>
+            </div>
+
+            {/* Applicable Rooms */}
+            {promo.prices && promo.prices.length > 0 && (
+              <div className="mb-12">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="text-[#A98C51]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 4v16" /><path d="M2 8h18a2 2 0 0 1 2 2v10" /><path d="M2 17h20" /><path d="M6 8v9" /></svg>
+                  </div>
+                  <h3 className="text-[12px] font-bold text-[#16392F] tracking-widest uppercase">Applicable Rooms</h3>
+                  <div className="h-px bg-[#EBE3CD] flex-1 ml-4"></div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {promo.prices.map((p, i) => (
+                    <div key={i} className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow">
+                      <h4 className="font-bold text-gray-800 mb-2">{p.room_type_name}</h4>
+                      {p.original_price && (
+                        <p className="text-gray-400 line-through text-[12px] mb-1">₱{parseFloat(p.original_price).toLocaleString()}</p>
+                      )}
+                      <p className="text-3xl font-bold text-[#CBA258]">₱{parseFloat(p.price_per_night).toLocaleString()}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Book Button */}
+            <div className="text-center mb-16 relative z-10">
+              <button
+                onClick={() => {
+                  sessionStorage.setItem('northomes_promo', promo.code);
+                  setCurrentPage('booking');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center justify-center gap-3 w-full md:w-auto px-12 py-4 bg-gradient-to-r from-[#B4965A] to-[#A2834A] hover:from-[#A2834A] hover:to-[#8E723B] text-white rounded-full font-bold text-[12px] md:text-base uppercase tracking-widest shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Book with this promo
+              </button>
+            </div>
+
+            {/* Terms and Conditions */}
+            <div>
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <div className="h-px bg-[#EBE3CD] flex-1"></div>
+                <div className="text-[#D5C294]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <div className="h-px bg-[#EBE3CD] flex-1"></div>
+              </div>
+
+              <div className="text-center mb-4">
+                <h3 className="text-[16px] font-bold text-[#16392F] mb-1">Book Early and Save More</h3>
+                <p className="text-gray-500 text-[12px]">Promo terms and conditions:</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 mb-10">
+                {[
+                  "Book at least 1 day before your check-in date to enjoy discounted rates.",
+                  "Valid for direct bookings made through the Northomes Pensione website, official Facebook page, or by calling the property directly.",
+                  "Full payment is required to confirm your reservation.",
+                  "Promo rates are subject to room availability.",
+                  "Promo rates cannot be combined with other discounts or special offers, including Senior Citizen and PWD discounts.",
+                  "No refunds for cancellations.",
+                  "Reservations cancelled 3 days or more before check-in may be rebooked once, subject to room availability and the applicable promo rate at the time of rebooking.",
+                  "Cancellations made less than 3 days before check-in, no-shows, or early departures are not eligible for rebooking or refund.",
+                  "Reservations are non-transferable.",
+                  "Northomes Pensione reserves the right to modify or discontinue this promotion without prior notice."
+                ].map((term, i) => (
+                  <div key={i} className="flex gap-3 items-start">
+                    <div className="mt-0.5 text-[#CBA258] flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    </div>
+                    <p className="text-xs text-gray-600 leading-relaxed font-medium">{term}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-[#FCFBF8] border border-[#EBE3CD] rounded-md p-4 flex flex-col md:flex-row items-center justify-center gap-3 text-center md:text-left">
+                <div className="text-[#CBA258]">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+                <p className="text-xs text-gray-700 font-medium">For inquiries or reservations, visit our website, message us on Facebook, or call us directly.</p>
+              </div>
+            </div>
+
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+// About Page
+function AboutPage() {
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/hotel-settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.settings && data.settings.about_us_content) {
+          setContent(data.settings.about_us_content);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load about us content', err);
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <div className="w-full min-h-screen px-6 py-12 md:px-12 md:py-20 flex flex-col items-center">
+      <div className="w-full max-w-4xl mx-auto bg-white rounded-3xl shadow-sm border border-black/5 p-4 md:p-16 mt-8 md:mt-12">
+        <h1 className="text-4xl md:text-5xl font-bold text-[#006241] mb-12 text-center tracking-tight">About Us</h1>
+
+        <div className="space-y-8 text-black/70 text-base md:text-[14px] leading-relaxed font-medium">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <div className="w-8 h-8 border-4 border-[#00754A]/30 border-t-[#00754A] rounded-full animate-spin"></div>
+            </div>
+          ) : content ? (
+            <div className="quill-content" dangerouslySetInnerHTML={{ __html: content }} />
+          ) : (
+            <>
+              <p className="font-bold text-[16px] text-black/90 text-center mb-10 text-[#00754A]">
+                Welcome to Northomes Pensione — your home in the heart of Bogo City.
+              </p>
+
+              <p>
+                Northomes Pensione first opened its doors on January 8, 2010, born from the vision of our parents to provide a decent, affordable, and accessible place to stay for travelers, families, and business guests visiting the City of Bogo. What started as a simple dream became a welcoming space built on genuine hospitality, comfort, and service from the heart.
+              </p>
+
+              <p>
+                Over the years, our journey has not always been easy. Like many local businesses, we have faced challenges that tested our strength and resilience. In 2013, Northomes Pensione was heavily affected by Typhoon Yolanda (Haiyan), forcing us to temporarily close for several months for repairs and rebuilding. Years later, the COVID-19 pandemic again required us to pause operations for the safety of our guests and community. More recently, the 6.9 magnitude earthquake caused significant damage to parts of our property, leading to another period of restoration and rebuilding.
+              </p>
+
+              <p>
+                Despite these challenges, one thing has remained constant — our commitment to serving our guests, supporting our staff, and caring for our community. We believe that genuine hospitality begins with the people behind the service. Our team has been part of our journey through every challenge and milestone, and we continue to value and support them as part of the Northomes family. Every rebuilding phase became an opportunity for us to improve, renew, and continue the vision that started it all.
+              </p>
+
+              <p>
+                Today, Northomes Pensione continues to welcome guests with clean and comfortable rooms, friendly service, and a warm atmosphere that feels close to home. Through the years, we remain grateful for the trust and support of our guests, many of whom have become part of the Northomes family.
+              </p>
+
+              <div className="mt-12 pt-8 border-t border-black/5 text-center">
+                <p className="font-bold text-black/90 text-[16px] text-[#006241]">
+                  Thank you for being part of our story.
+                </p>
+                <p className="font-bold text-black/90 text-[16px] text-[#006241] mt-2">
+                  We look forward to welcoming you to Northomes Pensione.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Booking Page
+function BookingPage({ setCurrentPage }) {
+  const [bookingResult, setBookingResult] = useState(null);
+
+  if (bookingResult) {
+    return (
+      <div className="min-h-screen bg-white">
+        <div className="max-w-2xl mx-auto px-4 pt-16 pb-16 text-center">
+          <div className="w-24 h-24 bg-[#00754A]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="w-12 h-12 text-[#00754A]" />
+          </div>
+          <h2 className="text-4xl font-black text-[#006241] tracking-tight mb-4">Reservation Confirmed!</h2>
+          <p className="text-[16px] text-black/80 font-medium mb-4">{bookingResult.message || 'Your booking has been successfully created.'}</p>
+
+          <div className="bg-[#f8f9fa] p-4 rounded-xl mb-10 text-left space-y-4 max-w-md mx-auto">
+            <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-center">Next Steps</h4>
+            <p className="text-[12px] text-black/70 flex items-start gap-3">
+              <span className="text-[14px]">📧</span> We have sent a confirmation email to the address you provided.
+            </p>
+            <p className="text-[12px] text-black/70 flex items-start gap-3">
+              <span className="text-[14px]">🛎️</span> Please present this confirmation at the front desk upon check-in.
+            </p>
+            <p className="text-[12px] text-black/70 flex items-start gap-3">
+              <span className="text-[14px]">💳</span> Payment will be collected securely at the property.
+            </p>
+          </div>
+
+          <button
+            onClick={() => {
+              sessionStorage.removeItem('northomes_roomtype');
+              sessionStorage.removeItem('northomes_checkin');
+              sessionStorage.removeItem('northomes_checkout');
+              setCurrentPage('home');
+            }}
+            className="w-full sm:w-auto px-10 py-4 bg-[#00754A] hover:bg-[#006241] text-white rounded-full font-black text-[10px] uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(0,117,74,0.2)] hover:scale-105 active:scale-95"
+          >
+            Return to Homepage
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Mobile-only slim top bar */}
+      <div className="sm:hidden sticky top-0 z-50 bg-white border-b border-black/5 flex items-center justify-between px-2.5 py-2">
+        <button
+          onClick={() => setCurrentPage('accommodations')}
+          className="flex items-center gap-2 text-black/60 hover:text-black/90 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          <span className="text-[12px] font-semibold">Back</span>
+        </button>
+        <span className="text-[12px] font-black text-[#006241] tracking-tight">Complete Reservation</span>
+        <div className="w-16" />{/* spacer to center the title */}
+      </div>
+
+      <div className="max-w-3xl mx-auto px-4 pb-16 pt-4 sm:pt-8 relative">
+        {/* Desktop close button */}
+        <button
+          onClick={() => setCurrentPage('accommodations')}
+          className="hidden sm:flex absolute top-4 right-4 text-black/40 hover:text-black/80 transition-colors bg-gray-100 rounded-full p-2 z-10"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <h2 className="hidden sm:block text-3xl font-bold text-[#006241] text-center mb-4 tracking-tight">Complete Your Reservation</h2>
+        <AppointmentForm onSuccess={(data) => setBookingResult(data)} />
+      </div>
+    </div>
+  );
+}
+
+// Home Page
+function HomePage({ setCurrentPage }) {
+  const [checkIn, setCheckIn] = useState(() => sessionStorage.getItem('northomes_checkin') || '');
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
+  const [roomTypes, setRoomTypes] = useState([]);
+
+  const [hotelSettings, setHotelSettings] = useState({});
+  const [currentHeroImg, setCurrentHeroImg] = useState(0);
+  const [heroImages, setHeroImages] = useState(["/assets/images/hero/hero1.jpg"]);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/room-types`)
+      .then(r => r.json())
+      .then(data => { if (data.success) setRoomTypes(data.roomTypes); })
+      .catch(() => { });
+
+    fetch(`${API_BASE_URL}/api/hotel-settings`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.settings) {
+          setHotelSettings(data.settings);
+          try {
+            const parsed = JSON.parse(data.settings.hero_images || '[]');
+            if (parsed.length > 0) {
+              const mapped = parsed.map(img => img.startsWith('http') ? img : `${API_BASE_URL}${img}`);
+              setHeroImages(mapped);
+            }
+          } catch (e) { }
+        }
+      })
+      .catch(() => { });
+  }, []);
+
+  useEffect(() => {
+    if (heroImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentHeroImg(prev => (prev + 1) % heroImages.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [heroImages]);
+
+  let galleryItems = [
+    { src: "/assets/images/gallery/exterior.jpg", alt: "Northomes Exterior", aspect: "aspect-[4/3]" },
+    { src: "/assets/images/gallery/lobby.jpg", alt: "Lobby Reception", aspect: "aspect-[3/4]" },
+    { src: "/assets/images/gallery/cafe.jpg", alt: "Cafe and Dining", aspect: "aspect-square" },
+    { src: "/assets/images/gallery/room_standard.jpg", alt: "Standard Room", aspect: "aspect-[4/5]" },
+    { src: "/assets/images/gallery/bathroom.jpg", alt: "Clean Amenities", aspect: "aspect-[3/2]" },
+    { src: "/assets/images/gallery/parking.jpg", alt: "Secure Parking", aspect: "aspect-[4/3]" },
+  ];
+  try {
+    const parsed = JSON.parse(hotelSettings.gallery_images || '[]');
+    if (parsed.length > 0) {
+      const aspects = ["aspect-[4/3]", "aspect-[3/4]", "aspect-square", "aspect-[4/5]", "aspect-[3/2]"];
+      galleryItems = parsed.map((img, i) => ({
+        src: img.startsWith('http') ? img : `${API_BASE_URL}${img}`,
+        alt: `Gallery Image ${i + 1}`,
+        aspect: aspects[i % aspects.length]
+      }));
+    }
+  } catch (e) { }
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'ArrowRight') setLightboxIndex(prev => (prev + 1) % galleryItems.length);
+      if (e.key === 'ArrowLeft') setLightboxIndex(prev => (prev - 1 + galleryItems.length) % galleryItems.length);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, galleryItems]);
+
+  const handleBookingSearch = () => {
+    if (checkIn) sessionStorage.setItem('northomes_checkin', checkIn);
+    if (checkOut) sessionStorage.setItem('northomes_checkout', checkOut);
+    setCurrentPage('accommodations');
+  };
+
+  return (
+    <div className="w-full flex flex-col bg-[#f2f0eb]">
+      {/* Unified Side-by-Side Hero Section */}
+      <div className="w-full relative bg-[#FAF8F5] overflow-hidden border-b border-black/5">
+
+        {/* Right Column: Slideshow with fade mask - pushed to full right side of window */}
+        <div className="absolute inset-y-0 right-0 w-full md:w-1/2 hidden md:block z-0">
+          {heroImages.map((img, idx) => (
+            <img
+              key={idx}
+              src={img}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${idx === currentHeroImg ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+              alt="Hero Background"
+            />
+          ))}
+          {/* Smooth left-to-right fade overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FAF8F5] via-[#FAF8F5]/35 to-transparent w-full md:w-1/2"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row relative min-h-[550px] md:min-h-[620px] z-10">
+
+          {/* Left Column: Brand & Trust Details */}
+          <div className="w-full md:w-1/2 flex flex-col justify-center px-6 py-12 md:py-20 md:pl-8 md:pr-4 z-20 space-y-5 text-left">
+            <div>
+              <span className="font-['Dancing_Script'] text-2.5xl md:text-3xl text-[#00754A] font-bold block mb-1">Your Home in</span>
+              <h1 className="font-['Playfair_Display'] text-4xl md:text-5xl lg:text-6xl font-black text-[#1E3932] leading-tight">Northern Cebu</h1>
+
+              {/* Cursive divider */}
+              <div className="flex items-center gap-2 mt-3 mb-1">
+                <div className="h-[1.5px] w-12 bg-[#1E3932]/15"></div>
+                <div className="w-1.5 h-1.5 rotate-45 border border-[#1E3932]/40 bg-[#FAF8F5]"></div>
+                <div className="h-[1.5px] w-12 bg-[#1E3932]/15"></div>
+              </div>
+            </div>
+
+            <p className="text-black/70 text-[12px] md:text-base leading-relaxed font-medium max-w-lg">
+              Whether you&apos;re here for business, family visits, or island adventures, Northomes Pensione offers clean, spacious accommodations with warm Filipino hospitality.
+            </p>
+
+            {/* Icons list */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3.5 pt-2 text-[10px] font-extrabold uppercase tracking-widest text-[#1E3932]/80">
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-3.08-3.079a9 9 0 016.16 0M6.105 12.58a13.5 13.5 0 0111.79 0"></path></svg>
+                <span>Free Wi-Fi</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.17a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z"></path></svg>
+                <span>Hot &amp; Cold Shower</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 13a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+                <span>24/7 Front Desk</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                <span>Free Parking</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span>Prime Location</span>
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              <button
+                onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#1E3932] hover:opacity-95 text-white font-bold text-xs uppercase tracking-widest rounded-md transition-all shadow-md"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Book Your Stay
+              </button>
+              <button
+                onClick={() => { setCurrentPage('accommodations'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="flex items-center justify-center gap-2.5 px-6 py-3.5 border border-[#1E3932]/30 hover:bg-black/5 text-[#1e3932] font-bold text-xs uppercase tracking-widest rounded-md transition-all"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                View Rooms
+              </button>
+            </div>
+
+            {/* Rating Stars */}
+            <div className="pt-2 text-left space-y-1">
+              <div className="flex items-center gap-0.5 text-amber-500">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                ))}
+              </div>
+              <p className="text-black/60 text-[10px] font-bold uppercase tracking-wider">Trusted by Business Travelers, Families &amp; Balikbayans</p>
+              <p className="text-[#00754A] text-xs font-semibold italic">Serving guests with genuine hospitality since 2010.</p>
+            </div>
+          </div>
+
+
+
+        </div>
+      </div>
+
+      {/* Floating Horizontal Booking Bar */}
+      <div className="relative -mt-12 z-30 px-6">
+        <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl border border-black/5 p-3 flex flex-col items-center">
+
+          <div className="flex flex-col md:flex-row items-center gap-2 w-full pb-2">
+            {/* Check In */}
+            <div className="flex-1 w-full px-4 py-1.5 border-b md:border-b-0 md:border-r border-black/5 flex items-center gap-3">
+              <svg className="w-5 h-5 text-black/35" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <div className="flex-1">
+                <span className="text-[9px] font-black text-black/40 uppercase tracking-widest block mb-0.5">Check In</span>
+                <input
+                  type="date"
+                  value={checkIn}
+                  onChange={(e) => setCheckIn(e.target.value)}
+                  className="w-full text-[12px] font-bold text-[#1E3932] focus:outline-none bg-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Check Out */}
+            <div className="flex-1 w-full px-4 py-1.5 border-b md:border-b-0 md:border-r border-black/5 flex items-center gap-3">
+              <svg className="w-5 h-5 text-black/35" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+              <div className="flex-1">
+                <span className="text-[9px] font-black text-black/40 uppercase tracking-widest block mb-0.5">Check Out</span>
+                <input
+                  type="date"
+                  value={checkOut}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className="w-full text-[12px] font-bold text-[#1E3932] focus:outline-none bg-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Guests */}
+            <div className="flex-1 w-full px-4 py-1.5 flex items-center gap-3">
+              <svg className="w-5 h-5 text-black/35" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+              <div className="flex-1">
+                <span className="text-[9px] font-black text-black/40 uppercase tracking-widest block mb-0.5">Guests</span>
+                <select className="w-full text-[12px] font-bold text-[#1E3932] focus:outline-none bg-transparent cursor-pointer">
+                  <option>1 Guest</option>
+                  <option>2 Guests</option>
+                  <option>3 Guests</option>
+                  <option>4+ Guests</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Button */}
+            <div className="w-full md:w-auto mt-2 md:mt-0 pl-2">
+              <button
+                onClick={handleBookingSearch}
+                className="w-full md:w-auto px-8 py-4 bg-[#1E3932] hover:opacity-95 text-white rounded-xl font-bold text-xs uppercase tracking-widest transition-all whitespace-nowrap shadow-md"
+              >
+                Check Availability
+              </button>
+            </div>
+          </div>
+
+          {/* Trust indicators row */}
+          <div className="border-t border-black/5 pt-4 mt-2 flex flex-col sm:flex-row justify-center items-center gap-2 text-[11px] font-bold text-black/60 w-full">
+            <div className="flex items-center gap-2">
+              <svg className="w-4.5 h-4.5 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+              <span>Best Rate Guaranteed</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4.5 h-4.5 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3-3v8a3 3 0 003 3z"></path></svg>
+              <span>Secure Booking</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="w-4.5 h-4.5 text-[#00754A]" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <span>Prime Location</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      {/* Featured Accommodations */}
+      <div className="py-20 px-4 bg-white border-y border-black/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Signature Stays</h4>
+            <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Featured Accommodations</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            {roomTypes.slice(0, 3).map((room, i) => (
+              <div key={room.id} className="bg-[#f2f0eb] rounded-3xl overflow-hidden group cursor-pointer border border-black/5 shadow-sm" onClick={() => setCurrentPage('accommodations')}>
+                <div className="h-64 relative overflow-hidden">
+                  <img
+                    src={(room.images && Array.isArray(room.images) && room.images.length > 0) ? room.images[0] : (i % 2 === 0 ? "/assets/images/rooms/sample_room_1.png" : "/assets/images/rooms/sample_room_2.png")}
+                    alt={room.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
+                <div className="p-4 text-center bg-white border-t border-black/5 rounded-b-3xl">
+                  <h3 className="text-2xl font-bold text-[#006241] mb-2">{room.name}</h3>
+                  <div className="text-[14px] font-black text-black/80 mb-4">₱{parseFloat(room.price_per_night).toLocaleString()}<span className="text-xs text-black/40 font-bold uppercase tracking-widest ml-1">/ night</span></div>
+                  <p className="text-black/60 text-[12px] mb-3 line-clamp-2">{room.description || 'Experience premium comfort and exceptional amenities.'}</p>
+                  <span className="text-[#A98C51] font-bold text-[10px] uppercase tracking-[0.15em] group-hover:text-[#8e7644] transition-colors">View Details &rarr;</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Signature Amenities */}
+      <div className="py-24 px-4 max-w-5xl mx-auto text-center">
+        <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Exceptional Service</h4>
+        <h2 className="text-4xl font-bold text-[#006241] tracking-tight mb-16">Signature Amenities</h2>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+          {[
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path></svg>, title: "High-Speed Wi-Fi" },
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>, title: "24/7 Front Desk" },
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>, title: "In-House Cafe" },
+            { icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>, title: "Secure Parking" },
+          ].map((item, idx) => (
+            <div key={idx} className="flex flex-col items-center">
+              <div className="w-16 h-16 rounded-full bg-white border border-black/5 shadow-sm flex items-center justify-center text-[#006241] mb-4">
+                {item.icon}
+              </div>
+              <h5 className="font-bold text-black/80 text-[12px]">{item.title}</h5>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Photo Gallery */}
+      <div id="gallery" className="py-24 px-4 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Discover Northomes</h4>
+          <h2 className="text-4xl font-bold text-[#006241] tracking-tight">Our Gallery</h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {galleryItems.map((img, i) => (
+            <div key={i} onClick={() => setLightboxIndex(i)} className="relative aspect-square group overflow-hidden rounded-xl cursor-pointer bg-white border border-black/5 shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="w-full h-full flex items-center justify-center bg-black/5">
+                <img
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = `<div class="flex flex-col items-center justify-center h-full w-full p-4 text-center"><svg class="w-8 h-8 text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg><span class="text-black/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Save photo as:<br/>\${img.src.split('/').pop()}</span></div>`;
+                  }}
+                />
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1E3932]/80 via-[#1E3932]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                <h3 className="text-white font-bold text-[12px] tracking-tight">{img.alt}</h3>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Guest Testimonials */}
+      <div className="py-24 px-4 bg-white border-t border-black/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h4 className="text-[#CBA258] text-[10px] font-black uppercase tracking-[0.2em] mb-4">Guest Experiences</h4>
+            <h2 className="text-4xl font-bold text-[#006241] tracking-tight">A Stay to Remember</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[
+              {
+                text: "Spacious room good for 2. with 2 beds 4 pillows. bathroom with heater. However, the flow of the water through the heater is slow. with cabinets, own heater for coffee if you want to drink. basta, nindot gyud siya puy an.",
+                author: "Tess Angana Durban",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "We love the room, wifi is really fast, cable are high quality videos, hot shower and very clean big toilet. (Large suites • Quiet rooms • Good room service • Family-friendly • Spacious rooms)",
+                author: "Nel LightSoul",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "I stayed here several times, good value, terrific friendly staff. Sadly I was not able to return last year and this year. Maybe next year. Will stay here again. Highly recommended. Can be noisy though, but they will accommodate you. Staff will make you a cup of tea even at midnight! 😀",
+                author: "Anja Abravomich",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "We always stay here when we come to Bogo. Great rooms freindly staff. Very affordable.",
+                author: "Greg Wilson",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "I always stay here when visiting my step son here in Bogo. The rooms are clean and big, also the staff a quite friendly the air condition works and they are also very attentive to our needs.",
+                author: "Brendan Mahoney",
+                role: "Verified Guest",
+                rating: 5
+              },
+              {
+                text: "Very Nice! Enjoyed my stay! Very attentive for anything we needed. Air Conditioning was good and cold. Thanks",
+                author: "Michael Chilbert",
+                role: "Verified Guest",
+                rating: 5
+              }
+            ].map((testimonial, i) => (
+              <div key={i} className="bg-[#f2f0eb] rounded-3xl p-4 border border-black/5 shadow-sm flex flex-col">
+                <div className="flex gap-1 mb-3">
+                  {[...Array(testimonial.rating)].map((_, j) => (
+                    <svg key={j} className="w-5 h-5 text-[#CBA258]" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-black/70 text-base leading-relaxed mb-4 flex-grow font-medium">"{testimonial.text}"</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-[#006241]/10 flex items-center justify-center text-[#006241] font-bold text-[14px]">
+                    {testimonial.author.charAt(0)}
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-[#006241] text-[12px]">{testimonial.author}</h5>
+                    <p className="text-[#A98C51] text-[10px] font-bold uppercase tracking-widest mt-1">{testimonial.role}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Section */}
+      <footer id="location-section" className="py-20 bg-[#1E3932]">
+        <div className="w-full px-8">
+          <div className="max-w-6xl mx-auto">
+            {/* Footer Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-2 mb-16">
+              {/* About */}
+              <div className="lg:col-span-1">
+                <h4 className="text-[16px] font-bold text-white tracking-tight mb-3">Northomes Pensionne</h4>
+                <p className="text-white/70 text-[12px] leading-relaxed mb-4">
+                  A sanctuary of comfort and style in the heart of Bogo City. Experience genuine hospitality and make unforgettable memories with us.
+                </p>
+                {/* Social Links */}
+                <div className="flex space-x-4">
+                  <a href="https://www.facebook.com/northomespensione" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                  </a>
+                  <a href="https://www.instagram.com/northomespensione/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" /></svg>
+                  </a>
+                </div>
+              </div>
+
+              {/* Find Us */}
+              <div>
+                <h4 className="text-white font-bold mb-3 uppercase text-[12px] tracking-wider">Find Us</h4>
+                <div className="text-white/70 text-[12px] space-y-3 font-medium">
+                  <p>Pelaez Street, Barangay Sto. Niño</p>
+                  <p>Bogo City, Cebu, Philippines</p>
+                  <a href="https://www.northomespensione.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-2">www.northomespensione.com</a>
+                </div>
+              </div>
+
+              {/* Contact Us */}
+              <div>
+                <h4 className="text-white font-bold mb-3 uppercase text-[12px] tracking-wider">Contact Us</h4>
+                <div className="text-white/70 text-[12px] space-y-4 font-medium">
+                  <p className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                    +63 917 132 3715
+                  </p>
+                  <p className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    info@northomespensione.com
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Links */}
+              <div>
+                <h4 className="text-white font-bold mb-3 uppercase text-[12px] tracking-wider">Quick Links</h4>
+                <div className="flex flex-col space-y-4 text-[12px] font-medium">
+                  <button onClick={() => setCurrentPage('home')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Home</button>
+                  <button onClick={() => setCurrentPage('accommodations')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Accommodations</button>
+                  <button onClick={() => setCurrentPage('about')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Our Story</button>
+                  <button onClick={() => setCurrentPage('checkin')} className="text-white/70 hover:text-white transition-colors text-left w-fit">Guest Check-In</button>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Bottom */}
+            <div className="border-t border-white/10 pt-4 mt- flex flex-col md:flex-row items-center justify-between leading-tight gap-2">
+              <p className="text-white/50 text-xs font-medium tracking-wide">
+                © {new Date().getFullYear()} Northomes Pensionne. All rights reserved.
+                <br></br><a href="https://www.rogertonacao.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors block mt-1">Website by www.rogertonacao.com</a>
+              </p>
+
+              <div className="flex items-center space-x-6 text-xs font-medium text-white/50">
+                <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
+                <button onClick={() => setCurrentPage('admin')} className="hover:text-white transition-colors">Staff Portal</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Lightbox Modal */}
+      {lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 backdrop-blur-sm transition-all duration-300 animate-fadeIn"
+          onClick={() => setLightboxIndex(null)}
+        >
+          {/* Close button */}
+          <button
+            className="absolute top-6 right-6 text-white/70 hover:text-white text-3xl font-light p-2 transition-colors cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex(null); }}
+          >
+            <X className="w-8 h-8" />
+          </button>
+
+          {/* Left Arrow */}
+          <button
+            className="absolute left-6 text-white/50 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all cursor-pointer hidden md:flex items-center justify-center"
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length); }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
+          </button>
+
+          {/* Image Container */}
+          <div
+            className="relative max-h-[85vh] max-w-[85vw] flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={galleryItems[lightboxIndex].src}
+              alt={galleryItems[lightboxIndex].alt}
+              className="max-h-[80vh] max-w-[80vw] object-contain rounded-md shadow-2xl border border-white/10 select-none"
+            />
+            {galleryItems[lightboxIndex].alt && (
+              <span className="text-white/80 text-[12px] mt-4 font-semibold tracking-wide bg-black/40 px-4 py-1.5 rounded-full border border-white/5">
+                {galleryItems[lightboxIndex].alt}
+              </span>
+            )}
+          </div>
+
+          {/* Right Arrow */}
+          <button
+            className="absolute right-6 text-white/50 hover:text-white p-3 rounded-full hover:bg-white/10 transition-all cursor-pointer hidden md:flex items-center justify-center"
+            onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % galleryItems.length); }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6" /></svg>
+          </button>
+
+          {/* Mobile controls */}
+          <div className="absolute bottom-6 flex gap-2 md:hidden">
+            <button
+              className="text-white/70 bg-white/10 px-4 py-2 rounded-full text-xs font-bold"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + galleryItems.length) % galleryItems.length); }}
+            >
+              Prev
+            </button>
+            <button
+              className="text-white/70 bg-white/10 px-4 py-2 rounded-full text-xs font-bold"
+              onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % galleryItems.length); }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Menu Page
+function MenuPage() {
+  const menuCategories = [
+    {
+      title: 'All-Day Breakfast',
+      subtitle: '(Served with Coffee, Tea or Milo)',
+      icon: '🍳',
+      items: [
+        { name: 'American Breakfast', desc: 'Toasted White Bread, Bacon & Egg', price: '₱279' },
+        { name: 'Spamsilog', desc: 'Spam, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Tocilog', desc: 'Pork Tocino, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Corncilog', desc: 'Corned Beef, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Chosilog', desc: 'Chorizo de Cebu, Garlic/Plain Rice & Egg', price: '₱279' },
+        { name: 'Dangsilog', desc: 'Boneless Danggit, Garlic/Plain Rice & Egg', price: '₱279' }
+      ]
+    },
+    {
+      title: 'Combo Meals',
+      subtitle: '(Served with Rice & Drinks)',
+      icon: '🍛',
+      items: [
+        { name: 'Breaded Porkchop', desc: '', price: '₱299' },
+        { name: 'Buttered Chicken', desc: '', price: '₱299' },
+        { name: 'Daing na Bangus', desc: '', price: '₱299' },
+        { name: 'Chicken Pork Adobo', desc: '', price: '₱299' },
+        { name: 'Lumpia Shanghai', desc: '', price: '₱299' }
+      ]
+    },
+    {
+      title: 'Beverages',
+      icon: '☕',
+      items: [
+        { name: 'Brewed Coffee', desc: '', price: '₱70' },
+        { name: '3 in 1 Coffee', desc: '', price: '₱30' },
+        { name: 'Milo', desc: '', price: '₱30' },
+        { name: 'Powdered Milk', desc: '', price: '₱30' },
+        { name: 'Hot Tea (tea bag)', desc: '', price: '₱30' },
+        { name: 'Iced Tea', desc: '', price: '₱30' },
+        { name: 'Softdrinks (in can)', desc: '', price: '₱50' },
+        { name: 'Fruit Juice (in can)', desc: '', price: '₱50' },
+        { name: 'Red horse (in can)', desc: '', price: '₱70' },
+        { name: 'San Mig light (in can)', desc: '', price: '₱70' }
+      ]
+    }
+  ];
+
+  return (
+    <div className="w-full min-h-screen bg-[#f2f0eb] pb-24">
+      <div className="relative h-[400px] w-full bg-[#1E3932] overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0 opacity-30">
+          <img
+            src="/assets/images/gallery/cafe.jpg"
+            alt="Northomes Cafe"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="relative z-10 text-center px-4">
+          <h4 className="text-[#CBA258] text-[12px] font-black uppercase tracking-[0.3em] mb-4">Northomes Cafe</h4>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-3 tracking-tight">Dining & Room Service</h1>
+          <p className="text-white/90 text-[14px] max-w-2xl mx-auto font-medium">
+            Enjoy delicious, home-cooked meals from our in-house cafe. Available for dine-in or delivered straight to your room.
+          </p>
+          <div className="mt-8 inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-3 rounded-full text-white font-medium shadow-sm">
+            <svg className="w-5 h-5 text-[#CBA258]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Open Daily: 6:00 AM - 10:00 PM
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 -mt-16 relative z-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {menuCategories.map((category, idx) => (
+            <div key={idx} className="bg-white rounded-3xl shadow-sm border border-black/5 p-4 md:p-4">
+              <div className="flex items-center gap-2 mb-4 pb-6 border-b border-black/5">
+                <span className="text-4xl">{category.icon}</span>
+                <div>
+                  <h2 className="text-2xl font-bold text-[#006241]">{category.title}</h2>
+                  {category.subtitle && <p className="text-[12px] font-medium text-[#CBA258] mt-1">{category.subtitle}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-8">
+                {category.items.map((item, i) => (
+                  <div key={i} className="flex justify-between gap-2 group">
+                    <div className="flex-1">
+                      <h3 className="text-[#000000]/87 font-bold text-[14px] mb-1 group-hover:text-[#00754A] transition-colors">{item.name}</h3>
+                      <p className="text-black/60 text-[12px] leading-relaxed">{item.desc}</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="text-[#CBA258] font-bold text-[14px]">{item.price}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 bg-[#1E3932] rounded-3xl p-4 md:p-4 text-center relative overflow-hidden shadow-lg border border-black/10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#006241] rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#CBA258] rounded-full blur-3xl opacity-20 translate-y-1/2 -translate-x-1/4"></div>
+
+          <div className="relative z-10">
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">Want to dine in the comfort of your room?</h3>
+            <p className="text-white/80 text-[14px] max-w-2xl mx-auto mb-4">
+              Room service is available during operating hours. Simply dial <span className="font-bold text-[#CBA258]">101</span> from your room telephone to place an order, and our staff will bring it right up.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Menu Item Card (Legacy - kept for compatibility)
+function MenuItem({ item }) {
+  const { addToCart } = useCart();
+
+  return (
+    <div className="bg-[#eff6ff] rounded-xl shadow-lg hover:shadow-xl transition-all overflow-hidden group w-full flex flex-row h-auto min-h-[273px] sm:min-h-[293px] hover:-translate-y-1">
+      {/* Left side - Product Image */}
+      <div className="bg-stone-100 p-3 sm:p-4 flex items-center justify-center w-48 sm:w-54 md:w-60 flex-shrink-0 relative">
+        {item.image && item.image.startsWith('assets/') ? (
+          <img src={item.image} alt={item.name} className="object-contain w-full h-48 sm:h-54 md:h-60 rounded-md group-hover:scale-110 transition-transform duration-300" />
+        ) : (
+          <div className="text-7xl sm:text-8xl md:text-9xl group-hover:scale-110 transition-transform duration-300">{item.image}</div>
+        )}
+        {item.popular && (
+          <span className="absolute top-2 right-2 bg-blue-700 text-[#000000]/87 px-2 py-1 rounded-full text-xs font-bold">
+            Popular
+          </span>
+        )}
+      </div>
+
+      {/* Right side - Product Details */}
+      <div className="p-4 sm:p-3 md:p-4 flex flex-col justify-start flex-1 min-w-0">
+        <div className="mb-4">
+          <h3 className="text-base sm:text-[14px] md:text-[16px] font-bold text-blue-900 mb-2 break-words">{item.name}</h3>
+          <p className="text-stone-600 text-[12px] sm:text-base mb-3 line-clamp-2 font-normal">{item.description}</p>
+        </div>
+        <div className="flex flex-col gap-3 mt-auto">
+          {item.sizes ? (
+            <span className="text-[12px] sm:text-base md:text-[14px] font-semibold text-blue-900 break-words">
+              From Php {Math.min(...item.sizes.map(s => s.price)).toFixed(2)}
+            </span>
+          ) : (
+            <span className="text-[12px] sm:text-base md:text-[14px] font-semibold text-blue-900 break-words">Php {item.price.toFixed(2)}</span>
+          )}
+          <button
+            onClick={() => addToCart(item)}
+            className="btn-animated bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 sm:px-5 py-3 rounded-md hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 text-[12px] font-semibold w-full whitespace-nowrap"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Book Now</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Cart Drawer
+function CartDrawer({ setShowCart, setCurrentPage }) {
+  const { cartItems } = useCart();
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end" onClick={() => setShowCart(false)}>
+      <div className="bg-gray-100 w-full max-w-md h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-2xl font-bold text-gray-800">Your Cart</h2>
+            <button onClick={() => setShowCart(false)} className="text-gray-500 hover:text-gray-700">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {cartItems.length === 0 ? (
+            <div className="text-center py-16">
+              <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">Your cart is empty</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-4 mb-3">
+                {cartItems.map((item, index) => (
+                  <CartItemCard key={`${item.id}-${item.selectedSize || 'default'}-${index}`} item={item} />
+                ))}
+              </div>
+              <button
+                onClick={() => {
+                  setShowCart(false);
+                  setCurrentPage('cart');
+                }}
+                className="w-full bg-green-600 text-[#000000]/87 py-4 rounded-full font-bold hover:bg-green-700 transition-all"
+              >
+                View Full Cart
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Cart Page
+function CartPage({ setCurrentPage }) {
+  const { cartItems, getTotalPrice } = useCart();
+  const deliveryFee = 4.99;
+  const tax = getTotalPrice() * 0.08;
+  const total = getTotalPrice() + deliveryFee + tax;
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-screen py-12">
+        <div className="max-w-md mx-auto px-8 text-center">
+          <div className="rounded-3xl border border-black/5 p-4" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+            <ShoppingCart className="w-16 h-16 text-black/60 mx-auto mb-3" />
+            <h2 className="text-2xl font-bold text-[#000000]/87 mb-2">Your cart is empty</h2>
+            <p className="text-black/60 mb-4">Add some services to get started</p>
+            <button
+              onClick={() => setCurrentPage('menu')}
+              className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-xl font-bold hover:opacity-90 transition-all"
+            >
+              Browse Services
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen py-12">
+      <div className="w-full max-w-6xl mx-auto px-6">
+        <h1 className="text-3xl font-bold text-[#000000]/87 mb-10 text-center">Your Cart</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+          <div className="lg:col-span-2 space-y-4">
+            {cartItems.map((item, index) => (
+              <CartItemCard key={`${item.id}-${item.selectedSize || 'default'}-${index}`} item={item} detailed />
+            ))}
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="rounded-xl border border-black/5 p-4 sticky top-[120px]" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <h3 className="text-[14px] font-bold text-[#000000]/87 mb-3">Order Summary</h3>
+              <div className="space-y-4 mb-4">
+                <div className="flex justify-between text-black/60">
+                  <span>Subtotal</span>
+                  <span className="text-[#000000]/87">Php {getTotalPrice().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-black/60">
+                  <span>Booking Fee</span>
+                  <span className="text-[#000000]/87">Php {deliveryFee.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-black/60">
+                  <span>Tax (8%)</span>
+                  <span className="text-[#000000]/87">Php {tax.toFixed(2)}</span>
+                </div>
+                <div className="border-t border-black/5 pt-4 mt-4">
+                  <div className="flex justify-between text-[16px] font-bold">
+                    <span className="text-[#000000]/87">Total</span>
+                    <span className="text-[#00754A]">Php {total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setCurrentPage('checkout')}
+                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-4 rounded-xl font-bold hover:opacity-90 transition-all shadow-lg"
+              >
+                Proceed to Checkout
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Cart Item Card
+function CartItemCard({ item, detailed = false }) {
+  const { updateQuantity, removeFromCart } = useCart();
+
+  return (
+    <div className="rounded-xl border border-black/5 p-4 flex items-center gap-2 group transition-all hover:bg-white shadow-sm" style={{ background: '#ffffff', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
+      <div className="bg-white shadow-sm border border-black/5 rounded-xl flex items-center justify-center w-20 h-20 shrink-0">
+        {item.image && item.image.startsWith('assets/') ? (
+          <img src={item.image} alt={item.name} className="object-contain w-full h-full rounded-md" />
+        ) : (
+          <div className="text-4xl">{item.image}</div>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-bold text-[#000000]/87 text-base truncate">{item.name}</h3>
+        {item.selectedSize && <p className="text-black/60 text-xs mt-0.5">Category: {item.selectedSize}</p>}
+        <p className="text-[#00754A] font-bold text-[14px] mt-1">Php {item.price.toFixed(2)}</p>
+      </div>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => updateQuantity(item.id, item.quantity - 1, item.selectedSize)}
+          className="w-8 h-8 bg-white shadow-sm hover:bg-white shadow-sm border border-black/5 rounded-md flex items-center justify-center transition-all"
+        >
+          <Minus className="w-4 h-4 text-[#000000]/87" />
+        </button>
+        <span className="font-bold text-[#000000]/87 w-4 text-center">{item.quantity}</span>
+        <button
+          onClick={() => updateQuantity(item.id, item.quantity + 1, item.selectedSize)}
+          className="w-8 h-8 bg-[#00754A] hover:opacity-90 rounded-md flex items-center justify-center transition-all shadow-lg"
+        >
+          <Plus className="w-4 h-4 text-[#000000]/87" />
+        </button>
+      </div>
+      {detailed && (
+        <button
+          onClick={() => removeFromCart(item.id, item.selectedSize)}
+          className="text-black/60 hover:text-red-400 p-2 transition-all ml-2"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Checkout Page
+function CheckoutPage({ setCurrentPage, clearCart }) {
+  const { getTotalPrice, cartItems } = useCart();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    zipCode: '',
+    paymentMethod: 'cash',
+    paymentReference: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notificationStatus, setNotificationStatus] = useState('checking'); // 'checking', 'subscribed', 'not-subscribed', 'denied'
+
+  // Check notification subscription status on mount
+  useEffect(() => {
+    const checkNotificationStatus = async () => {
+      try {
+        if (window.OneSignalDeferred) {
+          window.OneSignalDeferred.push(async function (OneSignal) {
+            const permission = await OneSignal.Notifications.permission;
+            const playerId = await OneSignal.User.PushSubscription.id;
+
+            if (permission === false) {
+              setNotificationStatus('denied');
+            } else if (playerId) {
+              setNotificationStatus('subscribed');
+            } else {
+              setNotificationStatus('not-subscribed');
+            }
+          });
+        } else {
+          setNotificationStatus('not-subscribed');
+        }
+      } catch (err) {
+        console.log('Error checking notification status:', err);
+        setNotificationStatus('not-subscribed');
+      }
+    };
+
+    checkNotificationStatus();
+  }, []);
+
+  // Function to request notification permission
+  const requestNotificationPermission = async () => {
+    try {
+      if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async function (OneSignal) {
+          await OneSignal.Notifications.requestPermission();
+          // Check status after requesting
+          const playerId = await OneSignal.User.PushSubscription.id;
+          if (playerId) {
+            setNotificationStatus('subscribed');
+          } else {
+            const permission = await OneSignal.Notifications.permission;
+            if (permission === false) {
+              setNotificationStatus('denied');
+            }
+          }
+        });
+      }
+    } catch (err) {
+      console.log('Error requesting notification permission:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate payment reference for Bank Transfer only (GCash uses PayMongo)
+    if (formData.paymentMethod === 'bank' && !formData.paymentReference.trim()) {
+      alert('Please enter the Bank reference number.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const deliveryFee = 4.99;
+      const tax = getTotalPrice() * 0.08;
+      const total = getTotalPrice() + deliveryFee + tax;
+
+      // Format cart items as a string
+      const itemsList = cartItems.map(item =>
+        `${item.name}${item.selectedSize ? ` (${item.selectedSize})` : ''} (x${item.quantity}) - Php ${(item.price * item.quantity).toFixed(2)}`
+      ).join(', ');
+
+      // Format payment method display
+      let paymentMethodDisplay = formData.paymentMethod;
+      if (formData.paymentMethod === 'cash') {
+        paymentMethodDisplay = 'Cash on Delivery';
+      } else if (formData.paymentMethod === 'gcash') {
+        paymentMethodDisplay = 'GCash';
+      } else if (formData.paymentMethod === 'bank') {
+        paymentMethodDisplay = `Bank Transfer (Ref: ${formData.paymentReference})`;
+      }
+
+      // Get OneSignal Player ID for customer notifications
+      let playerId = null;
+      try {
+        if (window.OneSignalDeferred) {
+          await new Promise((resolve) => {
+            window.OneSignalDeferred.push(async function (OneSignal) {
+              playerId = await OneSignal.User.PushSubscription.id;
+              resolve();
+            });
+          });
+        }
+      } catch (err) {
+        console.log('Could not get OneSignal player ID:', err);
+      }
+
+      // Send data to Google Sheets
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          fullName: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          barangay: formData.zipCode,
+          paymentMethod: paymentMethodDisplay,
+          paymentReference: formData.paymentReference || 'N/A',
+          playerId: playerId || '',
+          items: itemsList,
+          subtotal: getTotalPrice().toFixed(2),
+          deliveryFee: deliveryFee.toFixed(2),
+          tax: tax.toFixed(2),
+          total: total.toFixed(2)
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // If GCash payment, redirect to PayMongo checkout
+        if (result.requiresPayment && result.paymentUrl) {
+          // Store order number for later reference
+          localStorage.setItem('pendingOrder', result.orderNumber);
+          // Redirect to GCash payment page
+          window.location.href = result.paymentUrl;
+        } else {
+          // Clear cart and go to confirmation for non-GCash payments
+          if (clearCart) clearCart();
+          setCurrentPage('confirmation');
+        }
+      } else {
+        alert('Error: ' + (result.error || 'Failed to process order'));
+      }
+    } catch (error) {
+      console.error('Error processing order:', error);
+      alert('There was an error processing your order. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deliveryFee = 4.99;
+  const tax = getTotalPrice() * 0.08;
+  const total = getTotalPrice() + deliveryFee + tax;
+
+  return (
+    <div className="min-h-screen py-12">
+      <div className="w-full max-w-6xl mx-auto px-6">
+        <h1 className="text-3xl font-bold text-[#000000]/87 mb-10 text-center">Checkout</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+          <div className="lg:col-span-2">
+            <form onSubmit={handleSubmit} className="rounded-xl border border-black/5 overflow-hidden" style={{ background: '#ffffff', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}>
+              <div className="px-6 py-5 bg-white shadow-sm border-b border-black/5">
+                <h3 className="text-[14px] font-bold text-[#000000]/87">Delivery Address</h3>
+              </div>
+              <div className="p-4 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    required
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone Number"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
+                  />
+                  <input
+                    type="text"
+                    placeholder="ZIP Code"
+                    required
+                    value={formData.zipCode}
+                    onChange={(e) => setFormData({ ...formData, zipCode: e.target.value })}
+                    className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px]"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Street Address"
+                  required
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px] mt-3"
+                />
+                <input
+                  type="text"
+                  placeholder="City"
+                  required
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-green-500 focus:outline-none text-[12px] mt-3"
+                />
+              </div>
+
+              {/* Notification Subscription Prompt */}
+              {notificationStatus === 'checking' && (
+                <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-green-600"></div>
+                    <span className="text-[12px] text-gray-600">Checking notification status...</span>
+                  </div>
+                </div>
+              )}
+
+              {notificationStatus !== 'subscribed' && notificationStatus !== 'checking' && (
+                <div className={`rounded-md p-4 border-2 ${notificationStatus === 'denied'
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-yellow-50 border-yellow-300'
+                  }`}>
+                  <div className="flex items-start gap-3">
+                    <div className="text-2xl flex-shrink-0">
+                      {notificationStatus === 'denied' ? '🔕' : '🔔'}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-800 text-[12px] mb-1">
+                        {notificationStatus === 'denied'
+                          ? 'Notifications Blocked'
+                          : 'Get Order Updates'}
+                      </h4>
+                      <p className="text-xs text-gray-600 mb-3">
+                        {notificationStatus === 'denied'
+                          ? 'You\'ve blocked notifications. Enable them in your browser settings to receive real-time order updates.'
+                          : 'Enable push notifications to receive real-time updates when your order is being prepared, out for delivery, and delivered!'}
+                      </p>
+                      {notificationStatus === 'not-subscribed' && (
+                        <button
+                          type="button"
+                          onClick={requestNotificationPermission}
+                          className="bg-green-600 text-[#000000]/87 px-4 py-2 rounded-full text-xs font-medium hover:bg-green-700 transition-all flex items-center gap-2"
+                        >
+                          <span>🔔</span>
+                          <span>Enable Notifications</span>
+                        </button>
+                      )}
+                      {notificationStatus === 'denied' && (
+                        <p className="text-xs text-red-600 font-medium">
+                          To enable: Click the lock icon in your browser's address bar → Allow notifications
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {notificationStatus === 'subscribed' && (
+                <div className="bg-green-50 border-2 border-green-300 rounded-md p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="text-2xl">✅</div>
+                    <div>
+                      <h4 className="font-medium text-green-700 text-[12px]">Notifications Enabled</h4>
+                      <p className="text-xs text-green-600">You'll receive updates when your order status changes!</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-base font-medium text-gray-700 mb-4">Payment Method</h3>
+                <div className="space-y-2">
+                  <label className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all ${formData.paymentMethod === 'cash' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
+                    }`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="cash"
+                      checked={formData.paymentMethod === 'cash'}
+                      onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value, paymentReference: '' })}
+                      className="w-4 h-4 text-green-600"
+                    />
+                    <span className="text-[12px] text-gray-700">Cash on Delivery</span>
+                  </label>
+
+                  <label className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all ${formData.paymentMethod === 'gcash' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
+                    }`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="gcash"
+                      checked={formData.paymentMethod === 'gcash'}
+                      onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                      className="w-4 h-4 text-green-600"
+                    />
+                    <span className="text-[12px] text-gray-700">GCash</span>
+                  </label>
+
+                  <label className={`flex items-center space-x-3 p-3 border rounded-md cursor-pointer transition-all ${formData.paymentMethod === 'bank' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:bg-gray-50'
+                    }`}>
+                    <input
+                      type="radio"
+                      name="payment"
+                      value="bank"
+                      checked={formData.paymentMethod === 'bank'}
+                      onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                      className="w-4 h-4 text-green-600"
+                    />
+                    <span className="text-[12px] text-gray-700">Bank Transfer</span>
+                  </label>
+                </div>
+
+                {/* Payment Instructions */}
+                {formData.paymentMethod === 'cash' && (
+                  <div className="mt-4 bg-gray-50 border border-gray-200 rounded-md p-4">
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-2">Cash on Delivery Instructions</h4>
+                    <ul className="text-xs text-gray-600 space-y-1 list-disc list-inside">
+                      <li>Prepare exact amount if possible</li>
+                      <li>Payment will be collected upon delivery</li>
+                      <li>Please have your order number ready</li>
+                    </ul>
+                  </div>
+                )}
+
+                {formData.paymentMethod === 'gcash' && (
+                  <div className="mt-4 bg-green-50 border border-green-200 rounded-md p-4">
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-3">GCash Payment</h4>
+                    <div className="space-y-3">
+                      <div className="bg-white rounded-md p-3 border border-green-100">
+                        <p className="text-xs text-gray-500 mb-1">Amount to pay:</p>
+                        <p className="text-[14px] font-medium text-green-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
+                      </div>
+                      <div className="flex items-center gap-2 text-[12px] text-gray-600">
+                        <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span>Secure payment via PayMongo</span>
+                      </div>
+                      <div className="text-xs text-gray-600 bg-white rounded-md p-3 border border-green-100">
+                        <p className="font-medium mb-2">How it works:</p>
+                        <ol className="list-decimal list-inside space-y-1">
+                          <li>Click "Place Order" below</li>
+                          <li>You'll be redirected to GCash to complete payment</li>
+                          <li>After payment, you'll return here automatically</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formData.paymentMethod === 'bank' && (
+                  <div className="mt-4 bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <h4 className="font-medium text-gray-700 text-[12px] mb-3">Bank Transfer Instructions</h4>
+                    <div className="space-y-3">
+                      <div className="bg-white rounded-md p-3 border border-blue-100">
+                        <p className="text-xs text-gray-500 mb-2">Transfer to:</p>
+                        <p className="text-xs text-gray-600">Bank: BDO</p>
+                        <p className="text-xs text-gray-600">Account Name: Kuchefnero Restaurant</p>
+                        <p className="text-base font-medium text-gray-800">Account #: 1234-5678-9012</p>
+                      </div>
+                      <div className="bg-white rounded-md p-3 border border-blue-100">
+                        <p className="text-xs text-gray-500 mb-1">Amount to transfer:</p>
+                        <p className="text-[14px] font-medium text-blue-600">Php {(getTotalPrice() + 4.99 + getTotalPrice() * 0.08).toFixed(2)}</p>
+                      </div>
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <p className="font-medium">After transfer:</p>
+                        <ol className="list-decimal list-inside space-y-1 ml-2">
+                          <li>Keep your bank receipt/confirmation</li>
+                          <li>Enter the reference number below</li>
+                          <li>Send photo of receipt to our contact number</li>
+                        </ol>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Enter Bank Reference Number"
+                        value={formData.paymentReference}
+                        onChange={(e) => setFormData({ ...formData, paymentReference: e.target.value })}
+                        className="w-full px-2 py-1.5 rounded-md border border-gray-300 focus:border-blue-500 focus:outline-none text-[12px]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full py-3 rounded-full font-medium transition-all text-[12px] ${isSubmitting
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-green-600 text-[#000000]/87 hover:bg-green-700'
+                  }`}
+              >
+                {isSubmitting ? 'Processing...' : `Place Order - Php ${total.toFixed(2)}`}
+              </button>
+            </form>
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-md shadow-sm p-3 sticky top-[160px] md:top-[120px]">
+              <h3 className="text-base font-medium text-gray-800 mb-4">Order Summary</h3>
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between text-[12px] text-gray-600">
+                  <span>Subtotal</span>
+                  <span>Php {getTotalPrice().toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-[12px] text-gray-600">
+                  <span>Delivery Fee</span>
+                  <span>Php {deliveryFee.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-[12px] text-gray-600">
+                  <span>Tax (8%)</span>
+                  <span>Php {tax.toFixed(2)}</span>
+                </div>
+                <div className="border-t border-gray-200 pt-2 mt-2">
+                  <div className="flex justify-between text-base font-medium">
+                    <span>Total</span>
+                    <span className="text-green-600">Php {total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Confirmation Page
+function ConfirmationPage({ setCurrentPage, orderNumber, paymentStatus }) {
+  // Generate order number if not provided (for non-GCash orders)
+  const displayOrderNumber = orderNumber || `ORD-${Date.now()}`;
+
+  return (
+    <div className="bg-gray-50 min-h-screen py-8">
+      <div className="w-full px-8">
+        {/* Header */}
+        <div className="text-center mb-3">
+          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <h1 className="text-[16px] font-medium text-gray-800 mb-1">
+            {paymentStatus === 'success' ? 'Payment Successful!' : 'Order Confirmed'}
+          </h1>
+          <p className="text-[12px] text-gray-500">
+            {paymentStatus === 'success' ? 'Your GCash payment has been received' : 'Thank you for your order'}
+          </p>
+        </div>
+
+        {/* Order Number */}
+        <div className="bg-green-600 rounded-md p-4 mb-3 text-center">
+          <div className="text-xs text-green-200 mb-1">Order Number</div>
+          <div className="text-[16px] font-medium text-[#000000]/87">{displayOrderNumber}</div>
+        </div>
+
+        {/* Order Status */}
+        <div className="bg-white rounded-md p-3 mb-3 shadow-sm">
+          <h3 className="text-base font-medium text-gray-800 mb-4">Order Status</h3>
+
+          <div className="space-y-0">
+            {/* Order Confirmed */}
+            <div className="flex items-start gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-4 h-4 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="w-0.5 h-8 bg-green-500"></div>
+              </div>
+              <div className="pb-3">
+                <div className="text-[12px] font-medium text-gray-800">Order Received</div>
+                <div className="text-xs text-gray-500">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}, {new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</div>
+              </div>
+            </div>
+
+            {/* Preparing */}
+            <div className="flex items-start gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full border-2 border-green-500 flex items-center justify-center flex-shrink-0">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                </div>
+                <div className="w-0.5 h-8 bg-gray-200"></div>
+              </div>
+              <div className="pb-3">
+                <div className="text-[12px] font-medium text-gray-800">Preparing your order</div>
+                <div className="text-xs text-gray-500">Estimated: 15-20 mins</div>
+              </div>
+            </div>
+
+            {/* Out for Delivery */}
+            <div className="flex items-start gap-3">
+              <div className="flex flex-col items-center">
+                <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
+              </div>
+              <div>
+                <div className="text-[12px] text-gray-400">Out for delivery</div>
+                <div className="text-xs text-gray-400">Estimated arrival: 25-30 mins</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* SMS Notice */}
+        <div className="text-center mb-3">
+          <p className="text-xs text-gray-500">You will receive a text message with delivery updates</p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => setCurrentPage('home')}
+            className="flex-1 bg-green-600 text-[#000000]/87 py-1.5 rounded-md text-[12px] font-medium hover:bg-green-700 transition-all"
+          >
+            Back to Home
+          </button>
+          <button
+            onClick={() => setCurrentPage('menu')}
+            className="flex-1 bg-gray-100 text-gray-700 py-1.5 rounded-md text-[12px] font-medium hover:bg-gray-200 transition-all"
+          >
+            Order Again
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Payment Failed Page
+function PaymentFailedPage({ setCurrentPage, orderNumber }) {
+  return (
+    <div className="bg-gray-50 min-h-screen py-8">
+      <div className="w-full px-8 max-w-md mx-auto">
+        {/* Header */}
+        <div className="text-center mb-3">
+          <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-[#000000]/87" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <h1 className="text-[16px] font-medium text-gray-800 mb-1">Payment Failed</h1>
+          <p className="text-[12px] text-gray-500">Your GCash payment was not completed</p>
+        </div>
+
+        {/* Order Number */}
+        {orderNumber && (
+          <div className="bg-gray-200 rounded-md p-4 mb-3 text-center">
+            <div className="text-xs text-gray-500 mb-1">Order Number</div>
+            <div className="text-[16px] font-medium text-gray-700">{orderNumber}</div>
+          </div>
+        )}
+
+        {/* Message */}
+        <div className="bg-white rounded-md p-3 mb-3 shadow-sm">
+          <h3 className="text-base font-medium text-gray-800 mb-3">What happened?</h3>
+          <p className="text-[12px] text-gray-600 mb-4">
+            Your payment was cancelled or failed to process. Your order has been saved but is awaiting payment.
+          </p>
+          <h3 className="text-base font-medium text-gray-800 mb-3">What can you do?</h3>
+          <ul className="text-[12px] text-gray-600 space-y-2">
+            <li>• Try placing your order again with GCash</li>
+            <li>• Choose a different payment method (Cash on Delivery)</li>
+            <li>• Contact us if you need assistance</li>
+          </ul>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={() => setCurrentPage('checkout')}
+            className="w-full bg-green-600 text-[#000000]/87 py-1.5 rounded-md text-[12px] font-medium hover:bg-green-700 transition-all"
+          >
+            Try Again
+          </button>
+          <button
+            onClick={() => setCurrentPage('home')}
+            className="w-full bg-gray-100 text-gray-700 py-1.5 rounded-md text-[12px] font-medium hover:bg-gray-200 transition-all"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Queue Admin Tab (inside AdminDashboard)
+function QueueAdminTab({ setCurrentPage }) {
+  const TEMPLATE_STORAGE_KEY = 'queueDisplayTemplate';
+  const VALID_TEMPLATES = ['template1', 'template2', 'template3', 'template4', 'template5', 'template6'];
+  const [tickets, setTickets] = useState([]);
+  const [stats, setStats] = useState({ waiting: 0, serving: 0, completed: 0, skipped: 0, total: 0 });
+  const [transactionTypes, setTransactionTypes] = useState([]);
+  const [tellers, setTellers] = useState([]);
+  const [newTypeName, setNewTypeName] = useState('');
+  const [newTypePrefix, setNewTypePrefix] = useState('');
+  const [newWindowName, setNewWindowName] = useState('');
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [marqueeText, setMarqueeText] = useState('');
+  const [marqueeSaving, setMarqueeSaving] = useState(false);
+  const [displayTemplate, setDisplayTemplate] = useState(localStorage.getItem(TEMPLATE_STORAGE_KEY) || 'template1');
+  const [templateSaving, setTemplateSaving] = useState(false);
+  const [showReports, setShowReports] = useState(false);
+  const [reportStartDate, setReportStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reportEndDate, setReportEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reportData, setReportData] = useState(null);
+  const [reportLoading, setReportLoading] = useState(false);
+
+  const fetchAll = async () => {
+    try {
+      const [ticketsRes, typesRes, tellersRes, marqueeRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/api/queue/tickets`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/queue/transaction-types`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/queue/tellers`).then(r => r.json()),
+        fetch(`${API_BASE_URL}/api/queue/marquee`).then(r => r.json())
+      ]);
+      if (ticketsRes.success) { setTickets(ticketsRes.tickets); setStats(ticketsRes.stats); }
+      if (typesRes.success) setTransactionTypes(typesRes.types);
+      if (tellersRes.success) setTellers(tellersRes.tellers);
+      if (marqueeRes.success) setMarqueeText(marqueeRes.text);
+      try {
+        const templateRes = await fetch(`${API_BASE_URL}/api/queue/display-template`).then(r => r.json());
+        if (templateRes.success && VALID_TEMPLATES.includes(templateRes.template)) {
+          setDisplayTemplate(templateRes.template);
+          localStorage.setItem(TEMPLATE_STORAGE_KEY, templateRes.template);
+        } else {
+          const localTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+          if (VALID_TEMPLATES.includes(localTemplate)) setDisplayTemplate(localTemplate);
+        }
+      } catch (_) {
+        const localTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+        if (VALID_TEMPLATES.includes(localTemplate)) setDisplayTemplate(localTemplate);
+      }
+    } catch (err) {
+      console.error('Error fetching queue data:', err);
+    }
+  };
+
+  useEffect(() => { fetchAll(); }, []);
+
+  const resetQueue = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/reset`, { method: 'POST' });
+      setShowResetConfirm(false);
+      fetchAll();
+    } catch (err) { console.error('Error resetting queue:', err); }
+  };
+
+  const addTransactionType = async () => {
+    if (!newTypeName || !newTypePrefix) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/transaction-types`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newTypeName, prefix: newTypePrefix })
+      });
+      setNewTypeName(''); setNewTypePrefix('');
+      fetchAll();
+    } catch (err) { console.error('Error adding type:', err); }
+  };
+
+  const deleteTransactionType = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/transaction-types/${id}`, { method: 'DELETE' });
+      fetchAll();
+    } catch (err) { console.error('Error deleting type:', err); }
+  };
+
+  const addTeller = async () => {
+    if (!newWindowName) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/tellers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ windowName: newWindowName })
+      });
+      setNewWindowName('');
+      fetchAll();
+    } catch (err) { console.error('Error adding teller:', err); }
+  };
+
+  const deleteTeller = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/tellers/${id}`, { method: 'DELETE' });
+      fetchAll();
+    } catch (err) { console.error('Error deleting teller:', err); }
+  };
+
+  const updateWindowAssignments = async (tellerId, typeId, checked) => {
+    const teller = tellers.find(t => t.id === tellerId);
+    if (!teller) return;
+    const currentIds = (teller.assigned_types || []).map(t => t.id);
+    const newIds = checked
+      ? [...currentIds, typeId]
+      : currentIds.filter(id => id !== typeId);
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/window-transactions/${tellerId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactionTypeIds: newIds })
+      });
+      fetchAll();
+    } catch (err) { console.error('Error updating assignments:', err); }
+  };
+
+  const fetchReport = async () => {
+    setReportLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/queue/reports?startDate=${reportStartDate}&endDate=${reportEndDate}`);
+      const data = await res.json();
+      if (data.success) setReportData(data);
+    } catch (err) { console.error('Error fetching report:', err); }
+    setReportLoading(false);
+  };
+
+  const formatSeconds = (s) => {
+    if (!s || s === 0) return '0s';
+    if (s < 60) return `${s}s`;
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return sec > 0 ? `${m}m ${sec}s` : `${m}m`;
+  };
+
+  const getQueueStatusColor = (status) => {
+    switch (status) {
+      case 'waiting': return 'bg-yellow-50 text-yellow-700 border-yellow-300';
+      case 'serving': return 'bg-green-50 text-green-700 border-green-300';
+      case 'completed': return 'bg-blue-50 text-blue-700 border-blue-300';
+      case 'skipped': return 'bg-red-50 text-red-700 border-red-300';
+      default: return 'bg-gray-50 text-gray-700 border-gray-300';
+    }
+  };
+
+  return (
+    <>
+      {/* Analytics — Two Column: Queue Status + Timeliness */}
+      {(() => {
+        const chartData = [
+          { label: 'Waiting', value: stats.waiting, color: '#F59E0B' },
+          { label: 'Serving', value: stats.serving, color: '#3B82F6' },
+          { label: 'Completed', value: stats.completed, color: '#10B981' },
+          { label: 'Skipped', value: stats.skipped, color: '#EF4444' },
+        ];
+        const total = stats.total || 1;
+        const radius = 54;
+        const circumference = 2 * Math.PI * radius;
+        let cumulative = 0;
+
+        const completedTickets = tickets.filter(t => t.status === 'completed' && t.created_at && t.called_at && t.completed_at);
+        const hasTimeliness = completedTickets.length > 0;
+
+        let avgWait = 0, avgServe = 0, avgTotal = 0, maxWait = 0, minWait = 0, buckets = [], maxBucket = 1;
+        const fmt = (min) => min < 1 ? `${Math.round(min * 60)}s` : `${min.toFixed(1)}m`;
+
+        if (hasTimeliness) {
+          const waitTimes = completedTickets.map(t => (new Date(t.called_at) - new Date(t.created_at)) / 60000);
+          const serveTimes = completedTickets.map(t => (new Date(t.completed_at) - new Date(t.called_at)) / 60000);
+          const totalTimes = completedTickets.map(t => (new Date(t.completed_at) - new Date(t.created_at)) / 60000);
+          avgWait = waitTimes.reduce((a, b) => a + b, 0) / waitTimes.length;
+          avgServe = serveTimes.reduce((a, b) => a + b, 0) / serveTimes.length;
+          avgTotal = totalTimes.reduce((a, b) => a + b, 0) / totalTimes.length;
+          maxWait = Math.max(...waitTimes);
+          minWait = Math.min(...waitTimes);
+          buckets = [
+            { label: '< 2 min', count: waitTimes.filter(t => t < 2).length, color: '#10B981' },
+            { label: '2-5 min', count: waitTimes.filter(t => t >= 2 && t < 5).length, color: '#3B82F6' },
+            { label: '5-10 min', count: waitTimes.filter(t => t >= 5 && t < 10).length, color: '#F59E0B' },
+            { label: '> 10 min', count: waitTimes.filter(t => t >= 10).length, color: '#EF4444' },
+          ];
+          maxBucket = Math.max(...buckets.map(b => b.count), 1);
+        }
+
+        return (
+          <div className={`grid grid-cols-1 ${hasTimeliness ? 'md:grid-cols-2' : ''} gap-2 mb-3`}>
+            {/* Column 1: Queue Status */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
+              <div className="flex flex-col md:flex-row items-center gap-3">
+                <div className="relative flex-shrink-0">
+                  <svg width="160" height="160" viewBox="0 0 128 128">
+                    <circle cx="64" cy="64" r={radius} fill="none" stroke="#E5E7EB" strokeWidth="16" />
+                    {chartData.map((seg, i) => {
+                      const pct = seg.value / total;
+                      const dashLen = pct * circumference;
+                      const offset = -cumulative * circumference;
+                      cumulative += pct;
+                      if (seg.value === 0) return null;
+                      return (
+                        <circle key={i} cx="64" cy="64" r={radius} fill="none" stroke={seg.color} strokeWidth="16"
+                          strokeDasharray={`${dashLen} ${circumference - dashLen}`} strokeDashoffset={offset}
+                          strokeLinecap="butt" transform="rotate(-90 64 64)" style={{ transition: 'stroke-dasharray 0.5s ease' }} />
+                      );
+                    })}
+                    <text x="64" y="58" textAnchor="middle" fill="#1F2937" fontSize="22" fontWeight="700">{stats.total}</text>
+                    <text x="64" y="76" textAnchor="middle" fill="#6B7280" fontSize="10">Total</text>
+                  </svg>
+                </div>
+                <div className="flex-1 w-full">
+                  <h3 className="text-[12px] font-semibold text-gray-700 mb-3">Queue Status</h3>
+                  <div className="space-y-3">
+                    {chartData.map((seg, i) => {
+                      const pct = stats.total > 0 ? Math.round((seg.value / stats.total) * 100) : 0;
+                      return (
+                        <div key={i}>
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="w-3 h-3 rounded-full inline-block" style={{ backgroundColor: seg.color }}></span>
+                              <span className="text-[12px] text-gray-600">{seg.label}</span>
+                            </div>
+                            <span className="text-[12px] font-semibold text-gray-800">{seg.value} <span className="text-gray-400 font-normal">({pct}%)</span></span>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div className="h-2 rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: seg.color }}></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Column 2: Timeliness */}
+            {hasTimeliness && (
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-3">
+                <h3 className="text-[12px] font-semibold text-gray-700 mb-3">Timeliness</h3>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-blue-600">{fmt(avgWait)}</p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">Avg Wait</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-600">{fmt(avgServe)}</p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">Avg Serve</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-gray-700">{fmt(avgTotal)}</p>
+                    <p className="text-[10px] text-gray-400 uppercase tracking-wider">Avg Total</p>
+                  </div>
+                </div>
+                <h4 className="text-xs font-semibold text-gray-500 mb-2">Wait Time Distribution</h4>
+                <div className="space-y-2">
+                  {buckets.map((b, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span className="text-xs text-gray-500 w-16 text-right flex-shrink-0">{b.label}</span>
+                      <div className="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+                        <div className="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-500"
+                          style={{ width: `${Math.max((b.count / maxBucket) * 100, b.count > 0 ? 8 : 0)}%`, backgroundColor: b.color }}>
+                          {b.count > 0 && <span className="text-[10px] font-bold text-[#000000]/87">{b.count}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
+                  <span>Fastest: {fmt(minWait)}</span>
+                  <span>Slowest: {fmt(maxWait)}</span>
+                  <span>Served: {completedTickets.length}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Quick Links */}
+      <div className="flex gap-3 mb-3 flex-wrap">
+        <button onClick={() => setCurrentPage('queue-display')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          Open Public Display
+        </button>
+        <button onClick={() => setCurrentPage('queue-teller')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all flex items-center gap-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+          Open Teller View
+        </button>
+        <button onClick={() => setShowResetConfirm(true)} className="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-md text-[12px] font-medium transition-all border border-red-200 ml-auto">
+          Reset Queue
+        </button>
+      </div>
+
+      {/* Reset Confirm */}
+      {showResetConfirm && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-3 flex items-center justify-between">
+          <p className="text-red-600 text-[12px]">Are you sure? This will delete all tickets for today.</p>
+          <div className="flex gap-2">
+            <button onClick={resetQueue} className="bg-red-500 text-[#000000]/87 px-4 py-2 rounded-full text-[12px] font-medium">Yes, Reset</button>
+            <button onClick={() => setShowResetConfirm(false)} className="bg-gray-100 text-gray-600 px-4 py-2 rounded-md text-[12px] font-medium">Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Today's Tickets */}
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm overflow-hidden mb-3">
+        <div className="flex items-center justify-between px-2.5 py-2 border-b border-blue-200">
+          <h3 className="text-gray-800 font-bold text-[14px]">Today's Tickets</h3>
+          <div className="flex gap-2">
+            <button onClick={() => window.open(`${API_BASE_URL}/api/export/queue-tickets`, '_blank')} className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-md text-[12px] font-medium transition-all border border-blue-200">
+              Export CSV
+            </button>
+            <button onClick={fetchAll} className="text-blue-600 hover:text-blue-800 text-[12px] transition-all">Refresh</button>
+          </div>
+        </div>
+        {tickets.length === 0 ? (
+          <p className="text-gray-400 text-center py-8">No tickets today</p>
+        ) : (
+          <>
+            {/* Table Header */}
+            <div className="hidden md:grid md:grid-cols-8 gap-3 px-2.5 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider items-center">
+              <span>Ticket</span>
+              <span>Name</span>
+              <span>Phone</span>
+              <span>Transaction</span>
+              <span>Status</span>
+              <span>Window</span>
+              <span>Teller</span>
+              <span>Time</span>
+            </div>
+            {tickets.map((t, index) => (
+              <div key={t.id} className={`grid grid-cols-1 md:grid-cols-8 gap-3 px-2.5 py-2 items-center text-[12px] border-b border-blue-100 hover:bg-blue-50/50 transition-all ${index % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+                <div className="font-bold text-blue-700 min-w-0">
+                  {t.ticket_number}
+                  {t.is_priority && <span className="ml-1 text-[9px] font-bold bg-orange-500 text-[#000000]/87 px-1.5 py-0.5 rounded-full uppercase">{t.priority_type || 'Priority'}</span>}
+                </div>
+                <span className="text-gray-800 font-medium truncate">{t.customer_name}</span>
+                <span className="text-gray-600 truncate">{t.cellphone_number}</span>
+                <span className="text-gray-600 truncate">{t.transaction_type}</span>
+                <span className={`px-2 py-1 rounded-full text-[12px] font-medium border w-fit ${getQueueStatusColor(t.status)}`}>
+                  {t.status}
+                </span>
+                <span className="text-gray-600">{t.teller_window || '-'}</span>
+                <span className="text-gray-600">{t.teller_name || '-'}</span>
+                <span className="text-gray-600">{new Date(t.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+
+      {/* Configuration */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* Transaction Types */}
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4">
+          <h3 className="text-gray-800 font-bold text-[14px] mb-4">Transaction Types</h3>
+          <div className="space-y-2 mb-4">
+            {transactionTypes.map(type => (
+              <div key={type.id} className="flex items-center justify-between bg-blue-50 rounded-md p-3">
+                <div>
+                  <span className="text-gray-800 text-[12px] font-medium">{type.name}</span>
+                  <span className="text-gray-400 text-xs ml-2">({type.prefix})</span>
+                </div>
+                <button onClick={() => deleteTransactionType(type.id)} className="text-red-400 hover:text-red-600 transition-all">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newTypeName}
+              onChange={e => setNewTypeName(e.target.value)}
+              placeholder="Name"
+              className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+            />
+            <input
+              type="text"
+              value={newTypePrefix}
+              onChange={e => setNewTypePrefix(e.target.value.toUpperCase().slice(0, 3))}
+              placeholder="Prefix"
+              maxLength={3}
+              className="w-20 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+            />
+            <button onClick={addTransactionType} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all">
+              Add
+            </button>
+          </div>
+        </div>
+
+        {/* Teller Windows */}
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4">
+          <h3 className="text-gray-800 font-bold text-[14px] mb-4">Teller Windows</h3>
+
+          <div className="space-y-3 mb-4">
+            {tellers.map(teller => {
+              const assignedIds = (teller.assigned_types || []).map(t => t.id);
+              return (
+                <div key={teller.id} className="bg-blue-50 rounded-md p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-gray-800 text-[12px] font-medium">{teller.window_name}</span>
+                    <button onClick={() => deleteTeller(teller.id)} className="text-red-400 hover:text-red-600 transition-all">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {transactionTypes.map(type => (
+                      <label key={type.id} className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={assignedIds.includes(type.id)}
+                          onChange={(e) => updateWindowAssignments(teller.id, type.id, e.target.checked)}
+                          className="w-3.5 h-3.5 rounded border-blue-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <span className="text-xs text-gray-600">{type.name}</span>
+                      </label>
+                    ))}
+                    {assignedIds.length === 0 && <span className="text-xs text-gray-400 italic">Serves all types</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newWindowName}
+              onChange={e => setNewWindowName(e.target.value)}
+              placeholder="Window name"
+              className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+            />
+            <button onClick={addTeller} className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all">
+              Add
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Marquee Text */}
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 mt-6">
+        <h3 className="text-gray-800 font-bold text-[14px] mb-4">Display Marquee Text</h3>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={marqueeText}
+            onChange={e => setMarqueeText(e.target.value)}
+            placeholder="Enter scrolling text for the queue display..."
+            className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] placeholder-gray-400 focus:border-[#576CA8] focus:outline-none"
+          />
+          <button
+            onClick={async () => {
+              setMarqueeSaving(true);
+              try {
+                await fetch(`${API_BASE_URL}/api/queue/marquee`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ text: marqueeText })
+                });
+              } catch (err) { console.error('Error saving marquee:', err); }
+              setMarqueeSaving(false);
+            }}
+            disabled={marqueeSaving}
+            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50"
+          >
+            {marqueeSaving ? 'Saving...' : 'Save'}
+          </button>
+        </div>
+        <p className="text-gray-400 text-xs mt-2">This text scrolls at the bottom of the public queue display screen.</p>
+      </div>
+
+      {/* Display Template */}
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 mt-6">
+        <h3 className="text-gray-800 font-bold text-[14px] mb-4">Display Template</h3>
+        <div className="flex flex-col md:flex-row gap-2 md:items-center">
+          <select
+            value={displayTemplate}
+            onChange={(e) => setDisplayTemplate(e.target.value)}
+            className="flex-1 px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none"
+          >
+            <option value="template1">Template 1 - Classic</option>
+            <option value="template2">Template 2 - Split Board</option>
+            <option value="template3">Template 3 - Spotlight</option>
+            <option value="template4">Template 4 - Corporate Grid</option>
+            <option value="template5">Template 5 - Minimal Columns</option>
+            <option value="template6">Template 6 - Executive Panel</option>
+          </select>
+          <button
+            onClick={async () => {
+              localStorage.setItem(TEMPLATE_STORAGE_KEY, displayTemplate);
+              setTemplateSaving(true);
+              try {
+                const res = await fetch(`${API_BASE_URL}/api/queue/display-template`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ template: displayTemplate })
+                });
+                const data = await res.json().catch(() => ({ success: false }));
+                if (!res.ok || !data.success) {
+                  throw new Error(data.message || 'Failed to save template');
+                }
+              } catch (err) { console.error('Error saving display template:', err); }
+              setTemplateSaving(false);
+            }}
+            disabled={templateSaving}
+            className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-4 py-2 rounded-md font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50"
+          >
+            {templateSaving ? 'Saving...' : 'Set as Default'}
+          </button>
+        </div>
+        <p className="text-gray-400 text-xs mt-2">Public display will use this template by default.</p>
+      </div>
+
+      {/* Reports Section */}
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm mt-6 overflow-hidden">
+        <button
+          onClick={() => setShowReports(!showReports)}
+          className="w-full flex items-center justify-between px-6 py-4 hover:bg-blue-50/50 transition-all"
+        >
+          <h3 className="text-gray-800 font-bold text-[14px]">Queue Reports & Analytics</h3>
+          <svg className={`w-5 h-5 text-gray-400 transition-transform ${showReports ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {showReports && (
+          <div className="px-6 pb-6 border-t border-blue-100">
+            {/* Date Range + Generate */}
+            <div className="flex flex-wrap items-end gap-3 mt-4 mb-3">
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">Start Date</label>
+                <input type="date" value={reportStartDate} onChange={e => setReportStartDate(e.target.value)}
+                  className="px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none" />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 block mb-1">End Date</label>
+                <input type="date" value={reportEndDate} onChange={e => setReportEndDate(e.target.value)}
+                  className="px-2 py-1.5 rounded-md border border-blue-200 bg-blue-50 text-gray-800 text-[12px] font-medium focus:border-[#576CA8] focus:outline-none" />
+              </div>
+              <button onClick={fetchReport} disabled={reportLoading}
+                className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-5 py-2 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50">
+                {reportLoading ? 'Loading...' : 'Generate Report'}
+              </button>
+              <button onClick={() => {
+                const params = new URLSearchParams({ startDate: reportStartDate, endDate: reportEndDate });
+                window.open(`${API_BASE_URL}/api/export/queue-tickets?${params}`, '_blank');
+              }}
+                className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-md text-[12px] font-medium transition-all border border-blue-200">
+                Export to CSV
+              </button>
+            </div>
+
+            {reportData && (
+              <>
+                {/* Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+                  <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
+                    <p className="text-blue-200 text-xs uppercase tracking-wider">Total Tickets</p>
+                    <p className="text-3xl font-bold text-[#000000]/87">{reportData.summary.totalTickets}</p>
+                  </div>
+                  <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
+                    <p className="text-blue-200 text-xs uppercase tracking-wider">Avg Wait</p>
+                    <p className="text-2xl font-bold text-[#000000]/87">{formatSeconds(reportData.summary.avgWaitTime)}</p>
+                  </div>
+                  <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
+                    <p className="text-blue-200 text-xs uppercase tracking-wider">Avg Serving</p>
+                    <p className="text-2xl font-bold text-[#000000]/87">{formatSeconds(reportData.summary.avgServingTime)}</p>
+                  </div>
+                  <div className="bg-[#274690] rounded-xl p-4 flex items-center justify-between">
+                    <p className="text-blue-200 text-xs uppercase tracking-wider">Peak Hour</p>
+                    <p className="text-2xl font-bold text-[#000000]/87">{reportData.summary.peakHour !== null ? `${reportData.summary.peakHour}:00` : '-'}</p>
+                  </div>
+                </div>
+
+                {/* Completion Stats */}
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+                    <p className="text-green-600 text-xs uppercase tracking-wider">Completed</p>
+                    <p className="text-2xl font-bold text-green-700 mt-1">{reportData.summary.completed}</p>
+                  </div>
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+                    <p className="text-red-600 text-xs uppercase tracking-wider">Skipped</p>
+                    <p className="text-2xl font-bold text-red-700 mt-1">{reportData.summary.skipped}</p>
+                  </div>
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 text-center">
+                    <p className="text-orange-600 text-xs uppercase tracking-wider">Priority</p>
+                    <p className="text-2xl font-bold text-orange-700 mt-1">{reportData.summary.priorityCount}</p>
+                  </div>
+                </div>
+
+                {/* By Transaction Type */}
+                {reportData.byTransactionType.length > 0 && (
+                  <div className="mb-3">
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">By Transaction Type</h4>
+                    <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
+                      <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider">
+                        <span>Type</span>
+                        <span className="text-center">Count</span>
+                        <span className="text-right">Avg Wait</span>
+                      </div>
+                      {reportData.byTransactionType.map((item, i) => (
+                        <div key={item.type} className={`grid grid-cols-3 gap-3 px-4 py-1.5 text-[12px] ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+                          <span className="text-gray-800 font-medium">{item.type}</span>
+                          <span className="text-gray-600 text-center">{item.count}</span>
+                          <span className="text-gray-600 text-right">{formatSeconds(item.avgWait)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* By Hour - Bar Chart */}
+                {reportData.byHour.length > 0 && (
+                  <div className="mb-3">
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">Tickets by Hour</h4>
+                    <div className="bg-white rounded-xl border border-blue-200 p-4">
+                      {(() => {
+                        const maxCount = Math.max(...reportData.byHour.map(h => h.count));
+                        return (
+                          <div className="space-y-1.5">
+                            {reportData.byHour.map(item => (
+                              <div key={item.hour} className="flex items-center gap-3">
+                                <span className="text-xs text-gray-500 w-12 text-right font-mono">{item.hour}:00</span>
+                                <div className="flex-1 bg-blue-100 rounded-full h-6 overflow-hidden">
+                                  <div
+                                    className="bg-blue-600 h-full rounded-full flex items-center justify-end pr-2 transition-all"
+                                    style={{ width: `${Math.max((item.count / maxCount) * 100, 8)}%` }}
+                                  >
+                                    <span className="text-[#000000]/87 text-xs font-bold">{item.count}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* By Day */}
+                {reportData.byDay.length > 1 && (
+                  <div>
+                    <h4 className="text-gray-800 font-bold text-[12px] mb-3 uppercase tracking-wider">Daily Breakdown</h4>
+                    <div className="bg-blue-50/50 rounded-xl overflow-hidden border border-blue-200">
+                      <div className="grid grid-cols-3 gap-3 px-4 py-2 bg-gradient-to-br from-[#00754A] to-[#006241] text-xs font-semibold text-white uppercase tracking-wider">
+                        <span>Date</span>
+                        <span className="text-center">Total</span>
+                        <span className="text-right">Completed</span>
+                      </div>
+                      {reportData.byDay.map((item, i) => (
+                        <div key={item.date} className={`grid grid-cols-3 gap-3 px-4 py-1.5 text-[12px] ${i % 2 === 0 ? 'bg-white' : 'bg-blue-50/30'}`}>
+                          <span className="text-gray-800 font-medium">{new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                          <span className="text-gray-600 text-center">{item.total}</span>
+                          <span className="text-gray-600 text-right">{item.completed}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// Queue Page
+function QueuePage({ setCurrentPage }) {
+  const [view, setView] = useState('initial'); // initial, form, receipt
+  const [formData, setFormData] = useState({ customerName: '', cellphoneNumber: '', transactionType: '', isPriority: false, priorityType: '' });
+  const [transactionTypes, setTransactionTypes] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [ticket, setTicket] = useState(null);
+  const [position, setPosition] = useState(0);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/queue/transaction-types`)
+      .then(res => res.json())
+      .then(data => { if (data.success) setTransactionTypes(data.types); })
+      .catch(err => console.error('Error fetching transaction types:', err));
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/queue/tickets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await response.json();
+      if (data.success) {
+        setTicket(data.ticket);
+        setPosition(data.position);
+        setView('receipt');
+      }
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({ customerName: '', cellphoneNumber: '', transactionType: '', isPriority: false, priorityType: '' });
+    setTicket(null);
+    setView('initial');
+  };
+
+  // Initial view - Create Ticket button
+  if (view === 'initial') {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center px-4 pt-[30px]">
+        <p className="text-gray-500 text-[12px] mb-3 text-center max-w-sm mt-[30px]">Tap the button below to get your queue number and wait for your turn to be called.</p>
+        <button
+          onClick={() => setView('form')}
+          className="bg-gradient-to-br from-[#00754A] to-[#006241] text-white px-10 py-4 rounded-full font-bold text-[14px] hover:bg-[#465a8f] transition-all shadow-lg hover:shadow-[#576CA8]/20 hover:-translate-y-0.5 flex items-center space-x-3"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Create a Ticket</span>
+        </button>
+      </div>
+    );
+  }
+
+  // Receipt view
+  if (view === 'receipt' && ticket) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-4 py-8">
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-[#00754A] to-[#006241]/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-[#576CA8]" />
+          </div>
+          <p className="text-gray-500 text-[12px] mb-2">Your Ticket Number</p>
+          <h2 className="text-5xl font-black text-[#576CA8] mb-4 tracking-wider">{ticket.ticket_number}</h2>
+          <div className="bg-blue-50 rounded-xl p-4 mb-3 space-y-2 text-left">
+            <div className="flex justify-between">
+              <span className="text-gray-500 text-[12px]">Name</span>
+              <span className="text-gray-800 text-[12px] font-medium">{ticket.customer_name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500 text-[12px]">Transaction</span>
+              <span className="text-gray-800 text-[12px] font-medium">{ticket.transaction_type}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500 text-[12px]">Queue Position</span>
+              <span className="text-[#576CA8] text-[12px] font-bold">#{position}</span>
+            </div>
+            {ticket.is_priority && (
+              <div className="flex justify-between">
+                <span className="text-gray-500 text-[12px]">Priority</span>
+                <span className="text-orange-400 text-[12px] font-bold">{ticket.priority_type}</span>
+              </div>
+            )}
+          </div>
+          <p className="text-gray-400 text-xs mb-3">{ticket.is_priority ? 'You are in the priority lane. Please wait for your number.' : 'Please wait for your number to be called.'}</p>
+          <button
+            onClick={resetForm}
+            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-[12px] hover:bg-[#465a8f] transition-all"
+          >
+            Okay
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Form view
+  return (
+    <div className="min-h-[60vh] flex items-start justify-center px-4 pt-[50px] py-8 md:pt-[80px]">
+      <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full">
+        <button onClick={() => setView('initial')} className="text-gray-500 hover:text-blue-700 text-[12px] mb-4 flex items-center gap-1 transition-all">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          Back
+        </button>
+        <h2 className="text-2xl font-bold text-gray-800 mb-1">Create a Ticket</h2>
+        <p className="text-gray-500 text-[12px] mb-3">Fill in your details to join the queue.</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Name</label>
+            <input
+              type="text"
+              required
+              value={formData.customerName}
+              onChange={(e) => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
+              placeholder="Enter your full name"
+              className="w-full px-2.5 py-2 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-[12px]"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Cellphone Number</label>
+            <input
+              type="tel"
+              required
+              value={formData.cellphoneNumber}
+              onChange={(e) => setFormData(prev => ({ ...prev, cellphoneNumber: e.target.value }))}
+              placeholder="09XX XXX XXXX"
+              className="w-full px-2.5 py-2 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 placeholder-gray-400 text-[12px]"
+            />
+          </div>
+          <div>
+            <label className="block text-gray-600 text-[12px] font-medium mb-1">Transaction</label>
+            <select
+              required
+              value={formData.transactionType}
+              onChange={(e) => setFormData(prev => ({ ...prev, transactionType: e.target.value }))}
+              className="w-full px-2.5 py-2 rounded-md border border-blue-200 bg-blue-50 focus:border-[#576CA8] focus:ring-2 focus:ring-[#00754A]/30 focus:outline-none transition-all text-gray-800 text-[12px]"
+            >
+              <option value="" className="bg-white text-gray-800">Select transaction type</option>
+              {transactionTypes.map(type => (
+                <option key={type.id} value={type.name} className="bg-white text-gray-800">{type.name}</option>
+              ))}
+            </select>
+          </div>
+          {/* Priority Lane */}
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formData.isPriority}
+                onChange={(e) => setFormData(prev => ({ ...prev, isPriority: e.target.checked, priorityType: e.target.checked ? prev.priorityType : '' }))}
+                className="w-5 h-5 rounded accent-[#00754A]"
+              />
+              <div>
+                <span className="text-gray-800 text-[12px] font-medium">Priority Lane</span>
+                <p className="text-gray-400 text-xs">Senior Citizen, PWD, or Pregnant Women</p>
+              </div>
+            </label>
+            {formData.isPriority && (
+              <div className="mt-3 flex gap-2">
+                {['Senior Citizen', 'PWD', 'Pregnant'].map(type => (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, priorityType: type }))}
+                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all border ${formData.priorityType === type ? 'bg-gradient-to-br from-[#00754A] to-[#006241] text-white border-[#576CA8]' : 'bg-blue-50 text-gray-500 border-blue-200 hover:border-blue-400'}`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-bold text-[12px] hover:bg-[#465a8f] transition-all disabled:opacity-50 mt-2"
+          >
+            {isSubmitting ? 'Creating...' : 'Get Ticket Number'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Queue Display Page (Public TV/Monitor)
+function QueueDisplayPage() {
+  const TEMPLATE_STORAGE_KEY = 'queueDisplayTemplate';
+  const VALID_TEMPLATES = ['template1', 'template2', 'template3', 'template4', 'template5', 'template6'];
+  const [serving, setServing] = useState([]);
+  const [waiting, setWaiting] = useState([]);
+  const [avgServingTime, setAvgServingTime] = useState(300);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [marqueeText, setMarqueeText] = useState('');
+  const [displayTemplate, setDisplayTemplate] = useState(localStorage.getItem(TEMPLATE_STORAGE_KEY) || 'template1');
+  const [announcedIds, setAnnouncedIds] = useState(new Set());
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isAnnouncing, setIsAnnouncing] = useState(false);
+  const [cardAnimation, setCardAnimation] = useState('');
+
+  const animationStyles = [
+    'card-animate-flip',
+    'card-animate-slide',
+    'card-animate-bounce',
+  ];
+
+  // Random card animation every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const randomAnim = animationStyles[Math.floor(Math.random() * animationStyles.length)];
+      setCardAnimation(randomAnim);
+      // Remove animation class after it completes so it can retrigger
+      setTimeout(() => setCardAnimation(''), 1500);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatWaitTime = (seconds) => {
+    if (seconds < 60) return '< 1 min';
+    const mins = Math.round(seconds / 60);
+    return `~${mins} min`;
+  };
+
+  // Play a ding sound then announce via speech synthesis
+  const announceTicket = (ticket) => {
+    // Create a ding tone using AudioContext
+    try {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // First ding
+      const playDing = (time) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = 830;
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.5, time);
+        gain.gain.exponentialRampToValueAtTime(0.01, time + 0.6);
+        osc.start(time);
+        osc.stop(time + 0.6);
+      };
+      playDing(audioCtx.currentTime);
+      playDing(audioCtx.currentTime + 0.7);
+
+      // Speech announcement after dings
+      setIsAnnouncing(true);
+      setTimeout(() => {
+        const utterance = new SpeechSynthesisUtterance(
+          `Ticket ${ticket.ticket_number.split('').join(' ')}, ${ticket.customer_name}, please proceed to ${ticket.teller_window}.`
+        );
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        utterance.onend = () => setIsAnnouncing(false);
+        speechSynthesis.speak(utterance);
+      }, 1500);
+    } catch (err) {
+      console.error('Audio error:', err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchDisplay = () => {
+      fetch(`${API_BASE_URL}/api/queue/display`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            // Detect newly serving tickets and announce them
+            if (hasInteracted) {
+              data.serving.forEach(ticket => {
+                if (!announcedIds.has(ticket.id)) {
+                  announceTicket(ticket);
+                  setAnnouncedIds(prev => new Set([...prev, ticket.id]));
+                }
+              });
+            }
+            setServing(data.serving);
+            setWaiting(data.waiting);
+            if (data.avgServingTime) setAvgServingTime(data.avgServingTime);
+          }
+        })
+        .catch(err => console.error('Display fetch error:', err));
+    };
+    const fetchMarquee = () => {
+      fetch(`${API_BASE_URL}/api/queue/marquee`)
+        .then(res => res.json())
+        .then(data => { if (data.success) setMarqueeText(data.text); })
+        .catch(err => console.error('Marquee fetch error:', err));
+    };
+    const fetchTemplate = () => {
+      fetch(`${API_BASE_URL}/api/queue/display-template`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && VALID_TEMPLATES.includes(data.template)) {
+            setDisplayTemplate(data.template);
+            localStorage.setItem(TEMPLATE_STORAGE_KEY, data.template);
+          } else {
+            const localTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+            if (VALID_TEMPLATES.includes(localTemplate)) setDisplayTemplate(localTemplate);
+          }
+        })
+        .catch(err => {
+          console.error('Template fetch error:', err);
+          const localTemplate = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+          if (VALID_TEMPLATES.includes(localTemplate)) setDisplayTemplate(localTemplate);
+        });
+    };
+    fetchDisplay();
+    fetchMarquee();
+    fetchTemplate();
+    const interval = setInterval(fetchDisplay, 3000);
+    const marqueeInterval = setInterval(fetchMarquee, 10000);
+    const templateInterval = setInterval(fetchTemplate, 10000);
+    const clock = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => { clearInterval(interval); clearInterval(marqueeInterval); clearInterval(templateInterval); clearInterval(clock); };
+  }, [hasInteracted, announcedIds]);
+
+  // Show enable audio prompt if not yet interacted
+  if (!hasInteracted) {
+    return (
+      <div className="fixed inset-0 bg-blue-700 z-[100] flex items-center justify-center">
+        <button
+          onClick={() => setHasInteracted(true)}
+          className="bg-white text-blue-700 px-12 py-6 rounded-xl font-bold text-2xl hover:bg-blue-50 transition-all shadow-2xl flex items-center gap-2"
+        >
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+          </svg>
+          Start Queue Display
+        </button>
+      </div>
+    );
+  }
+
+  if (displayTemplate === 'template2') {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-slate-950">
+        <div className="bg-cyan-600 px-8 py-3 flex items-center justify-between">
+          <h1 className="text-4xl font-bold text-slate-900 tracking-wide">QUEUE BOARD</h1>
+          <div className="text-slate-900 text-2xl font-mono font-bold">
+            {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 p-3 flex-1 overflow-hidden">
+          <div className={`col-span-2 bg-slate-900 border-2 ${isAnnouncing ? 'animate-border-blink border-cyan-400' : 'border-slate-700'} rounded-xl p-4 overflow-hidden`}>
+            <div className="grid grid-cols-3 gap-3 h-full">
+              {Array.from({ length: 6 }).map((_, idx) => {
+                const ticket = serving[idx];
+                return (
+                  <div key={idx} className={`rounded-xl border border-slate-700 bg-slate-800 p-3 flex flex-col justify-between ${ticket ? cardAnimation : ''}`}>
+                    {ticket ? (
+                      <>
+                        <div>
+                          <p className="text-cyan-300 text-xs font-bold uppercase">Now Serving</p>
+                          <p className="text-6xl text-[#000000]/87 leading-none mt-2" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
+                          <p className="text-slate-300 text-[12px] truncate mt-1">{ticket.customer_name}</p>
+                        </div>
+                        <div className="bg-cyan-600 text-slate-900 rounded-md px-3 py-1.5 text-center font-black text-2xl">
+                          {ticket.teller_window?.replace(/\D/g, '') || '-'}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-slate-500 text-[12px]">Waiting...</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 flex flex-col overflow-hidden">
+            <h2 className="text-cyan-300 font-bold text-[14px] mb-3">WAITING LIST</h2>
+            <div className="space-y-2 overflow-y-auto">
+              {waiting.length === 0 ? (
+                <p className="text-slate-500 text-[12px]">No waiting tickets</p>
+              ) : (
+                waiting.slice(0, 12).map((ticket) => (
+                  <div key={ticket.id} className="bg-slate-800 rounded-md px-2 py-1.5 flex items-center justify-between">
+                    <span className="text-[#000000]/87 font-semibold">{ticket.ticket_number}</span>
+                    <span className="text-cyan-300 text-xs">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
+                  </div>
+                ))
+              )}
+            </div>
+            <div className="mt-3 bg-black rounded-md overflow-hidden">
+              <video className="w-full aspect-video object-cover" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+            </div>
+          </div>
+        </div>
+
+        {marqueeText && (
+          <div className="h-[48px] bg-cyan-500 flex items-center overflow-hidden">
+            <div className="animate-marquee whitespace-nowrap">
+              <span className="text-slate-900 text-[14px] font-bold mx-8">{marqueeText}</span>
+              <span className="text-slate-900 text-[14px] font-bold mx-8">{marqueeText}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (displayTemplate === 'template3') {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-amber-50">
+        <div className="bg-gradient-to-r from-amber-700 to-orange-700 px-10 py-4 flex items-center justify-between">
+          <div>
+            <p className="text-amber-100 text-[12px] tracking-[0.3em]">SERVICE CENTER</p>
+            <h1 className="text-5xl font-black text-[#000000]/87 leading-none">LIVE CALLING</h1>
+          </div>
+          <div className="text-amber-100 text-3xl font-mono font-bold">
+            {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+          </div>
+        </div>
+
+        <div className="flex-1 grid grid-cols-2 gap-2 p-4 overflow-hidden">
+          <div className={`rounded-3xl bg-white border-4 ${isAnnouncing ? 'animate-border-blink border-orange-500' : 'border-amber-200'} shadow-xl p-4 flex flex-col items-center justify-center`}>
+            <p className="text-amber-600 uppercase tracking-wider text-[12px] font-bold mb-2">Current Ticket</p>
+            {serving.length === 0 ? (
+              <p className="text-gray-400 text-[16px]">No ticket called</p>
+            ) : (
+              <>
+                <p className="text-[180px] leading-none text-gray-900" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
+                <div className="mt-2 px-8 py-2 rounded-full bg-orange-600 text-[#000000]/87 text-3xl font-black">
+                  Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}
+                </div>
+                <p className="mt-3 text-gray-600 text-[14px]">{serving[0].customer_name}</p>
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 overflow-hidden">
+            <div className="rounded-3xl bg-white border border-amber-200 shadow p-4 overflow-hidden">
+              <h2 className="text-amber-700 font-bold text-[14px] mb-3">Now Serving Windows</h2>
+              <div className="grid grid-cols-2 gap-2">
+                {serving.slice(0, 4).map(ticket => (
+                  <div key={ticket.id} className={`rounded-xl bg-amber-100 p-3 ${cardAnimation}`}>
+                    <p className="text-gray-700 text-xs uppercase">Ticket</p>
+                    <p className="text-4xl leading-none text-amber-800" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
+                    <p className="text-xs text-gray-600 mt-1">Window {ticket.teller_window?.replace(/\D/g, '') || '-'}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-white border border-amber-200 shadow p-4 flex-1 overflow-hidden">
+              <h2 className="text-amber-700 font-bold text-[14px] mb-2">Waiting Queue</h2>
+              <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-full pr-1">
+                {waiting.length === 0 ? (
+                  <p className="text-gray-400 text-[12px] col-span-2">No waiting tickets</p>
+                ) : (
+                  waiting.slice(0, 14).map(ticket => (
+                    <div key={ticket.id} className="rounded-md bg-amber-50 border border-amber-200 px-2 py-1.5 flex justify-between">
+                      <span className="font-semibold text-gray-800">{ticket.ticket_number}</span>
+                      <span className="text-xs text-amber-700">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {marqueeText && (
+          <div className="h-[48px] bg-orange-600 flex items-center overflow-hidden">
+            <div className="animate-marquee whitespace-nowrap">
+              <span className="text-[#000000]/87 text-[14px] font-semibold mx-8">{marqueeText}</span>
+              <span className="text-[#000000]/87 text-[14px] font-semibold mx-8">{marqueeText}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (displayTemplate === 'template4') {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-gray-50">
+        <div className="bg-white border-b border-gray-200 px-10 py-4 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] tracking-[0.2em] text-gray-500 uppercase">Queue Management</p>
+            <h1 className="text-3xl font-semibold text-gray-900">Service Display</h1>
+          </div>
+          <div className="text-gray-700 text-2xl font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+        </div>
+        <div className="grid grid-cols-12 gap-2 p-4 flex-1 overflow-hidden">
+          <div className="col-span-8 bg-white border border-gray-200 rounded-xl p-4 overflow-hidden">
+            <h2 className="text-gray-700 font-medium mb-3">Now Serving</h2>
+            <div className="grid grid-cols-2 gap-3 h-[calc(100%-2rem)] overflow-y-auto">
+              {serving.length === 0 ? (
+                <p className="text-gray-400">No tickets being served</p>
+              ) : (
+                serving.slice(0, 8).map(ticket => (
+                  <div key={ticket.id} className={`border border-gray-200 rounded-xl p-4 bg-gray-50 ${cardAnimation}`}>
+                    <p className="text-xs uppercase text-gray-500">Ticket</p>
+                    <p className="text-6xl leading-none text-gray-900 mt-1" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
+                    <div className="mt-3 flex items-center justify-between">
+                      <span className="text-[12px] text-gray-600 truncate">{ticket.customer_name}</span>
+                      <span className="text-[12px] font-semibold text-gray-800">{ticket.teller_window || '-'}</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+          <div className="col-span-4 flex flex-col gap-2 overflow-hidden">
+            <div className="bg-white border border-gray-200 rounded-xl p-3">
+              <h3 className="text-gray-700 font-medium mb-2">Video</h3>
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+            </div>
+            <div className={`bg-white border-2 ${isAnnouncing ? 'animate-border-blink border-blue-400' : 'border-gray-200'} rounded-xl p-4 flex-1 overflow-hidden`}>
+              <h3 className="text-gray-700 font-medium mb-2">Waiting Queue</h3>
+              <div className="space-y-2 overflow-y-auto max-h-full">
+                {waiting.length === 0 ? <p className="text-gray-400 text-[12px]">No waiting tickets</p> : waiting.slice(0, 12).map(ticket => (
+                  <div key={ticket.id} className="flex items-center justify-between border border-gray-100 rounded-md px-2 py-1.5">
+                    <span className="font-medium text-gray-800">{ticket.ticket_number}</span>
+                    <span className="text-xs text-gray-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        {marqueeText && <div className="h-[44px] bg-gray-900 text-[#000000]/87 flex items-center overflow-hidden"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
+      </div>
+    );
+  }
+
+  if (displayTemplate === 'template5') {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-white">
+        <div className="px-8 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-gray-900">Now Serving</h1>
+          <div className="text-gray-600 text-[16px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+        </div>
+        <div className="flex-1 grid grid-cols-3 overflow-hidden">
+          <div className="col-span-2 border-r border-gray-200 p-4 overflow-hidden">
+            {serving.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-400">No ticket called</div>
+            ) : (
+              <div className={`h-full border border-gray-200 rounded-xl p-4 flex flex-col justify-center items-center ${isAnnouncing ? 'animate-border-blink border-green-400' : ''}`}>
+                <p className="text-[12px] text-gray-500 uppercase tracking-wide">Current Ticket</p>
+                <p className="text-[180px] leading-none text-gray-900" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
+                <p className="text-3xl font-medium text-gray-700">Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}</p>
+                <p className="mt-2 text-gray-500">{serving[0].customer_name}</p>
+              </div>
+            )}
+          </div>
+          <div className="col-span-1 p-4 flex flex-col gap-2 overflow-hidden">
+            <div className="border border-gray-200 rounded-xl p-2">
+              <p className="text-gray-600 text-[12px] mb-2">Video Display</p>
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+            </div>
+            <div className="border border-gray-200 rounded-xl p-3 flex-1 overflow-hidden">
+              <p className="text-gray-600 text-[12px] mb-2">Queue List</p>
+              <div className="space-y-1.5 overflow-y-auto max-h-full">
+                {waiting.slice(0, 16).map(ticket => (
+                  <div key={ticket.id} className="flex justify-between bg-gray-50 rounded px-2.5 py-2">
+                    <span className="text-gray-800">{ticket.ticket_number}</span>
+                    <span className="text-xs text-gray-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
+                  </div>
+                ))}
+                {waiting.length === 0 && <p className="text-gray-400 text-[12px]">No waiting tickets</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+        {marqueeText && <div className="h-[32px] bg-gray-100 text-gray-700 flex items-center overflow-hidden border-t border-gray-200"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
+      </div>
+    );
+  }
+
+  if (displayTemplate === 'template6') {
+    return (
+      <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-[#F8FAFC]">
+        <div className="bg-[#0F172A] px-8 py-3 flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-[#000000]/87">Queue Information Panel</h1>
+          <div className="text-slate-200 text-[16px] font-mono">{currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+        </div>
+        <div className="p-4 grid grid-cols-12 gap-2 flex-1 overflow-hidden">
+          <div className="col-span-5 bg-white rounded-xl border border-slate-200 p-4 overflow-hidden">
+            <p className="text-[12px] text-slate-500 mb-2">Main Call</p>
+            {serving[0] ? (
+              <div className={`h-full flex flex-col justify-center items-center ${cardAnimation}`}>
+                <p className="text-[160px] text-slate-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
+                <p className="text-2xl font-semibold text-slate-700">Window {serving[0].teller_window?.replace(/\D/g, '') || '-'}</p>
+              </div>
+            ) : <div className="h-full flex items-center justify-center text-slate-400">No active ticket</div>}
+          </div>
+          <div className="col-span-4 bg-white rounded-xl border border-slate-200 p-4 overflow-hidden">
+            <p className="text-[12px] text-slate-500 mb-2">Active Windows</p>
+            <div className="space-y-2 overflow-y-auto max-h-full">
+              {serving.slice(0, 10).map(ticket => (
+                <div key={ticket.id} className={`rounded-md border ${isAnnouncing ? 'border-blue-300' : 'border-slate-200'} px-2 py-1.5 flex items-center justify-between`}>
+                  <span className="text-slate-800 font-medium">{ticket.ticket_number}</span>
+                  <span className="text-slate-500 text-[12px]">{ticket.teller_window || '-'}</span>
+                </div>
+              ))}
+              {serving.length === 0 && <p className="text-slate-400 text-[12px]">No active windows</p>}
+            </div>
+          </div>
+          <div className="col-span-3 flex flex-col gap-2 overflow-hidden">
+            <div className="bg-white rounded-xl border border-slate-200 p-3">
+              <p className="text-[12px] text-slate-500 mb-2">Video</p>
+              <video className="w-full aspect-video object-cover rounded-md" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 p-3 flex-1 overflow-hidden">
+              <p className="text-[12px] text-slate-500 mb-2">Waiting</p>
+              <div className="space-y-1.5 overflow-y-auto max-h-full">
+                {waiting.slice(0, 12).map(ticket => (
+                  <div key={ticket.id} className="rounded-md bg-slate-50 px-2.5 py-1.5 flex justify-between">
+                    <span className="text-slate-700">{ticket.ticket_number}</span>
+                    <span className="text-xs text-slate-500">{formatWaitTime(ticket.estimatedWait || avgServingTime)}</span>
+                  </div>
+                ))}
+                {waiting.length === 0 && <p className="text-slate-400 text-[12px]">No waiting tickets</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+        {marqueeText && <div className="h-[44px] bg-[#0F172A] text-slate-100 flex items-center overflow-hidden"><div className="animate-marquee whitespace-nowrap"><span className="mx-8">{marqueeText}</span><span className="mx-8">{marqueeText}</span></div></div>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] overflow-hidden flex flex-col bg-white">
+      <div className="bg-[#2F6690] px-8 py-2 flex items-center justify-center relative">
+        <h1 className="text-6xl font-light tracking-widest text-[#000000]/87">NOW SERVING</h1>
+        <div className="absolute right-8 text-2xl font-mono font-bold text-[#000000]/87">
+          {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-[60%] overflow-y-auto p-3 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1]">
+          {serving.length === 0 ? (
+            <p className="text-blue-300 text-[14px] text-center py-10">No tickets being served</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {serving.map(ticket => (
+                <div key={ticket.id} className={`bg-white rounded-xl shadow-lg flex items-stretch overflow-hidden relative ${cardAnimation}`}>
+                  <div className="flex-1 px-4 py-4 pr-12 flex flex-col items-center justify-center">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Ticket No.</p>
+                      {ticket.is_priority && <span className="text-[9px] font-bold bg-orange-500 text-[#000000]/87 px-2 py-0.5 rounded-full uppercase">{ticket.priority_type || 'Priority'}</span>}
+                    </div>
+                    <p className="text-7xl text-gray-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.ticket_number}</p>
+                    <p className="text-base font-semibold text-gray-500 mt-1">{ticket.customer_name}</p>
+                  </div>
+                  <div className="bg-[#2F6690] flex flex-col items-center justify-center px-8 relative" style={{ clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 0% 100%)' }}>
+                    <p className="text-[10px] font-bold text-blue-200 uppercase tracking-widest ml-3">Window</p>
+                    <p className="text-6xl text-[#000000]/87 leading-none ml-3" style={{ fontFamily: "'Bebas Neue', cursive" }}>{ticket.teller_window?.replace(/\D/g, '') || '-'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="w-[40%] border-l border-blue-200 flex flex-col overflow-hidden">
+          <div className="bg-black">
+            <div className="w-full aspect-video">
+              <video className="w-full h-full object-cover" autoPlay muted loop playsInline src="/assets/queue-video.mp4" />
+            </div>
+          </div>
+
+          <div className={`flex-1 bg-gradient-to-b from-[#E2E8F0] to-[#CBD5E1] flex flex-row items-center justify-center p-0 gap-2 ${isAnnouncing ? 'animate-border-blink border-[#3A7CA5]' : 'border-transparent border-4'}`}>
+            {serving.length === 0 ? (
+              <p className="text-blue-300 text-2xl">No ticket called</p>
+            ) : (
+              <>
+                <div className="flex flex-col items-center">
+                  <p className="text-[120px] text-gray-900 leading-none" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].ticket_number}</p>
+                  {serving[0].is_priority && <span className="mt-2 text-[12px] font-bold bg-orange-500 text-[#000000]/87 px-4 py-1 rounded-full uppercase">{serving[0].priority_type || 'Priority'}</span>}
+                </div>
+                <div className="bg-[#3A7CA5] rounded-xl px-8 py-3 flex flex-col items-center gap-1">
+                  <span className="text-xs font-bold text-blue-200 uppercase tracking-widest">Window</span>
+                  <span className="text-5xl text-[#000000]/87" style={{ fontFamily: "'Bebas Neue', cursive" }}>{serving[0].teller_window?.replace(/\D/g, '') || '-'}</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {marqueeText && (
+        <div className="h-[48px] bg-[#81C3D7] flex items-center overflow-hidden">
+          <div className="animate-marquee whitespace-nowrap">
+            <span className="text-black text-[14px] font-medium mx-8">{marqueeText}</span>
+            <span className="text-black text-[14px] font-medium mx-8">{marqueeText}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Queue Teller Page
+function QueueTellerPage({ setCurrentPage }) {
+  const [tellers, setTellers] = useState([]);
+  const [selectedWindow, setSelectedWindow] = useState('');
+  const [tellerName, setTellerName] = useState('');
+  const [currentTicket, setCurrentTicket] = useState(null);
+  const [skippedTickets, setSkippedTickets] = useState([]);
+  const [completedCount, setCompletedCount] = useState(0);
+  const [waitingCount, setWaitingCount] = useState(0);
+  const [waitingTickets, setWaitingTickets] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [assignedTypes, setAssignedTypes] = useState([]);
+  const [avgServingTime, setAvgServingTime] = useState(0);
+  const [, setTick] = useState(0);
+
+  // Tick every second to update live timers
+  useEffect(() => {
+    const timer = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/api/queue/tellers`)
+      .then(res => res.json())
+      .then(data => { if (data.success) setTellers(data.tellers); })
+      .catch(err => console.error('Error fetching tellers:', err));
+  }, []);
+
+  const fetchCurrentTicket = async () => {
+    if (!selectedWindow) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/queue/teller/${encodeURIComponent(selectedWindow)}/current`);
+      const data = await res.json();
+      if (data.success) {
+        setCurrentTicket(data.current);
+        setSkippedTickets(data.skipped);
+        setCompletedCount(data.completedCount);
+        setWaitingCount(data.waitingCount);
+        setWaitingTickets(data.waitingTickets || []);
+        setAssignedTypes(data.assignedTypes || []);
+        setAvgServingTime(data.avgServingTime || 0);
+      }
+    } catch (err) {
+      console.error('Error fetching current ticket:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedWindow) {
+      fetchCurrentTicket();
+      const interval = setInterval(fetchCurrentTicket, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedWindow]);
+
+  const callNext = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/queue/teller/next`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ windowName: selectedWindow, tellerName })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCurrentTicket(data.ticket);
+        fetchCurrentTicket();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error('Error calling next:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const completeTicket = async () => {
+    if (!currentTicket) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/tickets/${currentTicket.id}/complete`, { method: 'PATCH' });
+      setCurrentTicket(null);
+      fetchCurrentTicket();
+    } catch (err) {
+      console.error('Error completing ticket:', err);
+    }
+  };
+
+  const skipTicket = async () => {
+    if (!currentTicket) return;
+    try {
+      await fetch(`${API_BASE_URL}/api/queue/tickets/${currentTicket.id}/skip`, { method: 'PATCH' });
+      setCurrentTicket(null);
+      fetchCurrentTicket();
+    } catch (err) {
+      console.error('Error skipping ticket:', err);
+    }
+  };
+
+  const recallTicket = async (id) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/queue/tickets/${id}/recall`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ windowName: selectedWindow, tellerName })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCurrentTicket(data.ticket);
+        fetchCurrentTicket();
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error('Error recalling ticket:', err);
+    }
+  };
+
+  const transferTicket = async (targetWindow) => {
+    if (!currentTicket) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/queue/tickets/${currentTicket.id}/transfer`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetWindow })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCurrentTicket(null);
+        setShowTransferModal(false);
+        fetchCurrentTicket();
+        alert(data.message);
+      } else {
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error('Error transferring ticket:', err);
+    }
+  };
+
+  // Window selection
+  if (!selectedWindow) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center px-4 mt-[40px]">
+        <div className="bg-white border border-blue-200 rounded-xl shadow-sm p-4 max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Teller Station</h2>
+          <p className="text-gray-500 text-[12px] mb-3">Enter your name and select your window to start serving.</p>
+          <div className="mb-4">
+            <label className="block text-gray-500 text-xs mb-1 text-left">Teller Name</label>
+            <input
+              type="text"
+              value={tellerName}
+              onChange={(e) => setTellerName(e.target.value)}
+              placeholder="Enter your name"
+              className="w-full bg-blue-50 border border-blue-200 text-gray-800 px-2.5 py-2 rounded-xl focus:outline-none focus:border-blue-500 placeholder-gray-400"
+            />
+          </div>
+          <div className="space-y-3">
+            {tellers.map(teller => (
+              <button
+                key={teller.id}
+                onClick={() => setSelectedWindow(teller.window_name)}
+                disabled={!tellerName.trim()}
+                className="w-full bg-gradient-to-br from-[#00754A] to-[#006241] border border-[#006241] text-white py-4 rounded-xl font-semibold text-[14px] transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:opacity-100"
+              >
+                {teller.window_name}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setCurrentPage('home')}
+            className="mt-6 text-gray-400 hover:text-blue-700 text-[12px] transition-all"
+          >
+            ← Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Teller dashboard
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-6">
+      {/* Teller Header */}
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800">{selectedWindow}</h2>
+          <p className="text-gray-500 text-[12px]">Teller: {tellerName}</p>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {assignedTypes.length > 0
+              ? assignedTypes.map(type => (
+                <span key={type} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium">{type}</span>
+              ))
+              : <span className="text-xs text-gray-400 italic">Serving all types</span>
+            }
+          </div>
+        </div>
+        <button
+          onClick={() => { setSelectedWindow(''); setCurrentTicket(null); }}
+          className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-all text-[12px] flex items-center gap-1.5"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+          Change Window
+        </button>
+      </div>
+
+      {/* Two Column Layout */}
+      <div className="flex flex-col lg:flex-row gap-3">
+        {/* Left Side — Teller Controls */}
+        <div className="flex-1 min-w-0">
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-2 md:gap-2 mb-3 -mt-[30px]">
+            <div className="flex flex-col items-center gap-1 py-3">
+              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" /></svg>
+              <p className="text-2xl font-bold text-gray-900">{completedCount}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Served</p>
+            </div>
+            <div className="flex flex-col items-center gap-1 py-3">
+              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <p className="text-2xl font-bold text-gray-900">{waitingCount}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Waiting</p>
+            </div>
+            <div className="flex flex-col items-center gap-1 py-3">
+              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+              <p className="text-2xl font-bold text-gray-900">{skippedTickets.length}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Skipped</p>
+            </div>
+            <div className="flex flex-col items-center gap-1 py-3">
+              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <p className="text-2xl font-bold text-gray-900">{avgServingTime < 60 ? `${avgServingTime}s` : `${Math.floor(avgServingTime / 60)}m`}</p>
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Avg Time</p>
+            </div>
+          </div>
+
+          {/* Current Ticket */}
+          {currentTicket ? (
+            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-3 -mt-[20px]">
+              <div className="bg-[#274690] px-4 py-1.5">
+                <p className="text-black/60 text-xs font-medium uppercase tracking-wider">Now Serving</p>
+              </div>
+              <div className="p-3 md:p-4">
+                <div className="flex flex-col md:flex-row md:items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 md:flex-1">
+                    <span className="text-4xl md:text-6xl font-black text-[#274690] leading-none">{currentTicket.ticket_number}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-900 text-[14px] md:text-[16px] font-semibold truncate">{currentTicket.customer_name}</p>
+                      <p className="text-gray-400 text-[12px]">{currentTicket.transaction_type} &bull; {currentTicket.cellphone_number}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 md:flex md:gap-3 md:justify-center">
+                  <button
+                    onClick={completeTicket}
+                    className="bg-green-500 hover:bg-green-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4 md:w-5 md:h-5" />
+                    Complete
+                  </button>
+                  <button
+                    onClick={() => setShowTransferModal(true)}
+                    className="bg-gradient-to-br from-[#00754A] to-[#006241] hover:opacity-90 text-white px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all text-center"
+                  >
+                    Transfer
+                  </button>
+                  <button
+                    onClick={skipTicket}
+                    className="bg-gray-500 hover:bg-gray-600 text-[#000000]/87 px-4 md:px-8 py-3 rounded-full font-bold text-[12px] transition-all text-center"
+                  >
+                    Skip
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden mb-3 -mt-[20px]">
+              <div className="bg-[#274690] px-4 py-1.5">
+                <p className="text-black/60 text-xs font-medium uppercase tracking-wider">Now Serving</p>
+              </div>
+              <div className="p-3 md:p-4 text-center">
+                <p className="text-gray-400 text-base mb-4">No ticket being served</p>
+                <button
+                  onClick={callNext}
+                  disabled={isLoading || waitingCount === 0}
+                  className="bg-[#274690] text-[#000000]/87 px-10 py-3.5 rounded-full font-bold text-base hover:bg-[#1e3570] transition-all disabled:opacity-30 w-full md:w-auto"
+                >
+                  {isLoading ? 'Calling...' : 'Call Next'}
+                </button>
+                {waitingCount === 0 && <p className="text-gray-400 text-[12px] mt-3">No tickets in the waiting queue</p>}
+              </div>
+            </div>
+          )}
+
+          {/* Skipped Tickets */}
+          {skippedTickets.length > 0 && (
+            <div className="bg-white border border-gray-200 shadow-sm overflow-hidden">
+              <div className="bg-[#274690] px-2.5 py-2 flex items-center justify-between">
+                <h3 className="text-[#000000]/87 font-bold text-base">Skipped Tickets</h3>
+                <span className="bg-white shadow-sm text-[#000000]/87 text-xs font-semibold px-2 py-0.5 rounded-full">{skippedTickets.length}</span>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {/* Column header */}
+                <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                  <span className="w-6 text-center">#</span>
+                  <span className="w-16">Ticket</span>
+                  <span className="flex-1">Name</span>
+                  <span className="text-right mr-16">Type</span>
+                </div>
+                <div className="divide-y divide-gray-100 max-h-[40vh] overflow-y-auto">
+                  {skippedTickets.map((ticket, index) => (
+                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-1.5 ${index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                      <span className="w-6 text-center text-xs font-bold bg-red-100 text-red-500 rounded-full leading-5">{index + 1}</span>
+                      <span className="w-16 text-[12px] font-bold text-gray-900">{ticket.ticket_number}</span>
+                      <span className="text-[12px] text-gray-700 truncate flex-1">{ticket.customer_name}</span>
+                      <span className="text-xs text-gray-400">{ticket.transaction_type}</span>
+                      <button
+                        onClick={() => recallTicket(ticket.id)}
+                        disabled={!!currentTicket}
+                        className="bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1 rounded text-xs font-medium border border-amber-200 transition-all disabled:opacity-30 flex-shrink-0"
+                      >
+                        Recall
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Right Side — Waiting Queue Grid */}
+        <div className="lg:w-80 xl:w-96 flex-shrink-0 -mt-[20px]">
+          <div className="bg-white border border-gray-200 shadow-sm overflow-hidden lg:sticky lg:top-6">
+            <div className="bg-[#274690] px-2.5 py-2 flex items-center justify-between">
+              <h3 className="text-[#000000]/87 font-bold text-base">Waiting Queue</h3>
+              <span className="bg-white shadow-sm text-[#000000]/87 text-xs font-semibold px-2 py-0.5 rounded-full">{waitingTickets.length}</span>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {/* Column header */}
+              <div className="flex items-center gap-3 px-4 py-2 bg-gray-50 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+                <span className="w-6 text-center">#</span>
+                <span className="w-16">Ticket</span>
+                <span className="flex-1">Name</span>
+                <span className="text-right">Type</span>
+              </div>
+              {waitingTickets.length > 0 ? (
+                <div className="divide-y divide-gray-100 max-h-[70vh] overflow-y-auto">
+                  {waitingTickets.map((ticket, index) => (
+                    <div key={ticket.id} className={`flex items-center gap-3 px-4 py-1.5 transition-colors ${index === 0 ? 'bg-amber-50 border-l-3 border-l-amber-400' : index % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}>
+                      <span className={`w-6 text-center text-xs font-bold rounded-full leading-5 ${index === 0 ? 'bg-amber-400 text-[#000000]/87' : 'bg-gray-200 text-gray-500'}`}>{index + 1}</span>
+                      <span className="w-16 text-[12px] font-bold text-gray-900">{ticket.ticket_number}</span>
+                      <span className="text-[12px] text-gray-700 truncate flex-1">{ticket.customer_name}</span>
+                      <span className="text-xs text-gray-400">{ticket.transaction_type}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-[12px] text-center py-8">No tickets waiting</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Transfer Modal */}
+      {showTransferModal && currentTicket && (
+        <div className="fixed inset-0 bg-black/60  flex items-center justify-center z-50 px-4">
+          <div className="bg-white border border-blue-200 rounded-xl p-4 max-w-sm w-full shadow-xl">
+            <h3 className="text-gray-800 font-bold text-[14px] mb-2">Transfer Ticket</h3>
+            <p className="text-gray-500 text-[12px] mb-1">
+              Transferring <span className="text-[#576CA8] font-bold">{currentTicket.ticket_number}</span> — {currentTicket.customer_name}
+            </p>
+            <p className="text-gray-400 text-xs mb-3">Select the destination window:</p>
+            <div className="space-y-2">
+              {tellers
+                .filter(t => t.window_name !== selectedWindow)
+                .map(teller => (
+                  <button
+                    key={teller.id}
+                    onClick={() => transferTicket(teller.window_name)}
+                    className="w-full bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-400 text-blue-700 py-3 rounded-xl font-semibold transition-all"
+                  >
+                    {teller.window_name}
+                  </button>
+                ))}
+            </div>
+            <button
+              onClick={() => setShowTransferModal(false)}
+              className="w-full mt-4 bg-blue-50 hover:bg-blue-100 text-gray-500 py-1.5 rounded-xl text-[12px] transition-all"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+// ─── Guest Self Check-In Kiosk Page ──────────────────────────────────────────
+function GuestCheckinPage({ setCurrentPage }) {
+  const [ckStep, setCkStep] = React.useState(1);
+  const [ckMethod, setCkMethod] = React.useState('id');
+  const [ckConfId, setCkConfId] = React.useState('');
+  const [ckEmail, setCkEmail] = React.useState('');
+  const [ckLastName, setCkLastName] = React.useState('');
+  const [ckLoading, setCkLoading] = React.useState(false);
+  const [ckError, setCkError] = React.useState('');
+  const [ckReservation, setCkReservation] = React.useState(null);
+  const [ckArriving, setCkArriving] = React.useState(false);
+
+  const inputCls = "w-full px-3 py-1.5 rounded-md text-[#000000]/87 placeholder-black/30 text-[12px] outline-none transition-all";
+  const inputStyle = { border: '1px solid rgba(0,0,0,0.12)', background: '#f9f9f9' };
+  const labelCls = "block text-[10px] font-black text-black/50 uppercase tracking-[0.15em] mb-1";
+
+  const handleLookup = async (e) => {
+    if (e) e.preventDefault();
+    setCkLoading(true);
+    setCkError('');
+    try {
+      const payload = ckMethod === 'id'
+        ? { method: 'id', id: ckConfId }
+        : { method: 'email', email: ckEmail, lastName: ckLastName };
+
+      const res = await fetch(`${API_BASE_URL}/api/checkin/lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || 'Reservation not found');
+
+      setCkReservation(data.reservation);
+      setCkStep(2);
+    } catch (err) {
+      setCkError(err.message || 'Failed to lookup reservation');
+    } finally {
+      setCkLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{ background: '#1E3932' }}>
+      {/* Subtle radial gradient overlay */}
+      <div className="fixed inset-0 pointer-events-none opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, #00754A 0%, transparent 60%)' }} />
+      <div className="w-full max-w-md relative z-10">
+
+        {/* ── Step 1 — Lookup ── */}
+        {ckStep === 1 && (
+          <>
+            {/* White DESIGN.md card */}
+            <div className="rounded-xl overflow-hidden" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
+
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-black/5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-[#006241] font-bold text-[14px] tracking-tight">Guest Check-In</h3>
+                    <p className="text-black/50 text-xs mt-0.5">Find your reservation to begin check-in</p>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: '#d4e9e2', border: '1px solid #a8d5c2' }}>
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00754A] opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00754A]" />
+                    </span>
+                    <span className="text-[#006241] text-xs font-bold tracking-wide">Check-In Open</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4">
+                {/* Method toggle — segmented pill control */}
+                <div className="flex p-1 mb-3 gap-1 rounded-full" style={{ background: '#f2f0eb', border: '1px solid rgba(0,0,0,0.08)' }}>
+                  {[
+                    { id: 'id', label: 'Confirmation #' },
+                    { id: 'email', label: 'Email & Name' },
+                  ].map((m) => (
+                    <button key={m.id} onClick={() => { setCkMethod(m.id); setCkError(''); }}
+                      className="flex-1 py-2 text-xs font-bold transition-all"
+                      style={{
+                        borderRadius: '50px',
+                        background: ckMethod === m.id ? '#00754A' : 'transparent',
+                        color: ckMethod === m.id ? '#ffffff' : 'rgba(0,0,0,0.50)',
+                        border: 'none',
+                      }}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+
+                {ckMethod === 'id' ? (
+                  <div>
+                    <label className={labelCls}>Confirmation Number</label>
+                    <input
+                      type="number"
+                      value={ckConfId}
+                      onChange={(e) => setCkConfId(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && ckConfId && handleLookup()}
+                      placeholder="e.g. 1042"
+                      className={inputCls + " text-[16px] font-mono font-bold"}
+                      style={inputStyle}
+                      onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                      onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                      autoFocus
+                    />
+                    <p className="text-black/40 text-xs mt-2">Your confirmation number was sent in your booking email or SMS.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className={labelCls}>Email Address</label>
+                      <input type="email" value={ckEmail} onChange={(e) => setCkEmail(e.target.value)}
+                        placeholder="you@example.com" className={inputCls} style={inputStyle}
+                        onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                        autoFocus />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Last Name</label>
+                      <input type="text" value={ckLastName} onChange={(e) => setCkLastName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && ckEmail && ckLastName && handleLookup()}
+                        placeholder="Your last name" className={inputCls} style={inputStyle}
+                        onFocus={e => { e.target.style.borderColor = '#00754A'; e.target.style.background = '#ffffff'; }}
+                        onBlur={e => { e.target.style.borderColor = 'rgba(0,0,0,0.12)'; e.target.style.background = '#f9f9f9'; }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {ckError && (
+                  <div className="mt-4 px-2.5 py-2 text-[#c82014] text-[12px] rounded-md" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>
+                    {ckError}
+                  </div>
+                )}
+
+                <button
+                  onClick={handleLookup}
+                  disabled={ckLoading || (ckMethod === 'id' ? !ckConfId : !ckEmail || !ckLastName)}
+                  className="w-full mt-5 text-white font-bold py-3 transition-all text-[12px] disabled:opacity-40"
+                  style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                  onMouseEnter={e => { if (!ckLoading) e.currentTarget.style.background = '#006241'; }}
+                  onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                  onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                  onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
+                  {ckLoading ? 'Searching...' : 'Find My Reservation →'}
+                </button>
+              </div>
+            </div>
+
+            <div className="text-center mt-5">
+              <button onClick={() => setCurrentPage('home')} className="text-white/50 hover:text-white/80 text-[12px] transition-colors">
+                ← Back to Home
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* ── Step 2 — Confirm ── */}
+        {ckStep === 2 && ckReservation && (
+          <>
+            <div className="rounded-xl overflow-hidden" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
+
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-black/5">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-[#006241] font-bold text-[14px] tracking-tight">Confirm Your Stay</h3>
+                    <p className="text-black/50 text-xs mt-0.5">Please verify your reservation details</p>
+                  </div>
+                  <span className="text-[#006241] text-xs px-3 py-1.5 rounded-full font-mono" style={{ background: '#d4e9e2' }}>#{ckReservation.id}</span>
+                </div>
+              </div>
+
+              <div className="p-4">
+                <SectionDivider title="Guest" icon={<span className="text-[12px]">👤</span>} />
+                <div className="rounded-xl p-4 space-y-2 mb-2" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Name</span><span className="font-semibold text-[#000000]/87">{ckReservation.full_name}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Email</span><span className="text-black/50">{ckReservation.email}</span></div>
+                </div>
+
+                <SectionDivider title="Reservation" icon={<span className="text-[12px]">🏨</span>} />
+                <div className="rounded-xl p-4 space-y-2" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Room Type</span><span className="font-semibold text-[#006241] px-2 py-0.5 rounded text-xs" style={{ background: '#d4e9e2' }}>{ckReservation.room_type}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Check-In</span><span className="text-black/70">{fmtDate(ckReservation.check_in_date)}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Check-Out</span><span className="text-black/70">{fmtDate(ckReservation.check_out_date)}</span></div>
+                  <div className="flex justify-between text-[12px]"><span className="text-black/50">Duration</span><span className="text-black/70">{nightsCount(ckReservation)} night{nightsCount(ckReservation) !== 1 ? 's' : ''}</span></div>
+                  {ckReservation.number_of_guests && (
+                    <div className="flex justify-between text-[12px]"><span className="text-black/50">Guests</span><span className="text-black/70">{ckReservation.number_of_guests}</span></div>
+                  )}
+                </div>
+
+                {ckReservation.special_requests && (
+                  <div className="mt-4 rounded-xl px-2.5 py-2" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                    <div className="text-xs font-bold text-amber-600/80 uppercase tracking-widest mb-1">Special Requests</div>
+                    <p className="text-amber-800/70 text-[12px] italic">"{ckReservation.special_requests}"</p>
+                  </div>
+                )}
+
+                {ckError && (
+                  <div className="mt-4 px-2.5 py-2 text-[#c82014] text-[12px] rounded-md" style={{ background: 'hsl(4 82% 43% / 10%)', border: '1px solid hsl(4 82% 43% / 30%)' }}>{ckError}</div>
+                )}
+
+                <button onClick={handleArrive} disabled={ckArriving}
+                  className="w-full mt-5 text-white font-bold py-3 transition-all text-[12px] disabled:opacity-40"
+                  style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                  onMouseEnter={e => { if (!ckArriving) e.currentTarget.style.background = '#006241'; }}
+                  onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                  onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                  onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
+                  {ckArriving ? 'Checking you in...' : "Yes, I'm here — Check Me In ✓"}
+                </button>
+                <button onClick={() => { setCkStep(1); setCkReservation(null); setCkError(''); }}
+                  className="w-full mt-2 text-black/40 hover:text-black/60 font-semibold py-1.5 rounded-xl transition-colors text-[12px]"
+                >
+                  Not my reservation
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── Step 3 — Success ── */}
+        {ckStep === 3 && ckReservation && (
+          <div className="rounded-xl overflow-hidden" style={{ background: '#ffffff', boxShadow: '0 0 0.5px rgba(0,0,0,0.14), 0 8px 24px rgba(0,0,0,0.24)' }}>
+
+            {/* Header */}
+            <div className="px-6 py-5 border-b border-black/5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-[#006241] font-bold text-[14px] tracking-tight">You&apos;re Checked In!</h3>
+                  <p className="text-black/50 text-xs mt-0.5">Please proceed to the front desk for your key</p>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.30)' }}>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  <span className="text-emerald-600 text-xs font-bold tracking-wide">Arrived</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 text-center">
+              {/* Checkmark */}
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: '#d4e9e2', border: '2px solid #00754A' }}>
+                <svg className="w-8 h-8 text-[#006241]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+
+              <h2 className="text-2xl font-black text-[#006241] mb-1">Welcome, {firstName(ckReservation.full_name)}!</h2>
+              <p className="text-black/50 text-[12px] mb-3">You are now in our system.</p>
+
+              {/* Key instructions */}
+              <div className="rounded-xl px-5 py-4 mb-3 text-left" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-2xl">🔑</span>
+                  <span className="text-[#006241] font-bold text-[12px]">Please head to the front desk</span>
+                </div>
+                <p className="text-black/50 text-xs leading-relaxed">
+                  Our staff will verify your ID, assign your room, and hand you your key. Your stay is all set!
+                </p>
+              </div>
+
+              {/* Summary */}
+              <div className="rounded-xl p-4 space-y-2 text-left mb-3" style={{ background: '#f9f9f9', border: '1px solid rgba(0,0,0,0.07)' }}>
+                <div className="flex justify-between text-[12px]"><span className="text-black/50">Confirmation #</span><span className="font-mono font-bold text-[#006241]">#{ckReservation.id}</span></div>
+                <div className="flex justify-between text-[12px]"><span className="text-black/50">Room Type</span><span className="text-black/60">{ckReservation.room_type}</span></div>
+                <div className="flex justify-between text-[12px]"><span className="text-black/50">Check-Out</span><span className="text-black/60">{fmtDate(ckReservation.check_out_date)}</span></div>
+              </div>
+
+              <button onClick={() => setCurrentPage('home')}
+                className="w-full text-white font-bold py-3 transition-all text-[12px]"
+                style={{ background: '#00754A', borderRadius: '50px', border: '1px solid #00754A' }}
+                onMouseEnter={e => e.currentTarget.style.background = '#006241'}
+                onMouseLeave={e => e.currentTarget.style.background = '#00754A'}
+                onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.95)'; }}
+                onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+              >
+                Return to Home
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, pendingTransferRes, setPendingTransferRes, roomTypes = [], rateCodes = [], promos = [] }) {
+  const today = new Date().toISOString().split('T')[0];
+  const [fdView, setFdView] = React.useState('arrivals');
+
+  // Arrivals state
+  const [arrivalDate, setArrivalDate] = React.useState(today);
+  const [arrivals, setArrivals] = React.useState([]);
+  const [arrivalStats, setArrivalStats] = React.useState({ total: 0, checkedIn: 0, pending: 0, confirmed: 0, noShow: 0 });
+  const [arrivalsLoading, setArrivalsLoading] = React.useState(false);
+  const [selectedArrival, setSelectedArrival] = React.useState(null);
+  const [guestNotes, setGuestNotes] = React.useState({});
+
+  // In-House state
+  const [inHouseGuests, setInHouseGuests] = React.useState([]);
+  const [inHouseLoading, setInHouseLoading] = React.useState(false);
+
+  // Search state
+  const [searchQ, setSearchQ] = React.useState('');
+  const [searchResults, setSearchResults] = React.useState([]);
+  const [searchLoading, setSearchLoading] = React.useState(false);
+
+  // Wizard state
+  const [wizardOpen, setWizardOpen] = React.useState(false);
+  const [wizardReservation, setWizardReservation] = React.useState(null);
+  const [wizardStep, setWizardStep] = React.useState(1);
+  const [wizardIdVerified, setWizardIdVerified] = React.useState(false);
+  const [wizardRoomNumber, setWizardRoomNumber] = React.useState('');
+  const [wizardPayment, setWizardPayment] = React.useState(false);
+  const [wizardNotes, setWizardNotes] = React.useState('');
+  const [wizardSubmitting, setWizardSubmitting] = React.useState(false);
+  const [wizardSuccess, setWizardSuccess] = React.useState(false);
+  const [wizardError, setWizardError] = React.useState('');
+
+  // Checkout confirm state
+  const [checkoutConfirmId, setCheckoutConfirmId] = React.useState(null);
+  const [checkoutSubmitting, setCheckoutSubmitting] = React.useState(false);
+
+  // Transfer / upgrade state
+  const [transferGuest, setTransferGuest] = React.useState(null);
+  const [transferRoomType, setTransferRoomType] = React.useState('');
+  const [transferRoomNumber, setTransferRoomNumber] = React.useState('');
+  const [transferSubmitting, setTransferSubmitting] = React.useState(false);
+  const [transferError, setTransferError] = React.useState('');
+  const [transferSuccess, setTransferSuccess] = React.useState('');
+
+  // Extend stay state
+  const [extendGuest, setExtendGuest] = React.useState(null);
+  const [extendNewDate, setExtendNewDate] = React.useState('');
+  const [extendSubmitting, setExtendSubmitting] = React.useState(false);
+  const [extendError, setExtendError] = React.useState('');
+  const [extendConflict, setExtendConflict] = React.useState('');
+  const [extendSuccess, setExtendSuccess] = React.useState('');
+
+  // Status update state
+  const [statusUpdating, setStatusUpdating] = React.useState(null);
+
+  // New arrivals local filtering and formatting helpers
+  const [arrivalSearchQuery, setArrivalSearchQuery] = React.useState('');
+  const [arrivalFilterStatus, setArrivalFilterStatus] = React.useState('All Status');
+  const [arrivalFilterChannel, setArrivalFilterChannel] = React.useState('All Channels');
+  const [openArrivalDropdown, setOpenArrivalDropdown] = React.useState(null);
+
+  const getArrivalStatusColor = (s) => {
+    const status = (s || '').toLowerCase();
+    if (status === 'confirmed') return 'bg-emerald-50 text-emerald-600';
+    if (status === 'pending') return 'bg-orange-50 text-orange-600';
+    if (status === 'checked_in') return 'bg-blue-50 text-blue-600';
+    if (status === 'cancelled') return 'bg-rose-50 text-rose-600';
+    return 'bg-gray-50 text-gray-600';
+  };
+
+  const renderChannelIcon = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t === 'direct website' || t === 'globe' || t === 'website') {
+      return (
+        <div className="w-5 h-5 rounded-full border border-gray-200 flex items-center justify-center bg-white">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const filteredArrivals = React.useMemo(() => {
+    return arrivals
+      .filter(r => {
+        if (arrivalFilterStatus === 'All Status') return true;
+        return (r.status || '').toLowerCase() === arrivalFilterStatus.toLowerCase();
+      })
+      .filter(r => {
+        if (arrivalFilterChannel === 'All Channels') return true;
+        return (r.source || 'Direct Website') === arrivalFilterChannel;
+      })
+      .filter(r => {
+        if (!arrivalSearchQuery) return true;
+        const q = arrivalSearchQuery.toLowerCase();
+        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`;
+        return (
+          r.full_name?.toLowerCase().includes(q) ||
+          r.email?.toLowerCase().includes(q) ||
+          confId.toLowerCase().includes(q) ||
+          r.phone_number?.includes(q)
+        );
+      });
+  }, [arrivals, arrivalFilterStatus, arrivalFilterChannel, arrivalSearchQuery]);
+
+  // New In-House local filtering and formatting helpers
+  const [inHouseSearchQuery, setInHouseSearchQuery] = React.useState('');
+  const [inHouseFilterStatus, setInHouseFilterStatus] = React.useState('All Status');
+  const [openInHouseDropdown, setOpenInHouseDropdown] = React.useState(null);
+
+  const filteredInHouse = React.useMemo(() => {
+    return inHouseGuests
+      .filter(r => {
+        if (inHouseFilterStatus === 'All Status') return true;
+        const isDueOut = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
+        const isOverdue = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA'); if (inHouseFilterStatus === 'Due Out') return isDueOut;
+        if (inHouseFilterStatus === 'Checked In') return !isDueOut;
+        return true;
+      })
+      .filter(r => {
+        if (!inHouseSearchQuery) return true;
+        const q = inHouseSearchQuery.toLowerCase();
+        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`;
+        return (
+          r.full_name?.toLowerCase().includes(q) ||
+          r.email?.toLowerCase().includes(q) ||
+          confId.toLowerCase().includes(q) ||
+          (r.room_number || '').includes(q)
+        );
+      });
+  }, [inHouseGuests, inHouseFilterStatus, inHouseSearchQuery, today]);
+
+  // ── Folio state ──────────────────────────────────────────────────────────────
+  const [folioOpen, setFolioOpen] = React.useState(false);
+  const [folioRes, setFolioRes] = React.useState(null);
+  const [folioItems, setFolioItems] = React.useState([]);
+  const [folioPayments, setFolioPayments] = React.useState([]);
+  const [folioTotals, setFolioTotals] = React.useState({ charges: 0, payments: 0, balance: 0 });
+  const [folioLoading, setFolioLoading] = React.useState(false);
+  const [folioError, setFolioError] = React.useState('');
+  // Add charge form
+  const [fcType, setFcType] = React.useState('Room Charge');
+  const [fcDesc, setFcDesc] = React.useState('');
+  const [fcQty, setFcQty] = React.useState(1);
+  const [fcPrice, setFcPrice] = React.useState('');
+  const [fcSaving, setFcSaving] = React.useState(false);
+  const [fcError, setFcError] = React.useState('');
+  // Add payment form
+  const [fpMethod, setFpMethod] = React.useState('Cash');
+  const [fpAmount, setFpAmount] = React.useState('');
+  const [fpRef, setFpRef] = React.useState('');
+  const [fpSaving, setFpSaving] = React.useState(false);
+  const [fpError, setFpError] = React.useState('');
+  // Checkout folio balance
+  const [checkoutFolioBalance, setCheckoutFolioBalance] = React.useState(null);
+
+  // Corporate Accounts state for Check-out
+  const [corporateAccounts, setCorporateAccounts] = React.useState([]);
+  const [chargeToCorporate, setChargeToCorporate] = React.useState(false);
+  const [selectedCorpId, setSelectedCorpId] = React.useState('');
+  // Folio email
+  const [folioEmailSending, setFolioEmailSending] = React.useState(false);
+  const [folioEmailMsg, setFolioEmailMsg] = React.useState('');
+
+  // Guest Profile modal state
+  const [gpOpen, setGpOpen] = React.useState(false);
+  const [gpRes, setGpRes] = React.useState(null);
+  const [gpForm, setGpForm] = React.useState({});
+  const [gpSaving, setGpSaving] = React.useState(false);
+  const [gpError, setGpError] = React.useState('');
+  const [gpSaved, setGpSaved] = React.useState(false);
+
+  // Walk-In state
+  const [wkRoomTypes, setWkRoomTypes] = React.useState([]);
+  const [wkRoomSelections, setWkRoomSelections] = React.useState([{ roomType: '', roomNumber: '' }]);
+  const [wkRateCodes, setWkRateCodes] = React.useState([]);
+  const [wkRateCode, setWkRateCode] = React.useState('');
+  const [wkLastName, setWkLastName] = React.useState('');
+  const [wkFirstName, setWkFirstName] = React.useState('');
+  const [wkEmail, setWkEmail] = React.useState('');
+  const [wkPhone, setWkPhone] = React.useState('');
+  const [wkCheckIn, setWkCheckIn] = React.useState(today);
+  const [wkCheckOut, setWkCheckOut] = React.useState('');
+  const [wkGuests, setWkGuests] = React.useState(1);
+  const [wkSpecialReq, setWkSpecialReq] = React.useState('');
+  const [wkPayment, setWkPayment] = React.useState(false);
+  const [wkNotes, setWkNotes] = React.useState('');
+  const [wkTitle, setWkTitle] = React.useState('Mr.');
+  const [wkMiddleName, setWkMiddleName] = React.useState('');
+  const [wkGender, setWkGender] = React.useState('');
+  const [wkBirthDate, setWkBirthDate] = React.useState('');
+  const [wkNationality, setWkNationality] = React.useState('');
+  const [wkCountry, setWkCountry] = React.useState('');
+  const [wkAddress, setWkAddress] = React.useState('');
+  const [wkCity, setWkCity] = React.useState('');
+  const [wkIdType, setWkIdType] = React.useState('');
+  const [wkIdNumber, setWkIdNumber] = React.useState('');
+  const [wkPurpose, setWkPurpose] = React.useState('');
+  const [wkEta, setWkEta] = React.useState('');
+  const [wkPaymentMethod, setWkPaymentMethod] = React.useState('Cash');
+  const [wkDepositAmount, setWkDepositAmount] = React.useState('');
+  const [wkSubmitting, setWkSubmitting] = React.useState(false);
+  const [wkSuccess, setWkSuccess] = React.useState(false);
+  const [wkResult, setWkResult] = React.useState(null);
+  const [wkError, setWkError] = React.useState('');
+
+  // New Walk-in fields to match mockup
+  const [wkCompany, setWkCompany] = React.useState('');
+  const [wkAddToProfile, setWkAddToProfile] = React.useState(true);
+  const [wkVipGuest, setWkVipGuest] = React.useState(false);
+  const [wkRepeatGuest, setWkRepeatGuest] = React.useState(false);
+  const [wkCheckInTime, setWkCheckInTime] = React.useState('14:00');
+  const [wkCheckOutTime, setWkCheckOutTime] = React.useState('12:00');
+  const [wkAdults, setWkAdults] = React.useState(2);
+  const [wkChildren, setWkChildren] = React.useState(1);
+  const [wkSource, setWkSource] = React.useState('Direct Booking');
+  const [wkRoomPreference, setWkRoomPreference] = React.useState('High Floor');
+  const [wkBedType, setWkBedType] = React.useState('Queen Bed');
+  const [wkDiscountPct, setWkDiscountPct] = React.useState(0);
+  const [wkDiscountCode, setWkDiscountCode] = React.useState('');
+  const [wkCardType, setWkCardType] = React.useState('Visa');
+  const [wkCardNumberFull, setWkCardNumberFull] = React.useState('');
+  const [wkCardExpiry, setWkCardExpiry] = React.useState('');
+  const [wkCardCvv, setWkCardCvv] = React.useState('');
+  const [wkCardholder, setWkCardholder] = React.useState('');
+  const [wkGuaranteeType, setWkGuaranteeType] = React.useState('Guarantee by Credit Card');
+  const [wkGuaranteeAmount, setWkGuaranteeAmount] = React.useState('');
+  const [wkSendConfirmEmail, setWkSendConfirmEmail] = React.useState(true);
+  const [wkSearchGuest, setWkSearchGuest] = React.useState('');
+
+  // ── Rooms state ─────────────────────────────────────────────────────────────
+  const [rooms, setRooms] = React.useState([]);
+  const [roomsLoading, setRoomsLoading] = React.useState(false);
+  const [roomFilter, setRoomFilter] = React.useState('all');
+  const [selectedRoom, setSelectedRoom] = React.useState(null);
+  const [hkUpdating, setHkUpdating] = React.useState(null);
+
+  // ── Tape Chart state ─────────────────────────────────────────────────────────
+  const [tcFrom, setTcFrom] = React.useState(today);
+  const [tcRooms, setTcRooms] = React.useState([]);
+  const [tcReservations, setTcReservations] = React.useState([]);
+  const [tcLoading, setTcLoading] = React.useState(false);
+  const [tcSelectedRes, setTcSelectedRes] = React.useState(null);
+  const [tcTypeView, setTcTypeView] = React.useState(false);
+  const [addRoomOpen, setAddRoomOpen] = React.useState(false);
+  const [newRoomNumber, setNewRoomNumber] = React.useState('');
+  const [newRoomType, setNewRoomType] = React.useState('');
+  const [newRoomFloor, setNewRoomFloor] = React.useState(1);
+  const [newRoomNotes, setNewRoomNotes] = React.useState('1 single bed');
+  const [isOthersBedConfig, setIsOthersBedConfig] = React.useState(false);
+  const [editRoomOpen, setEditRoomOpen] = React.useState(false);
+  const [editRoomType, setEditRoomType] = React.useState('');
+  const [editRoomFloor, setEditRoomFloor] = React.useState(1);
+  const [editRoomNotes, setEditRoomNotes] = React.useState('');
+  const [editIsOthersBed, setEditIsOthersBed] = React.useState(false);
+
+  const startEditRoom = (r) => {
+    setEditRoomType(r.room_type || '');
+    setEditRoomFloor(r.floor || 1);
+    const standardConfigs = ['1 single bed', '1 queen bed', '2 single bed', '2 double bed', '4 single bed'];
+    const notesVal = r.notes || '';
+    if (standardConfigs.includes(notesVal)) {
+      setEditRoomNotes(notesVal);
+      setEditIsOthersBed(false);
+    } else {
+      setEditRoomNotes(notesVal);
+      setEditIsOthersBed(notesVal ? true : false);
+    }
+    setEditRoomOpen(true);
+  };
+
+  const saveEditedRoom = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/rooms`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          room_number: selectedRoom.room_number,
+          room_type: editRoomType,
+          floor: editRoomFloor,
+          notes: editRoomNotes.trim()
+        }),
+      });
+      if (res.ok) {
+        setEditRoomOpen(false);
+        fetchRooms();
+        setSelectedRoom(prev => prev ? { ...prev, room_type: editRoomType, floor: editRoomFloor, notes: editRoomNotes.trim() } : null);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // ── Data fetchers ──────────────────────────────────────────────────────────
+  const fetchArrivals = React.useCallback(async (date) => {
+    setArrivalsLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/arrivals?date=${date}`);
+      const data = await res.json();
+      const fresh = data.arrivals || [];
+      setArrivals(fresh);
+      setArrivalStats(data.stats || { total: 0, checkedIn: 0, pending: 0, confirmed: 0, noShow: 0 });
+      setSelectedArrival(prev => prev ? (fresh.find(r => r.id === prev.id) ?? null) : null);
+    } catch (e) { console.error(e); }
+    setArrivalsLoading(false);
+  }, []);
+
+  const fetchInHouse = React.useCallback(async () => {
+    setInHouseLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/in-house`);
+      const data = await res.json();
+      setInHouseGuests(data.guests || []);
+    } catch (e) { console.error(e); }
+    setInHouseLoading(false);
+  }, []);
+
+  const runSearch = React.useCallback(async (q) => {
+    if (!q.trim()) { setSearchResults([]); return; }
+    setSearchLoading(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/front-desk/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      setSearchResults(data.reservations || []);
+    } catch (e) { console.error(e); }
+    setSearchLoading(false);
+  }, []);
+
+  React.useEffect(() => { fetchArrivals(arrivalDate); }, [arrivalDate, fetchArrivals]);
+  React.useEffect(() => { if (fdView === 'inhouse') fetchInHouse(); }, [fdView, fetchInHouse]);
+
+  React.useEffect(() => {
+    const t = setTimeout(() => runSearch(searchQ), 350);
+    return () => clearTimeout(t);
+  }, [searchQ, runSearch]);
+
+  // ── Wizard helpers ─────────────────────────────────────────────────────────
+  React.useEffect(() => {
+    if (pendingCheckInRes) {
+      openWizard(pendingCheckInRes);
+      if (setPendingCheckInRes) setPendingCheckInRes(null);
+    }
+  }, [pendingCheckInRes, setPendingCheckInRes]);
+
+  const openWizard = (r) => {
+    setWizardReservation(r);
+    setWizardStep(1);
+    setWizardIdVerified(false);
+    setWizardRoomNumber('');
+    setWizardPayment(false);
+    setWizardNotes('');
+    setWizardSubmitting(false);
+    setWizardSuccess(false);
+    setWizardError('');
+    setWizardOpen(true);
+    fetchRooms();
+  };
+
+  const closeWizard = () => {
+    setWizardOpen(false);
+    setWizardReservation(null);
+    setWizardSuccess(false);
+    fetchArrivals(arrivalDate);
+    fetchInHouse();
+  };
+
+  const submitCheckin = async () => {
+    if (!wizardReservation) return;
+    setWizardSubmitting(true);
+    setWizardError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${wizardReservation.id}/checkin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roomNumber: wizardRoomNumber,
+          idVerified: wizardIdVerified,
+          paymentCollected: wizardPayment,
+          notes: wizardNotes,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWizardSuccess(true);
+      } else {
+        setWizardError(data.message || `Check-in failed (${res.status}).`);
+      }
+    } catch (e) {
+      setWizardError('Network error — is the server running?');
+    }
+    setWizardSubmitting(false);
+  };
+
+  const submitCheckout = async (id) => {
+    setCheckoutSubmitting(true);
+    try {
+      const payload = { chargeToCorporate, corporateAccountId: selectedCorpId };
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${id}/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        setCheckoutConfirmId(null);
+        fetchInHouse();
+        fetchArrivals(arrivalDate);
+      }
+    } catch (e) { console.error(e); }
+    setCheckoutSubmitting(false);
+  };
+
+  // ── Folio functions ───────────────────────────────────────────────────────────
+  const fetchFolio = React.useCallback(async (reservationId) => {
+    setFolioLoading(true);
+    setFolioError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${reservationId}?t=${Date.now()}`);
+      const data = await res.json();
+      if (data.success) {
+        setFolioItems(data.items);
+        setFolioPayments(data.payments);
+        setFolioTotals(data.totals);
+      } else {
+        setFolioError(data.message || 'Failed to load folio');
+      }
+    } catch (e) { setFolioError('Server error'); }
+    setFolioLoading(false);
+  }, []);
+
+  const openFolio = (r) => {
+    setFolioRes(r);
+    setFolioItems([]);
+    setFolioPayments([]);
+    setFolioTotals({ charges: 0, payments: 0, balance: 0 });
+    setFolioError('');
+    setFcType('Room Charge'); setFcDesc(''); setFcQty(1); setFcPrice(''); setFcError('');
+    setFpMethod('Cash'); setFpAmount(''); setFpRef(''); setFpError('');
+    setFolioEmailMsg('');
+    setFolioOpen(true);
+    fetchFolio(r.id);
+  };
+
+  const addCharge = async (overrideType, overrideDesc, overrideQty, overridePrice, overrideDate, overrideTime) => {
+    const type = overrideType || fcType;
+    const desc = overrideDesc || fcDesc;
+    const qty = overrideQty || fcQty;
+    const price = overridePrice || fcPrice;
+    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return false; }
+    setFcSaving(true); setFcError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ charge_type: type, description: desc, quantity: qty, unit_price: price, date: overrideDate, time: overrideTime }),
+      });
+      const data = await res.json();
+      if (data.success) { 
+        await fetchFolio(folioRes.id); 
+        setFcDesc(''); setFcQty(1); setFcPrice(''); 
+        setFcSaving(false);
+        return true;
+      }
+      else { setFcError(data.message || 'Failed'); }
+    } catch (e) { setFcError('Server error'); }
+    setFcSaving(false);
+    return false;
+  };
+
+  const addPayment = async (overrideMethod, overrideAmount, overrideRef, overrideDate, overrideTime, overrideNotes) => {
+    const method = overrideMethod || fpMethod;
+    const amount = overrideAmount || fpAmount;
+    const ref = overrideRef || fpRef;
+    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return; }
+    setFpSaving(true); setFpError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          payment_method: method,
+          amount: amount,
+          reference: ref,
+          date: overrideDate,
+          time: overrideTime,
+          notes: overrideNotes,
+          cashier_name: localStorage.getItem('adminUser') || 'admin'
+        }),
+      });
+      const data = await res.json();
+      if (data.success) { fetchFolio(folioRes.id); setFpAmount(''); setFpRef(''); setFpSaving(false); return true; }
+      else setFpError(data.message || 'Failed');
+    } catch (e) { setFpError('Server error'); }
+    setFpSaving(false);
+    return false;
+  };
+
+  const voidCharge = async (itemId) => {
+    await fetch(`${API_BASE_URL}/api/folio/charge/${itemId}/void`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: '' }),
+    });
+    fetchFolio(folioRes.id);
+  };
+
+  const voidPayment = async (payId) => {
+    await fetch(`${API_BASE_URL}/api/folio/payment/${payId}/void`, { method: 'PATCH' });
+    fetchFolio(folioRes.id);
+  };
+
+  const fetchCheckoutBalance = React.useCallback(async (id) => {
+    setCheckoutFolioBalance(null);
+    setChargeToCorporate(false);
+    setSelectedCorpId('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${id}`);
+      const data = await res.json();
+      if (data.success) setCheckoutFolioBalance(data.totals.balance);
+
+      const corpRes = await fetch(`${API_BASE_URL}/api/corporate-accounts`);
+      const corpData = await corpRes.json();
+      if (corpData.success) setCorporateAccounts(corpData.accounts);
+    } catch (e) { }
+  }, []);
+
+  const sendFolioEmail = async () => {
+    if (!folioRes) return;
+    setFolioEmailSending(true);
+    setFolioEmailMsg('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/email`, { method: 'POST' });
+      const data = await res.json();
+      setFolioEmailMsg(data.success ? `✓ ${data.message}` : `✗ ${data.message}`);
+    } catch (e) {
+      setFolioEmailMsg('✗ Failed to send email.');
+    } finally {
+      setFolioEmailSending(false);
+      setTimeout(() => setFolioEmailMsg(''), 4000);
+    }
+  };
+
+  const printFolio = () => {
+    if (!folioRes) return;
+    const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const fmtA = (n) => `₱${parseFloat(n).toLocaleString('en-PH', { minimumFractionDigits: 2 })}`;
+    const nights = Math.round((new Date(folioRes.check_out_date) - new Date(folioRes.check_in_date)) / 86400000);
+    const totalCharges = folioItems.filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount), 0);
+    const totalPaid = folioPayments.filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount), 0);
+    const balance = folioTotals.balance;
+
+    const chargeRows = folioItems.map(i => `
+      <tr style="${i.voided ? 'opacity:0.4;text-decoration:line-through;' : ''}">
+        <td>${i.charge_type}</td><td>${i.description || '—'}</td>
+        <td style="text-align:center;">${i.quantity}</td>
+        <td style="text-align:right;">${fmtA(i.unit_price)}</td>
+        <td style="text-align:right;">${i.voided ? 'VOID' : fmtA(i.amount)}</td>
+      </tr>`).join('');
+
+    const paymentRows = folioPayments.map(p => `
+      <tr style="${p.voided ? 'opacity:0.4;text-decoration:line-through;' : ''}">
+        <td>${p.payment_method}</td><td>${p.reference || '—'}</td>
+        <td style="text-align:right;">${p.voided ? 'VOID' : fmtA(p.amount)}</td>
+        <td style="color:#888;">${fmtD(p.posted_at)}</td>
+      </tr>`).join('');
+
+    const win = window.open('', '_blank', 'width=700,height=900');
+    win.document.write(`<!DOCTYPE html><html><head><title>Folio — ${folioRes.full_name}</title>
+      <style>
+        body{font-family:Arial,sans-serif;max-width:640px;margin:32px auto;padding:0 24px;color:#222;}
+        h2{margin:0 0 4px;} p.sub{margin:0 0 20px;color:#666;font-size:13px;}
+        table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:16px;}
+        th{background:#f5f5f5;padding:6px 8px;text-align:left;}
+        td{padding:6px 8px;border-bottom:1px solid #f0f0f0;}
+        .total-row{font-weight:bold;background:#eff6ff;}
+        .paid-row{font-weight:bold;background:#f0fdf4;}
+        .balance{margin-top:16px;padding:14px;border-radius:6px;text-align:right;font-size:15px;font-weight:bold;}
+        .bal-due{background:#fef3c7;color:#b45309;}
+        .bal-ok{background:#f0fdf4;color:#15803d;}
+        @media print{button{display:none;}}
+      </style></head><body>
+      <h2>Guest Folio</h2>
+      <p class="sub">${folioRes.full_name} &middot; Room ${folioRes.room_number || '—'} &middot; ${folioRes.room_type}</p>
+      <table style="margin-bottom:20px;">
+        <tr><td style="color:#666;width:120px;">Check-in</td><td>${fmtD(folioRes.check_in_date)}</td></tr>
+        <tr><td style="color:#666;">Check-out</td><td>${fmtD(folioRes.check_out_date)}</td></tr>
+        <tr><td style="color:#666;">Nights</td><td>${nights}</td></tr>
+      </table>
+      <h3 style="margin:0 0 6px;border-bottom:1px solid #ddd;padding-bottom:4px;">Charges</h3>
+      ${folioItems.length === 0 ? '<p style="color:#999;font-size:13px;">No charges posted.</p>' : `
+      <table>
+        <thead><tr><th>Type</th><th>Description</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Unit Price</th><th style="text-align:right;">Amount</th></tr></thead>
+        <tbody>${chargeRows}</tbody>
+        <tfoot><tr class="total-row"><td colspan="4" style="text-align:right;">Total Charges</td><td style="text-align:right;">${fmtA(totalCharges)}</td></tr></tfoot>
+      </table>`}
+      <h3 style="margin:0 0 6px;border-bottom:1px solid #ddd;padding-bottom:4px;">Payments</h3>
+      ${folioPayments.length === 0 ? '<p style="color:#999;font-size:13px;">No payments recorded.</p>' : `
+      <table>
+        <thead><tr><th>Method</th><th>Reference</th><th style="text-align:right;">Amount</th><th>Date</th></tr></thead>
+        <tbody>${paymentRows}</tbody>
+        <tfoot><tr class="paid-row"><td colspan="2" style="text-align:right;">Total Paid</td><td style="text-align:right;">${fmtA(totalPaid)}</td><td></td></tr></tfoot>
+      </table>`}
+      <div class="balance ${balance > 0 ? 'bal-due' : 'bal-ok'}">
+        ${balance > 0 ? `Balance Due: ${fmtA(balance)}` : 'Folio Settled ✓'}
+      </div>
+      <script>window.onload=()=>{window.print();}</script>
+    </body></html>`);
+    win.document.close();
+  };
+
+  const openTransfer = (r) => {
+    setTransferGuest(r);
+    setTransferRoomType(''); // Start with empty to show all available rooms
+    setTransferRoomNumber('');
+    setTransferError('');
+    setTransferSuccess('');
+    fetchRooms();
+    fetchWkRoomTypes('', '');
+  };
+
+  React.useEffect(() => {
+    if (pendingTransferRes) {
+      openTransfer(pendingTransferRes);
+      setPendingTransferRes(null);
+    }
+  }, [pendingTransferRes]);
+
+  const submitTransfer = async () => {
+    if (!transferGuest || !transferRoomNumber.trim()) return;
+    setTransferSubmitting(true);
+    setTransferError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${transferGuest.id}/transfer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ newRoomNumber: transferRoomNumber.trim(), newRoomType: transferRoomType }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTransferSuccess(`Transferred to Room ${transferRoomNumber}`);
+        fetchInHouse();
+        fetchRooms();
+        setTimeout(() => setTransferGuest(null), 1500);
+      } else {
+        setTransferError(data.message || 'Transfer failed.');
+      }
+    } catch (e) {
+      setTransferError('Network error — is the server running?');
+    }
+    setTransferSubmitting(false);
+  };
+
+  const openExtend = (r) => {
+    setExtendGuest(r);
+    // Pre-fill new date = day after current checkout
+    const nextDay = new Date(r.check_out_date);
+    nextDay.setDate(nextDay.getDate() + 1);
+    setExtendNewDate(nextDay.toISOString().slice(0, 10));
+    setExtendError('');
+    setExtendConflict('');
+    setExtendSuccess('');
+  };
+
+  const submitExtend = async () => {
+    if (!extendGuest || !extendNewDate) return;
+    setExtendSubmitting(true);
+    setExtendError('');
+    setExtendConflict('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${extendGuest.id}/extend`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ new_checkout_date: extendNewDate }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setExtendSuccess('Stay extended successfully.');
+        if (data.warning) setExtendConflict(data.warning);
+        fetchInHouse();
+        fetchArrivals(arrivalDate);
+        // Small delay to ensure DB write is committed before tape chart re-fetch
+        setTimeout(() => fetchTapeChart(tcFrom), 300);
+        if (!data.warning) setTimeout(() => setExtendGuest(null), 1800);
+      } else {
+        setExtendError(data.message || 'Extension failed.');
+      }
+    } catch (e) {
+      setExtendError('Network error — is the server running?');
+    }
+    setExtendSubmitting(false);
+  };
+
+  const updateStatus = async (id, status, roomNumber) => {
+    setStatusUpdating(id);
+    try {
+      await fetch(`${API_BASE_URL}/api/reservations/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status, room_number: roomNumber }),
+      });
+      fetchArrivals(arrivalDate);
+      if (fdView === 'inhouse') fetchInHouse();
+      if (fdView === 'search') runSearch(searchQ);
+    } catch (e) { console.error(e); }
+    setStatusUpdating(null);
+  };
+
+  // ── Walk-In helpers ──────────────────────────────────────────────────────────
+  const fetchWkRoomTypes = React.useCallback(async (checkIn, checkOut) => {
+    try {
+      const url = (checkIn && checkOut)
+        ? `${API_BASE_URL}/api/room-types/availability?checkIn=${checkIn}&checkOut=${checkOut}`
+        : `${API_BASE_URL}/api/room-types`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const list = data.availability || data.roomTypes || [];
+      setWkRoomTypes(list);
+      if (list.length > 0) {
+        setWkRoomSelections(prev => {
+          if (!prev[0].roomType) {
+            const next = [...prev];
+            next[0].roomType = list[0].name;
+            return next;
+          }
+          return prev;
+        });
+      }
+    } catch (e) { console.error(e); }
+  }, []);
+
+  React.useEffect(() => {
+    if (fdView === 'walkin') fetchWkRoomTypes(wkCheckIn, wkCheckOut);
+    else if (fdView === 'rooms') fetchWkRoomTypes('', '');
+  }, [fdView, wkCheckIn, wkCheckOut, fetchWkRoomTypes]);
+
+  React.useEffect(() => {
+    if (fdView === 'walkin' && wkRateCodes.length === 0) {
+      fetch(`${API_BASE_URL}/api/rate-codes`)
+        .then(r => r.json())
+        .then(d => { if (d.rateCodes) setWkRateCodes(d.rateCodes); })
+        .catch(() => { });
+    }
+  }, [fdView]);
+
+  const submitWalkin = async () => {
+    const hasEmptyRoom = wkRoomSelections.some(r => !r.roomType || !r.roomNumber);
+    if (!wkLastName.trim() || !wkFirstName.trim() || !wkCheckIn || !wkCheckOut || hasEmptyRoom) {
+      setWkError('Please fill in all required fields (last name, first name, room type, dates, room number).'); return;
+    }
+    if (new Date(wkCheckOut) <= new Date(wkCheckIn)) {
+      setWkError('Check-out date must be after check-in date.'); return;
+    }
+    setWkError(''); setWkSubmitting(true);
+    try {
+        let firstReservation = null;
+        for (let i = 0; i < wkRoomSelections.length; i++) {
+          const sel = wkRoomSelections[i];
+          const guestsPerRoom = Math.max(1, Math.ceil((wkAdults + wkChildren) / wkRoomSelections.length));
+          
+          const res = await fetch(`${API_BASE_URL}/api/front-desk/walkin`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              full_name: `${wkLastName.trim()}, ${wkFirstName.trim()}${wkMiddleName.trim() ? ' ' + wkMiddleName.trim() : ''}`,
+              title: wkTitle, gender: wkGender, birth_date: wkBirthDate,
+              nationality: wkNationality, country: wkCountry,
+              email: wkEmail.trim(), phone: wkPhone.trim(),
+              address: wkAddress.trim(), city: wkCity.trim(),
+              id_type: wkIdType, id_number: wkIdNumber.trim(),
+              room_type: sel.roomType, rate_code: wkRateCode,
+              check_in_date: wkCheckIn, check_out_date: wkCheckOut,
+              eta: wkEta, number_of_guests: guestsPerRoom, room_number: sel.roomNumber,
+              purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: i === 0 ? (wkGuaranteeAmount || 0) : 0,
+              payment_collected: wkPayment, special_requests: wkSpecialReq.trim(), notes: wkNotes.trim(), add_to_profile: wkAddToProfile, is_vip: wkVipGuest, is_repeat: wkRepeatGuest,
+            }),
+          });
+          let data;
+          try { data = await res.json(); } catch { throw new Error(`Server returned status ${res.status} (${res.statusText})`); }
+          
+          if (!data.success) {
+            setWkError(data.message || `Server error ${res.status}`);
+            setWkSubmitting(false);
+            return;
+          }
+          if (i === 0) firstReservation = data.reservation;
+        }
+        
+        setWkResult(firstReservation);
+        setWkSuccess(true);
+        fetchInHouse();
+        fetchArrivals(arrivalDate);
+      } catch (e) { setWkError(e.message || 'Network error — is the server running?'); }
+    setWkSubmitting(false);
+  };
+
+  const resetWalkin = () => {
+    setWkTitle('Mr.'); setWkLastName(''); setWkFirstName(''); setWkMiddleName('');
+    setWkGender(''); setWkBirthDate(''); setWkNationality(''); setWkCountry('');
+    setWkEmail(''); setWkPhone(''); setWkAddress(''); setWkCity('');
+    setWkIdType(''); setWkIdNumber('');
+    setWkRoomSelections([{ roomType: wkRoomTypes[0]?.name || '', roomNumber: '' }]); setWkRateCode('');
+    setWkCheckIn(today); setWkCheckOut(''); setWkEta(''); setWkGuests(1);
+    setWkPurpose(''); setWkPaymentMethod('Cash'); setWkDepositAmount('');
+    setWkPayment(false); setWkSpecialReq(''); setWkNotes('');
+    setWkSuccess(false); setWkResult(null); setWkError('');
+
+    // Reset new fields
+    setWkCompany(''); setWkAddToProfile(true); setWkVipGuest(false); setWkRepeatGuest(false);
+    setWkCheckInTime('14:00'); setWkCheckOutTime('12:00'); setWkAdults(2); setWkChildren(1); 
+    setWkSource('Direct Booking'); setWkRoomPreference('High Floor'); setWkBedType('Queen Bed');
+    setWkDiscountPct(0); setWkDiscountCode(''); setWkCardType('Visa'); setWkCardNumberFull('');
+    setWkCardExpiry(''); setWkCardCvv(''); setWkCardholder(''); setWkGuaranteeType('Guarantee by Credit Card');
+    setWkGuaranteeAmount(''); setWkSendConfirmEmail(true); setWkSearchGuest('');
+  };
+
+  // ── Guest Profile helpers ──────────────────────────────────────────────────
+  const openGuestProfile = (r) => {
+    setGpRes(r);
+    const parsed = parseFullName(r.full_name);
+    setGpForm({
+      title: r.title || '',
+      last_name: parsed.last,
+      first_name: parsed.first,
+      middle_name: r.middle_name || (parsed.mi !== '—' ? parsed.mi.replace('.', '') : ''),
+      gender: r.gender || '',
+      date_of_birth: r.date_of_birth ? r.date_of_birth.slice(0, 10) : '',
+      nationality: r.nationality || '',
+      country: r.country || '',
+      email: r.email || '',
+      phone_number: r.phone_number || '',
+      address: r.address || '',
+      city: r.city || '',
+      id_type: r.id_type || '',
+      id_number: r.id_number || '',
+      purpose_of_visit: r.purpose_of_visit || '',
+      eta: r.eta || '',
+      payment_method: r.payment_method || '',
+      deposit_amount: r.deposit_amount != null ? r.deposit_amount : '',
+      special_requests: r.special_requests || '',
+      front_desk_notes: r.front_desk_notes || '',
+    });
+    setGpError(''); setGpSaved(false);
+    setGpOpen(true);
+  };
+
+  const saveGuestProfile = async () => {
+    if (!gpRes) return;
+    setGpSaving(true); setGpError(''); setGpSaved(false);
+    try {
+      const full_name = `${gpForm.last_name.trim()}, ${gpForm.first_name.trim()}${gpForm.middle_name.trim() ? ' ' + gpForm.middle_name.trim() : ''}`;
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${gpRes.id}/profile`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...gpForm, full_name }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGpSaved(true);
+        setGpRes(data.reservation);
+        fetchInHouse();
+        fetchArrivals(arrivalDate);
+      } else setGpError(data.message || 'Failed to save.');
+    } catch (e) { setGpError('Network error.'); }
+    setGpSaving(false);
+  };
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
