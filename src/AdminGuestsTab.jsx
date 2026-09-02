@@ -6,7 +6,7 @@ const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname 
   ? 'http://localhost:5000'
   : 'https://northomes.onrender.com';
 
-export default function AdminGuestsTab({ reservations = [], onRefresh, printGuestDataSheet }) {
+export default function AdminGuestsTab({ reservations = [], onRefresh, printGuestDataSheet, captureSignature }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterNationality, setFilterNationality] = useState('All Nationalities');
@@ -237,7 +237,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
           setSelectedGuest(updatedGuest);
           if (onRefresh) onRefresh();
         }} 
-        printGuestDataSheet={printGuestDataSheet}
+        printGuestDataSheet={printGuestDataSheet} captureSignature={captureSignature}
       />
     );
   }
@@ -655,8 +655,17 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
                         Print Guest Data Sheet
-                      </button>
-                    )}
+                        </button>
+                      )}
+                      {selectedGuest.stays && selectedGuest.stays.length > 0 && captureSignature && (
+                        <button
+                          onClick={() => captureSignature(selectedGuest.stays[0])}
+                          className="w-full text-left px-4 py-2 text-[12px] hover:bg-gray-50 flex items-center gap-2 font-medium"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                          Capture Signature
+                        </button>
+                      )}
                   </div>
                 </div>
 

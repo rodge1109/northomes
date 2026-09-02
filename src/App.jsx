@@ -1,4 +1,5 @@
-import React, { useState, createContext, useContext, useEffect, useMemo, useCallback } from 'react';
+import React, {  useState, createContext, useContext, useEffect, useMemo, useCallback , useRef } from 'react';
+import SignatureCanvas from 'react-signature-canvas';
 import ReactDOM from 'react-dom';
 import { ShoppingCart, Plus, Minus, Trash2, ChevronRight, Check, X, Search } from 'lucide-react';
 import LiquidEther from './components/LiquidEther/LiquidEther';
@@ -690,6 +691,39 @@ export default function RestaurantApp() {
   const [adminTab, setAdminTab] = useState('dashboard');
   const [authPulse, setAuthPulse] = useState(0);
 
+  const [signatureModal, setSignatureModal] = useState({ open: false, res: null });
+  const sigCanvas = useRef(null);
+
+  const captureSignature = (res) => {
+    setSignatureModal({ open: true, res });
+  };
+
+  const handleSaveSignature = () => {
+    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+      alert('Please provide a signature first.');
+      return;
+    }
+    const signatureDataUrl = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
+    fetch(`${API_BASE_URL}/api/reservations/${signatureModal.res.id}/signature`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signature: signatureDataUrl })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        setSignatureModal({ open: false, res: null });
+        alert('Signature saved successfully!');
+      } else {
+        alert(data.message || 'Failed to save signature');
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error saving signature: ' + err.message);
+    });
+  };
+
   const [showPromoPopup, setShowPromoPopup] = useState(false);
   const [latestPromo, setLatestPromo] = useState(null);
 
@@ -1237,7 +1271,7 @@ export default function RestaurantApp() {
         {currentPage === 'checkout' && <CheckoutPage setCurrentPage={setCurrentPage} clearCart={clearCart} />}
         {currentPage === 'confirmation' && <ConfirmationPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} paymentStatus={paymentStatus} />}
         {currentPage === 'payment-failed' && <PaymentFailedPage setCurrentPage={setCurrentPage} orderNumber={pendingOrderNumber} />}
-        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} />}
+        {currentPage === 'admin' && <AdminDashboard setCurrentPage={setCurrentPage} activeTab={adminTab} setActiveTab={setAdminTab} captureSignature={captureSignature} />}
         {currentPage === 'my-appointment' && <MyAppointment setCurrentPage={setCurrentPage} initialToken={appointmentToken} />}
         {currentPage === 'checkin' && <GuestCheckinPage setCurrentPage={setCurrentPage} />}
         {/* Front Desk handled in AdminDashboard */}
@@ -1392,6 +1426,32 @@ export default function RestaurantApp() {
           </div>
         )}
       </div>
+      {signatureModal.open && (
+        <div className="fixed inset-0 z-[200] bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
+            <h3 className="text-[14px] font-bold mb-2">Capture Signature</h3>
+            <p className="text-xs text-black/60 mb-4">Guest: {signatureModal.res?.full_name}</p>
+            <div className="border border-black/10 rounded-md bg-gray-50 mb-4" style={{ height: '200px' }}>
+              <SignatureCanvas ref={sigCanvas} penColor="black"
+                canvasProps={{width: 500, height: 200, className: 'sigCanvas w-full h-full'}} />
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setSignatureModal({ open: false, res: null })}
+                className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+                Cancel
+              </button>
+              <button onClick={() => sigCanvas.current && sigCanvas.current.clear()}
+                className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+                Clear
+              </button>
+              <button onClick={handleSaveSignature}
+                className="flex-1 py-2 rounded-md bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors">
+                Save Signature
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </CartContext.Provider>
   );
 }
@@ -2064,7 +2124,7 @@ function AppointmentForm({ onSuccess }) {
 }
 
 // Admin Dashboard Component
-function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
+function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignature }) {
   const [pendingCheckInRes, setPendingCheckInRes] = useState(null);
   const handleOpenWizard = (res) => {
     setPendingCheckInRes(res);
@@ -2358,7 +2418,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       const rate = getRoomRate(originalRes.room_type, originalRes.rate_code); // display rate of first room
 
     // Remove 'Z' if present to prevent browser from adding local timezone offset to an already-local DB timestamp
-    const safeDateStr = res.checked_in_at && typeof res.checked_in_at === 'string' ? res.checked_in_at.replace(/Z$/, '') : res.checked_in_at;
+    const safeDateStr = res.checked_in_at;
     const displayCheckInTime = safeDateStr ? new Date(safeDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
 
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
@@ -2528,7 +2588,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
       
       <div class="sig-row">
         <div class="sig-col">
-          <div class="sig-line"></div>
+          ${originalRes.guest_signature 
+            ? `<img src="${originalRes.guest_signature}" style="max-height: 40px; display: block; margin: 0 auto; margin-bottom: 4px;" alt="Signature" />`
+            : `<div class="sig-line"></div>`}
           <div style="font-size:9px;">Guest Signature</div>
           <div style="font-size:8px; color:#666;">(Signature over printed name)</div>
         </div>
@@ -3656,7 +3718,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab }) {
         {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
-        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} pendingTransferRes={pendingTransferRes} setPendingTransferRes={setPendingTransferRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
+        {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} captureSignature={captureSignature} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} pendingTransferRes={pendingTransferRes} setPendingTransferRes={setPendingTransferRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
         {/* ==================== ROOMS TAB ==================== */}
         {activeTab === 'rooms' && (
@@ -11268,7 +11330,7 @@ function GuestCheckinPage({ setCurrentPage }) {
   );
 }
 
-function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRes, setPendingCheckInRes, pendingTransferRes, setPendingTransferRes, roomTypes = [], rateCodes = [], promos = [] }) {
+function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature, pendingCheckInRes, setPendingCheckInRes, pendingTransferRes, setPendingTransferRes, roomTypes = [], rateCodes = [], promos = [] }) {
   const today = new Date().toISOString().split('T')[0];
   const [fdView, setFdView] = React.useState('arrivals');
 
@@ -13520,6 +13582,15 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, pendingCheckInRe
                                               >
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z" /></svg>
                                                 Print Data Sheet
+                                              </button>
+                                            )}
+                                            {captureSignature && (
+                                              <button
+                                                onClick={() => { captureSignature(res); setOpenInHouseDropdown(null); }}
+                                                className="w-full px-4 py-2 text-left text-[12px] font-medium text-black/70 hover:bg-gray-50 flex items-center gap-2"
+                                              >
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                                Capture Signature
                                               </button>
                                             )}
                                             <button

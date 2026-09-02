@@ -18,7 +18,7 @@ const formatDateForInput = (dateStr) => {
   }
 };
 
-export default function GuestProfileView({ guest, onBack, onSave, printGuestDataSheet }) {
+export default function GuestProfileView({ guest, onBack, onSave, printGuestDataSheet, captureSignature }) {
   if (!guest) return null;
 
   const [activeTab, setActiveTab] = useState('Profile');

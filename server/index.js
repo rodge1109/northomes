@@ -351,6 +351,7 @@ const initFrontDeskColumns = async () => {
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT ''`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS deposit_amount NUMERIC(10,2) DEFAULT 0`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN DEFAULT false`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_signature TEXT`
   ];
   for (const sql of migrations) await pool.query(sql);
   console.log('Front desk columns ready.');
@@ -2201,6 +2202,33 @@ app.patch('/api/reservations/:id/profile', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to update guest profile.' });
   }
 });
+
+// PATCH /api/reservations/:id/signature — update guest signature
+app.patch('/api/reservations/:id/signature', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { signature } = req.body;
+    
+    if (!signature) {
+      return res.status(400).json({ success: false, message: 'Signature data is required.' });
+    }
+
+    const result = await pool.query(
+      `UPDATE hotel_reservations SET guest_signature = $1 WHERE id = $2 RETURNING *`,
+      [signature, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Reservation not found.' });
+    }
+
+    res.json({ success: true, reservation: result.rows[0] });
+  } catch (err) {
+    console.error('Signature update error:', err);
+    res.status(500).json({ success: false, message: 'Failed to save guest signature.' });
+  }
+});
+
 
 // GET /api/reservations/:id/documents
 app.get('/api/reservations/:id/documents', async (req, res) => {
