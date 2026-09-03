@@ -2418,7 +2418,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
       const rate = getRoomRate(originalRes.room_type, originalRes.rate_code); // display rate of first room
 
     // Remove 'Z' if present to prevent browser from adding local timezone offset to an already-local DB timestamp
-    const safeDateStr = res.checked_in_at;
+    const safeDateStr = typeof res.checked_in_at === 'string' ? res.checked_in_at.replace('Z', '') : res.checked_in_at;
     const displayCheckInTime = safeDateStr ? new Date(safeDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
 
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
@@ -2534,6 +2534,14 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
       
       <div class="section-title">Booking Details</div>
       <table class="grid-table">
+        <tr>
+          <td class="lbl">Booking No.</td>
+          <td class="val"><div class="line-input">RES-${String(res.id).padStart(5, '0')}</div></td>
+          <td class="lbl">Booking Date</td>
+          <td class="val"><div class="line-input">${fmtD(res.created_at || new Date())}</div></td>
+          <td class="lbl">Channel</td>
+          <td class="val"><div class="line-input">${res.source || 'Walk-In'}</div></td>
+        </tr>
         <tr>
           <td class="lbl">Check-In Date</td>
           <td class="val"><div class="line-input">${fmtD(res.check_in_date)}</div></td>

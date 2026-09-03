@@ -118,6 +118,9 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
         totalPayments: parseFloat(g.total_payments || 0),
         avgSpend: totalStays > 0 ? totalSpent / totalStays : 0,
         lastStayDate: lastStay ? lastStay.checkIn : null,
+        lastBookingNumber: lastStay && lastStay.id ? `RES-${String(lastStay.id).padStart(5, '0')}` : '—',
+        lastBookingDate: lastStay && lastStay.created_at ? new Date(lastStay.created_at) : null,
+        lastBookingChannel: lastStay ? (lastStay.source || g.source || 'Walk-In') : '—',
         status,
         statusColor,
         isVip: totalStays >= 5 || totalSpent >= 20000 || g.vip_status === 'VIP'
@@ -411,6 +414,9 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                       <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60">CONTACT</th>
                       <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60">NATIONALITY</th>
                       <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60">STATUS</th>
+                      <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60">BOOKING NO.</th>
+                      <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60">BOOKING DATE</th>
+                      <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60">BOOKING CHANNEL</th>
                       <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60">LAST STAY</th>
                       <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60 text-center">TOTAL STAYS</th>
                       <th className="px-4 py-5 font-black uppercase tracking-widest text-[10px] text-black/60 text-right">TOTAL SPENT</th>
@@ -419,7 +425,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                   </thead>
                   <tbody className="divide-y divide-black/5">
                     {displayGuests.length === 0 ? (
-                      <tr><td colSpan="9" className="text-center py-12 text-black/50 font-medium">No guests found.</td></tr>
+                      <tr><td colSpan="12" className="text-center py-12 text-black/50 font-medium">No guests found.</td></tr>
                     ) : displayGuests.map(g => (
                       <tr key={g.id} 
                           onClick={() => setSelectedGuest(g)}
@@ -453,6 +459,15 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                           <span className={`px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest ${g.statusColor}`}>
                             {g.status}
                           </span>
+                        </td>
+                        <td className="px-4 py-4 align-middle font-bold text-[#005530]">
+                          {g.lastBookingNumber}
+                        </td>
+                        <td className="px-4 py-4 align-middle font-medium text-black/80">
+                          {fmtDate(g.lastBookingDate)}
+                        </td>
+                        <td className="px-4 py-4 align-middle font-medium text-black/80">
+                          {g.lastBookingChannel}
                         </td>
                         <td className="px-4 py-4 align-middle font-medium text-black/80">
                           {fmtDate(g.lastStayDate)}
