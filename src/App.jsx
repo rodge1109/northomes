@@ -2603,7 +2603,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
           <div style="font-size:8px; color:#666;">(Signature over printed name)</div>
         </div>
         <div class="sig-col">
-          <div class="sig-line" style="width:100px; margin-left:auto; margin-right:auto;"></div>
+          ${originalRes.guest_signature 
+            ? `<div style="font-weight:bold; font-size:11px; margin-bottom:4px; height:40px; display:flex; align-items:flex-end; justify-content:center; border-bottom:1px solid #fff;">${fmtD(originalRes.guest_signature_date || originalRes.check_in_date)}</div>`
+            : `<div class="sig-line" style="width:100px; margin-left:auto; margin-right:auto;"></div>`}
           <div style="font-size:9px;">Date</div>
         </div>
       </div>

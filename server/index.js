@@ -2214,7 +2214,7 @@ app.patch('/api/reservations/:id/signature', async (req, res) => {
     }
 
     const result = await pool.query(
-      `UPDATE hotel_reservations SET guest_signature = $1 WHERE id = $2 RETURNING *`,
+      `UPDATE hotel_reservations SET guest_signature = $1, guest_signature_date = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
       [signature, id]
     );
 
