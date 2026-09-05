@@ -1764,11 +1764,21 @@ app.post('/api/folio/:reservationId/charge', async (req, res) => {
     const amount = qty * price;
     
     let customPostedAt = null;
-    if (date && time) {
-      customPostedAt = `${date}T${time}:00`;
-    } else if (date) {
-      const nowTime = new Date().toTimeString().slice(0, 8);
-      customPostedAt = `${date}T${nowTime}`;
+    if (date) {
+      const cleanDate = String(date).split('T')[0].slice(0, 10);
+      let cleanTime = '';
+      if (time) {
+        cleanTime = String(time).split('T').pop().replace('Z', '').slice(0, 8);
+        if (cleanTime.length === 5) cleanTime += ':00';
+      } else {
+        const now = new Date();
+        const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        const hrs = String(manilaTime.getHours()).padStart(2, '0');
+        const mins = String(manilaTime.getMinutes()).padStart(2, '0');
+        const secs = String(manilaTime.getSeconds()).padStart(2, '0');
+        cleanTime = `${hrs}:${mins}:${secs}`;
+      }
+      customPostedAt = `${cleanDate} ${cleanTime}`;
     }
     
     const result = await pool.query(
@@ -1792,11 +1802,21 @@ app.post('/api/folio/:reservationId/payment', async (req, res) => {
       return res.status(400).json({ success: false, message: 'payment_method and amount are required.' });
     
     let customPostedAt = null;
-    if (date && time) {
-      customPostedAt = `${date}T${time}:00`;
-    } else if (date) {
-      const nowTime = new Date().toTimeString().slice(0, 8);
-      customPostedAt = `${date}T${nowTime}`;
+    if (date) {
+      const cleanDate = String(date).split('T')[0].slice(0, 10);
+      let cleanTime = '';
+      if (time) {
+        cleanTime = String(time).split('T').pop().replace('Z', '').slice(0, 8);
+        if (cleanTime.length === 5) cleanTime += ':00';
+      } else {
+        const now = new Date();
+        const manilaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+        const hrs = String(manilaTime.getHours()).padStart(2, '0');
+        const mins = String(manilaTime.getMinutes()).padStart(2, '0');
+        const secs = String(manilaTime.getSeconds()).padStart(2, '0');
+        cleanTime = `${hrs}:${mins}:${secs}`;
+      }
+      customPostedAt = `${cleanDate} ${cleanTime}`;
     }
     
     const result = await pool.query(

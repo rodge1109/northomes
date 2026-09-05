@@ -5879,7 +5879,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </div>
             <div className="flex justify-between items-end mt-6 px-2">
               <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">Arrival Report</h2>
-              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate + 'T23:59:59').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
