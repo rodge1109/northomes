@@ -1778,7 +1778,7 @@ app.post('/api/folio/:reservationId/charge', async (req, res) => {
         const secs = String(manilaTime.getSeconds()).padStart(2, '0');
         cleanTime = `${hrs}:${mins}:${secs}`;
       }
-      customPostedAt = `${cleanDate} ${cleanTime}`;
+      customPostedAt = `${cleanDate}T${cleanTime}+08:00`;
     }
     
     const result = await pool.query(
@@ -1816,7 +1816,7 @@ app.post('/api/folio/:reservationId/payment', async (req, res) => {
         const secs = String(manilaTime.getSeconds()).padStart(2, '0');
         cleanTime = `${hrs}:${mins}:${secs}`;
       }
-      customPostedAt = `${cleanDate} ${cleanTime}`;
+      customPostedAt = `${cleanDate}T${cleanTime}+08:00`;
     }
     
     const result = await pool.query(

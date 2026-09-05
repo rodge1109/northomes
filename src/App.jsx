@@ -201,8 +201,8 @@ function AdminBillingTab({
   ].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   // Folio logic
-  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
-  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
+  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === safeDateCA(new Date());
+  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < safeDateCA(new Date());
   const initials = (folioRes?.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const nights = folioRes ? nightsCount(folioRes) : 0;
 
@@ -2229,7 +2229,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     const desc = overrideDesc || fcDesc;
     const qty = overrideQty || fcQty;
     const price = overridePrice || fcPrice;
-    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return false; }
+    if (!price || issafeConfId(r.created_at, r.id)(parseFloat(price))) { setFcError('Enter a valid price'); return false; }
     setFcSaving(true); setFcError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
@@ -11473,8 +11473,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     return inHouseGuests
       .filter(r => {
         if (inHouseFilterStatus === 'All Status') return true;
-        const isDueOut = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
-        const isOverdue = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA'); if (inHouseFilterStatus === 'Due Out') return isDueOut;
+        const isDueOut = r.check_out_date && safeDateCA(r.check_out_date) === safeDateCA(new Date());
+        const isOverdue = r.check_out_date && safeDateCA(r.check_out_date) < safeDateCA(new Date()); if (inHouseFilterStatus === 'Due Out') return isDueOut;
         if (inHouseFilterStatus === 'Checked In') return !isDueOut;
         return true;
       })
@@ -12484,8 +12484,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
 
   const InHouseCard = ({ r }) => {
     const nights = nightsCount(r);
-    const isDueOut = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
-    const isOverdue = r.check_out_date && new Date(r.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
+    const isDueOut = r.check_out_date && safeDateCA(r.check_out_date) === safeDateCA(new Date());
+    const isOverdue = r.check_out_date && safeDateCA(r.check_out_date) < safeDateCA(new Date());
 
     const menuItems = [
       {
@@ -13477,8 +13477,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                 filteredInHouse.map((res) => {
                                   const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(res.id).padStart(3, '0')}`;
                                   const nights = nightsCount(res);
-                                  const isDueOut = res.check_out_date && new Date(res.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
-                                  const isOverdue = res.check_out_date && new Date(res.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
+                                  const isDueOut = res.check_out_date && safeDateCA(res.check_out_date) === safeDateCA(new Date());
+                                  const isOverdue = res.check_out_date && safeDateCA(res.check_out_date) < safeDateCA(new Date());
 
                                   const handleSendEmail = async (r) => {
                                     setFolioRes(r);
@@ -15569,8 +15569,8 @@ function FolioModal({
 
   const nights = nightsCount(folioRes);
   const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === new Date().toLocaleDateString('en-CA');
-  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < new Date().toLocaleDateString('en-CA');
+  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === safeDateCA(new Date());
+  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < safeDateCA(new Date());
 
   const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
