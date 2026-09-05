@@ -63,6 +63,30 @@ const parseFullName = (fullNameStr) => {
 };
 
 // Cart Context
+
+// Robust Date/Time & Confirmation ID Helpers
+const safeDateCA = (d) => {
+  if (!d) return '';
+  try {
+    const dt = new Date(d);
+    return Number.isNaN(dt.getTime()) ? '' : dt.toLocaleDateString('en-CA');
+  } catch (e) {
+    return '';
+  }
+};
+
+const safeConfId = (createdAt, id) => {
+  try {
+    const dt = (createdAt && createdAt !== 'undefined' && !Number.isNaN(new Date(createdAt).getTime()))
+      ? new Date(createdAt)
+      : new Date();
+    const datePart = dt.toISOString().slice(2, 10).replace(/-/g, '');
+    return `ONL-${datePart}-${String(id || 0).padStart(3, '0')}`;
+  } catch (e) {
+    return `ONL-00000000-${String(id || 0).padStart(3, '0')}`;
+  }
+};
+
 const CartContext = createContext();
 
 const useCart = () => {
@@ -201,8 +225,8 @@ function AdminBillingTab({
   ].sort((a, b) => new Date(a.date) - new Date(b.date));
 
   // Folio logic
-  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === safeDateCA(new Date());
-  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < safeDateCA(new Date());
+  const isDueOut = folioRes?.check_out_date && safeDateCA(folioRes.check_out_date) === safeDateCA(new Date());
+  const isOverdue = folioRes?.check_out_date && safeDateCA(folioRes.check_out_date) < safeDateCA(new Date());
   const initials = (folioRes?.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
   const nights = folioRes ? nightsCount(folioRes) : 0;
 
@@ -2229,7 +2253,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     const desc = overrideDesc || fcDesc;
     const qty = overrideQty || fcQty;
     const price = overridePrice || fcPrice;
-    if (!price || issafeConfId(r.created_at, r.id)(parseFloat(price))) { setFcError('Enter a valid price'); return false; }
+    if (!price || isNaN(parseFloat(price))) { setFcError('Enter a valid price'); return false; }
     setFcSaving(true); setFcError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/charge`, {
@@ -15569,8 +15593,8 @@ function FolioModal({
 
   const nights = nightsCount(folioRes);
   const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-  const isDueOut = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') === safeDateCA(new Date());
-  const isOverdue = folioRes?.check_out_date && new Date(folioRes.check_out_date).toLocaleDateString('en-CA') < safeDateCA(new Date());
+  const isDueOut = folioRes?.check_out_date && safeDateCA(folioRes.check_out_date) === safeDateCA(new Date());
+  const isOverdue = folioRes?.check_out_date && safeDateCA(folioRes.check_out_date) < safeDateCA(new Date());
 
   const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
