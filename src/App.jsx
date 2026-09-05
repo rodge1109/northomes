@@ -64,12 +64,63 @@ const parseFullName = (fullNameStr) => {
 
 // Cart Context
 
+
 // Robust Date/Time & Confirmation ID Helpers
+const getTodayLocal = () => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getNowTimeLocal = () => {
+  const d = new Date();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
+const formatManilaTime = (dateStr) => {
+  if (!dateStr) return '—';
+  try {
+    const dt = new Date(dateStr);
+    if (isNaN(dt.getTime())) return '—';
+    return dt.toLocaleTimeString('en-US', {
+      timeZone: 'Asia/Manila',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (e) {
+    return '—';
+  }
+};
+
+const formatManilaDateTime = (dateStr) => {
+  if (!dateStr) return '—';
+  try {
+    const dt = new Date(dateStr);
+    if (isNaN(dt.getTime())) return '—';
+    return dt.toLocaleString('en-US', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  } catch (e) {
+    return '—';
+  }
+};
+
 const safeDateCA = (d) => {
   if (!d) return '';
   try {
     const dt = new Date(d);
-    return Number.isNaN(dt.getTime()) ? '' : dt.toLocaleDateString('en-CA');
+    return isNaN(dt.getTime()) ? '' : dt.toLocaleDateString('en-CA');
   } catch (e) {
     return '';
   }
@@ -77,7 +128,7 @@ const safeDateCA = (d) => {
 
 const safeConfId = (createdAt, id) => {
   try {
-    const dt = (createdAt && createdAt !== 'undefined' && !Number.isNaN(new Date(createdAt).getTime()))
+    const dt = (createdAt && createdAt !== 'undefined' && !isNaN(new Date(createdAt).getTime()))
       ? new Date(createdAt)
       : new Date();
     const datePart = dt.toISOString().slice(2, 10).replace(/-/g, '');
@@ -86,6 +137,7 @@ const safeConfId = (createdAt, id) => {
     return `ONL-00000000-${String(id || 0).padStart(3, '0')}`;
   }
 };
+
 
 const CartContext = createContext();
 
@@ -5804,7 +5856,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     } else if (report.title === "Payment Collection Report" && data.payments) {
       headers = ['Date', 'Payment Method', 'Amount', 'Reference', 'Guest Name', 'Room #', 'Cashier'];
       rows = data.payments.map(p => [
-        new Date(p.posted_at).toLocaleString(),
+        formatManilaDateTime(p.posted_at),
         p.payment_method,
         p.amount,
         p.reference_number || '-',
@@ -5837,19 +5889,19 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
       rows.push(['Total Collected (Period)', data.stats.total_collected]);
     } else if (report.title === "Void Report" && data.voids) {
       headers = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
-      rows = data.voids.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
+      rows = data.voids.map(v => [formatManilaDateTime(v.posted_at), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
     } else if (report.title === "Discount Report" && data.discounts) {
       headers = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
-      rows = data.discounts.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
+      rows = data.discounts.map(d => [formatManilaDateTime(d.posted_at), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
     } else if (report.title === "Refund Report" && data.refunds) {
       headers = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
-      rows = data.refunds.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
+      rows = data.refunds.map(v => [formatManilaDateTime(v.posted_at), v.guest_name || '-', v.room_number || '-', v.payment_method, v.amount, v.cashier_name || '-', v.notes || '-']);
     } else if (report.title === "Deleted Charges Report" && data.deleted) {
       headers = ['Date', 'Guest Name', 'Room #', 'Department', 'Description', 'Amount', 'Void Reason'];
-      rows = data.deleted.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, d.amount, d.void_reason || '-']);
+      rows = data.deleted.map(d => [formatManilaDateTime(d.posted_at), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, d.amount, d.void_reason || '-']);
     } else if (report.title === "Rate Override Report" && data.overrides) {
       headers = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
-      rows = data.overrides.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
+      rows = data.overrides.map(d => [formatManilaDateTime(d.posted_at), d.guest_name || '-', d.room_number || '-', d.description, d.amount]);
     }
 
     if (headers.length === 0) return;
@@ -6099,7 +6151,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             <tbody>
               {combinedTransactions.map((tx, i) => (
                 <tr key={i}>
-                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(tx.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{formatManilaTime(tx.posted_at)}</td>
                   <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left font-bold text-black">{tx.guest_name}</td>
                   <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{tx.room_number || '-'}</td>
                   <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">
@@ -6213,7 +6265,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               ) : (
                 data.items.map((item, i) => (
                   <tr key={i}>
-                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{new Date(item.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{formatManilaTime(item.posted_at)}</td>
                     <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase font-bold text-black">{item.charge_type}</td>
                     <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left text-black">{item.description} {item.quantity > 1 ? `(x${item.quantity})` : ''}</td>
                     <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{item.guest_name} {item.room_number ? `(${item.room_number})` : ''}</td>
@@ -6297,7 +6349,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
                 data.payments.map((p, i) => (
                   <tr key={i}>
                     <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">
-                      {new Date(p.posted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} {new Date(p.posted_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                      {formatManilaDateTime(p.posted_at)}
                     </td>
                     <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{p.guest_name || 'Walk-in'} {p.room_number ? `(${p.room_number})` : ''}</td>
                     <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left uppercase font-bold text-black">{p.payment_method}</td>
@@ -6425,19 +6477,19 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
         emptyMsg = "No night audits found for this date range.";
       } else if (report.title === "Void Report") {
         columns = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
-        rowsData = data.voids.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
+        rowsData = data.voids.map(v => [formatManilaDateTime(v.posted_at), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
       } else if (report.title === "Discount Report") {
         columns = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
-        rowsData = data.discounts.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
+        rowsData = data.discounts.map(d => [formatManilaDateTime(d.posted_at), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
       } else if (report.title === "Refund Report") {
         columns = ['Date', 'Guest Name', 'Room #', 'Payment Method', 'Amount', 'Cashier', 'Notes'];
-        rowsData = data.refunds.map(v => [new Date(v.posted_at).toLocaleString(), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
+        rowsData = data.refunds.map(v => [formatManilaDateTime(v.posted_at), v.guest_name || '-', v.room_number || '-', v.payment_method, `₱${Number(v.amount).toLocaleString()}`, v.cashier_name || '-', v.notes || '-']);
       } else if (report.title === "Deleted Charges Report") {
         columns = ['Date', 'Guest Name', 'Room #', 'Department', 'Description', 'Amount', 'Void Reason'];
-        rowsData = data.deleted.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, `₱${Number(d.amount).toLocaleString()}`, d.void_reason || '-']);
+        rowsData = data.deleted.map(d => [formatManilaDateTime(d.posted_at), d.guest_name || '-', d.room_number || '-', d.charge_type, d.description, `₱${Number(d.amount).toLocaleString()}`, d.void_reason || '-']);
       } else if (report.title === "Rate Override Report") {
         columns = ['Date', 'Guest Name', 'Room #', 'Description', 'Amount'];
-        rowsData = data.overrides.map(d => [new Date(d.posted_at).toLocaleString(), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
+        rowsData = data.overrides.map(d => [formatManilaDateTime(d.posted_at), d.guest_name || '-', d.room_number || '-', d.description, `₱${Number(d.amount).toLocaleString()}`]);
       }
 
       return (
