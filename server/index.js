@@ -5576,7 +5576,7 @@ app.get('/api/reports/shift', async (req, res) => {
 
     let query = `
       SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
-             TO_CHAR(p.posted_at, 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             TO_CHAR(p.posted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
              r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
@@ -5596,7 +5596,7 @@ app.get('/api/reports/shift', async (req, res) => {
 
     let discountQuery = `
       SELECT i.id, i.reservation_id, i.charge_type, i.description, i.quantity, i.unit_price, i.amount, i.voided,
-             TO_CHAR(i.posted_at, 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             TO_CHAR(i.posted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
              r.full_name as guest_name, r.room_number
       FROM hotel_folio_items i
       LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
@@ -5695,7 +5695,7 @@ app.get('/api/reports/payments', async (req, res) => {
 
     const paymentsResult = await pool.query(`
       SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
-             TO_CHAR(p.posted_at, 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             TO_CHAR(p.posted_at AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
              r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
