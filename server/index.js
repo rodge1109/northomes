@@ -422,6 +422,29 @@ const initFolioTables = async () => {
 };
 initFolioTables().catch(err => console.error('Folio table init failed:', err));
 
+const revertTimezoneMigration = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS hotel_schema_migrations (
+        migration_name TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    const check = await pool.query(`SELECT 1 FROM hotel_schema_migrations WHERE migration_name = 'revert_8hr_shift_v3'`);
+    if (check.rows.length === 0) {
+      console.log('Restoring exact original Supabase registered timestamps...');
+      await pool.query(`UPDATE hotel_folio_payments SET posted_at = posted_at + INTERVAL '8 hours' WHERE posted_at IS NOT NULL`);
+      await pool.query(`UPDATE hotel_folio_items SET posted_at = posted_at + INTERVAL '8 hours' WHERE posted_at IS NOT NULL`);
+      await pool.query(`INSERT INTO hotel_schema_migrations (migration_name) VALUES ('revert_8hr_shift_v3')`);
+      console.log('Successfully restored original Supabase registered timestamps!');
+    }
+  } catch (e) {
+    console.error('Revert migration error:', e.message);
+  }
+};
+revertTimezoneMigration().catch(err => console.error('Migration error:', err));
+
+
 const fixTimezoneShiftMigration = async () => {
   try {
     await pool.query(`
@@ -5593,7 +5616,7 @@ app.get('/api/reports/shift', async (req, res) => {
 
     let query = `
       SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
-             TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             TO_CHAR(p.posted_at, 'YYYY-MM-DD HH24:MI:SS') as posted_at,
              r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
@@ -5613,7 +5636,7 @@ app.get('/api/reports/shift', async (req, res) => {
 
     let discountQuery = `
       SELECT i.id, i.reservation_id, i.charge_type, i.description, i.quantity, i.unit_price, i.amount, i.voided,
-             TO_CHAR(i.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             TO_CHAR(i.posted_at, 'YYYY-MM-DD HH24:MI:SS') as posted_at,
              r.full_name as guest_name, r.room_number
       FROM hotel_folio_items i
       LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
@@ -5712,7 +5735,7 @@ app.get('/api/reports/payments', async (req, res) => {
 
     const paymentsResult = await pool.query(`
       SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
-             TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             TO_CHAR(p.posted_at, 'YYYY-MM-DD HH24:MI:SS') as posted_at,
              r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id

@@ -84,7 +84,7 @@ const getNowTimeLocal = () => {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
-// Pure Deterministic Local Time Formatters (No Timezone Conversion)
+// Pure Deterministic Local Time Formatters (Reads Supabase String Directly)
 const formatManilaTime = (dateStr) => {
   if (!dateStr) return '—';
   const str = String(dateStr).trim();
