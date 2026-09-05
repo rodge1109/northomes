@@ -1710,8 +1710,8 @@ app.get('/api/folio/:reservationId', async (req, res) => {
         LEFT JOIN hotel_guests g ON r.guest_id = g.id
         WHERE r.id = $1
       `, [reservationId]),
-      pool.query('SELECT * FROM hotel_folio_items WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
-      pool.query('SELECT * FROM hotel_folio_payments WHERE reservation_id = $1 ORDER BY posted_at ASC', [reservationId]),
+      pool.query(`SELECT id, reservation_id, charge_type, description, quantity, unit_price, amount, voided, void_reason, TO_CHAR(posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD"T"HH24:MI:SS') as posted_at FROM hotel_folio_items WHERE reservation_id = $1 ORDER BY posted_at ASC`, [reservationId]),
+      pool.query(`SELECT id, reservation_id, payment_method, amount, reference, voided, notes, cashier_name, TO_CHAR(posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD"T"HH24:MI:SS') as posted_at FROM hotel_folio_payments WHERE reservation_id = $1 ORDER BY posted_at ASC`, [reservationId]),
     ]);
     if (resResult.rows.length === 0)
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
@@ -5569,7 +5569,9 @@ app.get('/api/reports/shift', async (req, res) => {
     const endTime = end.includes('T') ? end : `${end} 23:59:59`;
 
     let query = `
-      SELECT p.*, r.full_name as guest_name, r.room_number
+      SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
+             TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD"T"HH24:MI:SS') as posted_at,
+             r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
       WHERE p.posted_at >= $1 AND p.posted_at <= $2 AND p.voided = false
@@ -5587,7 +5589,9 @@ app.get('/api/reports/shift', async (req, res) => {
     const result = await pool.query(query, params);
 
     let discountQuery = `
-      SELECT i.*, r.full_name as guest_name, r.room_number
+      SELECT i.id, i.reservation_id, i.charge_type, i.description, i.quantity, i.unit_price, i.amount, i.voided,
+             TO_CHAR(i.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD"T"HH24:MI:SS') as posted_at,
+             r.full_name as guest_name, r.room_number
       FROM hotel_folio_items i
       LEFT JOIN hotel_reservations r ON r.id = i.reservation_id
       WHERE i.posted_at >= $1 AND i.posted_at <= $2 AND i.voided = false
@@ -5684,7 +5688,9 @@ app.get('/api/reports/payments', async (req, res) => {
     const end = endDate || start;
 
     const paymentsResult = await pool.query(`
-      SELECT p.*, r.full_name as guest_name, r.room_number
+      SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
+             TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD"T"HH24:MI:SS') as posted_at,
+             r.full_name as guest_name, r.room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
       WHERE DATE(p.posted_at) BETWEEN $1 AND $2 AND p.voided = false

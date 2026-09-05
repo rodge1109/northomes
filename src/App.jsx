@@ -2251,14 +2251,15 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
   };
 
   const addPayment = async (overrideMethod, overrideAmount, overrideRef, overrideDate, overrideTime, overrideNotes) => {
-    const method = overrideMethod || fpMethod;
-    const amount = overrideAmount || fpAmount;
-    const ref = overrideRef || fpRef;
-    const date = (overrideDate !== undefined && overrideDate !== null && overrideDate !== '') ? overrideDate : (fpDate || payDate || getTodayLocal());
-    const time = (overrideTime !== undefined && overrideTime !== null && overrideTime !== '') ? overrideTime : (fpTime || payTime || getNowTimeLocal());
-    const notes = (overrideNotes !== undefined && overrideNotes !== null) ? overrideNotes : (fpNotes || payNotes || '');
-    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return false; }
-    setFpSaving(true); setFpError('');
+    const method = overrideMethod || (typeof fpMethod !== 'undefined' ? fpMethod : 'Cash');
+    const amount = overrideAmount || (typeof fpAmount !== 'undefined' ? fpAmount : '');
+    const ref = overrideRef || (typeof fpRef !== 'undefined' ? fpRef : '');
+    const date = (overrideDate !== undefined && overrideDate !== null && overrideDate !== '') ? overrideDate : getTodayLocal();
+    const time = (overrideTime !== undefined && overrideTime !== null && overrideTime !== '') ? overrideTime : getNowTimeLocal();
+    const notes = (overrideNotes !== undefined && overrideNotes !== null) ? overrideNotes : (typeof fpNotes !== 'undefined' ? fpNotes : '');
+    if (!amount || isNaN(parseFloat(amount))) { if (typeof setFpError === 'function') setFpError('Enter a valid amount'); return false; }
+    if (typeof setFpSaving === 'function') setFpSaving(true);
+    if (typeof setFpError === 'function') setFpError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
@@ -11827,14 +11828,15 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
   };
 
   const addPayment = async (overrideMethod, overrideAmount, overrideRef, overrideDate, overrideTime, overrideNotes) => {
-    const method = overrideMethod || fpMethod;
-    const amount = overrideAmount || fpAmount;
-    const ref = overrideRef || fpRef;
-    const date = (overrideDate !== undefined && overrideDate !== null && overrideDate !== '') ? overrideDate : (fpDate || payDate || getTodayLocal());
-    const time = (overrideTime !== undefined && overrideTime !== null && overrideTime !== '') ? overrideTime : (fpTime || payTime || getNowTimeLocal());
-    const notes = (overrideNotes !== undefined && overrideNotes !== null) ? overrideNotes : (fpNotes || payNotes || '');
-    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return false; }
-    setFpSaving(true); setFpError('');
+    const method = overrideMethod || (typeof fpMethod !== 'undefined' ? fpMethod : 'Cash');
+    const amount = overrideAmount || (typeof fpAmount !== 'undefined' ? fpAmount : '');
+    const ref = overrideRef || (typeof fpRef !== 'undefined' ? fpRef : '');
+    const date = (overrideDate !== undefined && overrideDate !== null && overrideDate !== '') ? overrideDate : getTodayLocal();
+    const time = (overrideTime !== undefined && overrideTime !== null && overrideTime !== '') ? overrideTime : getNowTimeLocal();
+    const notes = (overrideNotes !== undefined && overrideNotes !== null) ? overrideNotes : (typeof fpNotes !== 'undefined' ? fpNotes : '');
+    if (!amount || isNaN(parseFloat(amount))) { if (typeof setFpError === 'function') setFpError('Enter a valid amount'); return false; }
+    if (typeof setFpSaving === 'function') setFpSaving(true);
+    if (typeof setFpError === 'function') setFpError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
         method: 'POST',
