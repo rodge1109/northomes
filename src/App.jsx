@@ -712,8 +712,17 @@ export default function RestaurantApp() {
     .then(r => r.json())
     .then(data => {
       if (data.success) {
+        if (signatureModal.res) {
+          signatureModal.res.guest_signature = signatureDataUrl;
+        }
+        if (folioRes && signatureModal.res && folioRes.id === signatureModal.res.id) {
+          setFolioRes({ ...folioRes, guest_signature: signatureDataUrl });
+        }
         setSignatureModal({ open: false, res: null });
         alert('Signature saved successfully!');
+        if (typeof fetchInHouse === 'function') fetchInHouse();
+        if (typeof fetchReservations === 'function') fetchReservations();
+        if (typeof fetchArrivals === 'function') fetchArrivals(arrivalDate);
       } else {
         alert(data.message || 'Failed to save signature');
       }
@@ -2245,7 +2254,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     const method = overrideMethod || fpMethod;
     const amount = overrideAmount || fpAmount;
     const ref = overrideRef || fpRef;
-    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return; }
+    const date = (overrideDate !== undefined && overrideDate !== null && overrideDate !== '') ? overrideDate : (fpDate || payDate || getTodayLocal());
+    const time = (overrideTime !== undefined && overrideTime !== null && overrideTime !== '') ? overrideTime : (fpTime || payTime || getNowTimeLocal());
+    const notes = (overrideNotes !== undefined && overrideNotes !== null) ? overrideNotes : (fpNotes || payNotes || '');
+    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return false; }
     setFpSaving(true); setFpError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
@@ -2255,9 +2267,10 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
           payment_method: method,
           amount: amount,
           reference: ref,
-          date: overrideDate,
-          time: overrideTime,
-          notes: overrideNotes
+          date: date,
+          time: time,
+          notes: notes,
+          cashier_name: localStorage.getItem('adminUser') || 'admin'
         }),
       });
       const data = await res.json();
@@ -11526,7 +11539,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
   const [wkFirstName, setWkFirstName] = React.useState('');
   const [wkEmail, setWkEmail] = React.useState('');
   const [wkPhone, setWkPhone] = React.useState('');
-  const [wkCheckIn, setWkCheckIn] = React.useState(today);
+  const [wkCheckIn, setWkCheckIn] = React.useState(getTodayLocal());
   const [wkCheckOut, setWkCheckOut] = React.useState('');
   const [wkGuests, setWkGuests] = React.useState(1);
   const [wkSpecialReq, setWkSpecialReq] = React.useState('');
@@ -11556,7 +11569,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
   const [wkAddToProfile, setWkAddToProfile] = React.useState(true);
   const [wkVipGuest, setWkVipGuest] = React.useState(false);
   const [wkRepeatGuest, setWkRepeatGuest] = React.useState(false);
-  const [wkCheckInTime, setWkCheckInTime] = React.useState('14:00');
+  const [wkCheckInTime, setWkCheckInTime] = React.useState(getNowTimeLocal());
   const [wkCheckOutTime, setWkCheckOutTime] = React.useState('12:00');
   const [wkAdults, setWkAdults] = React.useState(2);
   const [wkChildren, setWkChildren] = React.useState(1);
@@ -11817,7 +11830,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     const method = overrideMethod || fpMethod;
     const amount = overrideAmount || fpAmount;
     const ref = overrideRef || fpRef;
-    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return; }
+    const date = (overrideDate !== undefined && overrideDate !== null && overrideDate !== '') ? overrideDate : (fpDate || payDate || getTodayLocal());
+    const time = (overrideTime !== undefined && overrideTime !== null && overrideTime !== '') ? overrideTime : (fpTime || payTime || getNowTimeLocal());
+    const notes = (overrideNotes !== undefined && overrideNotes !== null) ? overrideNotes : (fpNotes || payNotes || '');
+    if (!amount || isNaN(parseFloat(amount))) { setFpError('Enter a valid amount'); return false; }
     setFpSaving(true); setFpError('');
     try {
       const res = await fetch(`${API_BASE_URL}/api/folio/${folioRes.id}/payment`, {
@@ -11827,9 +11843,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
           payment_method: method,
           amount: amount,
           reference: ref,
-          date: overrideDate,
-          time: overrideTime,
-          notes: overrideNotes,
+          date: date,
+          time: time,
+          notes: notes,
           cashier_name: localStorage.getItem('adminUser') || 'admin'
         }),
       });
@@ -12112,7 +12128,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
               address: wkAddress.trim(), city: wkCity.trim(),
               id_type: wkIdType, id_number: wkIdNumber.trim(),
               room_type: sel.roomType, rate_code: wkRateCode,
-              check_in_date: wkCheckIn, check_out_date: wkCheckOut,
+              check_in_date: wkCheckIn, check_in_time: wkCheckInTime, check_out_date: wkCheckOut,
               eta: wkEta, number_of_guests: guestsPerRoom, room_number: sel.roomNumber,
               purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: i === 0 ? (wkGuaranteeAmount || 0) : 0,
               company: wkCompany.trim(),
@@ -12144,14 +12160,14 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     setWkEmail(''); setWkPhone(''); setWkAddress(''); setWkCity('');
     setWkIdType(''); setWkIdNumber('');
     setWkRoomSelections([{ roomType: wkRoomTypes[0]?.name || '', roomNumber: '' }]); setWkRateCode('');
-    setWkCheckIn(today); setWkCheckOut(''); setWkEta(''); setWkGuests(1);
+    setWkCheckIn(getTodayLocal()); setWkCheckOut(''); setWkEta(''); setWkGuests(1);
     setWkPurpose(''); setWkPaymentMethod('Cash'); setWkDepositAmount('');
     setWkPayment(false); setWkSpecialReq(''); setWkNotes('');
     setWkSuccess(false); setWkResult(null); setWkError('');
 
     // Reset new fields
     setWkCompany(''); setWkAddToProfile(true); setWkVipGuest(false); setWkRepeatGuest(false);
-    setWkCheckInTime('14:00'); setWkCheckOutTime('12:00'); setWkAdults(2); setWkChildren(1); 
+    setWkCheckInTime(getNowTimeLocal()); setWkCheckOutTime('12:00'); setWkAdults(2); setWkChildren(1); 
     setWkSource('Direct Booking'); setWkRoomPreference('High Floor'); setWkBedType('Queen Bed');
     setWkDiscountPct(0); setWkDiscountCode(''); setWkCardType('Visa'); setWkCardNumberFull('');
     setWkCardExpiry(''); setWkCardCvv(''); setWkCardholder(''); setWkGuaranteeType('Guarantee by Credit Card');
@@ -13856,7 +13872,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                             <div className="col-span-2">
                               <label className="block text-[10px] uppercase font-bold tracking-wider text-black/50 mb-1">Check-in Date *</label>
                               <div className="flex gap-2">
-                                <input type="date" value={wkCheckIn} min={today} onChange={e => setWkCheckIn(e.target.value)}
+                                <input type="date" value={wkCheckIn} min={getTodayLocal()} onChange={e => setWkCheckIn(e.target.value)}
                                   className="w-2/3 px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
                                 <input type="time" value={wkCheckInTime} onChange={e => setWkCheckInTime(e.target.value)}
                                   className="w-1/3 px-3 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] outline-none transition-all shadow-sm" />
@@ -15211,7 +15227,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
       {GuestProfileModal()}
 
       {/* ── Folio Modal ── */}
-      <FolioModal
+      <FolioModal captureSignature={captureSignature}
         folioOpen={folioOpen} folioRes={folioRes} setFolioOpen={setFolioOpen} fmtDate={fmtDate} nightsCount={nightsCount} printFolio={printFolio}
         sendFolioEmail={sendFolioEmail} folioEmailSending={folioEmailSending} folioEmailMsg={folioEmailMsg} folioLoading={folioLoading} folioError={folioError}
         folioTotals={folioTotals} folioItems={folioItems} voidCharge={voidCharge} fcType={fcType} setFcType={setFcType} fcDesc={fcDesc} setFcDesc={setFcDesc}
@@ -15384,6 +15400,7 @@ function GuestsTab() {
 // ── Folio Modal — Full Screen Redesign ───────────────────────────────────────
 
 function FolioModal({
+  captureSignature,
   folioOpen, folioRes, setFolioOpen, fmtDate, nightsCount, printFolio,
   sendFolioEmail, folioEmailSending, folioEmailMsg, folioLoading, folioError,
   folioTotals, folioItems, voidCharge, fcType, setFcType, fcDesc, setFcDesc,
@@ -15393,8 +15410,8 @@ function FolioModal({
 }) {
   const [addChargeOpen, setAddChargeOpen] = React.useState(false);
   const [chargeType, setChargeType] = React.useState('Room Charge');
-  const [chargeDate, setChargeDate] = React.useState(new Date().toISOString().slice(0, 10));
-  const [chargeTime, setChargeTime] = React.useState(String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0'));
+  const [chargeDate, setChargeDate] = React.useState(getTodayLocal());
+  const [chargeTime, setChargeTime] = React.useState(getNowTimeLocal());
   const [chargeDesc, setChargeDesc] = React.useState('');
   const [chargeQty, setChargeQty] = React.useState(1);
   const [chargeRate, setChargeRate] = React.useState('');
@@ -15404,8 +15421,8 @@ function FolioModal({
 
   const [addPayOpen, setAddPayOpen] = React.useState(false);
   const [payMethod, setPayMethod] = React.useState('Cash');
-  const [payDate, setPayDate] = React.useState(new Date().toISOString().slice(0, 10));
-  const [payTime, setPayTime] = React.useState(String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0'));
+  const [payDate, setPayDate] = React.useState(getTodayLocal());
+  const [payTime, setPayTime] = React.useState(getNowTimeLocal());
   const [payAmount, setPayAmount] = React.useState('');
   const [payRef, setPayRef] = React.useState('');
   const [payNotes, setPayNotes] = React.useState('');
@@ -15460,7 +15477,7 @@ function FolioModal({
     if (!folioRes) return;
     setDocsLoading(true);
     try {
-      const res = await fetch(`/api/reservations/${folioRes.id}/documents`);
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${folioRes.id}/documents`);
       const data = await res.json();
       if (data.success) setDocuments(data.documents);
     } catch (err) {
@@ -15473,7 +15490,7 @@ function FolioModal({
     setProfileSaving(true);
     setProfileError(''); setProfileSuccess('');
     try {
-      const res = await fetch(`/api/reservations/${folioRes.id}/profile`, {
+      const res = await fetch(`${API_BASE_URL}/api/reservations/${folioRes.id}/profile`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profileForm)
@@ -15496,7 +15513,7 @@ function FolioModal({
   const handleNotesSave = async () => {
     setNotesSaving(true);
     try {
-      await fetch(`/api/reservations/${folioRes.id}/profile`, {
+      await fetch(`${API_BASE_URL}/api/reservations/${folioRes.id}/profile`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ front_desk_notes: notes })
@@ -15515,11 +15532,11 @@ function FolioModal({
     try {
       const fd = new FormData();
       fd.append('photos', file);
-      const uploadRes = await fetch('/api/upload', { method: 'POST', body: fd });
+      const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, { method: 'POST', body: fd });
       const uploadData = await uploadRes.json();
       if (uploadData.success && uploadData.urls.length > 0) {
         const fileUrl = uploadData.urls[0];
-        const res = await fetch(`/api/reservations/${folioRes.id}/documents`, {
+        const res = await fetch(`${API_BASE_URL}/api/reservations/${folioRes.id}/documents`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ file_name: file.name, file_url: fileUrl })
@@ -15972,6 +15989,23 @@ function FolioModal({
               <div className="flex-1 flex flex-col p-6">
                 <div className="max-w-2xl w-full">
                   <div className="flex justify-between items-center mb-6">
+                    <div className="mb-6 p-4 rounded-xl border border-black/10 bg-gray-50 flex items-center justify-between">
+                      <div>
+                        <div className="text-xs font-bold text-black mb-1">Guest Signature</div>
+                        {folioRes?.guest_signature ? (
+                          <div className="flex items-center gap-2">
+                            <img src={folioRes.guest_signature} alt="Guest Signature" className="h-10 max-w-[200px] object-contain bg-white border border-black/10 p-1 rounded" />
+                            <span className="text-[10px] text-green-700 font-bold bg-green-100 px-2 py-0.5 rounded">Saved</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-black/50 italic">No signature captured yet</span>
+                        )}
+                      </div>
+                      <button onClick={() => captureSignature && captureSignature(folioRes)} className="px-3.5 py-2 bg-black/5 hover:bg-black/10 border border-black/15 text-black text-xs font-semibold rounded-md transition-colors flex items-center gap-1.5">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        {folioRes?.guest_signature ? 'Re-capture Signature' : 'Capture Signature'}
+                      </button>
+                    </div>
                     <h3 className="text-sm font-bold text-black">Guest Documents</h3>
                     <div>
                       <input type="file" id="docUpload" className="hidden" onChange={handleFileUpload} />

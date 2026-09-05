@@ -1766,11 +1766,14 @@ app.post('/api/folio/:reservationId/charge', async (req, res) => {
     let customPostedAt = null;
     if (date && time) {
       customPostedAt = `${date}T${time}:00`;
+    } else if (date) {
+      const nowTime = new Date().toTimeString().slice(0, 8);
+      customPostedAt = `${date}T${nowTime}`;
     }
     
     const result = await pool.query(
       `INSERT INTO hotel_folio_items (reservation_id, charge_type, description, quantity, unit_price, amount, posted_at)
-       VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7::timestamp, CURRENT_TIMESTAMP)) RETURNING *`,
+       VALUES ($1, $2, $3, $4, $5, $6, CASE WHEN $7::text IS NOT NULL AND $7::text != '' THEN $7::timestamptz ELSE CURRENT_TIMESTAMP END) RETURNING *`,
       [reservationId, charge_type, description || '', qty, price, amount, customPostedAt]
     );
     res.json({ success: true, item: result.rows[0] });
@@ -1791,11 +1794,14 @@ app.post('/api/folio/:reservationId/payment', async (req, res) => {
     let customPostedAt = null;
     if (date && time) {
       customPostedAt = `${date}T${time}:00`;
+    } else if (date) {
+      const nowTime = new Date().toTimeString().slice(0, 8);
+      customPostedAt = `${date}T${nowTime}`;
     }
     
     const result = await pool.query(
       `INSERT INTO hotel_folio_payments (reservation_id, payment_method, amount, reference, posted_at, notes, cashier_name)
-       VALUES ($1, $2, $3, $4, COALESCE($5::timestamp, CURRENT_TIMESTAMP), $6, $7) RETURNING *`,
+       VALUES ($1, $2, $3, $4, CASE WHEN $5::text IS NOT NULL AND $5::text != '' THEN $5::timestamptz ELSE CURRENT_TIMESTAMP END, $6, $7) RETURNING *`,
       [reservationId, payment_method, parseFloat(amount), reference || '', customPostedAt, notes || '', cashier_name || '']
     );
     res.json({ success: true, payment: result.rows[0] });
@@ -1987,7 +1993,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
   try {
     const {
       full_name, email, phone, room_type,
-      check_in_date, check_out_date, number_of_guests,
+      check_in_date, check_in_time, check_out_date, number_of_guests,
       room_number, payment_collected, special_requests, notes, rate_code,
       title, middle_name, gender, birth_date, nationality, country,
       address, city, id_type, id_number, purpose, eta,
@@ -1996,6 +2002,10 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     } = req.body;
     if (!full_name || !room_type || !check_in_date || !check_out_date || !room_number) {
       return res.status(400).json({ success: false, message: 'Missing required fields.' });
+    }
+    let customCheckInAt = null;
+    if (check_in_date && check_in_time) {
+      customCheckInAt = `${check_in_date}T${check_in_time}:00`;
     }
     // 1. Room-type inventory check — prevent overbooking
     const rtInfo = await pool.query(
@@ -2068,8 +2078,8 @@ app.post('/api/front-desk/walkin', async (req, res) => {
           address, city, id_type, id_number, purpose_of_visit, eta,
           payment_method, deposit_amount, guest_id, company)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$27,
-               CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
-               CASE WHEN $27='checked_in' THEN NOW() ELSE NULL END,
+               CASE WHEN $27='checked_in' THEN COALESCE($30::timestamptz, CURRENT_TIMESTAMP) ELSE NULL END,
+               CASE WHEN $27='checked_in' THEN COALESCE($30::timestamptz, CURRENT_TIMESTAMP) ELSE NULL END,
                $13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26, $28, $29)
        RETURNING *`,
       [
@@ -2081,7 +2091,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
         birth_date || null, nationality || '', country || '',
         address || '', city || '', id_type || '', id_number || '',
         purpose || '', eta || '', payment_method || '', deposit_amount || 0,
-          initialStatus, guestId, company || ''
+          initialStatus, guestId, company || '', customCheckInAt
       ]
     );
     // Auto-upsert room record
