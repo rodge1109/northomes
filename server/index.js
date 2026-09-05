@@ -422,6 +422,29 @@ const initFolioTables = async () => {
 };
 initFolioTables().catch(err => console.error('Folio table init failed:', err));
 
+const fixTimezoneShiftMigration = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS hotel_schema_migrations (
+        migration_name TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    const check = await pool.query(`SELECT 1 FROM hotel_schema_migrations WHERE migration_name = 'fix_8hr_shift_v2'`);
+    if (check.rows.length === 0) {
+      console.log('Applying 8-hour timezone shift correction to database records...');
+      await pool.query(`UPDATE hotel_folio_payments SET posted_at = posted_at - INTERVAL '8 hours' WHERE posted_at IS NOT NULL`);
+      await pool.query(`UPDATE hotel_folio_items SET posted_at = posted_at - INTERVAL '8 hours' WHERE posted_at IS NOT NULL`);
+      await pool.query(`INSERT INTO hotel_schema_migrations (migration_name) VALUES ('fix_8hr_shift_v2')`);
+      console.log('Successfully adjusted existing folio payments and items timestamps by -8 hours.');
+    }
+  } catch (e) {
+    console.error('Timezone migration error:', e.message);
+  }
+};
+fixTimezoneShiftMigration().catch(err => console.error('Migration error:', err));
+
+
 const initNightAuditTable = async () => {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS hotel_night_audit_logs (

@@ -67,18 +67,21 @@ const parseFullName = (fullNameStr) => {
 
 // Robust Date/Time & Confirmation ID Helpers
 const getTodayLocal = () => {
+  try {
+    const manilaStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    if (manilaStr && manilaStr.length === 10) return manilaStr;
+  } catch (e) {}
   const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 
 const getNowTimeLocal = () => {
+  try {
+    const manilaTimeStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', hour12: false });
+    if (manilaTimeStr && manilaTimeStr.length === 5) return manilaTimeStr;
+  } catch (e) {}
   const d = new Date();
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
-  return `${hours}:${minutes}`;
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
 const formatManilaTime = (dateStr) => {
