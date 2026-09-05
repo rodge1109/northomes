@@ -84,39 +84,43 @@ const getNowTimeLocal = () => {
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
+// Pure Deterministic Local Time Formatters (No Timezone Conversion)
 const formatManilaTime = (dateStr) => {
   if (!dateStr) return '—';
-  try {
-    const dt = new Date(dateStr);
-    if (isNaN(dt.getTime())) return '—';
-    return dt.toLocaleTimeString('en-US', {
-      timeZone: 'Asia/Manila',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  } catch (e) {
-    return '—';
+  const str = String(dateStr).trim();
+  const timeMatch = str.match(/(\d{1,2}):(\d{2})/);
+  if (timeMatch) {
+    let hours = parseInt(timeMatch[1], 10);
+    const minutes = timeMatch[2];
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
   }
+  return '—';
 };
 
 const formatManilaDateTime = (dateStr) => {
   if (!dateStr) return '—';
-  try {
-    const dt = new Date(dateStr);
-    if (isNaN(dt.getTime())) return '—';
-    return dt.toLocaleString('en-US', {
-      timeZone: 'Asia/Manila',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
-    });
-  } catch (e) {
-    return '—';
+  const str = String(dateStr).trim();
+  const dateMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const timeMatch = str.match(/(\d{1,2}):(\d{2})/);
+  
+  if (dateMatch && timeMatch) {
+    const year = dateMatch[1];
+    const month = parseInt(dateMatch[2], 10);
+    const day = dateMatch[3];
+    let hours = parseInt(timeMatch[1], 10);
+    const minutes = timeMatch[2];
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthName = months[month - 1] || 'Jan';
+    return `${monthName} ${parseInt(day, 10)}, ${year}, ${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
   }
+  return String(dateStr);
 };
 
 const safeDateCA = (d) => {
