@@ -146,6 +146,9 @@ const safeConfId = (createdAt, id) => {
 };
 
 
+// Official Payment & Cancellation Policy Text
+const DEFAULT_PAYMENT_CANCELLATION_POLICY = "PAYMENT & CANCELLATION POLICY\n\nTo avoid any confusion, please review the payment and cancellation terms applicable to your selected rate before confirming your reservation.\n\nREGULAR RATE\n\nPayment\n* A deposit or full payment is required to confirm your reservation.\n* The remaining balance may be paid on or before check-in.\n* Your reservation will only be considered confirmed once the required deposit has been received.\n\nCancellation & Modification\n* Cancellations or changes made at least 1 day (24 hours) before the scheduled check-in date/time may be made without cancellation charge.\n* For cancellations made less than 24 hours before check-in, the deposit will be non-refundable.\n* In case of a no-show, the deposit will be forfeited.\n* Any approved refund will be returned through the applicable payment method and may be subject to processing time.\n\n⸻\n\nBOOK NOW & SAVE PROMO RATE\n\nOur Book Now & Save Promo offers a discounted room rate in exchange for advance booking and full payment.\n\nPayment\n* Full payment is required upon booking to avail of the Book Now & Save promotional rate.\n* A deposit or partial payment does not qualify for the promotional rate.\n* The reservation is confirmed once full payment has been received and verified.\n\nCancellation & Modification\n* Full payment is refundable if the reservation is cancelled at least 3 days (72 hours) before the scheduled check-in date/time.\n* Cancellations made less than 72 hours before check-in are non-refundable.\n* In case of a no-show, the full amount paid will be forfeited.\n* Changes to the reservation are subject to room availability and the applicable rate for the new dates.\n* Any approved refund will be returned through the applicable payment method and may be subject to processing time.\n\n⸻\n\nIMPORTANT\n\nThe deposit option applies only to Regular Rate bookings.\n\nGuests who wish to avail of the Book Now & Save Promo must pay the full reservation amount upon booking. Selecting or paying only a deposit does not secure the promotional rate.\n\nBy confirming the reservation and making the required payment, the guest acknowledges and agrees to the payment and cancellation conditions applicable to the selected rate.";
+
 const CartContext = createContext();
 
 const useCart = () => {
@@ -2201,10 +2204,44 @@ function AppointmentForm({ onSuccess }) {
                 <div className="flex justify-between border-t border-black/10 pt-2"><span className="text-black/60">Balance at Property</span><span className="font-bold text-[#006241]">₱{Math.max(0, totalPrice - (parseFloat(depositAmount) || 0)).toLocaleString()}</span></div>
               </div>
             )}
+            
+            {/* Payment & Cancellation Policy Agreement */}
+            <div className="bg-[#f8f9fa] border border-[#00754A]/20 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h5 className="font-bold text-[12px] text-[#00754A] uppercase tracking-wider flex items-center gap-1.5">
+                  <span>📜</span> Payment & Cancellation Policy
+                </h5>
+                <button
+                  type="button"
+                  onClick={() => setShowPolicyModal(true)}
+                  className="text-[11px] font-bold text-[#00754A] underline hover:text-[#006241]"
+                >
+                  Read Full Policy
+                </button>
+              </div>
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                {appliedPromo 
+                  ? 'Book Now & Save Promo: Full payment is required. Refundable up to 72 hours before check-in.' 
+                  : 'Regular Rate: Deposit or full payment required. Free cancellation up to 24 hours before check-in.'}
+              </p>
+              <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+                <input
+                  type="checkbox"
+                  checked={policyAgreed}
+                  onChange={(e) => setPolicyAgreed(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-gray-300 text-[#00754A] focus:ring-[#00754A]"
+                  required
+                />
+                <span className="text-[11px] font-medium text-gray-700 leading-tight">
+                  I have read, understood, and agree to the <strong>Payment & Cancellation Policy</strong> for my selected rate.
+                </span>
+              </label>
+            </div>
+
             {submitStatus.message && <p className="text-[12px] text-red-500">{submitStatus.message}</p>}
             <div className="flex gap-3">
               <button type="button" onClick={() => { setStep(1); setSubmitStatus({ type: '', message: '' }); }} className="px-6 py-3 rounded-full border border-black/15 text-black/60 font-bold text-[12px] hover:bg-black/5 transition-all">← Back</button>
-              <button type="submit" disabled={isSubmitting || !depositOk} className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-[12px] disabled:opacity-50 flex items-center justify-center gap-2">
+              <button type="submit" disabled={isSubmitting || !depositOk || !policyAgreed} className="flex-1 bg-gradient-to-br from-[#00754A] to-[#006241] text-white py-3 rounded-full font-semibold text-[12px] disabled:opacity-50 flex items-center justify-center gap-2">
                 {isSubmitting ? 'Processing...' : 'Confirm & Pay Deposit'}
               </button>
             </div>
@@ -2884,6 +2921,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
   const [monthlyRevData, setMonthlyRevData] = useState([]);
 
   // Settings state
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [policyAgreed, setPolicyAgreed] = useState(false);
   const [blockedDates, setBlockedDates] = useState([]);
   const [newBlockedDate, setNewBlockedDate] = useState('');
   const [newBlockedReason, setNewBlockedReason] = useState('');
@@ -2904,7 +2943,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     hotel_name: '', hotel_address: '', hotel_phone: '', hotel_email: '',
     hotel_website: '', check_in_time: '14:00', check_out_time: '12:00',
     currency: 'PHP', min_stay_nights: '1', max_stay_nights: '30',
-    advance_booking_days: '365', cancellation_policy: '',
+    advance_booking_days: '365', cancellation_policy: DEFAULT_PAYMENT_CANCELLATION_POLICY,
     deposit_required: 'false', deposit_percentage: '50', auto_post_room_charge: 'false',
     sms_sender_name: '', email_sender_name: '', hero_images: '[]', gallery_images: '[]', about_us_content: ''
   });
@@ -8352,6 +8391,7 @@ function HomePage({ setCurrentPage }) {
               </p>
 
               <div className="flex items-center space-x-6 text-xs font-medium text-white/50">
+                <button onClick={() => setShowPolicyModal(true)} className="hover:text-white transition-colors">Payment & Cancellation Policy</button>
                 <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
                 <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
                 <button onClick={() => setCurrentPage('admin')} className="hover:text-white transition-colors">Staff Portal</button>
