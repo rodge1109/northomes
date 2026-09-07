@@ -8540,7 +8540,7 @@ function HomePage({ setCurrentPage }) {
           </div>
         </div>
       )}
-      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={hotelSettings.cancellation_policy || DEFAULT_PAYMENT_CANCELLATION_POLICY} />
+      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={DEFAULT_PAYMENT_CANCELLATION_POLICY} />
     </div>
   );
 }
