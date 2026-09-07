@@ -15855,7 +15855,7 @@ function FolioModal({
   };
 
   return ReactDOM.createPortal(
-    <div className="fixed top-0 right-0 bottom-0 z-[100] flex" style={{ left: '120px', background: '#ffffff' }}>
+    <div className="fixed top-0 right-0 bottom-0 z-[300] flex" style={{ left: '120px', background: '#ffffff' }}>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
