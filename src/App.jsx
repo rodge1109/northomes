@@ -293,8 +293,8 @@ function AdminBillingTab({
   const nights = folioRes ? nightsCount(folioRes) : 0;
 
   const ledger = [
-    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: i.posted_at ? new Date(i.posted_at).getTime() : null })),
-    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: p.posted_at ? new Date(p.posted_at).getTime() : null }))
+    ...(folioItems || []).map(i => ({ ...i, type: 'charge', timestamp: i.posted_at ? new Date(i.posted_at).getTime() : null })),
+    ...(folioPayments || []).map(p => ({ ...p, type: 'payment', timestamp: p.posted_at ? new Date(p.posted_at).getTime() : null }))
   ].sort((a, b) => {
     if (a.timestamp !== null && b.timestamp !== null) return a.timestamp - b.timestamp;
     if (a.timestamp !== null) return -1;
@@ -15774,8 +15774,8 @@ function FolioModal({
   const initials = (folioRes.full_name || '??').split(/[\s,]+/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
   const ledger = [
-    ...folioItems.map(i => ({ ...i, type: 'charge', timestamp: i.posted_at ? new Date(i.posted_at).getTime() : null })),
-    ...folioPayments.map(p => ({ ...p, type: 'payment', timestamp: p.posted_at ? new Date(p.posted_at).getTime() : null }))
+    ...(folioItems || []).map(i => ({ ...i, type: 'charge', timestamp: i.posted_at ? new Date(i.posted_at).getTime() : null })),
+    ...(folioPayments || []).map(p => ({ ...p, type: 'payment', timestamp: p.posted_at ? new Date(p.posted_at).getTime() : null }))
   ].sort((a, b) => {
     // Sort by timestamp if both exist, otherwise by id
     if (a.timestamp !== null && b.timestamp !== null) return a.timestamp - b.timestamp;
