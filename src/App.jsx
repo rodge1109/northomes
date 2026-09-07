@@ -7996,6 +7996,7 @@ function HomePage({ setCurrentPage }) {
   const [hotelSettings, setHotelSettings] = useState({});
   const [currentHeroImg, setCurrentHeroImg] = useState(0);
   const [heroImages, setHeroImages] = useState(["/assets/images/hero/hero1.jpg"]);
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
 
   useEffect(() => {
     fetch(`${API_BASE_URL}/api/room-types`)
@@ -8539,6 +8540,7 @@ function HomePage({ setCurrentPage }) {
           </div>
         </div>
       )}
+      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={hotelSettings.cancellation_policy} />
     </div>
   );
 }
