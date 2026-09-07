@@ -412,7 +412,7 @@ function AdminBillingTab({
               {filteredGuests.map(r => {
                 const isActive = folioRes?.id === r.id;
                 // use actual outstanding balance or 0
-                const bal = isActive ? folioTotals.balance : (outstandingDict[r.id] || 0);
+                const bal = isActive ? (folioTotals?.balance || 0) : (outstandingDict[r.id] || 0);
                 return (
                   <div key={r.id} onClick={() => openFolio(r)}
                     className={`p-4 border-b border-black/5 cursor-pointer hover:bg-black/[0.02] transition-colors flex flex-col ${isActive ? 'bg-[#00754A]/5 border-l-4 border-l-[#00754A]' : 'border-l-4 border-l-transparent'}`}>
@@ -563,7 +563,7 @@ function AdminBillingTab({
                     </div>
                     <div className="w-[200px] shrink-0 bg-[#006241] text-white p-4 rounded-xl flex flex-col items-center justify-center shadow-md">
                       <span className="text-[9px] font-bold uppercase tracking-widest opacity-80 mb-1">Outstanding Balance</span>
-                      <span className="text-2xl font-black">{fmtA(folioTotals.balance)}</span>
+                      <span className="text-2xl font-black">{fmtA((folioTotals?.balance || 0))}</span>
                     </div>
                   </div>
                 </div>
@@ -2562,8 +2562,8 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
         <tbody>${paymentRows}</tbody>
         <tfoot><tr class="paid-row"><td colspan="2" style="text-align:right;">Total Paid</td><td style="text-align:right;">${fmtA(totalPaid)}</td><td></td></tr></tfoot>
       </table>`}
-      <div class="balance ${folioTotals.balance > 0 ? 'bal-due' : 'bal-ok'}">
-        ${folioTotals.balance > 0 ? `Balance Due: ${fmtA(folioTotals.balance)}` : 'Folio Settled ✓'}
+      <div class="balance ${(folioTotals?.balance || 0) > 0 ? 'bal-due' : 'bal-ok'}">
+        ${(folioTotals?.balance || 0) > 0 ? `Balance Due: ${fmtA((folioTotals?.balance || 0))}` : 'Folio Settled ✓'}
       </div>
       <script>window.onload=()=>{window.print();}</script>
     </body></html>`);
@@ -12108,7 +12108,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     const nights = Math.round((new Date(folioRes.check_out_date) - new Date(folioRes.check_in_date)) / 86400000);
     const totalCharges = (folioItems || []).filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount), 0);
     const totalPaid = (folioPayments || []).filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount), 0);
-    const balance = folioTotals.balance;
+    const balance = (folioTotals?.balance || 0);
 
     const chargeRows = (folioItems || []).map(i => `
       <tr style="${i.voided ? 'opacity:0.4;text-decoration:line-through;' : ''}">
@@ -15755,7 +15755,7 @@ function FolioModal({
 
   React.useEffect(() => {
     if (addPayOpen) {
-      const balance = folioTotals && folioTotals.balance ? Math.max(0, parseFloat(folioTotals.balance)) : 0;
+      const balance = folioTotals && (folioTotals?.balance || 0) ? Math.max(0, parseFloat((folioTotals?.balance || 0))) : 0;
       setPayAmount(balance > 0 ? balance.toFixed(2) : '');
       setPayDate(new Date().toISOString().slice(0, 10));
       setPayTime(new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }));
@@ -15947,7 +15947,7 @@ function FolioModal({
                 </div>
                 <div className="pt-2 border-t border-black/8 flex justify-between items-center">
                   <span className="text-[12px] font-bold text-black">Balance</span>
-                  <span className={`text-base font-black ${'text-[#00754A]'}`}>{fmtA(folioTotals.balance)}</span>
+                  <span className={`text-base font-black ${'text-[#00754A]'}`}>{fmtA((folioTotals?.balance || 0))}</span>
                 </div>
               </div>
             </div>
@@ -16024,10 +16024,10 @@ function FolioModal({
                       const isCharge = entry.type === 'charge';
                       const isVoid = entry.voided;
                       const ts = new Date(entry.timestamp);
-                      const isLastActive = !isVoid && Math.abs(entry.currentBalance - folioTotals.balance) < 0.001;
+                      const isLastActive = !isVoid && Math.abs(entry.currentBalance - (folioTotals?.balance || 0)) < 0.001;
                       return (
                         <tr key={`${entry.type}-${entry.id}`}
-                          className={`group transition-colors ${isVoid ? 'opacity-40' : ''} ${isLastActive && folioTotals.balance > 0 ? 'bg-amber-50/60 hover:bg-amber-50' : 'hover:bg-black/[0.015]'}`}
+                          className={`group transition-colors ${isVoid ? 'opacity-40' : ''} ${isLastActive && (folioTotals?.balance || 0) > 0 ? 'bg-amber-50/60 hover:bg-amber-50' : 'hover:bg-black/[0.015]'}`}
                           style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                           <td className="px-5 py-3 text-xs text-black font-medium whitespace-nowrap">
                             {entry.timestamp ? new Date(entry.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
@@ -16049,7 +16049,7 @@ function FolioModal({
                           <td className="px-3 py-3 text-right text-xs font-mono text-black">
                             {!isCharge ? parseFloat(entry.amount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '—'}
                           </td>
-                          <td className={`px-3 py-3 text-right text-xs font-mono font-bold ${entry.currentBalance > 0 ? 'text-black' : 'text-[#00754A]'} ${isLastActive && folioTotals.balance > 0 ? 'text-amber-700' : ''}`}>
+                          <td className={`px-3 py-3 text-right text-xs font-mono font-bold ${entry.currentBalance > 0 ? 'text-black' : 'text-[#00754A]'} ${isLastActive && (folioTotals?.balance || 0) > 0 ? 'text-amber-700' : ''}`}>
                             {parseFloat(entry.currentBalance || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
                           </td>
                           <td className="px-5 py-3 text-right">
@@ -16275,7 +16275,7 @@ function FolioModal({
               {[
                 { label: 'TOTAL CHARGES', value: fmtA((folioItems || []).filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount), 0)), color: 'text-black' },
                 { label: 'TOTAL PAYMENTS', value: fmtA((folioPayments || []).filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount), 0)), color: 'text-black' },
-                { label: 'OUTSTANDING BALANCE', value: fmtA(folioTotals.balance), color: 'text-[#00754A]' },
+                { label: 'OUTSTANDING BALANCE', value: fmtA((folioTotals?.balance || 0)), color: 'text-[#00754A]' },
               ].map(s => (
                 <div key={s.label} className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-black/[0.05] flex items-center justify-center">
@@ -16393,7 +16393,7 @@ function FolioModal({
                 <span className="w-4 h-4 rounded-full border-2 border-[#00754A] flex items-center justify-center flex-shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />
                 </span>
-                <span className="text-xs text-black">Guest Folio (Outstanding Balance {fmtA(folioTotals.balance)})</span>
+                <span className="text-xs text-black">Guest Folio (Outstanding Balance {fmtA((folioTotals?.balance || 0))})</span>
               </label>
             </div>
           </div>
@@ -16492,7 +16492,7 @@ function FolioModal({
                   <span className="w-4 h-4 rounded-full border-2 border-[#00754A] flex items-center justify-center flex-shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#00754A]" />
                   </span>
-                  <span className="text-xs text-black">Guest Folio (Outstanding Balance {fmtA(folioTotals.balance)})</span>
+                  <span className="text-xs text-black">Guest Folio (Outstanding Balance {fmtA((folioTotals?.balance || 0))})</span>
                 </label>
               </div>
             </div>
