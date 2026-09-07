@@ -1618,6 +1618,8 @@ function AppointmentForm({ onSuccess }) {
   const [isVerifyingPromo, setIsVerifyingPromo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState({ type: '', message: '' });
+  const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [cancellationPolicy, setCancellationPolicy] = useState('');
   const [roomTypes, setRoomTypes] = useState([]);
   const [availability, setAvailability] = useState({});
   const [depositMethod, setDepositMethod] = useState('GCash');
@@ -1631,8 +1633,13 @@ function AppointmentForm({ onSuccess }) {
     fetch(`${API_BASE_URL}/api/hotel-settings`)
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.settings.payment_options) {
-          try { setPaymentOptions(JSON.parse(data.settings.payment_options)); } catch { }
+        if (data.success && data.settings) {
+          if (data.settings.payment_options) {
+            try { setPaymentOptions(JSON.parse(data.settings.payment_options)); } catch { }
+          }
+          if (data.settings.cancellation_policy) {
+            setCancellationPolicy(data.settings.cancellation_policy);
+          }
         }
       })
       .catch(() => { });
@@ -2248,6 +2255,7 @@ function AppointmentForm({ onSuccess }) {
           </form>
         )}
       </div>
+      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={cancellationPolicy} />
     </div>
   );
 }
@@ -16593,7 +16601,7 @@ function FolioModal({
           </div>
         </div>
       )}
-      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={hotelSettings.cancellation_policy} />
+
 
     </div>
     , document.body);
