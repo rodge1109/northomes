@@ -1286,10 +1286,18 @@ const initHotelSettingsTable = async () => {
 <p style="color: #666;">Please remember to bring a valid ID for check-in.</p>`
   };
   for (const [key, value] of Object.entries(defaults)) {
-    await pool.query(
-      `INSERT INTO hotel_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING`,
-      [key, value]
-    );
+    if (key === 'cancellation_policy') {
+      // Always update the policy text to ensure it reflects the latest content
+      await pool.query(
+        `INSERT INTO hotel_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+        [key, value]
+      );
+    } else {
+      await pool.query(
+        `INSERT INTO hotel_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO NOTHING`,
+        [key, value]
+      );
+    }
   }
 };
 initHotelSettingsTable().catch(err => console.error('Failed to init hotel_settings table:', err));
