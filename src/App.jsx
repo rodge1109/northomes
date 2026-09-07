@@ -7993,7 +7993,7 @@ function HomePage({ setCurrentPage }) {
   const [checkOut, setCheckOut] = useState(() => sessionStorage.getItem('northomes_checkout') || '');
   const [roomTypes, setRoomTypes] = useState([]);
 
-  const [hotelSettings, setHotelSettings] = useState({});
+  const [hotelSettings, setHotelSettings] = useState({ cancellation_policy: DEFAULT_PAYMENT_CANCELLATION_POLICY });
   const [currentHeroImg, setCurrentHeroImg] = useState(0);
   const [heroImages, setHeroImages] = useState(["/assets/images/hero/hero1.jpg"]);
   const [showPolicyModal, setShowPolicyModal] = useState(false);
@@ -8540,7 +8540,7 @@ function HomePage({ setCurrentPage }) {
           </div>
         </div>
       )}
-      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={hotelSettings.cancellation_policy} />
+      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={hotelSettings.cancellation_policy || DEFAULT_PAYMENT_CANCELLATION_POLICY} />
     </div>
   );
 }
