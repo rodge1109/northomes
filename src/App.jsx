@@ -16517,6 +16517,8 @@ function FolioModal({
           </div>
         </div>
       )}
+      <PaymentPolicyModal isOpen={showPolicyModal} onClose={() => setShowPolicyModal(false)} policyText={hotelSettings.cancellation_policy} />
+
     </div>
     , document.body);
 }
