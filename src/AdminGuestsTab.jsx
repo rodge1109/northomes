@@ -51,7 +51,7 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
 
       const totalStays = sortedStays.length;
       const totalNights = sortedStays.reduce((sum, s) => sum + s.nights, 0);
-      const totalSpent = sortedStays.reduce((sum, s) => sum + s.total, 0);
+      const totalSpent = parseFloat(g.total_payments || 0);
       const lastStay = sortedStays[0];
       
       // Determine overall status based on current stay
