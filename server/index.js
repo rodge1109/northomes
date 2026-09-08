@@ -1636,8 +1636,9 @@ app.get('/api/admin/guests', async (req, res) => {
           COALESCE((
             SELECT SUM(fp.amount)
             FROM hotel_folio_payments fp
-            JOIN hotel_reservations hr ON fp.reservation_id = hr.id
-            WHERE hr.guest_id = g.id AND fp.voided = false
+            WHERE fp.reservation_id = (
+                SELECT id FROM hotel_reservations WHERE guest_id = g.id ORDER BY check_in_date DESC NULLS LAST LIMIT 1
+            ) AND fp.voided = false
           ), 0) AS total_payments
         FROM hotel_guests g
         LEFT JOIN hotel_reservations r ON g.id = r.guest_id
@@ -1657,8 +1658,9 @@ app.get('/api/admin/guests', async (req, res) => {
           COALESCE((
             SELECT SUM(fp.amount)
             FROM hotel_folio_payments fp
-            JOIN hotel_reservations hr ON fp.reservation_id = hr.id
-            WHERE hr.guest_id = g.id AND fp.voided = false
+            WHERE fp.reservation_id = (
+                SELECT id FROM hotel_reservations WHERE guest_id = g.id ORDER BY check_in_date DESC NULLS LAST LIMIT 1
+            ) AND fp.voided = false
           ), 0) AS total_payments
         FROM hotel_guests g
         LEFT JOIN hotel_reservations r ON g.id = r.guest_id
