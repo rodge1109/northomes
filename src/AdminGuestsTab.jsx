@@ -195,6 +195,10 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
         if (!searchQuery) return true;
         const q = searchQuery.toLowerCase();
         return g.name.toLowerCase().includes(q) || g.email?.toLowerCase().includes(q) || g.phone?.includes(q) || g.id.toLowerCase().includes(q);
+      })
+      .sort((a, b) => {
+        const getNum = (g) => g.lastBookingNumber && g.lastBookingNumber.startsWith('RES-') ? parseInt(g.lastBookingNumber.split('-')[1], 10) : 0;
+        return getNum(b) - getNum(a);
       });
   }, [guests, searchQuery, filterStatus, filterNationality]);
 
