@@ -1627,6 +1627,7 @@ function AppointmentForm({ onSuccess }) {
   const [depositAmount, setDepositAmount] = useState('');
   const [depositNotes, setDepositNotes] = useState('');
   const [paymentOptions, setPaymentOptions] = useState({});
+  const [policyAgreed, setPolicyAgreed] = useState(false);
 
   // Fetch payment options from settings
   useEffect(() => {
