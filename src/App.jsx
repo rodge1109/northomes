@@ -778,45 +778,88 @@ export default function RestaurantApp() {
   const [authPulse, setAuthPulse] = useState(0);
 
   const [signatureModal, setSignatureModal] = useState({ open: false, res: null });
+  const [savingSignature, setSavingSignature] = useState(false);
   const sigCanvas = useRef(null);
 
   const captureSignature = (res) => {
     setSignatureModal({ open: true, res });
   };
 
-  const handleSaveSignature = () => {
-    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+  const handleSaveSignature = async () => {
+    if (!sigCanvas.current) return;
+    if (typeof sigCanvas.current.isEmpty === 'function' && sigCanvas.current.isEmpty()) {
       alert('Please provide a signature first.');
       return;
     }
-    const signatureDataUrl = sigCanvas.current.getTrimmedCanvas().toDataURL('image/png');
-    fetch(`${API_BASE_URL}/api/reservations/${signatureModal.res.id}/signature`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ signature: signatureDataUrl })
-    })
-    .then(r => r.json())
-    .then(data => {
+
+    setSavingSignature(true);
+    try {
+      let signatureDataUrl = '';
+      try {
+        if (typeof sigCanvas.current.getTrimmedCanvas === 'function') {
+          const trimmed = sigCanvas.current.getTrimmedCanvas();
+          if (trimmed) signatureDataUrl = trimmed.toDataURL('image/png');
+        }
+      } catch (e1) {
+        console.warn('Trimmed canvas failed, falling back to direct canvas:', e1);
+      }
+
+      if (!signatureDataUrl) {
+        if (typeof sigCanvas.current.getCanvas === 'function') {
+          signatureDataUrl = sigCanvas.current.getCanvas().toDataURL('image/png');
+        } else if (typeof sigCanvas.current.toDataURL === 'function') {
+          signatureDataUrl = sigCanvas.current.toDataURL();
+        }
+      }
+
+      if (!signatureDataUrl) {
+        alert('Could not capture signature image. Please draw on the pad and try again.');
+        setSavingSignature(false);
+        return;
+      }
+
+      const resId = signatureModal.res?.id || signatureModal.res?.dbId;
+      if (!resId) {
+        alert('Error: Invalid reservation reference.');
+        setSavingSignature(false);
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/api/reservations/${resId}/signature`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signature: signatureDataUrl })
+      });
+      const data = await response.json();
+
       if (data.success) {
+        const nowIso = new Date().toISOString();
         if (signatureModal.res) {
           signatureModal.res.guest_signature = signatureDataUrl;
+          signatureModal.res.guest_signature_date = nowIso;
         }
-        if (folioRes && signatureModal.res && folioRes.id === signatureModal.res.id) {
-          setFolioRes({ ...folioRes, guest_signature: signatureDataUrl });
+        if (typeof setFolioRes === 'function') {
+          try {
+            setFolioRes(prev => (prev && (prev.id === resId || prev.dbId === resId)) ? { ...prev, guest_signature: signatureDataUrl, guest_signature_date: nowIso } : prev);
+          } catch (e2) {}
         }
+        if (typeof setReservations === 'function') {
+          try {
+            setReservations(prev => (prev || []).map(r => (r.id === resId || r.dbId === resId) ? { ...r, guest_signature: signatureDataUrl, guest_signature_date: nowIso } : r));
+          } catch (e3) {}
+        }
+
         setSignatureModal({ open: false, res: null });
         alert('Signature saved successfully!');
-        if (typeof fetchInHouse === 'function') fetchInHouse();
-        if (typeof fetchReservations === 'function') fetchReservations();
-        if (typeof fetchArrivals === 'function') fetchArrivals(arrivalDate);
       } else {
         alert(data.message || 'Failed to save signature');
       }
-    })
-    .catch(err => {
-      console.error(err);
-      alert('Error saving signature: ' + err.message);
-    });
+    } catch (err) {
+      console.error('Signature save error:', err);
+      alert('Error saving signature: ' + (err.message || 'Network error'));
+    } finally {
+      setSavingSignature(false);
+    }
   };
 
   const [showPromoPopup, setShowPromoPopup] = useState(false);
@@ -1526,22 +1569,38 @@ export default function RestaurantApp() {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
             <h3 className="text-[14px] font-bold mb-2">Capture Signature</h3>
             <p className="text-xs text-black/60 mb-4">Guest: {signatureModal.res?.full_name}</p>
-            <div className="border border-black/10 rounded-md bg-gray-50 mb-4" style={{ height: '200px' }}>
+            <div className="border border-black/10 rounded-md bg-gray-50 mb-4 overflow-hidden" style={{ height: '200px' }}>
               <SignatureCanvas ref={sigCanvas} penColor="black"
-                canvasProps={{width: 500, height: 200, className: 'sigCanvas w-full h-full'}} />
+                canvasProps={{width: 500, height: 200, className: 'sigCanvas w-full h-full cursor-crosshair touch-none'}} />
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setSignatureModal({ open: false, res: null })}
-                className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+              <button 
+                onClick={() => setSignatureModal({ open: false, res: null })}
+                disabled={savingSignature}
+                className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors disabled:opacity-50"
+              >
                 Cancel
               </button>
-              <button onClick={() => sigCanvas.current && sigCanvas.current.clear()}
-                className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors">
+              <button 
+                onClick={() => sigCanvas.current && sigCanvas.current.clear()}
+                disabled={savingSignature}
+                className="flex-1 py-2 rounded-md border border-black/15 text-xs font-semibold text-black hover:bg-black/[0.03] transition-colors disabled:opacity-50"
+              >
                 Clear
               </button>
-              <button onClick={handleSaveSignature}
-                className="flex-1 py-2 rounded-md bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors">
-                Save Signature
+              <button 
+                onClick={handleSaveSignature}
+                disabled={savingSignature}
+                className="flex-1 py-2 rounded-md bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {savingSignature ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Signature'
+                )}
               </button>
             </div>
           </div>
@@ -2913,6 +2972,114 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     win.document.close();
   };
 
+  const printGuestFolioDirect = async (originalRes) => {
+    if (!originalRes) return;
+
+    if (typeof openFolio === 'function') {
+      try { openFolio(originalRes); } catch (err) {}
+    }
+
+    let items = [];
+    let payments = [];
+    let totals = { charges: 0, payments: 0, balance: 0 };
+
+    if (originalRes.id) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/folio/${originalRes.id}`);
+        const data = await response.json();
+        if (data.success) {
+          items = data.items || [];
+          payments = data.payments || [];
+          totals = data.totals || { charges: 0, payments: 0, balance: 0 };
+        }
+      } catch (e) {
+        console.error('Error fetching folio for print:', e);
+      }
+    }
+
+    const res = originalRes;
+    const fmtD = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const fmtA = (n) => `₱${parseFloat(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const nights = Math.max(1, Math.round((new Date(res.check_out_date || res.check_in_date) - new Date(res.check_in_date)) / 86400000));
+    
+    const totalCharges = items.filter(i => !i.voided).reduce((s, i) => s + parseFloat(i.amount || 0), 0);
+    const totalPaid = payments.filter(p => !p.voided).reduce((s, p) => s + parseFloat(p.amount || 0), 0);
+    const balance = totals.balance !== undefined ? totals.balance : (totalCharges - totalPaid);
+
+    const chargeRows = items.map(i => `
+      <tr style="${i.voided ? 'opacity:0.4;text-decoration:line-through;' : ''}">
+        <td>${i.charge_type}</td><td>${i.description || '—'}</td>
+        <td style="text-align:center;">${i.quantity}</td>
+        <td style="text-align:right;">${fmtA(i.unit_price)}</td>
+        <td style="text-align:right;">${i.voided ? 'VOID' : fmtA(i.amount)}</td>
+      </tr>`).join('');
+
+    const paymentRows = payments.map(p => `
+      <tr style="${p.voided ? 'opacity:0.4;text-decoration:line-through;' : ''}">
+        <td>${p.payment_method}</td><td>${p.reference || '—'}</td>
+        <td style="text-align:right;">${p.voided ? 'VOID' : fmtA(p.amount)}</td>
+        <td style="color:#888;">${fmtD(p.posted_at)}</td>
+      </tr>`).join('');
+
+    const win = window.open('', '_blank', 'width=750,height=900');
+    if (!win) return;
+
+    win.document.write(`<!DOCTYPE html><html><head><title>Guest Folio — ${res.full_name || 'Guest'}</title>
+      <style>
+        body{font-family: 'Segoe UI', Arial, sans-serif; max-width:680px; margin:24px auto; padding:0 24px; color:#111; line-height: 1.4;}
+        .header{display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #005530; padding-bottom:12px; margin-bottom:20px;}
+        .brand{font-size:22px; font-weight:800; color:#005530; letter-spacing:-0.5px;}
+        .title{font-size:16px; font-weight:700; text-transform:uppercase; color:#333;}
+        h2{margin:0 0 4px; font-size:18px;} p.sub{margin:0 0 20px; color:#555; font-size:13px;}
+        table{width:100%; border-collapse:collapse; font-size:12px; margin-bottom:16px;}
+        th{background:#f3f4f6; padding:8px; text-align:left; font-weight:700; color:#374151;}
+        td{padding:8px; border-bottom:1px solid #e5e7eb;}
+        .total-row{font-weight:bold; background:#eff6ff;}
+        .paid-row{font-weight:bold; background:#f0fdf4;}
+        .balance{margin-top:20px; padding:16px; border-radius:8px; text-align:right; font-size:16px; font-weight:bold;}
+        .bal-due{background:#fef3c7; color:#b45309; border:1px solid #fde68a;}
+        .bal-ok{background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0;}
+        @media print{button{display:none;}}
+      </style></head><body>
+      <div class="header">
+        <div>
+          <div class="brand">NORTHOMES HOTEL & SUITES</div>
+          <div style="font-size:10px; color:#666; margin-top:2px;">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</div>
+        </div>
+        <div class="title">GUEST FOLIO STATEMENT</div>
+      </div>
+      <h2>Guest: ${res.full_name || 'Guest'}</h2>
+      <p class="sub">Booking: ${res.id ? 'RES-' + String(res.id).padStart(5, '0') : '—'} &middot; Room: ${res.room_number || 'TBA'} (${res.room_type || 'Standard'})</p>
+      <table style="margin-bottom:20px;">
+        <tr><td style="color:#666;width:120px;">Check-in Date</td><td><strong>${fmtD(res.check_in_date)}</strong></td><td style="color:#666;width:120px;">Check-out Date</td><td><strong>${fmtD(res.check_out_date)}</strong></td></tr>
+        <tr><td style="color:#666;">Nights Stayed</td><td>${nights}</td><td style="color:#666;">Guests</td><td>${res.number_of_guests || 1}</td></tr>
+      </table>
+      <h3 style="margin:16px 0 8px; border-bottom:1px solid #ddd; padding-bottom:4px; font-size:14px;">Charges & Fees</h3>
+      ${items.length === 0 ? '<p style="color:#888; font-size:12px; font-style:italic;">No additional folio charges recorded.</p>' : `
+      <table>
+        <thead><tr><th>Type</th><th>Description</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Unit Price</th><th style="text-align:right;">Amount</th></tr></thead>
+        <tbody>${chargeRows}</tbody>
+        <tfoot><tr class="total-row"><td colspan="4" style="text-align:right;">Total Charges</td><td style="text-align:right;">${fmtA(totalCharges)}</td></tr></tfoot>
+      </table>`}
+      <h3 style="margin:16px 0 8px; border-bottom:1px solid #ddd; padding-bottom:4px; font-size:14px;">Payments & Deposits</h3>
+      ${payments.length === 0 ? '<p style="color:#888; font-size:12px; font-style:italic;">No payment records.</p>' : `
+      <table>
+        <thead><tr><th>Method</th><th>Reference</th><th style="text-align:right;">Amount</th><th>Date</th></tr></thead>
+        <tbody>${paymentRows}</tbody>
+        <tfoot><tr class="paid-row"><td colspan="2" style="text-align:right;">Total Payments</td><td style="text-align:right;">${fmtA(totalPaid)}</td><td></td></tr></tfoot>
+      </table>`}
+      <div class="balance ${balance > 0 ? 'bal-due' : 'bal-ok'}">
+        ${balance > 0 ? `Balance Due: ${fmtA(balance)}` : `Folio Settled (Balance: ${fmtA(balance)})`}
+      </div>
+      <script>
+        window.onload = function() {
+          setTimeout(function() { window.print(); }, 300);
+        };
+      </script>
+      </body></html>`);
+    win.document.close();
+  };
+
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userPermissions, setUserPermissions] = useState([]);
@@ -3944,7 +4111,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
         {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} deleteReservation={deleteReservation} openConfirmModal={handleOpenConfirmModal} openWizard={handleOpenWizard} openTransfer={openTransfer} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
         {/* ==================== GUESTS TAB ==================== */}
-        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} />}
+        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} printGuestFolioDirect={printGuestFolioDirect} openFolio={openFolio} />}
 
         {/* ==================== FRONT DESK TAB ==================== */}
         {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} captureSignature={captureSignature} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} pendingTransferRes={pendingTransferRes} setPendingTransferRes={setPendingTransferRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
@@ -6261,7 +6428,19 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
                 <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">End of Shift / Cashier Report</h2>
                 <div className="font-bold text-black/60 text-xs mt-1">CASHIER: {shiftStaff.toUpperCase()}</div>
               </div>
-              <div className="font-bold text-[#b91c1c] text-xs">DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+              <div className="font-bold text-[#b91c1c] text-xs text-right">
+                <div>DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                <div className="mt-0.5">TIME: {(() => {
+                  const formatT = (tStr) => {
+                    if (!tStr) return '';
+                    const [h, m] = tStr.split(':').map(Number);
+                    const period = h >= 12 ? 'PM' : 'AM';
+                    const h12 = h % 12 || 12;
+                    return `${h12}:${String(m || 0).padStart(2, '0')} ${period}`;
+                  };
+                  return `${formatT(fromTime)} to ${formatT(toTime)}`;
+                })()}</div>
+              </div>
             </div>
             <div className="border-b-2 border-black/80 mt-2 mb-4 mx-2"></div>
           </div>
@@ -6270,6 +6449,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             <thead>
               <tr className="bg-[#f0f0f0]">
                 <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Time</th>
+                <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Booking No.</th>
                 <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-left text-black">Guest Name</th>
                 <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Room</th>
                 <th className="border border-[#222] px-2 py-1.5 text-[10px] font-bold uppercase text-center text-black">Method / Ref</th>
@@ -6281,6 +6461,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               {combinedTransactions.map((tx, i) => (
                 <tr key={i}>
                   <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{formatManilaTime(tx.posted_at)}</td>
+                  <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center font-bold text-black">{tx.reservation_id ? `RES-${String(tx.reservation_id).padStart(5, '0')}` : '-'}</td>
                   <td className="border border-[#222] px-3 py-1.5 text-[11px] text-left font-bold text-black">{tx.guest_name}</td>
                   <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center text-black">{tx.room_number || '-'}</td>
                   <td className="border border-[#222] px-3 py-1.5 text-[11px] text-center uppercase text-black">
@@ -6297,29 +6478,29 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Cash Collected:</td>
+                <td colSpan="5" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Cash Collected:</td>
                 <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_cash).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td className="border border-[#222] bg-[#f0f0f0]"></td>
               </tr>
               <tr>
-                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total GCash/Online:</td>
+                <td colSpan="5" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total GCash/Online:</td>
                 <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_online).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td className="border border-[#222] bg-[#f0f0f0]"></td>
               </tr>
               <tr>
-                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Card:</td>
+                <td colSpan="5" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-black">Total Card:</td>
                 <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-[#00754A]">₱{Number(data.summary.total_card).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 <td className="border border-[#222] bg-[#f0f0f0]"></td>
               </tr>
               <tr>
-                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">Total Shift Collection:</td>
-                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">₱{Number(data.summary.total_collected).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                <td className="border border-[#222] bg-[#f0f0f0]"></td>
-              </tr>
-              <tr>
-                <td colSpan="4" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-red-600">Total Discounts Given:</td>
+                <td colSpan="5" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-red-600">Total Discounts Given:</td>
                 <td className="border border-[#222] bg-[#f0f0f0]"></td>
                 <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right text-red-600">₱{Math.abs(Number(data.summary.total_discounts || 0)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+              <tr>
+                <td colSpan="5" className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">Total Shift Collection:</td>
+                <td className="border border-[#222] px-2 py-1.5 text-[11px] font-bold text-right uppercase text-black">₱{Number(data.summary.total_collected).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td className="border border-[#222] bg-[#f0f0f0]"></td>
               </tr>
             </tfoot>
           </table>

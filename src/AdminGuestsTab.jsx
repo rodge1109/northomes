@@ -6,19 +6,20 @@ const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname 
   ? 'http://localhost:5000'
   : 'https://northomes.onrender.com';
 
-export default function AdminGuestsTab({ reservations = [], onRefresh, printGuestDataSheet, captureSignature }) {
+export default function AdminGuestsTab({ reservations = [], onRefresh, printGuestDataSheet, captureSignature, openFolio, printGuestFolioDirect }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [filterNationality, setFilterNationality] = useState('All Nationalities');
   const [filterSource, setFilterSource] = useState('All Sources');
   const [selectedGuest, setSelectedGuest] = useState(null);
   const [viewingProfile, setViewingProfile] = useState(false);
+  const [profileInitialTab, setProfileInitialTab] = useState('Profile');
   const [creatingProfile, setCreatingProfile] = useState(false);
   const [editingGuest, setEditingGuest] = useState(null);
 
   const [guestsList, setGuestsList] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  
   // Map database guest profiles and calculate stay history dynamically from reservations prop
   const guests = useMemo(() => {
     return guestsList.map(g => {
@@ -238,13 +239,14 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
     return (
       <GuestProfileView 
         guest={selectedGuest} 
-        onBack={() => setViewingProfile(false)} 
+        initialTab={profileInitialTab}
+        onBack={() => { setViewingProfile(false); setProfileInitialTab('Profile'); }} 
         onSave={(updatedGuest) => {
           fetchGuestsList();
           setSelectedGuest(updatedGuest);
           if (onRefresh) onRefresh();
         }} 
-        printGuestDataSheet={printGuestDataSheet} captureSignature={captureSignature}
+        printGuestDataSheet={printGuestDataSheet} captureSignature={captureSignature} openFolio={openFolio} printGuestFolioDirect={printGuestFolioDirect}
       />
     );
   }
@@ -655,11 +657,17 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                 <div>
                   <h4 className="text-[13px] font-black text-black/90 mb-3 border-b border-black/5 pb-2">Quick Actions</h4>
                   <div className="grid grid-cols-2 gap-2">
-                    <button className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                      New Reservation
+                    <button 
+                      onClick={() => { setProfileInitialTab('Documents'); setViewingProfile(true); }}
+                      className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-bold text-[#005530] hover:bg-[#005530]/5 transition-colors shadow-sm"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                      Add Document
                     </button>
-                    <button className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm">
+                    <button 
+                      onClick={() => { setProfileInitialTab('Notes'); setViewingProfile(true); }}
+                      className="flex items-center gap-2 px-2 py-1.5 bg-white border border-black/10 rounded-md text-[12px] font-medium text-black/80 hover:bg-gray-50 transition-colors shadow-sm"
+                    >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                       Add Note
                     </button>
@@ -674,8 +682,27 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
                         Print Guest Data Sheet
-                        </button>
-                      )}
+                      </button>
+                    )}
+                    {selectedGuest.stays && selectedGuest.stays.length > 0 && (printGuestFolioDirect || openFolio) && (
+                      <button 
+                        onClick={() => {
+                          const stay = selectedGuest.stays[0];
+                          if (printGuestFolioDirect) {
+                            printGuestFolioDirect(stay);
+                          } else if (openFolio) {
+                            openFolio(stay);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-2 py-1.5 bg-[#005530] text-white hover:bg-[#004420] rounded-md text-[12px] font-bold transition-colors shadow-sm col-span-2 justify-center"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="1" width="10" height="14" rx="1.5" />
+                          <path d="M6 5h4M6 8h4M6 11h2" />
+                        </svg>
+                        Print Guest Folio
+                      </button>
+                    )}
                       {selectedGuest.stays && selectedGuest.stays.length > 0 && captureSignature && (
                         <button
                           onClick={() => captureSignature(selectedGuest.stays[0])}

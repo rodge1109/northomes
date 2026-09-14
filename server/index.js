@@ -598,6 +598,31 @@ const initGuestProfileMigration = async () => {
 };
 initGuestProfileMigration().catch(err => console.error('Guest profile migration failed:', err));
 
+// Initialize Guest Documents & Notes Tables
+const initGuestDocumentsAndNotesTables = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hotel_guest_documents (
+      id SERIAL PRIMARY KEY,
+      guest_id INTEGER,
+      guest_email TEXT DEFAULT '',
+      file_name TEXT NOT NULL,
+      file_url TEXT NOT NULL,
+      file_type TEXT DEFAULT 'PDF',
+      uploaded_by TEXT DEFAULT 'Staff',
+      uploaded_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS hotel_guest_notes (
+      id SERIAL PRIMARY KEY,
+      guest_id INTEGER,
+      guest_email TEXT DEFAULT '',
+      note_text TEXT NOT NULL,
+      created_by TEXT DEFAULT 'Staff',
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+};
+initGuestDocumentsAndNotesTables().catch(err => console.error('Failed to init guest docs/notes tables:', err));
+
 const findOrCreateGuest = async (client, data) => {
   const email = (data.email || '').trim().toLowerCase();
   const phone = (data.phone_number || data.phone || '').trim();
@@ -1674,6 +1699,110 @@ app.get('/api/admin/guests', async (req, res) => {
   } catch (err) {
     console.error('GET /api/admin/guests error:', err);
     res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+// GET /api/admin/guests/:id/documents
+app.get('/api/admin/guests/:id/documents', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const email = req.query.email || '';
+    const guestIdNum = parseInt(id) || 0;
+    const result = await pool.query(
+      `SELECT * FROM hotel_guest_documents 
+       WHERE (guest_id = $1 AND $1 > 0) OR ($2 <> '' AND LOWER(guest_email) = LOWER($2))
+       ORDER BY uploaded_at DESC`,
+      [guestIdNum, email.toLowerCase()]
+    );
+    res.json({ success: true, documents: result.rows });
+  } catch (err) {
+    console.error('Fetch guest documents error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch guest documents.' });
+  }
+});
+
+// POST /api/admin/guests/:id/documents
+app.post('/api/admin/guests/:id/documents', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { file_name, file_url, file_type, uploaded_by, guest_email } = req.body;
+    if (!file_name || !file_url) {
+      return res.status(400).json({ success: false, message: 'Missing file details.' });
+    }
+    const guestIdNum = parseInt(id) || null;
+    const result = await pool.query(
+      `INSERT INTO hotel_guest_documents (guest_id, guest_email, file_name, file_url, file_type, uploaded_by)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [guestIdNum, guest_email || '', file_name, file_url, file_type || 'PDF', uploaded_by || 'Staff']
+    );
+    res.json({ success: true, document: result.rows[0] });
+  } catch (err) {
+    console.error('Save guest document error:', err);
+    res.status(500).json({ success: false, message: 'Failed to save guest document.' });
+  }
+});
+
+// DELETE /api/admin/guests/documents/:docId
+app.delete('/api/admin/guests/documents/:docId', async (req, res) => {
+  try {
+    const { docId } = req.params;
+    await pool.query('DELETE FROM hotel_guest_documents WHERE id = $1', [docId]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete guest document error:', err);
+    res.status(500).json({ success: false, message: 'Failed to delete guest document.' });
+  }
+});
+
+// GET /api/admin/guests/:id/notes
+app.get('/api/admin/guests/:id/notes', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const email = req.query.email || '';
+    const guestIdNum = parseInt(id) || 0;
+    const result = await pool.query(
+      `SELECT * FROM hotel_guest_notes 
+       WHERE (guest_id = $1 AND $1 > 0) OR ($2 <> '' AND LOWER(guest_email) = LOWER($2))
+       ORDER BY created_at DESC`,
+      [guestIdNum, email.toLowerCase()]
+    );
+    res.json({ success: true, notes: result.rows });
+  } catch (err) {
+    console.error('Fetch guest notes error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch guest notes.' });
+  }
+});
+
+// POST /api/admin/guests/:id/notes
+app.post('/api/admin/guests/:id/notes', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { note_text, created_by, guest_email } = req.body;
+    if (!note_text) {
+      return res.status(400).json({ success: false, message: 'Note text cannot be empty.' });
+    }
+    const guestIdNum = parseInt(id) || null;
+    const result = await pool.query(
+      `INSERT INTO hotel_guest_notes (guest_id, guest_email, note_text, created_by)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [guestIdNum, guest_email || '', note_text, created_by || 'Staff']
+    );
+    res.json({ success: true, note: result.rows[0] });
+  } catch (err) {
+    console.error('Save guest note error:', err);
+    res.status(500).json({ success: false, message: 'Failed to save guest note.' });
+  }
+});
+
+// DELETE /api/admin/guests/notes/:noteId
+app.delete('/api/admin/guests/notes/:noteId', async (req, res) => {
+  try {
+    const { noteId } = req.params;
+    await pool.query('DELETE FROM hotel_guest_notes WHERE id = $1', [noteId]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete guest note error:', err);
+    res.status(500).json({ success: false, message: 'Failed to delete guest note.' });
   }
 });
 
@@ -5597,7 +5726,7 @@ app.get('/api/reports/shift', async (req, res) => {
 
     if (staff && staff !== 'All Staff') {
       params.push(staff);
-      query += ` AND p.cashier_name = $3`;
+      query += ` AND (p.cashier_name ILIKE $3 OR p.cashier_name = '' OR p.cashier_name IS NULL)`;
     }
 
     query += ` ORDER BY p.posted_at ASC`;
@@ -5613,11 +5742,10 @@ app.get('/api/reports/shift', async (req, res) => {
       WHERE i.posted_at >= $1 AND i.posted_at <= $2 AND i.voided = false
         AND i.amount < 0
         AND (r.status IS NULL OR r.status != 'pending')
+      ORDER BY i.posted_at ASC
     `;
-    // Removed staff filter because hotel_folio_items doesn't have cashier_name column
-    // if (staff && staff !== 'All Staff') discountQuery += ` AND i.cashier_name = $3`;
-    discountQuery += ` ORDER BY i.posted_at ASC`;
-    const discountsResult = await pool.query(discountQuery, params);
+    const discountParams = [startTime, endTime];
+    const discountsResult = await pool.query(discountQuery, discountParams);
 
     // Compute totals
     let total_cash = 0;

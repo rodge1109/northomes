@@ -18,15 +18,210 @@ const formatDateForInput = (dateStr) => {
   }
 };
 
-export default function GuestProfileView({ guest, onBack, onSave, printGuestDataSheet, captureSignature }) {
+export default function GuestProfileView({ guest, onBack, onSave, printGuestDataSheet, captureSignature, openFolio, printGuestFolioDirect, initialTab = 'Profile' }) {
   if (!guest) return null;
 
-  const [activeTab, setActiveTab] = useState('Profile');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+
+  // Documents & Notes State
+  const [documents, setDocuments] = useState([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+  const [showAddDocModal, setShowAddDocModal] = useState(false);
+  const [newDocTitle, setNewDocTitle] = useState('');
+  const [newDocType, setNewDocType] = useState('PDF');
+  const [newDocFile, setNewDocFile] = useState(null);
+  const [newDocUrl, setNewDocUrl] = useState('');
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [docError, setDocError] = useState('');
+
+  const [notes, setNotes] = useState([]);
+  const [loadingNotes, setLoadingNotes] = useState(false);
+  const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+  const [newNoteText, setNewNoteText] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
+  const [noteError, setNoteError] = useState('');
+
+  const guestId = guest.dbId || guest.id || 0;
+  const guestEmail = guest.email || '';
+
+  const fetchGuestDocuments = async () => {
+    if (!guestId && !guestEmail) return;
+    setLoadingDocs(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/guests/${guestId}/documents?email=${encodeURIComponent(guestEmail)}`);
+      const data = await res.json();
+      if (data.success) setDocuments(data.documents || []);
+    } catch (err) {
+      console.error('Fetch guest documents error:', err);
+    } finally {
+      setLoadingDocs(false);
+    }
+  };
+
+  const fetchGuestNotes = async () => {
+    if (!guestId && !guestEmail) return;
+    setLoadingNotes(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/guests/${guestId}/notes?email=${encodeURIComponent(guestEmail)}`);
+      const data = await res.json();
+      if (data.success) setNotes(data.notes || []);
+    } catch (err) {
+      console.error('Fetch guest notes error:', err);
+    } finally {
+      setLoadingNotes(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGuestDocuments();
+    fetchGuestNotes();
+  }, [guestId, guestEmail]);
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setNewDocFile(file);
+    if (!newDocTitle.trim()) {
+      setNewDocTitle(file.name);
+    }
+    const ext = file.name.split('.').pop().toUpperCase();
+    if (['JPG', 'JPEG', 'PNG', 'WEBP', 'GIF'].includes(ext)) setNewDocType('Image');
+    else if (ext === 'PDF') setNewDocType('PDF');
+    else if (['DOC', 'DOCX'].includes(ext)) setNewDocType('Word');
+    else setNewDocType('Document');
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setNewDocUrl(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveDocument = async (e) => {
+    e.preventDefault();
+    if (!newDocTitle.trim()) {
+      setDocError('Please enter a document title.');
+      return;
+    }
+    if (!newDocUrl) {
+      setDocError('Please select a file to upload.');
+      return;
+    }
+
+    setUploadingDoc(true);
+    setDocError('');
+    try {
+      let finalUrl = newDocUrl;
+      if (newDocFile) {
+        try {
+          const formDataObj = new FormData();
+          formDataObj.append('photos', newDocFile);
+          const uploadRes = await fetch(`${API_BASE_URL}/api/upload`, {
+            method: 'POST',
+            body: formDataObj
+          });
+          const uploadData = await uploadRes.json();
+          if (uploadData.success && uploadData.urls && uploadData.urls[0]) {
+            finalUrl = uploadData.urls[0];
+          }
+        } catch (uploadErr) {
+          console.warn('Cloudinary upload fallback to data URL:', uploadErr);
+        }
+      }
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/guests/${guestId}/documents`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          file_name: newDocTitle.trim(),
+          file_url: finalUrl,
+          file_type: newDocType,
+          uploaded_by: 'Front Desk Staff',
+          guest_email: guestEmail
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setDocuments(prev => [data.document, ...prev]);
+        setShowAddDocModal(false);
+        setNewDocTitle('');
+        setNewDocFile(null);
+        setNewDocUrl('');
+      } else {
+        setDocError(data.message || 'Failed to save document.');
+      }
+    } catch (err) {
+      console.error(err);
+      setDocError('Network error while saving document.');
+    } finally {
+      setUploadingDoc(false);
+    }
+  };
+
+  const handleDeleteDocument = async (docId) => {
+    if (!window.confirm('Are you sure you want to delete this document?')) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/guests/documents/${docId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setDocuments(prev => prev.filter(d => d.id !== docId));
+      }
+    } catch (err) {
+      console.error('Delete document error:', err);
+    }
+  };
+
+  const handleSaveNote = async (e) => {
+    e.preventDefault();
+    if (!newNoteText.trim()) {
+      setNoteError('Note text cannot be empty.');
+      return;
+    }
+    setSavingNote(true);
+    setNoteError('');
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/guests/${guestId}/notes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          note_text: newNoteText.trim(),
+          created_by: 'Front Desk Staff',
+          guest_email: guestEmail
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNotes(prev => [data.note, ...prev]);
+        setShowAddNoteModal(false);
+        setNewNoteText('');
+      } else {
+        setNoteError(data.message || 'Failed to save note.');
+      }
+    } catch (err) {
+      console.error(err);
+      setNoteError('Network error while saving note.');
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    if (!window.confirm('Are you sure you want to delete this note?')) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/guests/notes/${noteId}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setNotes(prev => prev.filter(n => n.id !== noteId));
+      }
+    } catch (err) {
+      console.error('Delete note error:', err);
+    }
+  };
 
   useEffect(() => {
     if (guest) {
@@ -385,6 +580,25 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
                                     </button>
                                   )}
+                                  {(printGuestFolioDirect || openFolio) && (
+                                    <button 
+                                      onClick={(e) => { 
+                                        e.stopPropagation(); 
+                                        if (printGuestFolioDirect) {
+                                          printGuestFolioDirect(stay);
+                                        } else if (openFolio) {
+                                          openFolio(stay);
+                                        }
+                                      }}
+                                      className="p-1 border border-black/10 rounded-md hover:bg-gray-100 text-black/50 hover:text-black/80 transition-colors bg-white shadow-sm"
+                                      title="Print Guest Folio"
+                                    >
+                                      <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                                        <rect x="3" y="1" width="10" height="14" rx="1.5" />
+                                        <path d="M6 5h4M6 8h4M6 11h2" />
+                                      </svg>
+                                    </button>
+                                  )}
                                 </td>
                               </tr>
                             );
@@ -446,24 +660,71 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                 <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-6 py-4 border-b border-black/5 flex items-center justify-between">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight uppercase">Uploaded Documents</h3>
-                    <button className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1">
+                    <button 
+                      onClick={() => { setShowAddDocModal(true); setDocError(''); }}
+                      className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                       Add Document
                     </button>
                   </div>
                   <div className="p-4">
-                    <div className="flex items-center gap-3 p-3 border border-black/10 rounded-xl max-w-md bg-gray-50/50">
-                      <div className="w-10 h-10 border border-[#EF5350] bg-[#FFEBEE] rounded flex items-center justify-center shrink-0">
-                        <span className="text-[10px] font-black text-[#EF5350]">PDF</span>
+                    {loadingDocs ? (
+                      <div className="p-8 text-center text-xs font-bold text-black/40">Loading documents...</div>
+                    ) : documents.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {documents.map((doc) => {
+                          const fileType = (doc.file_type || doc.file_name.split('.').pop() || 'PDF').toUpperCase();
+                          let badgeBg = 'bg-[#FFEBEE] border-[#EF5350] text-[#EF5350]';
+                          if (['PNG', 'JPG', 'JPEG', 'IMAGE'].includes(fileType)) badgeBg = 'bg-[#E3F2FD] border-[#2196F3] text-[#2196F3]';
+                          else if (['DOC', 'DOCX', 'WORD'].includes(fileType)) badgeBg = 'bg-[#E8F5E9] border-[#4CAF50] text-[#4CAF50]';
+
+                          return (
+                            <div key={doc.id} className="flex items-center gap-3 p-3 border border-black/10 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                              <div className={`w-10 h-10 border rounded flex items-center justify-center shrink-0 ${badgeBg}`}>
+                                <span className="text-[10px] font-black">{fileType.slice(0, 4)}</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-[12px] font-bold text-black/90 truncate">{doc.file_name}</div>
+                                <div className="text-[10px] text-black/40 font-medium truncate mt-0.5">
+                                  Uploaded on {fmtDate(doc.uploaded_at)} by {doc.uploaded_by || 'Staff'}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <a 
+                                  href={doc.file_url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="p-1 text-black/40 hover:text-[#005530] transition-colors"
+                                  title="View / Download Document"
+                                >
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                </a>
+                                <button 
+                                  onClick={() => handleDeleteDocument(doc.id)} 
+                                  className="p-1 text-black/30 hover:text-red-600 transition-colors cursor-pointer"
+                                  title="Delete Document"
+                                >
+                                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[12px] font-bold text-black/90 truncate">Passport - {guest.name}.pdf</div>
-                        <div className="text-[10px] text-black/40 font-medium truncate mt-0.5">Uploaded on Jan 12, 2024 by Maria Santos</div>
+                    ) : (
+                      <div className="p-8 text-center border-2 border-dashed border-black/10 rounded-xl bg-gray-50/50">
+                        <svg className="w-8 h-8 mx-auto text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <p className="text-[13px] font-bold text-black/60 mb-1">No uploaded documents yet</p>
+                        <p className="text-[11px] text-black/40 mb-4">Upload IDs, passports, or guest registration agreements.</p>
+                        <button 
+                          onClick={() => { setShowAddDocModal(true); setDocError(''); }}
+                          className="px-4 py-2 bg-[#005530] text-white text-[12px] font-bold rounded-lg hover:bg-[#004225] transition-colors cursor-pointer shadow-sm"
+                        >
+                          + Add Document
+                        </button>
                       </div>
-                      <button className="text-black/40 hover:text-black/80 cursor-pointer">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                      </button>
-                    </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -472,20 +733,48 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
                 <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
                   <div className="px-6 py-4 border-b border-black/5 flex items-center justify-between">
                     <h3 className="text-[14px] font-black text-black/85 tracking-tight uppercase">Internal Notes</h3>
-                    <button className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1">
+                    <button 
+                      onClick={() => { setShowAddNoteModal(true); setNoteError(''); }}
+                      className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1 cursor-pointer"
+                    >
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                       Add Note
                     </button>
                   </div>
-                  <div className="p-4 space-y-4">
-                    <div className="bg-[#FFF8E1] border border-[#FFECB3] rounded-xl p-3 relative">
-                      <p className="text-[12px] font-medium text-black/80 pr-6">Prefers rooms away from elevator.</p>
-                      <p className="text-[10px] text-black/40 mt-1 font-medium">May 10, 2025 10:15 AM by Maria Santos</p>
-                    </div>
-                    <div className="bg-[#E3F2FD] border border-[#BBDEFB] rounded-xl p-3 relative">
-                      <p className="text-[12px] font-medium text-black/80 pr-6">Celebrated birthday last stay. Sent cake to room.</p>
-                      <p className="text-[10px] text-black/40 mt-1 font-medium">Apr 12, 2025 4:30 PM by John Cruz</p>
-                    </div>
+                  <div className="p-4">
+                    {loadingNotes ? (
+                      <div className="p-8 text-center text-xs font-bold text-black/40">Loading notes...</div>
+                    ) : notes.length > 0 ? (
+                      <div className="space-y-3">
+                        {notes.map(note => (
+                          <div key={note.id} className="bg-[#FFF8E1] border border-[#FFECB3] rounded-xl p-3.5 relative group">
+                            <p className="text-[12px] font-medium text-black/85 pr-8 whitespace-pre-wrap">{note.note_text}</p>
+                            <p className="text-[10px] text-black/40 mt-2 font-semibold">
+                              {fmtDate(note.created_at)} by {note.created_by || 'Staff'}
+                            </p>
+                            <button 
+                              onClick={() => handleDeleteNote(note.id)}
+                              className="absolute top-3 right-3 text-black/30 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                              title="Delete note"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center border-2 border-dashed border-black/10 rounded-xl bg-gray-50/50">
+                        <svg className="w-8 h-8 mx-auto text-black/20 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        <p className="text-[13px] font-bold text-black/60 mb-1">No internal notes yet</p>
+                        <p className="text-[11px] text-black/40 mb-4">Record guest preferences, special requests, or operational notes.</p>
+                        <button 
+                          onClick={() => { setShowAddNoteModal(true); setNoteError(''); }}
+                          className="px-4 py-2 bg-[#005530] text-white text-[12px] font-bold rounded-lg hover:bg-[#004225] transition-colors cursor-pointer shadow-sm"
+                        >
+                          + Add Note
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -549,6 +838,148 @@ export default function GuestProfileView({ guest, onBack, onSave, printGuestData
           </div>
         </div>
       </div>
+
+      {/* Add Document Modal */}
+      {showAddDocModal && (
+        <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-black/10 flex items-center justify-between bg-gray-50">
+              <div>
+                <h3 className="text-base font-black text-black">Upload Guest Document</h3>
+                <p className="text-xs text-black/50">Attach guest ID, passport scan, or agreement</p>
+              </div>
+              <button 
+                onClick={() => setShowAddDocModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-black/40 hover:bg-black/5 hover:text-black cursor-pointer font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveDocument} className="p-6 space-y-4">
+              {docError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl">
+                  {docError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-black/70 mb-1">Document Title / File Name *</label>
+                <input 
+                  type="text" 
+                  value={newDocTitle} 
+                  onChange={(e) => setNewDocTitle(e.target.value)}
+                  placeholder="e.g. Passport - John Doe.pdf" 
+                  className="w-full px-3 py-2 border border-black/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#005530]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-black/70 mb-1">Document Category</label>
+                <select 
+                  value={newDocType} 
+                  onChange={(e) => setNewDocType(e.target.value)}
+                  className="w-full px-3 py-2 border border-black/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#005530]"
+                >
+                  <option value="PDF">Passport / ID (PDF)</option>
+                  <option value="Image">Photo / ID Scan (Image)</option>
+                  <option value="Word">Word Document</option>
+                  <option value="Contract">Guest Registration / Contract</option>
+                  <option value="Other">Other File</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-black/70 mb-1">Choose File *</label>
+                <input 
+                  type="file" 
+                  accept="image/*,.pdf,.doc,.docx,.txt"
+                  onChange={handleFileSelect}
+                  className="w-full text-xs text-black/70 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#005530]/10 file:text-[#005530] hover:file:bg-[#005530]/20 cursor-pointer"
+                />
+                {newDocFile && (
+                  <p className="text-[11px] text-emerald-600 font-bold mt-1">Selected: {newDocFile.name} ({(newDocFile.size / 1024).toFixed(1)} KB)</p>
+                )}
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3 border-t border-black/10">
+                <button 
+                  type="button" 
+                  onClick={() => setShowAddDocModal(false)}
+                  className="px-4 py-2 border border-black/15 text-xs font-bold text-black/70 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={uploadingDoc}
+                  className="px-5 py-2 bg-[#005530] text-white text-xs font-bold rounded-xl hover:bg-[#004225] transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+                >
+                  {uploadingDoc ? 'Uploading...' : 'Save Document'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Note Modal */}
+      {showAddNoteModal && (
+        <div className="fixed inset-0 z-[99999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-black/10 flex items-center justify-between bg-gray-50">
+              <div>
+                <h3 className="text-base font-black text-black">Add Internal Note</h3>
+                <p className="text-xs text-black/50">Record preferences, special requests, or operational notes</p>
+              </div>
+              <button 
+                onClick={() => setShowAddNoteModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-black/40 hover:bg-black/5 hover:text-black cursor-pointer font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveNote} className="p-6 space-y-4">
+              {noteError && (
+                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl">
+                  {noteError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-black/70 mb-1">Note Content *</label>
+                <textarea 
+                  rows="4"
+                  value={newNoteText} 
+                  onChange={(e) => setNewNoteText(e.target.value)}
+                  placeholder="e.g. Guest prefers upper floor room away from elevator..." 
+                  className="w-full px-3 py-2 border border-black/15 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#005530]"
+                  required
+                ></textarea>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-3 border-t border-black/10">
+                <button 
+                  type="button" 
+                  onClick={() => setShowAddNoteModal(false)}
+                  className="px-4 py-2 border border-black/15 text-xs font-bold text-black/70 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={savingNote}
+                  className="px-5 py-2 bg-[#005530] text-white text-xs font-bold rounded-xl hover:bg-[#004225] transition-colors cursor-pointer shadow-sm disabled:opacity-50"
+                >
+                  {savingNote ? 'Saving...' : 'Save Note'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
