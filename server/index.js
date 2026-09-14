@@ -1996,7 +1996,11 @@ app.patch('/api/folio/charge/:itemId/void', async (req, res) => {
 app.patch('/api/folio/payment/:paymentId/void', async (req, res) => {
   try {
     const { paymentId } = req.params;
-    await pool.query(`UPDATE hotel_folio_payments SET voided = true WHERE id = $1`, [paymentId]);
+    const { void_reason } = req.body || {};
+    await pool.query(
+      `UPDATE hotel_folio_payments SET voided = true, notes = CASE WHEN $1 <> '' THEN COALESCE(notes, '') || ' [VOID REASON: ' || $1 || ']' ELSE notes END WHERE id = $2`,
+      [void_reason || '', paymentId]
+    );
     res.json({ success: true });
   } catch (err) {
     console.error(err);

@@ -215,6 +215,7 @@ function AdminBillingTab({
   const [addDiscountOpen, setAddDiscountOpen] = React.useState(false);
   const [voidTransactionOpen, setVoidTransactionOpen] = React.useState(false);
   const [voidTransactionId, setVoidTransactionId] = React.useState('');
+  const [voidNotes, setVoidNotes] = React.useState('');
 
   const filteredGuests = reservations.filter(r => {
     if (filterStatus !== 'All' && r.status !== filterStatus) return false;
@@ -269,16 +270,17 @@ function AdminBillingTab({
   };
 
   const handleVoidTransaction = async () => {
-    if (!voidTransactionId) return;
+    if (!voidTransactionId || !voidNotes.trim()) return;
     const isCharge = voidTransactionId.startsWith('c_');
     const id = voidTransactionId.replace(/^[cp]_/, '');
     if (isCharge) {
-      await voidCharge(id);
+      await voidCharge(id, voidNotes.trim());
     } else {
-      await voidPayment(id);
+      await voidPayment(id, voidNotes.trim());
     }
     setVoidTransactionOpen(false);
     setVoidTransactionId('');
+    setVoidNotes('');
   };
 
   const currentTransactions = [
@@ -744,15 +746,29 @@ function AdminBillingTab({
             <h3 className="text-[14px] font-bold mb-4 text-red-600">Void Transaction</h3>
             <div className="space-y-4">
               <p className="text-xs text-black/60">Select a transaction to void. This will instantly reverse it from the guest's folio.</p>
-              <select value={voidTransactionId} onChange={e => setVoidTransactionId(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
-                <option value="">-- Select Transaction --</option>
-                {currentTransactions.map(tx => (
-                  <option key={tx.id} value={tx.id}>{new Date(tx.date).toLocaleDateString()} - {tx.label}</option>
-                ))}
-              </select>
-              <div className="flex gap-3 pt-4">
-                <button onClick={() => setVoidTransactionOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
-                <button onClick={handleVoidTransaction} disabled={!voidTransactionId} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">Void Now</button>
+              <div>
+                <label className="block text-[11px] font-bold text-black/70 mb-1">Select Transaction *</label>
+                <select value={voidTransactionId} onChange={e => setVoidTransactionId(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
+                  <option value="">-- Select Transaction --</option>
+                  {currentTransactions.map(tx => (
+                    <option key={tx.id} value={tx.id}>{new Date(tx.date).toLocaleDateString()} - {tx.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-black/70 mb-1">Notes / Reason for Voiding *</label>
+                <textarea
+                  rows="2"
+                  value={voidNotes}
+                  onChange={e => setVoidNotes(e.target.value)}
+                  placeholder="Enter reason for voiding this transaction..."
+                  className="w-full border border-black/15 rounded-md p-2 text-[12px] focus:outline-none focus:ring-1 focus:ring-red-500"
+                  required
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => { setVoidTransactionOpen(false); setVoidNotes(''); setVoidTransactionId(''); }} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleVoidTransaction} disabled={!voidTransactionId || !voidNotes.trim()} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">Void Now</button>
               </div>
             </div>
           </div>
@@ -2543,15 +2559,17 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     setFpSaving(false);
   };
 
-  const voidCharge = async (itemId) => {
+  const voidCharge = async (itemId, reason = '') => {
     await fetch(`${API_BASE_URL}/api/folio/charge/${itemId}/void`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: '' }),
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: reason }),
     });
     fetchFolio(folioRes.id);
   };
 
-  const voidPayment = async (payId) => {
-    await fetch(`${API_BASE_URL}/api/folio/payment/${payId}/void`, { method: 'PATCH' });
+  const voidPayment = async (payId, reason = '') => {
+    await fetch(`${API_BASE_URL}/api/folio/payment/${payId}/void`, { 
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: reason }),
+    });
     fetchFolio(folioRes.id);
   };
 
@@ -12251,15 +12269,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     return false;
   };
 
-  const voidCharge = async (itemId) => {
+  const voidCharge = async (itemId, reason = '') => {
     await fetch(`${API_BASE_URL}/api/folio/charge/${itemId}/void`, {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: '' }),
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: reason }),
     });
     fetchFolio(folioRes.id);
   };
 
-  const voidPayment = async (payId) => {
-    await fetch(`${API_BASE_URL}/api/folio/payment/${payId}/void`, { method: 'PATCH' });
+  const voidPayment = async (payId, reason = '') => {
+    await fetch(`${API_BASE_URL}/api/folio/payment/${payId}/void`, { 
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ void_reason: reason }),
+    });
     fetchFolio(folioRes.id);
   };
 
@@ -15826,6 +15846,7 @@ function FolioModal({
   const [addDiscountOpen, setAddDiscountOpen] = React.useState(false);
   const [voidTransactionOpen, setVoidTransactionOpen] = React.useState(false);
   const [voidTransactionId, setVoidTransactionId] = React.useState('');
+  const [voidNotes, setVoidNotes] = React.useState('');
 
   const [activeTab, setActiveTab] = React.useState('Folio');
 
@@ -16035,16 +16056,17 @@ function FolioModal({
   };
 
   const handleVoidTransaction = async () => {
-    if (!voidTransactionId) return;
+    if (!voidTransactionId || !voidNotes.trim()) return;
     const isCharge = voidTransactionId.startsWith('c_');
     const id = voidTransactionId.replace(/^[cp]_/, '');
     if (isCharge) {
-      await voidCharge(id);
+      await voidCharge(id, voidNotes.trim());
     } else {
-      await voidPayment(id);
+      await voidPayment(id, voidNotes.trim());
     }
     setVoidTransactionOpen(false);
     setVoidTransactionId('');
+    setVoidNotes('');
   };
 
   return ReactDOM.createPortal(
@@ -16767,20 +16789,34 @@ function FolioModal({
             <h3 className="text-[14px] font-bold mb-4 text-red-600">Void Transaction</h3>
             <div className="space-y-4">
               <p className="text-xs text-black/60">Select a transaction to void. This will instantly reverse it from the guest's folio.</p>
-              <select value={voidTransactionId} onChange={e => setVoidTransactionId(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
-                <option value="">-- Select Transaction --</option>
-                {ledgerWithBalance.filter(tx => !tx.voided).map(tx => {
-                  const id = tx.type === 'charge' ? `c_${tx.id}` : `p_${tx.id}`;
-                  const date = new Date(tx.timestamp || Date.now()).toLocaleDateString();
-                  const label = tx.type === 'charge' ? `Charge: ${tx.description || tx.charge_type}` : `${tx.amount < 0 ? 'Refund' : 'Payment'}: ${tx.payment_method}`;
-                  return (
-                    <option key={id} value={id}>{date} - {label} (₱{Math.abs(parseFloat(tx.amount)).toLocaleString()})</option>
-                  );
-                })}
-              </select>
-              <div className="flex gap-3 pt-4">
-                <button onClick={() => setVoidTransactionOpen(false)} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
-                <button onClick={handleVoidTransaction} disabled={!voidTransactionId} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed">Void Now</button>
+              <div>
+                <label className="block text-[11px] font-bold text-black/70 mb-1">Select Transaction *</label>
+                <select value={voidTransactionId} onChange={e => setVoidTransactionId(e.target.value)} className="w-full border rounded-md p-2 text-[12px]">
+                  <option value="">-- Select Transaction --</option>
+                  {ledgerWithBalance.filter(tx => !tx.voided).map(tx => {
+                    const id = tx.type === 'charge' ? `c_${tx.id}` : `p_${tx.id}`;
+                    const date = new Date(tx.timestamp || Date.now()).toLocaleDateString();
+                    const label = tx.type === 'charge' ? `Charge: ${tx.description || tx.charge_type}` : `${tx.amount < 0 ? 'Refund' : 'Payment'}: ${tx.payment_method}`;
+                    return (
+                      <option key={id} value={id}>{date} - {label} (₱{Math.abs(parseFloat(tx.amount)).toLocaleString()})</option>
+                    );
+                  })}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-black/70 mb-1">Notes / Reason for Voiding *</label>
+                <textarea
+                  rows="2"
+                  value={voidNotes}
+                  onChange={e => setVoidNotes(e.target.value)}
+                  placeholder="Enter reason for voiding this transaction..."
+                  className="w-full border border-black/15 rounded-md p-2 text-[12px] focus:outline-none focus:ring-1 focus:ring-red-500"
+                  required
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => { setVoidTransactionOpen(false); setVoidNotes(''); setVoidTransactionId(''); }} className="flex-1 py-2 rounded-md text-[12px] font-bold bg-black/5 hover:bg-black/10">Cancel</button>
+                <button onClick={handleVoidTransaction} disabled={!voidTransactionId || !voidNotes.trim()} className="flex-1 py-2 rounded-md text-[12px] font-bold text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">Void Now</button>
               </div>
             </div>
           </div>
