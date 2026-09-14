@@ -2697,6 +2697,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     const safeDateStr = typeof res.checked_in_at === 'string' ? res.checked_in_at.replace('Z', '') : res.checked_in_at;
     const displayCheckInTime = safeDateStr ? new Date(safeDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
 
+    const safeOutDateStr = typeof res.checked_out_at === 'string' ? res.checked_out_at.replace('Z', '') : res.checked_out_at;
+    const displayCheckOutTime = safeOutDateStr ? new Date(safeOutDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_out_time || '12:00');
+
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
     const payMethod = (res.payment_method || '').toLowerCase();
     const source = (res.source || '').toLowerCase();
@@ -2830,7 +2833,7 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
           <td class="lbl">Check-In Time</td>
           <td class="val"><div class="line-input">${displayCheckInTime}</div></td>
           <td class="lbl">Check-Out Time</td>
-          <td class="val"><div class="line-input">${res.check_out_time || '12:00'}</div></td>
+          <td class="val"><div class="line-input">${displayCheckOutTime}</div></td>
           <td class="lbl">No. of Guests</td>
           <td class="val"><div class="line-input">${res.number_of_guests || 1}</div></td>
         </tr>
