@@ -1774,8 +1774,9 @@ function AppointmentForm({ onSuccess }) {
     if (!sel.roomType) return sum;
     const roomInfo = availability[sel.roomType] || roomTypes.find(rt => rt.name === sel.roomType);
     const pricePerNight = roomInfo ? parseFloat(roomInfo.price_per_night) : 0;
-    const isPromoApplicable = appliedPromo && appliedPromo.roomType === sel.roomType;
-    const effectivePrice = isPromoApplicable ? parseFloat(appliedPromo.discountedPrice) : pricePerNight;
+    const promoPrice = appliedPromo?.pricesByRoomType?.[sel.roomType] 
+      ?? (appliedPromo && appliedPromo.roomType === sel.roomType ? parseFloat(appliedPromo.discountedPrice) : null);
+    const effectivePrice = promoPrice !== null && promoPrice !== undefined ? parseFloat(promoPrice) : pricePerNight;
     return sum + (effectivePrice * nights * (parseInt(sel.numberOfRooms) || 1));
   }, 0);
 
@@ -1787,8 +1788,10 @@ function AppointmentForm({ onSuccess }) {
   }, 0);
 
   useEffect(() => {
-    // Check if the promo roomType is still in selections
-    const hasPromoRoom = formData.roomSelections.some(sel => sel.roomType === appliedPromo?.roomType);
+    // Check if any promo roomType is still in selections
+    const hasPromoRoom = formData.roomSelections.some(sel => 
+      appliedPromo?.pricesByRoomType?.[sel.roomType] !== undefined || sel.roomType === appliedPromo?.roomType
+    );
     if (appliedPromo && !hasPromoRoom) {
       setAppliedPromo(null);
       setPromoMessage({ type: '', text: '' });
@@ -1824,6 +1827,7 @@ function AppointmentForm({ onSuccess }) {
         setAppliedPromo({
           code: promoCodeInput.trim().toUpperCase(),
           discountedPrice: data.discountedPrice,
+          pricesByRoomType: data.pricesByRoomType || {},
           roomType: primaryRoomType
         });
         setPromoMessage({ type: 'success', text: 'Promo code applied!' });
@@ -1937,7 +1941,7 @@ function AppointmentForm({ onSuccess }) {
           checkOutDate: formData.checkOutDate,
           numberOfGuests: parseInt(formData.adults) + parseInt(formData.children),
           specialRequests: formData.specialRequests + (totalRoomsToBook > 1 ? ` (Room ${createdReservations.length + 1} of ${totalRoomsToBook})` : ''),
-          promoCode: appliedPromo && appliedPromo.roomType === sel.roomType ? appliedPromo.code : '',
+          promoCode: appliedPromo && (appliedPromo.pricesByRoomType?.[sel.roomType] !== undefined || appliedPromo.roomType === sel.roomType) ? appliedPromo.code : '',
         };
 
         try {

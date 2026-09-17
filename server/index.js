@@ -1146,28 +1146,43 @@ app.put('/api/contact/:id/read', async (req, res) => {
 app.post('/api/promos/validate', async (req, res) => {
   try {
     const { code, roomType } = req.body;
-    if (!code || !roomType) return res.status(400).json({ success: false, message: 'Code and room type required.' });
+    if (!code) return res.status(400).json({ success: false, message: 'Promo code is required.' });
 
     const rcCheck = await pool.query(`SELECT id FROM hotel_rate_codes WHERE code = $1 AND is_active = true`, [code.toUpperCase().trim()]);
     if (rcCheck.rows.length === 0) return res.json({ success: false, message: 'Invalid or inactive promo code.' });
 
-    const priceCheck = await pool.query(
-      `SELECT rcp.price_per_night, rt.price_per_night as original_price
+    const pricesRes = await pool.query(
+      `SELECT rcp.price_per_night, rt.name as room_type_name, rt.price_per_night as original_price
        FROM hotel_rate_code_prices rcp
        JOIN hotel_room_types rt ON rt.id = rcp.room_type_id
-       WHERE rcp.rate_code_id = $1 AND rt.name = $2`,
-      [rcCheck.rows[0].id, roomType]
+       WHERE rcp.rate_code_id = $1`,
+      [rcCheck.rows[0].id]
     );
 
-    if (priceCheck.rows.length === 0) {
-       return res.json({ success: false, message: 'This promo code does not apply to this room type.' });
+    if (pricesRes.rows.length === 0) {
+      return res.json({ success: false, message: 'This promo code does not have any active prices configured.' });
     }
+
+    const pricesByRoomType = {};
+    const originalPricesByRoomType = {};
+    pricesRes.rows.forEach(r => {
+      pricesByRoomType[r.room_type_name] = parseFloat(r.price_per_night);
+      originalPricesByRoomType[r.room_type_name] = parseFloat(r.original_price);
+    });
+
+    if (roomType && !pricesByRoomType[roomType]) {
+      return res.json({ success: false, message: 'This promo code does not apply to the selected room type.' });
+    }
+
+    const primaryRoomType = roomType || Object.keys(pricesByRoomType)[0];
 
     res.json({ 
        success: true, 
        message: 'Promo code applied successfully!', 
-       discountedPrice: parseFloat(priceCheck.rows[0].price_per_night),
-       originalPrice: parseFloat(priceCheck.rows[0].original_price)
+       discountedPrice: pricesByRoomType[primaryRoomType],
+       originalPrice: originalPricesByRoomType[primaryRoomType],
+       pricesByRoomType,
+       originalPricesByRoomType
     });
   } catch (err) {
     console.error('Error validating promo code:', err);
