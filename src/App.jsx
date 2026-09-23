@@ -5,11 +5,11 @@ import { ShoppingCart, Plus, Minus, Trash2, ChevronRight, Check, X, Search } fro
 import LiquidEther from './components/LiquidEther/LiquidEther';
 import GradientText from './components/GradientText/GradientText';
 import Orb from './components/Orb/Orb';
-import AdminOnlineReservationsTab from './AdminOnlineReservationsTab';
-import AdminGuestsTab from './AdminGuestsTab';
-import AdminDashboardTab from './AdminDashboardTab';
-import CorporateSettingsTab from './CorporateSettingsTab';
-import PaymentOptionsTab from './PaymentOptionsTab';
+const AdminOnlineReservationsTab = React.lazy(() => import('./AdminOnlineReservationsTab'));
+const AdminGuestsTab = React.lazy(() => import('./AdminGuestsTab'));
+const AdminDashboardTab = React.lazy(() => import('./AdminDashboardTab'));
+const CorporateSettingsTab = React.lazy(() => import('./CorporateSettingsTab'));
+const PaymentOptionsTab = React.lazy(() => import('./PaymentOptionsTab'));
 import ContactMapSection from './components/common/ContactMapSection';
 
 
@@ -4128,16 +4128,29 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
       )}
       <div className="w-full px-4 md:px-8 py-6 print:p-0">
 
-        {/* ==================== DASHBOARD TAB ==================== */}
-        {activeTab === 'dashboard' && (
-          <AdminDashboardTab reservations={reservations} stats={stats} />
-        )}
+        <React.Suspense fallback={
+          <div className="w-full p-6 space-y-6 animate-pulse">
+            <div className="h-8 bg-white/10 rounded-lg w-1/4"></div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="h-28 bg-white/10 rounded-2xl"></div>
+              <div className="h-28 bg-white/10 rounded-2xl"></div>
+              <div className="h-28 bg-white/10 rounded-2xl"></div>
+              <div className="h-28 bg-white/10 rounded-2xl"></div>
+            </div>
+            <div className="h-72 bg-white/10 rounded-2xl w-full"></div>
+          </div>
+        }>
+          {/* ==================== DASHBOARD TAB ==================== */}
+          {activeTab === 'dashboard' && (
+            <AdminDashboardTab reservations={reservations} stats={stats} />
+          )}
 
-        {/* ==================== RESERVATIONS TAB ==================== */}
-        {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} deleteReservation={deleteReservation} openConfirmModal={handleOpenConfirmModal} openWizard={handleOpenWizard} openTransfer={openTransfer} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
+          {/* ==================== RESERVATIONS TAB ==================== */}
+          {activeTab === 'reservations' && <AdminOnlineReservationsTab reservations={reservations || []} stats={stats || {}} updateStatus={updateStatus} deleteReservation={deleteReservation} openConfirmModal={handleOpenConfirmModal} openWizard={handleOpenWizard} openTransfer={openTransfer} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}
 
-        {/* ==================== GUESTS TAB ==================== */}
-        {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} printGuestFolioDirect={printGuestFolioDirect} openFolio={openFolio} />}
+          {/* ==================== GUESTS TAB ==================== */}
+          {activeTab === 'guests' && <AdminGuestsTab reservations={reservations || []} onRefresh={fetchReservations} printGuestDataSheet={printGuestDataSheet} printGuestFolioDirect={printGuestFolioDirect} openFolio={openFolio} />}
+        </React.Suspense>
 
         {/* ==================== FRONT DESK TAB ==================== */}
         {activeTab === 'frontdesk' && <FrontDeskTab openFolio={openFolio} reservations={reservations} printGuestDataSheet={printGuestDataSheet} captureSignature={captureSignature} pendingCheckInRes={pendingCheckInRes} setPendingCheckInRes={setPendingCheckInRes} pendingTransferRes={pendingTransferRes} setPendingTransferRes={setPendingTransferRes} roomTypes={adminRoomTypes} rateCodes={adminRateCodes} promos={adminPromos} />}

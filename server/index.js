@@ -5,10 +5,14 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const path = require('path');
+const compression = require('compression');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Enable HTTP compression for low bandwidth connections
+app.use(compression());
 
 // Middleware
 app.use(cors());
@@ -33,8 +37,11 @@ const storage = new CloudinaryStorage({
 });
 const upload = multer({ storage: storage });
 
-// Serve uploads directory (kept for legacy local images if any)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Serve uploads directory with 7-day browser caching for low network usage
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
+  maxAge: '7d',
+  etag: true
+}));
 
 // File upload endpoint
 app.post('/api/upload', upload.array('photos', 10), (req, res) => {
@@ -3730,6 +3737,26 @@ app.put('/api/staff/:id/permissions', async (req, res) => {
     res.json({ success: true, message: 'Permissions updated' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to update permissions' });
+  }
+});
+
+app.put('/api/staff/:id/password', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { password } = req.body;
+    
+    if (!password || password.length < 4) {
+      return res.status(400).json({ success: false, message: 'Password must be at least 4 characters long' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    await pool.query('UPDATE hotel_staff SET password_hash = $1 WHERE id = $2', [hash, id]);
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Error updating staff password:', error);
+    res.status(500).json({ success: false, message: 'Failed to update password' });
   }
 });
 

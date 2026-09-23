@@ -5,10 +5,20 @@ const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname 
   : 'https://northomes.onrender.com';
 
 export default function AdminDashboardTab({ reservations = [], stats = {} }) {
-  const [rooms, setRooms] = useState([]);
+  const [rooms, setRooms] = useState(() => {
+    try {
+      const cached = localStorage.getItem('nh_cached_rooms');
+      return cached ? JSON.parse(cached) : [];
+    } catch (e) { return []; }
+  });
   const [isAuditRunning, setIsAuditRunning] = useState(false);
   const [auditMessage, setAuditMessage] = useState('Night audit process not yet completed.');
-  const [analytics, setAnalytics] = useState(null);
+  const [analytics, setAnalytics] = useState(() => {
+    try {
+      const cached = localStorage.getItem('nh_cached_analytics');
+      return cached ? JSON.parse(cached) : null;
+    } catch (e) { return null; }
+  });
   
   const handleNightAudit = async () => {
     if (!window.confirm("Are you sure you want to run the Night Audit? This will post room charges to all currently checked-in guests and log the completion.")) return;
@@ -33,14 +43,20 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
     fetch(`${API_BASE_URL || 'http://localhost:5000'}/api/rooms`)
       .then(res => res.json())
       .then(data => {
-        if (data.rooms) setRooms(data.rooms);
+        if (data.rooms) {
+          setRooms(data.rooms);
+          try { localStorage.setItem('nh_cached_rooms', JSON.stringify(data.rooms)); } catch (e) {}
+        }
       })
       .catch(err => console.error("Error fetching rooms for dashboard:", err));
 
     fetch(`${API_BASE_URL || 'http://localhost:5000'}/api/reports/dashboard-analytics`)
       .then(res => res.json())
       .then(data => {
-        if (data.success) setAnalytics(data);
+        if (data.success) {
+          setAnalytics(data);
+          try { localStorage.setItem('nh_cached_analytics', JSON.stringify(data)); } catch (e) {}
+        }
       })
       .catch(err => console.error("Error fetching analytics for dashboard:", err));
   }, []);
