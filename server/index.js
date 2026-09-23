@@ -859,17 +859,27 @@ app.post('/api/reservations', async (req, res) => {
       });
     }
 
-    // 1. Exact duplicate — same guest email booking the same room type on the same check-in date
+    // 1. Exact duplicate — check if identical reservation was created in the last 30 seconds (idempotent retry) or older
     const exactDupe = await pool.query(
-      `SELECT id FROM hotel_reservations
+      `SELECT *, (created_at > NOW() - INTERVAL '30 seconds') as is_recent FROM hotel_reservations
        WHERE email = $1
          AND room_type = $2
          AND check_in_date = $3
-         AND status != 'cancelled'`,
+         AND status != 'cancelled'
+       ORDER BY id DESC LIMIT 1`,
       [email, roomType, checkInDate]
     );
 
-    if (exactDupe.rows.length > 0) {
+    if (exactDupe.rows.length > 0 && !req.body.allowDuplicate) {
+      if (exactDupe.rows[0].is_recent) {
+        // Double-submit / network retry within 30 seconds: return recent reservation as success
+        return res.status(200).json({
+          success: true,
+          message: `Reservation confirmed! Your ${roomType} room is booked from ${checkInDate} to ${checkOutDate}.`,
+          reservation: exactDupe.rows[0]
+        });
+      }
+
       return res.status(409).json({
         success: false,
         message: `You already have a reservation for a ${roomType} room starting on ${checkInDate}. Please check your existing booking or choose different dates.`

@@ -1942,6 +1942,7 @@ function AppointmentForm({ onSuccess }) {
           numberOfGuests: parseInt(formData.adults) + parseInt(formData.children),
           specialRequests: formData.specialRequests + (totalRoomsToBook > 1 ? ` (Room ${createdReservations.length + 1} of ${totalRoomsToBook})` : ''),
           promoCode: appliedPromo && (appliedPromo.pricesByRoomType?.[sel.roomType] !== undefined || appliedPromo.roomType === sel.roomType) ? appliedPromo.code : '',
+          allowDuplicate: i > 0 || selectionIdx > 0
         };
 
         try {
