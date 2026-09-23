@@ -3303,10 +3303,11 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
     setLoginError('');
 
     try {
+      const cleanUser = (username || '').trim();
       const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username: cleanUser, password })
       });
       const data = await response.json();
 
@@ -4055,6 +4056,9 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
                   className="w-full px-2.5 py-2 rounded-md text-[#000000]/87 text-[12px] outline-none transition-all"
                   style={{ border: '1px solid rgba(0,0,0,0.15)', background: '#ffffff' }}
                   onFocus={e => e.target.style.borderColor = '#00754A'}

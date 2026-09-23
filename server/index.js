@@ -3611,27 +3611,28 @@ app.patch('/api/appointments/:id', async (req, res) => {
 app.post('/api/admin/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+    const cleanUsername = (username || '').trim();
 
     // Check against environment variables (super admin)
     const adminUser = process.env.ADMIN_USER || 'admin';
     const adminPass = process.env.ADMIN_PASS || 'admin123';
 
-    if (username === adminUser && password === adminPass) {
+    if (cleanUsername.toLowerCase() === adminUser.toLowerCase() && password === adminPass) {
       const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      sessions.set(token, { username, full_name: 'Administrator', permissions: ['all'], loginTime: new Date() });
+      sessions.set(token, { username: adminUser, full_name: 'Administrator', permissions: ['all'], loginTime: new Date() });
 
       return res.json({
         success: true,
         message: 'Login successful',
         token,
         permissions: ['all'],
-        username,
+        username: adminUser,
         full_name: 'Administrator'
       });
     }
 
-    // Check against hotel_staff table
-    const result = await pool.query('SELECT * FROM hotel_staff WHERE username = $1', [username]);
+    // Check against hotel_staff table (case-insensitive lookup)
+    const result = await pool.query('SELECT * FROM hotel_staff WHERE LOWER(username) = LOWER($1)', [cleanUsername]);
     if (result.rows.length > 0) {
       const staff = result.rows[0];
       const match = await bcrypt.compare(password, staff.password_hash);
@@ -3641,14 +3642,14 @@ app.post('/api/admin/login', async (req, res) => {
         let permissions = [];
         try { permissions = typeof staff.permissions === 'string' ? JSON.parse(staff.permissions) : staff.permissions; } catch (e) {}
         
-        sessions.set(token, { username, full_name: staff.full_name, permissions, staff_id: staff.id, loginTime: new Date() });
+        sessions.set(token, { username: staff.username, full_name: staff.full_name, permissions, staff_id: staff.id, loginTime: new Date() });
 
         return res.json({
           success: true,
           message: 'Login successful',
           token,
           permissions,
-          username,
+          username: staff.username,
           full_name: staff.full_name
         });
       }
