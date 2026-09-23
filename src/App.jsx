@@ -834,7 +834,7 @@ export default function RestaurantApp() {
         return;
       }
 
-      const resId = signatureModal.res?.id || signatureModal.res?.dbId;
+      const resId = signatureModal.res?.id || signatureModal.res?.dbId || signatureModal.res?.reservation_id || signatureModal.res?.res_id || signatureModal.res?._id;
       if (!resId) {
         alert('Error: Invalid reservation reference.');
         setSavingSignature(false);

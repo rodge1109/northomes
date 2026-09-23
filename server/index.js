@@ -351,7 +351,8 @@ const initFrontDeskColumns = async () => {
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT ''`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS deposit_amount NUMERIC(10,2) DEFAULT 0`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS reminder_sent BOOLEAN DEFAULT false`,
-    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_signature TEXT`
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_signature TEXT`,
+    `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS guest_signature_date TIMESTAMPTZ`
   ];
   for (const sql of migrations) await pool.query(sql);
   console.log('Front desk columns ready.');
@@ -2407,19 +2408,34 @@ app.patch('/api/reservations/:id/signature', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Signature data is required.' });
     }
 
-    const result = await pool.query(
-      `UPDATE hotel_reservations SET guest_signature = $1, guest_signature_date = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
-      [signature, id]
-    );
+    const numericId = parseInt(id, 10);
+    if (isNaN(numericId)) {
+      return res.status(400).json({ success: false, message: 'Invalid reservation ID reference.' });
+    }
 
-    if (result.rows.length === 0) {
+    let result;
+    try {
+      result = await pool.query(
+        `UPDATE hotel_reservations SET guest_signature = $1, guest_signature_date = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *`,
+        [signature, numericId]
+      );
+    } catch (colErr) {
+      // Fallback if guest_signature_date column fails for any reason
+      console.warn('Signature update with date column failed, falling back to signature only:', colErr.message);
+      result = await pool.query(
+        `UPDATE hotel_reservations SET guest_signature = $1 WHERE id = $2 RETURNING *`,
+        [signature, numericId]
+      );
+    }
+
+    if (!result || result.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Reservation not found.' });
     }
 
     res.json({ success: true, reservation: result.rows[0] });
   } catch (err) {
     console.error('Signature update error:', err);
-    res.status(500).json({ success: false, message: 'Failed to save guest signature.' });
+    res.status(500).json({ success: false, message: 'Failed to save guest signature: ' + (err.message || 'Server error') });
   }
 });
 
