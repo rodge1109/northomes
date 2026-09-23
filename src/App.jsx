@@ -13,10 +13,7 @@ const PaymentOptionsTab = React.lazy(() => import('./PaymentOptionsTab'));
 import ContactMapSection from './components/common/ContactMapSection';
 
 
-// Dynamically resolve backend API URL depending on current environment
-const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:5000'
-  : 'https://northomes.onrender.com';
+import { API_BASE_URL } from './utils/apiConfig';
 
 // Robust Full Name Parser
 const parseFullName = (fullNameStr) => {

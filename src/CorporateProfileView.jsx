@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import SignaturePadModal from './components/common/SignaturePadModal';
 
-const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:5000'
-  : 'https://northomes.onrender.com';
+import { API_BASE_URL } from './utils/apiConfig';
 
 export default function CorporateProfileView({ account, isNewAccount, onBack, onSave }) {
   const [activeTab, setActiveTab] = useState('Profile');

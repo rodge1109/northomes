@@ -2,9 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import GuestProfileView from './GuestProfileView';
 import NewGuestProfileForm from './NewGuestProfileForm';
 
-const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:5000'
-  : 'https://northomes.onrender.com';
+import { API_BASE_URL } from './utils/apiConfig';
 
 export default function AdminGuestsTab({ reservations = [], onRefresh, printGuestDataSheet, captureSignature, openFolio, printGuestFolioDirect }) {
   const [searchQuery, setSearchQuery] = useState('');

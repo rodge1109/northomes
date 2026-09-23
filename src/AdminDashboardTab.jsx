@@ -1,8 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 
-const API_BASE_URL = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:5000'
-  : 'https://northomes.onrender.com';
+import { API_BASE_URL } from './utils/apiConfig';
 
 export default function AdminDashboardTab({ reservations = [], stats = {} }) {
   const [rooms, setRooms] = useState(() => {
