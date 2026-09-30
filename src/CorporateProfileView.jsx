@@ -140,13 +140,13 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
     }).join('');
 
     const win = window.open('', '_blank', 'width=800,height=900');
-    win.document.write(`<!DOCTYPE html><html><head><title>Corporate Invoice - ${account.company_name}</title>
+    win.document.write(`<!DOCTYPE html><html><head><title>Statement of Account - ${account.company_name}</title>
       <style>
         body { font-family: 'Inter', Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 32px; color: #111; }
-        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #005530; padding-bottom: 20px; margin-bottom: 30px; }
-        .header h1 { margin: 0; color: #005530; font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #005530; padding-bottom: 20px; margin-bottom: 30px; align-items: flex-start; }
+        .header h1 { margin: 0; color: #005530; font-size: 24px; font-weight: 900; letter-spacing: 0.5px; }
         .invoice-details { text-align: right; }
-        .invoice-details h2 { margin: 0; font-size: 24px; color: #666; letter-spacing: 2px; text-transform: uppercase; }
+        .invoice-details h2 { margin: 0; font-size: 20px; color: #333; letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
         .info-block h3 { margin: 0 0 8px 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
         .info-block p { margin: 4px 0; font-size: 14px; font-weight: 500; }
@@ -161,11 +161,12 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
     </head><body>
       <div class="header">
         <div>
-          <h1>Northomes</h1>
-          <p style="margin: 8px 0 0; font-size: 13px; color: #666;">Baguio City, Philippines<br/>billing@northomes.com</p>
+          <h1>NORTHOMES PENSIONE</h1>
+          <p style="margin: 6px 0 0; font-size: 12px; font-weight: 600; color: #444; text-transform: uppercase; letter-spacing: 0.3px;">PELAEZ STREET, BOGO CITY, CEBU, PH 6010</p>
+          <p style="margin: 3px 0 0; font-size: 12px; color: #555;">TEL. NO.: 0917-1323715 &middot; email: bogonorthomes@gmail.com</p>
         </div>
         <div class="invoice-details">
-          <h2>INVOICE</h2>
+          <h2>STATEMENT OF ACCOUNT</h2>
           <p style="margin: 8px 0 0; font-size: 13px; font-weight: bold;">#${invoiceNumber}</p>
           <p style="margin: 4px 0 0; font-size: 13px; color: #666;">Date: ${today}</p>
         </div>
@@ -182,8 +183,6 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
         <div class="info-block" style="text-align: right;">
           <h3>Payment Terms</h3>
           <p>Due on Receipt</p>
-          <h3 style="margin-top: 16px;">Credit Limit</h3>
-          <p>${fmtCurrency(account.credit_limit)}</p>
         </div>
       </div>
 
@@ -317,14 +316,14 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                     className={`flex items-center gap-2 px-5 py-2 border ${signatureData ? 'border-[#005530] bg-[#005530]/5 text-[#005530]' : 'border-black/10 bg-white text-black/80 hover:bg-gray-50'} rounded-md text-[13px] font-bold shadow-sm transition-colors`}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-6"/><path d="M14 6l-8 8-4 4 4-4 8-8 4 4"/></svg>
-                    {signatureData ? 'Signature Saved' : 'Sign Invoice'}
+                    {signatureData ? 'Signature Saved' : 'Sign Statement'}
                   </button>
                   <button 
                     onClick={printInvoice}
                   className="flex items-center gap-2 px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors bg-white"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
-                  Print Invoice
+                  Print Statement
                 </button>
                 </>
               )}
