@@ -124,35 +124,56 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
     const invoiceNumber = `INV-${new Date().getFullYear()}-${String(account.id).padStart(4, '0')}`;
     const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     
+    // Extract primary/latest guest details from ledger if available
+    const primaryEntry = ledger.find(e => e.guest_name || (e.description && e.description.includes('Guest Checkout Transfer'))) || ledger[ledger.length - 1] || {};
+    const guestName = primaryEntry.guest_name || (primaryEntry.description ? primaryEntry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '—');
+    
+    let checkinTimeStr = '—';
+    if (primaryEntry.checked_in_at) {
+      checkinTimeStr = new Date(primaryEntry.checked_in_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+    } else if (primaryEntry.check_in_date) {
+      checkinTimeStr = fmtDate(primaryEntry.check_in_date);
+    }
+    const nightsCount = primaryEntry.nights ? `${primaryEntry.nights} night(s)` : '—';
+
     const ledgerRows = ledger.map(entry => {
+      const rowGuestName = entry.guest_name || (entry.description && entry.description.includes('Guest Checkout Transfer') ? entry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '');
+      const roomTypeStr = entry.room_type || (entry.room_number ? `Room ${entry.room_number}` : '—');
+      const roomRateStr = entry.room_rate ? fmtCurrency(entry.room_rate) : '—';
+      const nightsStr = entry.nights ? `${entry.nights}` : '—';
+
       return `
         <tr>
           <td>${fmtDate(entry.date)}</td>
           <td>
             <div style="font-weight:bold;">${entry.reference}</div>
             <div style="color:#666;font-size:11px;">${entry.description || ''}</div>
+            ${rowGuestName ? `<div style="color:#333;font-size:11px;font-weight:600;margin-top:2px;">Guest: ${rowGuestName}</div>` : ''}
           </td>
-          <td style="text-align:right;color:#dc2626;">${Number(entry.debit) > 0 ? fmtCurrency(entry.debit) : ''}</td>
-          <td style="text-align:right;color:#16a34a;">${Number(entry.credit) > 0 ? fmtCurrency(entry.credit) : ''}</td>
+          <td>${roomTypeStr}</td>
+          <td style="text-align:right;">${roomRateStr}</td>
+          <td style="text-align:center;">${nightsStr}</td>
+          <td style="text-align:right;color:#dc2626;font-weight:600;">${Number(entry.debit) > 0 ? fmtCurrency(entry.debit) : ''}</td>
+          <td style="text-align:right;color:#16a34a;font-weight:600;">${Number(entry.credit) > 0 ? fmtCurrency(entry.credit) : ''}</td>
           <td style="text-align:right;font-weight:bold;">${fmtCurrency(entry.balance)}</td>
         </tr>
       `;
     }).join('');
 
-    const win = window.open('', '_blank', 'width=800,height=900');
+    const win = window.open('', '_blank', 'width=850,height=900');
     win.document.write(`<!DOCTYPE html><html><head><title>Statement of Account - ${account.company_name}</title>
       <style>
-        body { font-family: 'Inter', Arial, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 32px; color: #111; }
+        body { font-family: 'Inter', Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 32px; color: #111; }
         .header { display: flex; justify-content: space-between; border-bottom: 2px solid #005530; padding-bottom: 20px; margin-bottom: 30px; align-items: flex-start; }
         .header h1 { margin: 0; color: #005530; font-size: 24px; font-weight: 900; letter-spacing: 0.5px; }
         .invoice-details { text-align: right; }
         .invoice-details h2 { margin: 0; font-size: 20px; color: #333; letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
         .info-block h3 { margin: 0 0 8px 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
-        .info-block p { margin: 4px 0; font-size: 14px; font-weight: 500; }
-        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 30px; }
-        th { background: #f8f9fa; padding: 10px 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #666; border-bottom: 2px solid #eaeaea; }
-        td { padding: 12px; border-bottom: 1px solid #eaeaea; vertical-align: top; }
+        .info-block p { margin: 3px 0; font-size: 13.5px; font-weight: 500; }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 30px; }
+        th { background: #f8f9fa; padding: 10px 10px; text-align: left; font-size: 10.5px; text-transform: uppercase; color: #666; border-bottom: 2px solid #eaeaea; }
+        td { padding: 10px; border-bottom: 1px solid #eaeaea; vertical-align: top; }
         .summary-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; text-align: right; margin-left: auto; width: 300px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
         .summary-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 2px solid #eaeaea; font-size: 18px; font-weight: 900; }
@@ -175,10 +196,16 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
       <div class="info-grid">
         <div class="info-block">
           <h3>Billed To</h3>
-          <p style="font-weight: 800; font-size: 16px;">${account.company_name}</p>
+          <p style="font-weight: 800; font-size: 15px;">${account.company_name}</p>
           <p>Account #: ${account.account_number}</p>
           <p>Attn: ${account.contact_person || 'Accounts Payable'}</p>
           <p>${account.contact_email || ''}</p>
+          
+          <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #eaeaea;">
+            <p style="margin: 2px 0;"><strong>Guest Name:</strong> ${guestName}</p>
+            <p style="margin: 2px 0;"><strong>Check-in Date/Time:</strong> ${checkinTimeStr}</p>
+            <p style="margin: 2px 0;"><strong>No. of Nights:</strong> ${nightsCount}</p>
+          </div>
         </div>
         <div class="info-block" style="text-align: right;">
           <h3>Payment Terms</h3>
@@ -189,15 +216,18 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
       <table>
         <thead>
           <tr>
-            <th style="width:15%;">Date</th>
-            <th style="width:35%;">Description</th>
-            <th style="width:15%;text-align:right;">Debit</th>
-            <th style="width:15%;text-align:right;">Credit</th>
-            <th style="width:20%;text-align:right;">Balance</th>
+            <th style="width:11%;">Date</th>
+            <th style="width:25%;">Description / Ref</th>
+            <th style="width:14%;">Room Type</th>
+            <th style="width:12%;text-align:right;">Room Rate</th>
+            <th style="width:8%;text-align:center;">Nights</th>
+            <th style="width:10%;text-align:right;">Debit</th>
+            <th style="width:10%;text-align:right;">Credit</th>
+            <th style="width:10%;text-align:right;">Balance</th>
           </tr>
         </thead>
         <tbody>
-          ${ledger.length > 0 ? ledgerRows : '<tr><td colspan="5" style="text-align:center;color:#888;">No transactions recorded.</td></tr>'}
+          ${ledger.length > 0 ? ledgerRows : '<tr><td colspan="8" style="text-align:center;color:#888;">No transactions recorded.</td></tr>'}
         </tbody>
       </table>
 
@@ -222,7 +252,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
       </div>
 
       <div class="footer">
-        Please make all checks payable to Northomes Management.<br/>
+        Please make all checks payable to Northomes Pensione.<br/>
         If you have any questions concerning this invoice, contact our billing department.
       </div>
       <script>

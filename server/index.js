@@ -2957,7 +2957,29 @@ app.delete('/api/corporate-accounts/:id', async (req, res) => {
 app.get('/api/corporate-accounts/:id/ledger', async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await pool.query("SELECT * FROM hotel_corporate_ledgers WHERE account_id = $1 ORDER BY date ASC, created_at ASC", [id]);
+    const result = await pool.query(`
+      SELECT 
+        l.*,
+        r.full_name as guest_name,
+        r.check_in_date,
+        r.check_out_date,
+        r.checked_in_at,
+        r.room_type,
+        r.room_number,
+        GREATEST(1, COALESCE(r.check_out_date - r.check_in_date, 1)) as nights,
+        (
+          SELECT COALESCE(unit_price, amount) 
+          FROM hotel_folio_items 
+          WHERE reservation_id = r.id AND voided = false AND charge_type = 'Room Rate'
+          ORDER BY id ASC LIMIT 1
+        ) as room_rate
+      FROM hotel_corporate_ledgers l
+      LEFT JOIN hotel_reservations r ON (
+        l.reference LIKE 'RES-%' AND r.id = CAST(NULLIF(SUBSTRING(l.reference FROM 5), '') AS INTEGER)
+      )
+      WHERE l.account_id = $1
+      ORDER BY l.date ASC, l.created_at ASC
+    `, [id]);
     res.json({ success: true, ledger: result.rows });
   } catch (err) {
     console.error(err);
