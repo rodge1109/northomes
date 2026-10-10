@@ -32,10 +32,12 @@ export default function AdminGuestsTab({ reservations = [], onRefresh, printGues
         const nights = Math.max(1, Math.round((new Date(r.check_out_date || r.preferred_date) - new Date(r.check_in_date || r.preferred_date)) / 86400000));
         const getRoomRate = (t) => {
           const type = (t || '').toLowerCase();
-          if (type.includes('presidential')) return 25000;
+          if (type.includes('four single') || type.includes('two double')) return 2300;
+                                if (type.includes('deluxe queen') || type.includes('deluxe twin')) return 1500;
+                                if (type.includes('presidential')) return 25000;
           if (type.includes('suite')) return 9000;
-          if (type.includes('family')) return 6500;
-          if (type.includes('deluxe')) return 4500;
+          if (type.includes('family')) return 2500;
+          if (type.includes('deluxe')) return 1800;
           return 2500; // Standard Room and fallback
         };
         const total = nights * getRoomRate(r.room_type);

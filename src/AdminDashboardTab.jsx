@@ -85,10 +85,12 @@ export default function AdminDashboardTab({ reservations = [], stats = {} }) {
         // Rough estimate of revenue for in-house
         const getRoomRate = (t) => {
           const type = (t || '').toLowerCase();
-          if (type.includes('presidential')) return 25000;
+          if (type.includes('four single') || type.includes('two double')) return 2300;
+                                if (type.includes('deluxe queen') || type.includes('deluxe twin')) return 1500;
+                                if (type.includes('presidential')) return 25000;
           if (type.includes('suite')) return 9000;
-          if (type.includes('family')) return 6500;
-          if (type.includes('deluxe')) return 4500;
+          if (type.includes('family')) return 2500;
+          if (type.includes('deluxe')) return 1800;
           return 2500; // Standard Room and fallback
         };
         const rate = getRoomRate(r.room_type);

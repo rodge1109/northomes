@@ -2682,10 +2682,12 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
         const matched = typeof adminRoomTypes !== 'undefined' ? adminRoomTypes.find(rt => rt.name === roomTypeName) : null;
         if (matched) return parseFloat(matched.price_per_night);
         const type = (roomTypeName || '').toLowerCase();
-        if (type.includes('presidential')) return 25000;
+        if (type.includes('four single') || type.includes('two double')) return 2300;
+                                if (type.includes('deluxe queen') || type.includes('deluxe twin')) return 1500;
+                                if (type.includes('presidential')) return 25000;
         if (type.includes('suite')) return 9000;
-        if (type.includes('family')) return 6500;
-        if (type.includes('deluxe')) return 4500;
+        if (type.includes('family')) return 2500;
+        if (type.includes('deluxe')) return 1800;
         return 2500;
       };
 
@@ -13555,10 +13557,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                 if (matched) return parseFloat(matched.price_per_night);
                                 // 4. Last-resort hardcoded fallbacks
                                 const type = (roomTypeName || '').toLowerCase();
+                                if (type.includes('four single') || type.includes('two double')) return 2300;
+                                if (type.includes('deluxe queen') || type.includes('deluxe twin')) return 1500;
                                 if (type.includes('presidential')) return 25000;
                                 if (type.includes('suite')) return 9000;
-                                if (type.includes('family')) return 6500;
-                                if (type.includes('deluxe')) return 4500;
+                                if (type.includes('family')) return 2500;
+                                if (type.includes('deluxe')) return 1800;
                                 return 2500;
                               };
                               const nights = nightsCount(res);
@@ -13947,10 +13951,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                     if (matched) return parseFloat(matched.price_per_night);
                                     // 4. Last-resort hardcoded fallbacks
                                     const type = (roomTypeName || '').toLowerCase();
-                                    if (type.includes('presidential')) return 25000;
+                                    if (type.includes('four single') || type.includes('two double')) return 2300;
+                                if (type.includes('deluxe queen') || type.includes('deluxe twin')) return 1500;
+                                if (type.includes('presidential')) return 25000;
                                     if (type.includes('suite')) return 9000;
-                                    if (type.includes('family')) return 6500;
-                                    if (type.includes('deluxe')) return 4500;
+                                    if (type.includes('family')) return 2500;
+                                    if (type.includes('deluxe')) return 1800;
                                     return 2500;
                                   };
                                   const totalAmt = nights * getRoomRate(res.room_type, res.rate_code);

@@ -6288,8 +6288,8 @@ app.get('/api/reports/dashboard-analytics', async (req, res) => {
         CASE 
           WHEN room_type ILIKE '%presidential%' THEN 25000
           WHEN room_type ILIKE '%suite%' THEN 9000
-          WHEN room_type ILIKE '%family%' THEN 6500
-          WHEN room_type ILIKE '%deluxe%' THEN 4500
+          WHEN room_type ILIKE '%family%' THEN 2500
+          WHEN room_type ILIKE '%deluxe%' THEN 1800
           ELSE 2500
         END
       ) as est_revenue

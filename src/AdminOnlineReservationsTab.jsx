@@ -18,6 +18,31 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
 
   const today = new Date().toISOString().split('T')[0];
 
+  const getRoomRate = (roomTypeName, rateCodeCode) => {
+    if (rateCodeCode) {
+      const matchedRc = rateCodes.find(rc => rc.code === rateCodeCode);
+      if (matchedRc && matchedRc.prices) {
+        const priceObj = matchedRc.prices.find(p => p.room_type_name === roomTypeName);
+        if (priceObj && priceObj.price_per_night) return parseFloat(priceObj.price_per_night);
+      }
+      const matchedPromo = promos.find(p => p.code === rateCodeCode);
+      if (matchedPromo && matchedPromo.prices) {
+        const priceObj = matchedPromo.prices.find(p => p.room_type_name === roomTypeName);
+        if (priceObj && priceObj.price_per_night) return parseFloat(priceObj.price_per_night);
+      }
+    }
+    const type = (roomTypeName || '').toLowerCase();
+    if (type.includes('four single') || type.includes('two double')) return 2300;
+    if (type.includes('deluxe queen') || type.includes('deluxe twin')) return 1500;
+    const matched = roomTypes.find(rt => rt.name === roomTypeName);
+    if (matched) return parseFloat(matched.price_per_night);
+    if (type.includes('presidential')) return 25000;
+    if (type.includes('suite')) return 9000;
+    if (type.includes('family')) return 2500;
+    if (type.includes('deluxe')) return 1800;
+    return 1200;
+  };
+
   const getHint = (d) => {
     if (!d) return '';
     const diff = Math.round((new Date(d).setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / 86400000);
@@ -82,7 +107,7 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
           guests: r.number_of_guests ? `${r.number_of_guests} Guest(s)` : '1 Adult',
           status: r.status,
           statusColor: getStatusColor(r.status),
-          total: r.deposit_amount ? `₱${parseFloat(r.deposit_amount).toLocaleString('en-US', { minimumFractionDigits: 2 })}` : '₱0.00'
+          total: `₱${(parseFloat(r.deposit_amount) > 0 ? parseFloat(r.deposit_amount) : (getNights(r.check_in_date || r.preferred_date, r.check_out_date || r.preferred_date) * getRoomRate(r.room_type || r.service_name, r.rate_code))).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
         };
       });
   }, [reservations, searchQuery, filterStatus, filterChannel, roomTypes, rateCodes, promos]);
