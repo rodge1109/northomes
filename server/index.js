@@ -2975,7 +2975,7 @@ app.get('/api/corporate-accounts/:id/ledger', async (req, res) => {
             ORDER BY id ASC LIMIT 1
           ),
           (
-            SELECT price 
+            SELECT price_per_night 
             FROM hotel_room_types 
             WHERE name = r.room_type 
             LIMIT 1
