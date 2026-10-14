@@ -132,10 +132,6 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
     const invoiceNumber = `INV-${new Date().getFullYear()}-${String(account.id).padStart(4, '0')}`;
     const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     
-    // Extract primary/latest guest details from ledger if available
-    const primaryEntry = ledger.find(e => e.guest_name || (e.description && e.description.includes('Guest Checkout Transfer'))) || ledger[ledger.length - 1] || {};
-    const guestName = primaryEntry.guest_name || (primaryEntry.description ? primaryEntry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '—');
-
     let totalChargesSum = 0;
     let totalDiscountSum = 0;
     let totalBalanceSum = 0;
@@ -236,12 +232,20 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
         .info-block h3 { margin: 0 0 8px 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
         .info-block p { margin: 3px 0; font-size: 13.5px; font-weight: 500; }
         table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 30px; }
-        th { background: #005530; color: #ffffff; padding: 10px 8px; text-align: left; font-size: 10.5px; text-transform: uppercase; border-bottom: 2px solid #004420; letter-spacing: 0.3px; }
+        th { background: #f4f6f5; color: #111111; font-weight: 800; padding: 10px 8px; text-align: left; font-size: 11px; text-transform: uppercase; border-top: 1px solid #005530; border-bottom: 2px solid #005530; letter-spacing: 0.3px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         td { padding: 10px 8px; border-bottom: 1px solid #eaeaea; vertical-align: middle; }
         .summary-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; text-align: right; margin-left: auto; width: 320px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
         .summary-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 2px solid #eaeaea; font-size: 18px; font-weight: 900; }
         .footer { margin-top: 60px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #eaeaea; padding-top: 20px; }
+        @media print {
+          th {
+            color: #000000 !important;
+            font-weight: 800 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        }
       </style>
     </head><body>
       <div class="header">
@@ -263,13 +267,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
           <p style="font-weight: 800; font-size: 15px;">${account.company_name}</p>
           <p>Account #: ${account.account_number}</p>
           <p>Attn: ${account.contact_person || 'Accounts Payable'}</p>
-          <p>${account.contact_email || ''}</p>
-          
-          ${guestName && guestName !== '—' ? `
-            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #eaeaea;">
-              <p style="margin: 2px 0;"><strong>Guest Name:</strong> ${guestName}</p>
-            </div>
-          ` : ''}
+          ${account.contact_email ? `<p>${account.contact_email}</p>` : ''}
         </div>
         <div class="info-block" style="text-align: right;">
           <h3>Payment Terms</h3>
@@ -279,15 +277,15 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
 
       <table>
         <thead>
-          <tr>
-            <th style="width:11%;text-align:left;">Check-in Date</th>
-            <th style="width:17%;text-align:left;">Description / Ref</th>
-            <th style="width:14%;text-align:left;">Room Type</th>
-            <th style="width:6%;text-align:center;">Nights</th>
-            <th style="width:12%;text-align:right;">Room Rate</th>
-            <th style="width:13%;text-align:right;">Charges</th>
-            <th style="width:13%;text-align:right;">Credit / Discount</th>
-            <th style="width:14%;text-align:right;">Balance</th>
+          <tr style="background:#f4f6f5;">
+            <th style="width:11%;text-align:left;color:#111;font-weight:800;">Check-in Date</th>
+            <th style="width:17%;text-align:left;color:#111;font-weight:800;">Description / Ref</th>
+            <th style="width:14%;text-align:left;color:#111;font-weight:800;">Room Type</th>
+            <th style="width:6%;text-align:center;color:#111;font-weight:800;">Nights</th>
+            <th style="width:12%;text-align:right;color:#111;font-weight:800;">Room Rate</th>
+            <th style="width:13%;text-align:right;color:#111;font-weight:800;">Charges</th>
+            <th style="width:13%;text-align:right;color:#111;font-weight:800;">Credit / Discount</th>
+            <th style="width:14%;text-align:right;color:#111;font-weight:800;">Balance</th>
           </tr>
         </thead>
         <tbody>
@@ -296,8 +294,8 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
         ${ledger.length > 0 ? `
           <tfoot>
             <tr style="background:#f4f7f5;font-weight:bold;border-top:2px solid #005530;">
-              <td colspan="5" style="text-align:right;text-transform:uppercase;font-size:11px;color:#333;padding:10px 8px;">Total:</td>
-              <td style="text-align:right;padding:10px 8px;font-weight:800;">${fmtCurrency(totalChargesSum)}</td>
+              <td colspan="5" style="text-align:right;text-transform:uppercase;font-size:11px;color:#111;font-weight:800;padding:10px 8px;">Total:</td>
+              <td style="text-align:right;padding:10px 8px;font-weight:800;color:#111;">${fmtCurrency(totalChargesSum)}</td>
               <td style="text-align:right;color:#005530;padding:10px 8px;font-weight:800;">${fmtCurrency(totalDiscountSum)}</td>
               <td style="text-align:right;color:#111;padding:10px 8px;font-size:13px;font-weight:900;">${fmtCurrency(totalBalanceSum)}</td>
             </tr>
@@ -331,7 +329,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
           <div style="border-bottom: 1px solid #333; margin-bottom: 8px; height: 60px; display: flex; align-items: flex-end; justify-content: center;">
             ${signatureData ? `<img src="${signatureData}" style="max-height: 50px; max-width: 100%; object-fit: contain;" />` : ''}
           </div>
-          <div style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Guest / Authorized Signatory</div>
+          <div style="font-size: 12px; font-weight: bold; text-transform: uppercase;">Received By</div>
         </div>
       </div>
 
