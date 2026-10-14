@@ -115,7 +115,15 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
     }
   };
 
-  const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+  const fmtDate = (d) => {
+    if (!d) return '—';
+    if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) {
+      const [y, m, day] = d.split('-').map(Number);
+      return new Date(y, m - 1, day).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    const dt = new Date(d);
+    return isNaN(dt.getTime()) ? '—' : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
   const fmtCurrency = (n) => `₱${(Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const printInvoice = () => {
@@ -127,35 +135,91 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
     // Extract primary/latest guest details from ledger if available
     const primaryEntry = ledger.find(e => e.guest_name || (e.description && e.description.includes('Guest Checkout Transfer'))) || ledger[ledger.length - 1] || {};
     const guestName = primaryEntry.guest_name || (primaryEntry.description ? primaryEntry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '—');
-    
-    let checkinTimeStr = '—';
-    if (primaryEntry.checked_in_at) {
-      checkinTimeStr = new Date(primaryEntry.checked_in_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
-    } else if (primaryEntry.check_in_date) {
-      checkinTimeStr = fmtDate(primaryEntry.check_in_date);
-    }
-    const nightsCount = primaryEntry.nights ? `${primaryEntry.nights} night(s)` : '—';
+
+    let totalChargesSum = 0;
+    let totalDiscountSum = 0;
+    let totalBalanceSum = 0;
 
     const ledgerRows = ledger.map(entry => {
       const rowGuestName = entry.guest_name || (entry.description && entry.description.includes('Guest Checkout Transfer') ? entry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '');
-      const roomTypeStr = entry.room_type || (entry.room_number ? `Room ${entry.room_number}` : '—');
-      const roomRateStr = entry.room_rate ? fmtCurrency(entry.room_rate) : '—';
-      const nightsStr = entry.nights ? `${entry.nights}` : '—';
+      const actualCheckInDate = entry.check_in_date || entry.date;
+
+      const isTransferDesc = entry.description && /^Guest Checkout Transfer/i.test(entry.description);
+      const cleanDescription = isTransferDesc ? '' : (entry.description || '');
+
+      const isReservation = Boolean(entry.room_type || (entry.reference && entry.reference.startsWith('RES-')));
+
+      let roomTypeStr = '—';
+      let nightsStr = '—';
+      let roomRateStr = '—';
+      let chargesStr = '—';
+      let discountStr = '—';
+      let balanceStr = '—';
+
+      if (isReservation) {
+        const rawRoomType = entry.room_type || (entry.room_number ? `Room ${entry.room_number}` : 'Standard');
+        roomTypeStr = rawRoomType.replace(/\s+Room$/i, '');
+
+        const nights = Number(entry.nights) || 1;
+        nightsStr = String(nights);
+
+        const roomRate = Number(entry.room_rate) || (entry.debit && nights ? Number(entry.debit) / nights : 0);
+        roomRateStr = roomRate > 0 ? fmtCurrency(roomRate) : '—';
+
+        const baseRoomCharge = nights * roomRate;
+        let charges = Number(entry.folio_charges) || 0;
+        if (charges <= 0 && baseRoomCharge > 0) {
+          charges = baseRoomCharge;
+        }
+        if (charges <= 0) {
+          charges = Number(entry.debit) || 0;
+        }
+
+        let discount = (Number(entry.folio_discounts) || 0) + (Number(entry.guest_payments) || 0);
+        if (discount <= 0 && charges > Number(entry.debit) && Number(entry.debit) > 0) {
+          discount = charges - Number(entry.debit);
+        }
+
+        const rowBalance = Number(entry.debit) > 0 ? Number(entry.debit) : Math.max(0, charges - discount);
+
+        chargesStr = fmtCurrency(charges);
+        discountStr = discount > 0 ? fmtCurrency(discount) : '—';
+        balanceStr = fmtCurrency(rowBalance);
+
+        totalChargesSum += charges;
+        totalDiscountSum += discount;
+        totalBalanceSum += rowBalance;
+      } else {
+        const debit = Number(entry.debit) || 0;
+        const credit = Number(entry.credit) || 0;
+        if (debit > 0) {
+          chargesStr = fmtCurrency(debit);
+          balanceStr = fmtCurrency(debit);
+          totalChargesSum += debit;
+          totalBalanceSum += debit;
+        }
+        if (credit > 0) {
+          discountStr = fmtCurrency(credit);
+          balanceStr = `-${fmtCurrency(credit)}`;
+          totalDiscountSum += credit;
+          totalBalanceSum -= credit;
+        }
+      }
 
       return `
         <tr>
-          <td>${fmtDate(entry.date)}</td>
+          <td>${fmtDate(actualCheckInDate)}</td>
           <td>
             <div style="font-weight:bold;">${entry.reference}</div>
-            <div style="color:#666;font-size:11px;">${entry.description || ''}</div>
+            ${cleanDescription ? `<div style="color:#666;font-size:11px;">${cleanDescription}</div>` : ''}
             ${rowGuestName ? `<div style="color:#333;font-size:11px;font-weight:600;margin-top:2px;">Guest: ${rowGuestName}</div>` : ''}
           </td>
           <td>${roomTypeStr}</td>
-          <td style="text-align:right;">${roomRateStr}</td>
           <td style="text-align:center;">${nightsStr}</td>
-          <td style="text-align:right;color:#dc2626;font-weight:600;">${Number(entry.debit) > 0 ? fmtCurrency(entry.debit) : ''}</td>
-          <td style="text-align:right;color:#16a34a;font-weight:600;">${Number(entry.credit) > 0 ? fmtCurrency(entry.credit) : ''}</td>
-          <td style="text-align:right;font-weight:bold;">${fmtCurrency(entry.balance)}</td>
+          <td style="text-align:right;">${roomRateStr}</td>
+          <td style="text-align:right;font-weight:600;">${chargesStr}</td>
+          <td style="text-align:right;color:#005530;font-weight:600;">${discountStr}</td>
+          <td style="text-align:right;font-weight:bold;">${balanceStr}</td>
         </tr>
       `;
     }).join('');
@@ -172,9 +236,9 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
         .info-block h3 { margin: 0 0 8px 0; font-size: 11px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
         .info-block p { margin: 3px 0; font-size: 13.5px; font-weight: 500; }
         table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 30px; }
-        th { background: #f8f9fa; padding: 10px 10px; text-align: left; font-size: 10.5px; text-transform: uppercase; color: #666; border-bottom: 2px solid #eaeaea; }
-        td { padding: 10px; border-bottom: 1px solid #eaeaea; vertical-align: top; }
-        .summary-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; text-align: right; margin-left: auto; width: 300px; }
+        th { background: #005530; color: #ffffff; padding: 10px 8px; text-align: left; font-size: 10.5px; text-transform: uppercase; border-bottom: 2px solid #004420; letter-spacing: 0.3px; }
+        td { padding: 10px 8px; border-bottom: 1px solid #eaeaea; vertical-align: middle; }
+        .summary-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; text-align: right; margin-left: auto; width: 320px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
         .summary-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 2px solid #eaeaea; font-size: 18px; font-weight: 900; }
         .footer { margin-top: 60px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #eaeaea; padding-top: 20px; }
@@ -201,11 +265,11 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
           <p>Attn: ${account.contact_person || 'Accounts Payable'}</p>
           <p>${account.contact_email || ''}</p>
           
-          <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #eaeaea;">
-            <p style="margin: 2px 0;"><strong>Guest Name:</strong> ${guestName}</p>
-            <p style="margin: 2px 0;"><strong>Check-in Date/Time:</strong> ${checkinTimeStr}</p>
-            <p style="margin: 2px 0;"><strong>No. of Nights:</strong> ${nightsCount}</p>
-          </div>
+          ${guestName && guestName !== '—' ? `
+            <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #eaeaea;">
+              <p style="margin: 2px 0;"><strong>Guest Name:</strong> ${guestName}</p>
+            </div>
+          ` : ''}
         </div>
         <div class="info-block" style="text-align: right;">
           <h3>Payment Terms</h3>
@@ -216,22 +280,42 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
       <table>
         <thead>
           <tr>
-            <th style="width:11%;">Date</th>
-            <th style="width:25%;">Description / Ref</th>
-            <th style="width:14%;">Room Type</th>
+            <th style="width:11%;text-align:left;">Check-in Date</th>
+            <th style="width:17%;text-align:left;">Description / Ref</th>
+            <th style="width:14%;text-align:left;">Room Type</th>
+            <th style="width:6%;text-align:center;">Nights</th>
             <th style="width:12%;text-align:right;">Room Rate</th>
-            <th style="width:8%;text-align:center;">Nights</th>
-            <th style="width:10%;text-align:right;">Debit</th>
-            <th style="width:10%;text-align:right;">Credit</th>
-            <th style="width:10%;text-align:right;">Balance</th>
+            <th style="width:13%;text-align:right;">Charges</th>
+            <th style="width:13%;text-align:right;">Credit / Discount</th>
+            <th style="width:14%;text-align:right;">Balance</th>
           </tr>
         </thead>
         <tbody>
           ${ledger.length > 0 ? ledgerRows : '<tr><td colspan="8" style="text-align:center;color:#888;">No transactions recorded.</td></tr>'}
         </tbody>
+        ${ledger.length > 0 ? `
+          <tfoot>
+            <tr style="background:#f4f7f5;font-weight:bold;border-top:2px solid #005530;">
+              <td colspan="5" style="text-align:right;text-transform:uppercase;font-size:11px;color:#333;padding:10px 8px;">Total:</td>
+              <td style="text-align:right;padding:10px 8px;font-weight:800;">${fmtCurrency(totalChargesSum)}</td>
+              <td style="text-align:right;color:#005530;padding:10px 8px;font-weight:800;">${fmtCurrency(totalDiscountSum)}</td>
+              <td style="text-align:right;color:#111;padding:10px 8px;font-size:13px;font-weight:900;">${fmtCurrency(totalBalanceSum)}</td>
+            </tr>
+          </tfoot>
+        ` : ''}
       </table>
 
       <div class="summary-box">
+        <div class="summary-row">
+          <span>Total Charges:</span>
+          <span style="font-weight:bold;">${fmtCurrency(totalChargesSum)}</span>
+        </div>
+        ${totalDiscountSum > 0 ? `
+          <div class="summary-row" style="color:#005530;">
+            <span>Total Credit / Discount:</span>
+            <span style="font-weight:bold;">-${fmtCurrency(totalDiscountSum)}</span>
+          </div>
+        ` : ''}
         <div class="summary-total">
           <span>Amount Due:</span>
           <span style="color: ${Number(account.balance) > 0 ? '#dc2626' : '#16a34a'};">${fmtCurrency(account.balance)}</span>
@@ -491,7 +575,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                       <table className="w-full text-[12px] text-left text-black/80">
                         <thead className="bg-gray-50 text-[10px] font-bold text-black/40 uppercase sticky top-0 border-b border-black/5 shadow-sm">
                           <tr>
-                            <th className="px-4 py-2">Date</th>
+                            <th className="px-4 py-2">Check-in Date</th>
                             <th className="px-4 py-2">Ref / Desc</th>
                             <th className="px-4 py-2 text-right">Debit</th>
                             <th className="px-4 py-2 text-right">Credit</th>
@@ -499,18 +583,24 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-black/5">
-                          {ledger.map((entry, idx) => (
-                            <tr key={idx} className="hover:bg-gray-50/50">
-                              <td className="px-4 py-3 font-semibold whitespace-nowrap">{fmtDate(entry.date)}</td>
-                              <td className="px-4 py-3">
-                                <div className="font-bold">{entry.reference}</div>
-                                <div className="text-[10px] text-black/50 mt-0.5 line-clamp-2" title={entry.description}>{entry.description}</div>
-                              </td>
-                              <td className="px-4 py-3 text-right text-red-600 font-medium">{Number(entry.debit) > 0 ? fmtCurrency(entry.debit) : ''}</td>
-                              <td className="px-4 py-3 text-right text-emerald-600 font-medium">{Number(entry.credit) > 0 ? fmtCurrency(entry.credit) : ''}</td>
-                              <td className="px-4 py-3 text-right font-bold text-black/90">{fmtCurrency(entry.balance)}</td>
-                            </tr>
-                          ))}
+                          {ledger.map((entry, idx) => {
+                            const rowGuest = entry.guest_name || (entry.description && entry.description.includes('Guest Checkout Transfer') ? entry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '');
+                            const isTransfer = entry.description && /^Guest Checkout Transfer/i.test(entry.description);
+                            const desc = isTransfer ? (rowGuest ? `Guest: ${rowGuest}` : '') : entry.description;
+
+                            return (
+                              <tr key={idx} className="hover:bg-gray-50/50">
+                                <td className="px-4 py-3 font-semibold whitespace-nowrap">{fmtDate(entry.check_in_date || entry.date)}</td>
+                                <td className="px-4 py-3">
+                                  <div className="font-bold">{entry.reference}</div>
+                                  {desc && <div className="text-[10px] text-black/50 mt-0.5 line-clamp-2" title={desc}>{desc}</div>}
+                                </td>
+                                <td className="px-4 py-3 text-right text-red-600 font-medium">{Number(entry.debit) > 0 ? fmtCurrency(entry.debit) : ''}</td>
+                                <td className="px-4 py-3 text-right text-emerald-600 font-medium">{Number(entry.credit) > 0 ? fmtCurrency(entry.credit) : ''}</td>
+                                <td className="px-4 py-3 text-right font-bold text-black/90">{fmtCurrency(entry.balance)}</td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     )}

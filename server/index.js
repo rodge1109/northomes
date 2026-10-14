@@ -2967,12 +2967,35 @@ app.get('/api/corporate-accounts/:id/ledger', async (req, res) => {
         r.room_type,
         r.room_number,
         GREATEST(1, COALESCE(r.check_out_date - r.check_in_date, 1)) as nights,
+        COALESCE(
+          (
+            SELECT COALESCE(unit_price, amount) 
+            FROM hotel_folio_items 
+            WHERE reservation_id = r.id AND voided = false AND charge_type = 'Room Rate'
+            ORDER BY id ASC LIMIT 1
+          ),
+          (
+            SELECT price 
+            FROM hotel_room_types 
+            WHERE name = r.room_type 
+            LIMIT 1
+          )
+        ) as room_rate,
         (
-          SELECT COALESCE(unit_price, amount) 
+          SELECT COALESCE(SUM(amount), 0)
           FROM hotel_folio_items 
-          WHERE reservation_id = r.id AND voided = false AND charge_type = 'Room Rate'
-          ORDER BY id ASC LIMIT 1
-        ) as room_rate
+          WHERE reservation_id = r.id AND voided = false AND (amount > 0 AND charge_type NOT ILIKE '%Discount%')
+        ) as folio_charges,
+        (
+          SELECT COALESCE(SUM(ABS(amount)), 0)
+          FROM hotel_folio_items 
+          WHERE reservation_id = r.id AND voided = false AND (amount < 0 OR charge_type ILIKE '%Discount%')
+        ) as folio_discounts,
+        (
+          SELECT COALESCE(SUM(amount), 0)
+          FROM hotel_folio_payments 
+          WHERE reservation_id = r.id AND voided = false AND payment_method NOT ILIKE '%Corporate%'
+        ) as guest_payments
       FROM hotel_corporate_ledgers l
       LEFT JOIN hotel_reservations r ON (
         l.reference LIKE 'RES-%' AND r.id = CAST(NULLIF(SUBSTRING(l.reference FROM 5), '') AS INTEGER)
