@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import SignaturePadModal from './components/common/SignaturePadModal';
+import RecordCorporatePaymentModal from './components/common/RecordCorporatePaymentModal';
 
 import { API_BASE_URL } from './utils/apiConfig';
 
-export default function CorporateProfileView({ account, isNewAccount, onBack, onSave }) {
+export default function CorporateProfileView({ account, isNewAccount, onBack, onSave, onUpdateAccount }) {
   const [activeTab, setActiveTab] = useState('Profile');
   const [isEditing, setIsEditing] = useState(isNewAccount);
   const [formData, setFormData] = useState({});
@@ -15,9 +16,12 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
   const [successMsg, setSuccessMsg] = useState('');
   const [ledger, setLedger] = useState([]);
   const [loadingLedger, setLoadingLedger] = useState(false);
+  const [accountData, setAccountData] = useState(account || {});
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
   useEffect(() => {
     if (account) {
+      setAccountData(account);
       setFormData({
         account_number: account.account_number || '',
         company_name: account.company_name || '',
@@ -32,6 +36,18 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
       }
     }
   }, [account, isNewAccount]);
+
+  const handlePaymentSuccess = (updatedAcc, ledgerEntry) => {
+    setAccountData(updatedAcc);
+    setFormData(prev => ({ ...prev, credit_limit: updatedAcc.credit_limit }));
+    setSuccessMsg(`Payment of ₱${(Number(ledgerEntry.credit) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} recorded successfully!`);
+    if (account?.id) {
+      fetchLedger(account.id);
+    }
+    if (onUpdateAccount) {
+      onUpdateAccount(updatedAcc);
+    }
+  };
 
   const fetchLedger = async (id) => {
     setLoadingLedger(true);
@@ -127,9 +143,10 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
   const fmtCurrency = (n) => `₱${(Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const printInvoice = () => {
-    if (!account) return;
+    const acc = accountData || account;
+    if (!acc) return;
     
-    const invoiceNumber = `INV-${new Date().getFullYear()}-${String(account.id).padStart(4, '0')}`;
+    const invoiceNumber = `INV-${new Date().getFullYear()}-${String(acc.id).padStart(4, '0')}`;
     const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     
     let totalChargesSum = 0;
@@ -437,6 +454,14 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                 Print SOA
               </button>
               <button 
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="flex items-center gap-2 px-5 py-2 bg-[#005530] text-white hover:bg-[#004420] rounded-md text-[13px] font-bold shadow-sm transition-colors"
+                title="Record payment received for this account"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Record Payment
+              </button>
+              <button 
                 onClick={() => setIsEditing(true)} 
                 className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
               >
@@ -533,26 +558,40 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                 
                 {/* Account Summary */}
                 <div className="bg-white rounded-xl shadow-sm border border-black/5 overflow-hidden">
-                  <div className="px-5 py-4 border-b border-black/5">
+                  <div className="px-5 py-4 border-b border-black/5 flex items-center justify-between">
                     <h3 className="text-[14px] font-black text-black/90 tracking-tight">Financial Summary</h3>
+                    {Number(accountData.balance) > 0 && (
+                      <span className="text-[10px] font-black bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-200">
+                        Payment Due
+                      </span>
+                    )}
                   </div>
                   <div className="p-3 space-y-3 bg-[#f8f9fa]">
                     <div className="flex items-center justify-between text-[13px]">
                       <span className="text-black/60 font-medium">Credit Limit</span>
-                      <span className="font-bold text-black/90">{fmtCurrency(account.credit_limit)}</span>
+                      <span className="font-bold text-black/90">{fmtCurrency(accountData.credit_limit)}</span>
                     </div>
                     <div className="flex items-center justify-between text-[13px]">
                       <span className="text-black/60 font-medium">Available Credit</span>
                       <span className="font-bold text-emerald-600">
-                        {fmtCurrency((account.credit_limit || 0) - (account.balance || 0))}
+                        {fmtCurrency((accountData.credit_limit || 0) - (accountData.balance || 0))}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-[15px] pt-3 border-t border-black/10">
                       <span className="text-black/80 font-black">Outstanding Balance</span>
-                      <span className={`font-black ${Number(account.balance) > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                        {fmtCurrency(account.balance)}
+                      <span className={`font-black ${Number(accountData.balance) > 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                        {fmtCurrency(accountData.balance)}
                       </span>
                     </div>
+                    {Number(accountData.balance) > 0 && (
+                      <button
+                        onClick={() => setIsPaymentModalOpen(true)}
+                        className="w-full mt-2 py-2 bg-[#005530] hover:bg-[#004420] text-white rounded-lg text-[12px] font-bold shadow-sm transition-all flex items-center justify-center gap-1.5"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                        Record Payment
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -560,6 +599,12 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                 <div className="bg-white rounded-xl shadow-sm border border-black/5 flex flex-col h-[500px]">
                   <div className="px-5 py-4 border-b border-black/5 flex items-center justify-between shrink-0">
                     <h3 className="text-[14px] font-black text-black/90 tracking-tight">Corporate Ledger</h3>
+                    <button 
+                      onClick={() => setIsPaymentModalOpen(true)}
+                      className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1"
+                    >
+                      + Record Payment
+                    </button>
                   </div>
                   <div className="flex-1 overflow-y-auto">
                     {loadingLedger ? (
@@ -611,6 +656,12 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
         isOpen={isSigning} 
         onClose={() => setIsSigning(false)} 
         onSave={(data) => setSignatureData(data)} 
+      />
+      <RecordCorporatePaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        account={accountData}
+        onPaymentSuccess={handlePaymentSuccess}
       />
     </div>,
     document.body

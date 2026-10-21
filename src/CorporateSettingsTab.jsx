@@ -36,6 +36,11 @@ export default function CorporateSettingsTab() {
     fetchAccounts();
   };
 
+  const handleUpdateAccount = (updated) => {
+    setSelectedAccount(updated);
+    fetchAccounts();
+  };
+
   const filteredAccounts = accounts.filter(a => 
     a.company_name?.toLowerCase().includes(search.toLowerCase()) || 
     a.account_number?.toLowerCase().includes(search.toLowerCase())
@@ -50,6 +55,7 @@ export default function CorporateSettingsTab() {
         isNewAccount={isCreatingNew}
         onBack={() => { setSelectedAccount(null); setIsCreatingNew(false); }}
         onSave={handleSaveAccount}
+        onUpdateAccount={handleUpdateAccount}
       />
     );
   }

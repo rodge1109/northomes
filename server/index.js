@@ -427,6 +427,8 @@ const initFolioTables = async () => {
   `);
 
   console.log('Folio tables ready.');
+  await pool.query(`ALTER TABLE hotel_corporate_ledgers ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50)`);
+  await pool.query(`ALTER TABLE hotel_corporate_ledgers ADD COLUMN IF NOT EXISTS cashier_name VARCHAR(100)`);
 };
 initFolioTables().catch(err => console.error('Folio table init failed:', err));
 
@@ -2998,7 +3000,10 @@ app.get('/api/corporate-accounts/:id/ledger', async (req, res) => {
         ) as guest_payments
       FROM hotel_corporate_ledgers l
       LEFT JOIN hotel_reservations r ON (
-        l.reference LIKE 'RES-%' AND r.id = CAST(NULLIF(SUBSTRING(l.reference FROM 5), '') AS INTEGER)
+        CASE 
+          WHEN l.reference ~ '^RES-[0-9]+$' THEN CAST(SUBSTRING(l.reference FROM 5) AS INTEGER) 
+          ELSE NULL 
+        END = r.id
       )
       WHERE l.account_id = $1
       ORDER BY l.date ASC, l.created_at ASC
@@ -3007,6 +3012,72 @@ app.get('/api/corporate-accounts/:id/ledger', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Failed to fetch ledger.' });
+  }
+});
+
+// POST /api/corporate-accounts/:id/payments
+app.post('/api/corporate-accounts/:id/payments', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+    const { amount, payment_method, reference, date, notes, cashier_name } = req.body;
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Invalid payment amount. Must be greater than 0.' });
+    }
+
+    await client.query('BEGIN');
+
+    const accRes = await client.query('SELECT * FROM hotel_corporate_accounts WHERE id = $1 FOR UPDATE', [id]);
+    if (accRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Corporate account not found.' });
+    }
+
+    const account = accRes.rows[0];
+    const currentBalance = parseFloat(account.balance) || 0;
+    const newBalance = currentBalance - parsedAmount;
+
+    // 1. Update corporate account balance
+    const updatedAccRes = await client.query(
+      `UPDATE hotel_corporate_accounts SET balance = $1 WHERE id = $2 RETURNING *`,
+      [newBalance, id]
+    );
+
+    // 2. Format details
+    const paymentRef = (reference && reference.trim()) 
+      ? reference.trim() 
+      : `PAY-${Date.now().toString().slice(-6)}`;
+    
+    const payMethod = payment_method || 'Bank Transfer';
+    const payDate = date || new Date().toISOString().split('T')[0];
+    const desc = notes && notes.trim() 
+      ? `Corporate Payment - ${payMethod}: ${notes.trim()}`
+      : `Corporate Payment - ${payMethod}`;
+
+    // 3. Insert into hotel_corporate_ledgers
+    const ledgerRes = await client.query(
+      `INSERT INTO hotel_corporate_ledgers (account_id, date, reference, description, debit, credit, balance, payment_method, cashier_name)
+       VALUES ($1, $2, $3, $4, 0, $5, $6, $7, $8)
+       RETURNING *`,
+      [id, payDate, paymentRef, desc, parsedAmount, newBalance, payMethod, cashier_name || 'Front Desk']
+    );
+
+    await client.query('COMMIT');
+
+    res.json({
+      success: true,
+      message: 'Payment recorded successfully.',
+      account: updatedAccRes.rows[0],
+      ledgerEntry: ledgerRes.rows[0]
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Record corporate payment error:', err);
+    res.status(500).json({ success: false, message: 'Failed to record payment.' });
+  } finally {
+    client.release();
   }
 });
 
@@ -4858,21 +4929,42 @@ app.get('/api/reports/hotel/financial', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const fp = [];
-    let folioWhere = ' WHERE voided=false';
-    if (startDate) { fp.push(startDate); folioWhere += ` AND posted_at::date >= $${fp.length}::date`; }
-    if (endDate)   { fp.push(endDate);   folioWhere += ` AND posted_at::date <= $${fp.length}::date`; }
+    let folioWhere = " WHERE voided=false AND payment_method NOT ILIKE '%Corporate Transfer%'";
+    let corpWhere = " WHERE credit > 0";
+    if (startDate) { 
+      fp.push(startDate); 
+      folioWhere += ` AND posted_at::date >= ${fp.length}::date`; 
+      corpWhere += ` AND COALESCE(created_at, date::timestamp)::date >= ${fp.length}::date`;
+    }
+    if (endDate)   { 
+      fp.push(endDate);   
+      folioWhere += ` AND posted_at::date <= ${fp.length}::date`; 
+      corpWhere += ` AND COALESCE(created_at, date::timestamp)::date <= ${fp.length}::date`;
+    }
 
     const rp = [];
     let resWhere = '1=1';
-    if (startDate) { rp.push(startDate); resWhere += ` AND r.check_in_date >= $${rp.length}::date`; }
-    if (endDate)   { rp.push(endDate);   resWhere += ` AND r.check_in_date <= $${rp.length}::date`; }
+    if (startDate) { rp.push(startDate); resWhere += ` AND r.check_in_date >= ${rp.length}::date`; }
+    if (endDate)   { rp.push(endDate);   resWhere += ` AND r.check_in_date <= ${rp.length}::date`; }
 
     const [chargesRes, paymentsRes, methodsRes, roomRevRes, outListRes] = await Promise.all([
-      pool.query(`SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM hotel_folio_items${folioWhere}`, fp),
-      pool.query(`SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM hotel_folio_payments${folioWhere}`, fp),
+      pool.query(`SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count FROM hotel_folio_items WHERE voided=false` + (startDate ? ` AND posted_at::date >= '${startDate}'::date` : '') + (endDate ? ` AND posted_at::date <= '${endDate}'::date` : '')),
+      pool.query(`
+        SELECT COALESCE(SUM(amount),0) as total, COUNT(*) as count 
+        FROM (
+          SELECT amount FROM hotel_folio_payments${folioWhere}
+          UNION ALL
+          SELECT credit as amount FROM hotel_corporate_ledgers${corpWhere}
+        ) p
+      `, fp),
       pool.query(`
         SELECT payment_method, COUNT(*) as count, COALESCE(SUM(amount),0) as total
-        FROM hotel_folio_payments${folioWhere}
+        FROM (
+          SELECT payment_method, amount FROM hotel_folio_payments${folioWhere}
+          UNION ALL
+          SELECT COALESCE(payment_method, 'Corporate Payment') as payment_method, credit as amount 
+          FROM hotel_corporate_ledgers${corpWhere}
+        ) combined
         GROUP BY payment_method ORDER BY total DESC
       `, fp),
       pool.query(`
@@ -4934,7 +5026,13 @@ app.get('/api/reports/hotel/daily', async (req, res) => {
 
     const [chargesRes, paymentsRes] = await Promise.all([
       pool.query(`SELECT posted_at::date as date, SUM(amount) as charged FROM hotel_folio_items${where} GROUP BY posted_at::date`, p),
-      pool.query(`SELECT posted_at::date as date, SUM(amount) as paid    FROM hotel_folio_payments${where} GROUP BY posted_at::date`, p),
+      pool.query(`
+        SELECT date, SUM(amount) as paid FROM (
+          SELECT posted_at::date as date, amount FROM hotel_folio_payments${where} AND payment_method NOT ILIKE '%Corporate Transfer%'
+          UNION ALL
+          SELECT COALESCE(created_at::date, date) as date, credit as amount FROM hotel_corporate_ledgers WHERE credit > 0 ${startDate ? `AND COALESCE(created_at::date, date) >= '${startDate}'::date ` : ''}${endDate ? `AND COALESCE(created_at::date, date) <= '${endDate}'::date` : ''}
+        ) p GROUP BY date
+      `),
     ]);
 
     const map = {};
@@ -5831,23 +5929,44 @@ app.get('/api/reports/shift', async (req, res) => {
     const startTime = start.includes('T') ? start : `${start} 00:00:00`;
     const endTime = end.includes('T') ? end : `${end} 23:59:59`;
 
-    let query = `
-      SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
-             TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
-             r.full_name as guest_name, r.room_number
-      FROM hotel_folio_payments p
-      LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
-      WHERE p.posted_at >= $1 AND p.posted_at <= $2 AND p.voided = false
-        AND (r.status IS NULL OR r.status != 'pending')
-    `;
+    let folioStaffClause = '1=1';
+    let corpStaffClause = '1=1';
     const params = [startTime, endTime];
 
     if (staff && staff !== 'All Staff') {
       params.push(staff);
-      query += ` AND (p.cashier_name ILIKE $3 OR p.cashier_name = '' OR p.cashier_name IS NULL)`;
+      folioStaffClause = `(p.cashier_name ILIKE $3 OR p.cashier_name = '' OR p.cashier_name IS NULL)`;
+      corpStaffClause = `(l.cashier_name ILIKE $3 OR l.cashier_name = '' OR l.cashier_name IS NULL)`;
     }
 
-    query += ` ORDER BY p.posted_at ASC`;
+    const query = `
+      SELECT p.id::text as id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
+             TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             r.full_name as guest_name, COALESCE(r.room_number, '-') as room_number
+      FROM hotel_folio_payments p
+      LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
+      WHERE p.posted_at >= $1 AND p.posted_at <= $2 AND p.voided = false
+        AND (r.status IS NULL OR r.status != 'pending')
+        AND p.payment_method NOT ILIKE '%Corporate Transfer%'
+        AND ${folioStaffClause}
+
+      UNION ALL
+
+      SELECT ('corp-' || l.id) as id, NULL as reservation_id,
+             COALESCE(l.payment_method, 'Corporate Payment') as payment_method,
+             l.credit as amount, l.reference, false as voided, l.description as notes,
+             COALESCE(l.cashier_name, 'Front Desk') as cashier_name,
+             TO_CHAR(COALESCE(l.created_at, l.date::timestamp) AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+             (ca.company_name || ' (Corporate)') as guest_name, 'CORP' as room_number
+      FROM hotel_corporate_ledgers l
+      JOIN hotel_corporate_accounts ca ON ca.id = l.account_id
+      WHERE l.credit > 0 
+        AND COALESCE(l.created_at, l.date::timestamp) >= $1 
+        AND COALESCE(l.created_at, l.date::timestamp) <= $2
+        AND ${corpStaffClause}
+
+      ORDER BY posted_at ASC
+    `;
 
     const result = await pool.query(query, params);
 
@@ -5950,19 +6069,60 @@ app.get('/api/reports/payments', async (req, res) => {
     const end = endDate || start;
 
     const paymentsResult = await pool.query(`
-      SELECT p.id, p.reservation_id, p.payment_method, p.amount, p.reference, p.voided, p.notes, p.cashier_name,
-             TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
-             r.full_name as guest_name, r.room_number
+      SELECT 
+        p.id::text as id,
+        p.reservation_id,
+        p.payment_method,
+        p.amount,
+        p.reference,
+        p.voided,
+        p.notes,
+        p.cashier_name,
+        TO_CHAR(p.posted_at AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+        r.full_name as guest_name,
+        COALESCE(r.room_number, '-') as room_number
       FROM hotel_folio_payments p
       LEFT JOIN hotel_reservations r ON r.id = p.reservation_id
       WHERE DATE(p.posted_at) BETWEEN $1 AND $2 AND p.voided = false
-      ORDER BY p.payment_method ASC, p.posted_at ASC
+        AND p.payment_method NOT ILIKE '%Corporate Transfer%'
+      
+      UNION ALL
+      
+      SELECT 
+        ('corp-' || l.id) as id,
+        NULL as reservation_id,
+        COALESCE(l.payment_method, 'Corporate Payment') as payment_method,
+        l.credit as amount,
+        l.reference,
+        false as voided,
+        l.description as notes,
+        COALESCE(l.cashier_name, 'Front Desk') as cashier_name,
+        TO_CHAR(COALESCE(l.created_at, l.date::timestamp) AT TIME ZONE 'Asia/Manila', 'YYYY-MM-DD HH24:MI:SS') as posted_at,
+        (ca.company_name || ' (Corporate)') as guest_name,
+        'CORP' as room_number
+      FROM hotel_corporate_ledgers l
+      JOIN hotel_corporate_accounts ca ON ca.id = l.account_id
+      WHERE l.credit > 0 
+        AND DATE(COALESCE(l.created_at, l.date)) BETWEEN $1 AND $2
+        
+      ORDER BY payment_method ASC, posted_at ASC
     `, [start, end]);
 
     const summaryResult = await pool.query(`
       SELECT payment_method, COALESCE(SUM(amount), 0) as total
-      FROM hotel_folio_payments
-      WHERE DATE(posted_at) BETWEEN $1 AND $2 AND voided = false
+      FROM (
+        SELECT payment_method, amount
+        FROM hotel_folio_payments
+        WHERE DATE(posted_at) BETWEEN $1 AND $2 AND voided = false
+          AND payment_method NOT ILIKE '%Corporate Transfer%'
+        
+        UNION ALL
+        
+        SELECT COALESCE(l.payment_method, 'Corporate Payment') as payment_method, l.credit as amount
+        FROM hotel_corporate_ledgers l
+        WHERE l.credit > 0 
+          AND DATE(COALESCE(l.created_at, l.date)) BETWEEN $1 AND $2
+      ) combined
       GROUP BY payment_method
       ORDER BY total DESC
     `, [start, end]);
