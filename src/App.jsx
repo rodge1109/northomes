@@ -99,25 +99,32 @@ const formatManilaTime = (dateStr) => {
 
 const formatManilaDateTime = (dateStr) => {
   if (!dateStr) return '—';
-  const str = String(dateStr).trim();
-  const dateMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  const timeMatch = str.match(/(\d{1,2}):(\d{2})/);
-  
-  if (dateMatch && timeMatch) {
-    const year = dateMatch[1];
-    const month = parseInt(dateMatch[2], 10);
-    const day = dateMatch[3];
-    let hours = parseInt(timeMatch[1], 10);
-    const minutes = timeMatch[2];
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    hours = hours ? hours : 12;
+  try {
+    const str = String(dateStr).trim();
+    const dateMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    const timeMatch = str.match(/(\d{1,2}):(\d{2})/);
     
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const monthName = months[month - 1] || 'Jan';
-    return `${monthName} ${parseInt(day, 10)}, ${year}, ${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+    if (dateMatch && timeMatch) {
+      const year = dateMatch[1];
+      const month = parseInt(dateMatch[2], 10);
+      const day = parseInt(dateMatch[3], 10);
+      let hours = parseInt(timeMatch[1], 10);
+      const minutes = timeMatch[2];
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthName = months[month - 1] || 'Jan';
+      return `${monthName} ${day}, ${year}, ${hours}:${minutes} ${ampm}`;
+    }
+    const d = new Date(dateStr);
+    return !isNaN(d.getTime())
+      ? d.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })
+      : String(dateStr);
+  } catch (e) {
+    return '—';
   }
-  return String(dateStr);
 };
 
 const safeDateCA = (d) => {
@@ -132,6 +139,13 @@ const safeDateCA = (d) => {
 
 const safeConfId = (createdAt, id) => {
   try {
+    if (createdAt) {
+      const m = String(createdAt).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) {
+        const datePart = m[1].slice(2) + m[2] + m[3];
+        return `ONL-${datePart}-${String(id || 0).padStart(3, '0')}`;
+      }
+    }
     const dt = (createdAt && createdAt !== 'undefined' && !isNaN(new Date(createdAt).getTime()))
       ? new Date(createdAt)
       : new Date();
@@ -11885,7 +11899,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
       .filter(r => {
         if (!arrivalSearchQuery) return true;
         const q = arrivalSearchQuery.toLowerCase();
-        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`;
+        const confId = safeConfId(r.created_at, r.id);
         return (
           r.full_name?.toLowerCase().includes(q) ||
           r.email?.toLowerCase().includes(q) ||
@@ -11912,7 +11926,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
       .filter(r => {
         if (!inHouseSearchQuery) return true;
         const q = inHouseSearchQuery.toLowerCase();
-        const confId = `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`;
+        const confId = safeConfId(r.created_at, r.id);
         return (
           r.full_name?.toLowerCase().includes(q) ||
           r.email?.toLowerCase().includes(q) ||
@@ -13532,7 +13546,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                           ) : (
                             filteredArrivals.map((res) => {
                               const isSelected = selectedArrival?.id === res.id;
-                              const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(res.id).padStart(3, '0')}`;
+                              const confId = safeConfId(res.created_at, res.id);
                               const getRoomRate = (roomTypeName, rateCodeCode) => {
                                 // 1. Check rate codes
                                 if (rateCodeCode) {
@@ -13598,7 +13612,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                   <td className="px-4 py-4 align-top">
                                     <div className="font-bold text-[#00754A]">{confId}</div>
                                     <div className="text-[10px] text-black/40 mt-0.5">
-                                      Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}
+                                      Booked: {formatManilaDateTime(res.created_at)}
                                     </div>
                                   </td>
                                   <td className="px-4 py-4 align-top">
@@ -13762,7 +13776,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                 <div className="flex flex-col">
                                   <span className="text-[9px] font-black uppercase tracking-widest text-black/40 mb-0.5">Confirmation No.</span>
                                   <span className="text-xs font-mono font-bold text-[#00754A]">
-                                    {`ONL-${new Date(r.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(r.id).padStart(3, '0')}`}
+                                    {safeConfId(r.created_at, r.id)}
                                   </span>
                                 </div>
                                 {/* Email */}
@@ -13910,7 +13924,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                 <tr><td colSpan="12" className="text-center py-8 text-black/50">No guests in-house found.</td></tr>
                               ) : (
                                 filteredInHouse.map((res) => {
-                                  const confId = `ONL-${new Date(res.created_at || new Date()).toISOString().slice(2, 10).replace(/-/g, '')}-${String(res.id).padStart(3, '0')}`;
+                                  const confId = safeConfId(res.created_at, res.id);
                                   const nights = nightsCount(res);
                                   const isDueOut = res.check_out_date && safeDateCA(res.check_out_date) === safeDateCA(new Date());
                                   const isOverdue = res.check_out_date && safeDateCA(res.check_out_date) < safeDateCA(new Date());
@@ -13972,7 +13986,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                       <td className="px-4 py-4 align-top">
                                         <div className="font-bold text-[#00754A]">{confId}</div>
                                         <div className="text-[10px] text-black/40 mt-0.5">
-                                          Booked: {res.created_at ? new Date(res.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}
+                                          Booked: {formatManilaDateTime(res.created_at)}
                                         </div>
                                       </td>
                                       <td className="px-4 py-4 align-top">

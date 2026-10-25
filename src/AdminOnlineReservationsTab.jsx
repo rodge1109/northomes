@@ -8,7 +8,30 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
 
   // Helpers
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-  const fmtDateTime = (d) => d ? new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
+  const fmtDateTime = (dateStr) => {
+    if (!dateStr) return '—';
+    try {
+      const str = String(dateStr).trim();
+      const dateMatch = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      const timeMatch = str.match(/(\d{1,2}):(\d{2})/);
+      if (dateMatch && timeMatch) {
+        const year = dateMatch[1];
+        const month = parseInt(dateMatch[2], 10);
+        const day = parseInt(dateMatch[3], 10);
+        let hours = parseInt(timeMatch[1], 10);
+        const minutes = timeMatch[2];
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const monthName = months[month - 1] || 'Jan';
+        return `${monthName} ${day}, ${year}, ${hours}:${minutes} ${ampm}`;
+      }
+      return dateStr ? new Date(dateStr).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—';
+    } catch {
+      return '—';
+    }
+  };
   
   const getNights = (d1, d2) => {
     if (!d1 || !d2) return 1;
@@ -89,7 +112,13 @@ export default function AdminOnlineReservationsTab({ reservations = [], stats = 
         
         return {
           originalRes: r,
-          id: `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`,
+          id: (() => {
+            if (r.created_at) {
+              const m = String(r.created_at).match(/^(\d{4})-(\d{2})-(\d{2})/);
+              if (m) return `ONL-${m[1].slice(2)}${m[2]}${m[3]}-${String(r.id).padStart(3, '0')}`;
+            }
+            return `ONL-${new Date(r.created_at || new Date()).toISOString().slice(2,10).replace(/-/g,'')}-${String(r.id).padStart(3, '0')}`;
+          })(),
           dbId: r.id,
           isNoShowWarning,
           booked: fmtDateTime(r.created_at),

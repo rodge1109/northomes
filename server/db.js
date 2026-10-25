@@ -1,4 +1,6 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
+// Keep TIMESTAMP (1114) as raw string to prevent UTC date shifting on Render
+types.setTypeParser(1114, str => str);
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 
 const poolConfig = {
