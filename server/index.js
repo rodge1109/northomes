@@ -903,11 +903,16 @@ app.post('/api/reservations', async (req, res) => {
     const totalRooms = roomTypeInfo.rows.length > 0 ? roomTypeInfo.rows[0].total_rooms : 1;
 
     const overlapCount = await pool.query(
-      `SELECT COUNT(*) as count FROM hotel_reservations
-       WHERE room_type = $1
-         AND status NOT IN ('cancelled', 'checked_out', 'no_show')
-         AND check_in_date < $3
-         AND check_out_date > $2`,
+      `SELECT COALESCE(MAX(night_count), 0)::int AS count
+       FROM (
+         SELECT COUNT(*) AS night_count
+         FROM generate_series($2::date, ($3::date - INTERVAL '1 day')::date, INTERVAL '1 day') AS d(night)
+         JOIN hotel_reservations r ON r.room_type = $1
+           AND r.status NOT IN ('cancelled', 'checked_out', 'no_show')
+           AND r.check_in_date <= d.night
+           AND r.check_out_date > d.night
+         GROUP BY d.night
+       ) sub`,
       [roomType, checkInDate, checkOutDate]
     );
 
@@ -1044,8 +1049,23 @@ app.get('/api/room-types/availability', async (req, res) => {
 
     const availability = await Promise.all(
         roomTypes.rows.map(async (rt) => {
+          const peakRes = await pool.query(
+            `SELECT COALESCE(MAX(night_count), 0)::int AS count
+             FROM (
+               SELECT COUNT(*) AS night_count
+               FROM generate_series($2::date, ($3::date - INTERVAL '1 day')::date, INTERVAL '1 day') AS d(night)
+               JOIN hotel_reservations r ON r.room_type = $1
+                 AND r.status NOT IN ('cancelled', 'checked_out', 'no_show')
+                 AND r.check_in_date <= d.night
+                 AND r.check_out_date > d.night
+               GROUP BY d.night
+             ) sub`,
+            [rt.name, checkIn, checkOut]
+          );
+          const bookedCount = peakRes.rows[0].count;
+
           const booked = await pool.query(
-            `SELECT room_number FROM hotel_reservations
+            `SELECT DISTINCT room_number FROM hotel_reservations
              WHERE room_type = $1
                AND status NOT IN ('cancelled', 'checked_out', 'no_show')
                AND check_in_date < $3
@@ -1054,7 +1074,6 @@ app.get('/api/room-types/availability', async (req, res) => {
             [rt.name, checkIn, checkOut]
           );
           const bookedRoomNumbers = booked.rows.map(r => r.room_number);
-          const bookedCount = booked.rows.length;
 
           const ooo = await pool.query(
             `SELECT room_number FROM hotel_rooms WHERE room_type = $1 AND hk_status = 'out_of_order' AND active = true`,
@@ -2218,12 +2237,17 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     );
     const totalRooms = rtInfo.rows.length > 0 ? parseInt(rtInfo.rows[0].total_rooms) : 999;
     const overlap = await pool.query(
-      `SELECT COUNT(*) as count FROM hotel_reservations
-       WHERE room_type = $1
-         AND status NOT IN ('cancelled', 'checked_out', 'no_show')
-         AND check_in_date < $2
-         AND check_out_date > $3`,
-      [room_type, check_out_date, check_in_date]
+      `SELECT COALESCE(MAX(night_count), 0)::int AS count
+       FROM (
+         SELECT COUNT(*) AS night_count
+         FROM generate_series($2::date, ($3::date - INTERVAL '1 day')::date, INTERVAL '1 day') AS d(night)
+         JOIN hotel_reservations r ON r.room_type = $1
+           AND r.status NOT IN ('cancelled', 'checked_out', 'no_show')
+           AND r.check_in_date <= d.night
+           AND r.check_out_date > d.night
+         GROUP BY d.night
+       ) sub`,
+      [room_type, check_in_date, check_out_date]
     );
     if (parseInt(overlap.rows[0].count) >= totalRooms) {
       return res.status(409).json({
