@@ -11,6 +11,8 @@ const AdminDashboardTab = React.lazy(() => import('./AdminDashboardTab'));
 const CorporateSettingsTab = React.lazy(() => import('./CorporateSettingsTab'));
 const PaymentOptionsTab = React.lazy(() => import('./PaymentOptionsTab'));
 import ContactMapSection from './components/common/ContactMapSection';
+import { playFrontDeskBell } from './utils/audioAlert';
+import NewBookingAlertModal from './components/common/NewBookingAlertModal';
 
 
 import { API_BASE_URL } from './utils/apiConfig';
@@ -3134,6 +3136,83 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
   const [filter, setFilter] = useState('all');
   const [updatingId, setUpdatingId] = useState(null);
 
+  // Live Booking Notification & Sound Alerts
+  const [newBookingAlert, setNewBookingAlert] = useState(null);
+  const [isChiming, setIsChiming] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    return localStorage.getItem('hotel_sound_alerts') !== 'false';
+  });
+  const lastSeenReservationIdRef = useRef(null);
+  const initialCheckRef = useRef(false);
+  const chimeIntervalRef = useRef(null);
+
+  const silenceChime = useCallback(() => {
+    if (chimeIntervalRef.current) {
+      clearInterval(chimeIntervalRef.current);
+      chimeIntervalRef.current = null;
+    }
+    setIsChiming(false);
+  }, []);
+
+  const triggerChime = useCallback(() => {
+    const isMuted = localStorage.getItem('hotel_sound_alerts') === 'false';
+    if (isMuted) return;
+    
+    setIsChiming(true);
+    playFrontDeskBell(0.85);
+
+    // Repeat chime every 4.5 seconds until silenced or modal closed
+    if (chimeIntervalRef.current) clearInterval(chimeIntervalRef.current);
+    chimeIntervalRef.current = setInterval(() => {
+      playFrontDeskBell(0.85);
+    }, 4500);
+  }, []);
+
+  const toggleSound = () => {
+    setSoundEnabled(prev => {
+      const next = !prev;
+      localStorage.setItem('hotel_sound_alerts', String(next));
+      if (next) {
+        playFrontDeskBell(0.85);
+      } else {
+        silenceChime();
+      }
+      return next;
+    });
+  };
+
+  const handleCloseBookingAlert = () => {
+    silenceChime();
+    setNewBookingAlert(null);
+  };
+
+  const handleViewAlertBooking = (booking) => {
+    silenceChime();
+    setNewBookingAlert(null);
+    setActiveTab('reservations');
+    if (booking && typeof handleOpenConfirmModal === 'function') {
+      handleOpenConfirmModal(booking);
+    }
+  };
+
+  const handleTestAlert = () => {
+    const sampleBooking = reservations && reservations.length > 0 ? reservations[0] : {
+      id: 999,
+      full_name: 'Maria Santos (Sample)',
+      phone_number: '0917-123-4567',
+      email: 'maria.santos@sample.com',
+      room_type: 'Deluxe Queen Room',
+      number_of_guests: 2,
+      check_in_date: new Date().toISOString().slice(0, 10),
+      check_out_date: new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 10),
+      room_rate: 2500,
+      total_price: 5000,
+      special_requests: 'Early check-in around 1:00 PM if available'
+    };
+    setNewBookingAlert(sampleBooking);
+    triggerChime();
+  };
+
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -3393,6 +3472,92 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
       fetchReservations();
     }
   }, [isLoggedIn]);
+
+  // Audio Context unlock on initial user interaction (for modern browsers)
+  useEffect(() => {
+    const unlockAudio = () => {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          const ctx = new AudioCtx();
+          if (ctx.state === 'suspended') {
+            ctx.resume().catch(() => {});
+          }
+        }
+      } catch (e) {}
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+    window.addEventListener('click', unlockAudio);
+    window.addEventListener('keydown', unlockAudio);
+    return () => {
+      window.removeEventListener('click', unlockAudio);
+      window.removeEventListener('keydown', unlockAudio);
+    };
+  }, []);
+
+  // Background poller for new incoming online reservations
+  useEffect(() => {
+    if (!isLoggedIn) return;
+
+    let isMounted = true;
+
+    const pollNewBookings = async () => {
+      try {
+        let latest = null;
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/reservations/latest`);
+          const data = await res.json();
+          if (data.success && data.latestReservation) {
+            latest = data.latestReservation;
+          }
+        } catch (e) {
+          // Fallback if latest route is not yet active
+        }
+
+        if (!latest) {
+          const res = await fetch(`${API_BASE_URL}/api/reservations`);
+          const data = await res.json();
+          if (data.success && data.reservations && data.reservations.length > 0) {
+            latest = data.reservations[0];
+          }
+        }
+
+        if (!isMounted || !latest) return;
+
+        const latestId = Number(latest.id);
+
+        if (!initialCheckRef.current) {
+          // First check on page load: seed with current latest ID so old bookings do not trigger alert
+          lastSeenReservationIdRef.current = latestId;
+          initialCheckRef.current = true;
+          return;
+        }
+
+        if (lastSeenReservationIdRef.current !== null && latestId > lastSeenReservationIdRef.current) {
+          // New booking detected!
+          lastSeenReservationIdRef.current = latestId;
+          setNewBookingAlert(latest);
+          triggerChime();
+          fetchReservations();
+        }
+      } catch (err) {
+        console.error('Error checking for new reservations:', err);
+      }
+    };
+
+    pollNewBookings();
+    const interval = setInterval(pollNewBookings, 8000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+      if (chimeIntervalRef.current) {
+        clearInterval(chimeIntervalRef.current);
+        chimeIntervalRef.current = null;
+      }
+    };
+  }, [isLoggedIn, triggerChime, fetchReservations]);
 
   
   const deleteReservation = async (id) => {
@@ -5484,6 +5649,42 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
           </div>
         </div>
       )}
+
+      {/* Floating Sound Alert Controls (Bottom-Right) */}
+      <div className="fixed bottom-5 right-5 z-40 flex items-center gap-2 print:hidden">
+        <button
+          type="button"
+          onClick={toggleSound}
+          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-extrabold shadow-lg transition-all backdrop-blur-md border ${
+            soundEnabled 
+              ? 'bg-[#005530] text-white border-white/20 hover:bg-[#004420] shadow-emerald-950/20' 
+              : 'bg-white/95 text-black/60 border-black/10 hover:bg-white hover:text-black'
+          }`}
+          title={soundEnabled ? 'Live booking bell sound: ON (Click to mute)' : 'Live booking sound alerts: MUTED (Click to unmute)'}
+        >
+          <span className="text-sm">{soundEnabled ? '🔔' : '🔕'}</span>
+          <span>{soundEnabled ? 'Alerts ON' : 'Alerts Muted'}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleTestAlert}
+          className="px-3 py-2 rounded-full bg-white/95 hover:bg-white text-black/75 hover:text-black border border-black/10 text-[11px] font-extrabold shadow-md transition-all flex items-center gap-1"
+          title="Simulate an incoming booking notification with hotel bell chime"
+        >
+          <span>Test Sound</span>
+        </button>
+      </div>
+
+      {/* Real-time New Booking Alert Modal */}
+      <NewBookingAlertModal
+        isOpen={Boolean(newBookingAlert)}
+        booking={newBookingAlert}
+        isChiming={isChiming}
+        onClose={handleCloseBookingAlert}
+        onViewBooking={handleViewAlertBooking}
+        onSilence={silenceChime}
+      />
     </div>
   );
 }

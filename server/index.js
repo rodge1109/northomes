@@ -1022,6 +1022,28 @@ app.get('/api/reservations', async (req, res) => {
   }
 });
 
+// GET /api/reservations/latest — lightweight check for newest reservation
+app.get('/api/reservations/latest', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT r.*, 
+             COALESCE(g.title, r.title) AS title,
+             COALESCE(g.full_name, r.full_name) AS full_name,
+             COALESCE(g.email, r.email) AS email,
+             COALESCE(g.phone_number, r.phone_number) AS phone_number,
+             (SELECT price_per_night FROM hotel_room_types WHERE name = r.room_type LIMIT 1) as room_rate
+      FROM hotel_reservations r
+      LEFT JOIN hotel_guests g ON r.guest_id = g.id
+      ORDER BY r.id DESC 
+      LIMIT 1
+    `);
+    res.json({ success: true, latestReservation: result.rows[0] || null });
+  } catch (error) {
+    console.error('Error fetching latest reservation:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch latest reservation.' });
+  }
+});
+
 // GET /api/room-types — list all active room types (public)
 app.get('/api/room-types', async (req, res) => {
   try {
