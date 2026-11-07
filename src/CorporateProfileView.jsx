@@ -18,6 +18,8 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
   const [loadingLedger, setLoadingLedger] = useState(false);
   const [accountData, setAccountData] = useState(account || {});
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     if (account) {
@@ -33,6 +35,8 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
 
       if (!isNewAccount && account.id) {
         fetchLedger(account.id);
+        setStartDate('');
+        setEndDate('');
       }
     }
   }, [account, isNewAccount]);
@@ -142,6 +146,32 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
   };
   const fmtCurrency = (n) => `₱${(Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+  const getEntryDateStr = (entry) => {
+    const d = entry.check_in_date || entry.date;
+    if (!d) return '';
+    if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) {
+      return d.slice(0, 10);
+    }
+    try {
+      const dt = new Date(d);
+      if (!isNaN(dt.getTime())) {
+        const year = dt.getFullYear();
+        const month = String(dt.getMonth() + 1).padStart(2, '0');
+        const day = String(dt.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    } catch (e) {}
+    return '';
+  };
+
+  const filteredLedger = ledger.filter(entry => {
+    const dStr = getEntryDateStr(entry);
+    if (!dStr) return true;
+    if (startDate && dStr < startDate) return false;
+    if (endDate && dStr > endDate) return false;
+    return true;
+  });
+
   const printInvoice = () => {
     const acc = accountData || account;
     if (!acc) return;
@@ -153,7 +183,42 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
     let totalDiscountSum = 0;
     let totalBalanceSum = 0;
 
-    const ledgerRows = ledger.map(entry => {
+    // Calculate balance forwarded (prior to startDate) if a startDate is selected
+    let previousBalance = 0;
+    if (startDate) {
+      ledger.forEach(entry => {
+        const dStr = getEntryDateStr(entry);
+        if (dStr && dStr < startDate) {
+          const debit = Number(entry.debit) || 0;
+          const credit = Number(entry.credit) || 0;
+          previousBalance += (debit - credit);
+        }
+      });
+    }
+
+    const targetLedger = filteredLedger;
+    let rowsHtml = '';
+
+    // If there is a beginning balance prior to startDate, show a Balance Forwarded row
+    if (startDate && previousBalance !== 0) {
+      rowsHtml += `
+        <tr style="background:#fafafa; font-style:italic;">
+          <td>${fmtDate(startDate)}</td>
+          <td>
+            <div style="font-weight:bold; color:#333;">Balance Forwarded</div>
+            <div style="color:#777;font-size:11px;">Beginning balance prior to ${fmtDate(startDate)}</div>
+          </td>
+          <td>—</td>
+          <td style="text-align:center;">—</td>
+          <td style="text-align:right;">—</td>
+          <td style="text-align:right;font-weight:600;">${previousBalance > 0 ? fmtCurrency(previousBalance) : '—'}</td>
+          <td style="text-align:right;color:#005530;font-weight:600;">${previousBalance < 0 ? fmtCurrency(Math.abs(previousBalance)) : '—'}</td>
+          <td style="text-align:right;font-weight:bold;">${fmtCurrency(previousBalance)}</td>
+        </tr>
+      `;
+    }
+
+    const ledgerRows = targetLedger.map(entry => {
       const rowGuestName = entry.guest_name || (entry.description && entry.description.includes('Guest Checkout Transfer') ? entry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '');
       const actualCheckInDate = entry.check_in_date || entry.date;
 
@@ -237,6 +302,16 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
       `;
     }).join('');
 
+    rowsHtml += ledgerRows;
+
+    const statementPeriodLabel = (startDate || endDate)
+      ? `${startDate ? fmtDate(startDate) : 'Start'} to ${endDate ? fmtDate(endDate) : 'Present'}`
+      : 'All Transactions';
+
+    const grandTotalDue = (startDate || endDate)
+      ? (previousBalance + totalChargesSum - totalDiscountSum)
+      : (Number(acc.balance) || totalBalanceSum);
+
     const win = window.open('', '_blank', 'width=850,height=900');
     win.document.write(`<!DOCTYPE html><html><head><title>Statement of Account - ${account.company_name}</title>
       <style>
@@ -251,7 +326,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
         table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 30px; }
         th { background: #f4f6f5; color: #111111; font-weight: 800; padding: 10px 8px; text-align: left; font-size: 11px; text-transform: uppercase; border-top: 1px solid #005530; border-bottom: 2px solid #005530; letter-spacing: 0.3px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         td { padding: 10px 8px; border-bottom: 1px solid #eaeaea; vertical-align: middle; }
-        .summary-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; text-align: right; margin-left: auto; width: 320px; }
+        .summary-box { background: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; text-align: right; margin-left: auto; width: 340px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
         .summary-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 2px solid #eaeaea; font-size: 18px; font-weight: 900; }
         .footer { margin-top: 60px; text-align: center; font-size: 11px; color: #888; border-top: 1px solid #eaeaea; padding-top: 20px; }
@@ -275,6 +350,13 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
           <h2>STATEMENT OF ACCOUNT</h2>
           <p style="margin: 8px 0 0; font-size: 13px; font-weight: bold;">#${invoiceNumber}</p>
           <p style="margin: 4px 0 0; font-size: 13px; color: #666;">Date: ${today}</p>
+          ${(startDate || endDate) ? `
+            <div style="margin-top: 6px;">
+              <span style="display:inline-block; font-size:11px; font-weight:700; color:#005530; background:#f0f7f3; border:1px solid #cce5d7; padding:3px 8px; border-radius:4px; text-transform:uppercase; letter-spacing:0.5px;">
+                Period: ${statementPeriodLabel}
+              </span>
+            </div>
+          ` : ''}
         </div>
       </div>
       
@@ -306,34 +388,40 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
           </tr>
         </thead>
         <tbody>
-          ${ledger.length > 0 ? ledgerRows : '<tr><td colspan="8" style="text-align:center;color:#888;">No transactions recorded.</td></tr>'}
+          ${rowsHtml.trim().length > 0 ? rowsHtml : '<tr><td colspan="8" style="text-align:center;color:#888;">No transactions found for the selected period.</td></tr>'}
         </tbody>
-        ${ledger.length > 0 ? `
+        ${targetLedger.length > 0 || (startDate && previousBalance !== 0) ? `
           <tfoot>
             <tr style="background:#f4f7f5;font-weight:bold;border-top:2px solid #005530;">
               <td colspan="5" style="text-align:right;text-transform:uppercase;font-size:11px;color:#111;font-weight:800;padding:10px 8px;">Total:</td>
-              <td style="text-align:right;padding:10px 8px;font-weight:800;color:#111;">${fmtCurrency(totalChargesSum)}</td>
-              <td style="text-align:right;color:#005530;padding:10px 8px;font-weight:800;">${fmtCurrency(totalDiscountSum)}</td>
-              <td style="text-align:right;color:#111;padding:10px 8px;font-size:13px;font-weight:900;">${fmtCurrency(totalBalanceSum)}</td>
+              <td style="text-align:right;padding:10px 8px;font-weight:800;color:#111;">${fmtCurrency(totalChargesSum + (previousBalance > 0 ? previousBalance : 0))}</td>
+              <td style="text-align:right;color:#005530;padding:10px 8px;font-weight:800;">${fmtCurrency(totalDiscountSum + (previousBalance < 0 ? Math.abs(previousBalance) : 0))}</td>
+              <td style="text-align:right;color:#111;padding:10px 8px;font-size:13px;font-weight:900;">${fmtCurrency(grandTotalDue)}</td>
             </tr>
           </tfoot>
         ` : ''}
       </table>
 
       <div class="summary-box">
+        ${(startDate && previousBalance !== 0) ? `
+          <div class="summary-row" style="color:#666;">
+            <span>Balance Forwarded:</span>
+            <span style="font-weight:bold;">${fmtCurrency(previousBalance)}</span>
+          </div>
+        ` : ''}
         <div class="summary-row">
-          <span>Total Charges:</span>
+          <span>${(startDate || endDate) ? 'Period Charges:' : 'Total Charges:'}</span>
           <span style="font-weight:bold;">${fmtCurrency(totalChargesSum)}</span>
         </div>
         ${totalDiscountSum > 0 ? `
           <div class="summary-row" style="color:#005530;">
-            <span>Total Credit / Discount:</span>
+            <span>${(startDate || endDate) ? 'Period Payments / Credit:' : 'Total Credit / Discount:'}</span>
             <span style="font-weight:bold;">-${fmtCurrency(totalDiscountSum)}</span>
           </div>
         ` : ''}
         <div class="summary-total">
-          <span>Amount Due:</span>
-          <span style="color: ${Number(account.balance) > 0 ? '#dc2626' : '#16a34a'};">${fmtCurrency(account.balance)}</span>
+          <span>${(startDate || endDate) ? 'Period Amount Due:' : 'Amount Due:'}</span>
+          <span style="color: ${grandTotalDue > 0 ? '#dc2626' : '#16a34a'};">${fmtCurrency(grandTotalDue)}</span>
         </div>
       </div>
 
@@ -447,11 +535,16 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
               </button>
               <button 
                 onClick={printInvoice}
-                className="flex items-center gap-2 px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors bg-white"
+                className={`flex items-center gap-2 px-5 py-2 border rounded-md text-[13px] font-bold shadow-sm transition-colors ${startDate || endDate ? 'border-[#005530] bg-[#005530]/5 text-[#005530] hover:bg-[#005530]/10' : 'border-black/10 text-black/80 hover:bg-gray-50 bg-white'}`}
                 title="Print Statement of Account (SOA)"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v6H6z"/></svg>
                 Print SOA
+                {(startDate || endDate) && (
+                  <span className="ml-1 text-[10px] font-black bg-[#005530] text-white px-1.5 py-0.5 rounded-full">
+                    Filtered
+                  </span>
+                )}
               </button>
               <button 
                 onClick={() => setIsPaymentModalOpen(true)}
@@ -596,9 +689,16 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                 </div>
 
                 {/* Ledger History */}
-                <div className="bg-white rounded-xl shadow-sm border border-black/5 flex flex-col h-[500px]">
-                  <div className="px-5 py-4 border-b border-black/5 flex items-center justify-between shrink-0">
-                    <h3 className="text-[14px] font-black text-black/90 tracking-tight">Corporate Ledger</h3>
+                <div className="bg-white rounded-xl shadow-sm border border-black/5 flex flex-col h-[560px]">
+                  <div className="px-5 py-3.5 border-b border-black/5 flex items-center justify-between shrink-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-[14px] font-black text-black/90 tracking-tight">Corporate Ledger</h3>
+                      {(startDate || endDate) && (
+                        <span className="text-[10px] font-bold bg-[#005530]/10 text-[#005530] px-2 py-0.5 rounded-full">
+                          {filteredLedger.length} of {ledger.length}
+                        </span>
+                      )}
+                    </div>
                     <button 
                       onClick={() => setIsPaymentModalOpen(true)}
                       className="text-[12px] font-bold text-[#005530] hover:underline flex items-center gap-1"
@@ -606,14 +706,122 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                       + Record Payment
                     </button>
                   </div>
+
+                  {/* Date Range Filter Bar */}
+                  <div className="px-4 py-3 bg-[#f8f9fa] border-b border-black/5 shrink-0 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-black/60 flex items-center gap-1.5">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        Filter Dates
+                      </span>
+                      {(startDate || endDate) && (
+                        <button
+                          onClick={() => { setStartDate(''); setEndDate(''); }}
+                          className="text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline"
+                        >
+                          Reset Filter
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-bold text-black/50 uppercase mb-0.5">From</label>
+                        <input 
+                          type="date" 
+                          value={startDate} 
+                          onChange={(e) => setStartDate(e.target.value)}
+                          className="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-black/80 focus:outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] shadow-2xs"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="block text-[10px] font-bold text-black/50 uppercase mb-0.5">To</label>
+                        <input 
+                          type="date" 
+                          value={endDate} 
+                          onChange={(e) => setEndDate(e.target.value)}
+                          className="w-full bg-white border border-black/10 rounded-lg px-2.5 py-1.5 text-[11px] font-bold text-black/80 focus:outline-none focus:border-[#005530] focus:ring-1 focus:ring-[#005530] shadow-2xs"
+                        />
+                      </div>
+                    </div>
+                    {/* Quick Presets */}
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => { setStartDate(''); setEndDate(''); }}
+                        className={`px-2 py-0.5 rounded text-[10.5px] font-bold transition-all ${!startDate && !endDate ? 'bg-[#005530] text-white shadow-2xs' : 'bg-white border border-black/10 text-black/60 hover:bg-gray-100'}`}
+                      >
+                        All
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const now = new Date();
+                          const y = now.getFullYear();
+                          const m = String(now.getMonth() + 1).padStart(2, '0');
+                          const firstDay = `${y}-${m}-01`;
+                          const lastDayNum = new Date(y, now.getMonth() + 1, 0).getDate();
+                          const lastDay = `${y}-${m}-${String(lastDayNum).padStart(2, '0')}`;
+                          setStartDate(firstDay);
+                          setEndDate(lastDay);
+                        }}
+                        className="px-2 py-0.5 rounded text-[10.5px] font-bold transition-all bg-white border border-black/10 text-black/60 hover:bg-gray-100"
+                      >
+                        This Month
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const now = new Date();
+                          const prevMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                          const y = prevMonthDate.getFullYear();
+                          const m = String(prevMonthDate.getMonth() + 1).padStart(2, '0');
+                          const firstDay = `${y}-${m}-01`;
+                          const lastDayNum = new Date(y, prevMonthDate.getMonth() + 1, 0).getDate();
+                          const lastDay = `${y}-${m}-${String(lastDayNum).padStart(2, '0')}`;
+                          setStartDate(firstDay);
+                          setEndDate(lastDay);
+                        }}
+                        className="px-2 py-0.5 rounded text-[10.5px] font-bold transition-all bg-white border border-black/10 text-black/60 hover:bg-gray-100"
+                      >
+                        Last Month
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const now = new Date();
+                          const past = new Date();
+                          past.setDate(past.getDate() - 30);
+                          const formatYMD = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                          setStartDate(formatYMD(past));
+                          setEndDate(formatYMD(now));
+                        }}
+                        className="px-2 py-0.5 rounded text-[10.5px] font-bold transition-all bg-white border border-black/10 text-black/60 hover:bg-gray-100"
+                      >
+                        Last 30 Days
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="flex-1 overflow-y-auto">
                     {loadingLedger ? (
                       <div className="p-4 text-center text-black/40 font-medium text-[12px]">Loading ledger...</div>
-                    ) : ledger.length === 0 ? (
-                      <div className="p-4 text-center text-black/40 font-medium text-[12px]">No ledger entries recorded yet.</div>
+                    ) : filteredLedger.length === 0 ? (
+                      <div className="p-6 text-center space-y-2">
+                        <div className="text-black/50 font-medium text-[12px]">
+                          {ledger.length === 0 ? 'No ledger entries recorded yet.' : 'No transactions found for the selected date range.'}
+                        </div>
+                        {(startDate || endDate) && (
+                          <button 
+                            onClick={() => { setStartDate(''); setEndDate(''); }}
+                            className="text-[11px] font-bold text-[#005530] hover:underline"
+                          >
+                            Clear date filter
+                          </button>
+                        )}
+                      </div>
                     ) : (
                       <table className="w-full text-[12px] text-left text-black/80">
-                        <thead className="bg-gray-50 text-[10px] font-bold text-black/40 uppercase sticky top-0 border-b border-black/5 shadow-sm">
+                        <thead className="bg-gray-50 text-[10px] font-bold text-black/40 uppercase sticky top-0 border-b border-black/5 shadow-2xs">
                           <tr>
                             <th className="px-4 py-2">Check-in Date</th>
                             <th className="px-4 py-2">Ref / Desc</th>
@@ -623,7 +831,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-black/5">
-                          {ledger.map((entry, idx) => {
+                          {filteredLedger.map((entry, idx) => {
                             const rowGuest = entry.guest_name || (entry.description && entry.description.includes('Guest Checkout Transfer') ? entry.description.replace(/^Guest Checkout Transfer:\s*/i, '') : '');
                             const isTransfer = entry.description && /^Guest Checkout Transfer/i.test(entry.description);
                             const desc = isTransfer ? (rowGuest ? `Guest: ${rowGuest}` : '') : entry.description;
