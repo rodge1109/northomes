@@ -335,6 +335,13 @@ initDocumentsTable().catch(err => console.error('Failed to init documents table:
 // ─── Front Desk columns (safe, additive migrations) ───────────────────────────
 const initFrontDeskColumns = async () => {
     const migrations = [
+    // created_at is TIMESTAMP (no tz) and is read back as a raw string, so it must be stored as Manila wall-clock
+    // regardless of the DB session time zone (poolers can drop the per-session SET TIME ZONE).
+    `DO $$ BEGIN
+       IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='hotel_reservations' AND column_name='created_at' AND data_type='timestamp without time zone') THEN
+         ALTER TABLE hotel_reservations ALTER COLUMN created_at SET DEFAULT (NOW() AT TIME ZONE 'Asia/Manila');
+       END IF;
+     END $$`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS room_number TEXT`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_in_at TIMESTAMPTZ`,
     `ALTER TABLE hotel_reservations ADD COLUMN IF NOT EXISTS checked_out_at TIMESTAMPTZ`,

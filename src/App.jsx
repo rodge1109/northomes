@@ -12738,6 +12738,15 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     } catch (e) { console.error(e); }
   }, []);
 
+  // Refresh check-in time (Philippine time) every time the walk-in form is opened;
+  // otherwise it keeps the stale value captured when the app first loaded.
+  React.useEffect(() => {
+    if (fdView === 'walkin') {
+      setWkCheckInTime(getNowTimeLocal());
+      setWkCheckIn(prev => (!prev || prev < getTodayLocal()) ? getTodayLocal() : prev);
+    }
+  }, [fdView]);
+
   React.useEffect(() => {
     if (fdView === 'walkin') fetchWkRoomTypes(wkCheckIn, wkCheckOut);
     else if (fdView === 'rooms') fetchWkRoomTypes('', '');
