@@ -3134,6 +3134,68 @@ app.post('/api/corporate-accounts/:id/payments', async (req, res) => {
   }
 });
 
+// POST /api/corporate-accounts/:id/adjustments
+// Manual ledger adjustment. direction 'credit' lowers the balance (e.g. discount/correction),
+// 'debit' raises it (e.g. extra charge). A reason is required for audit purposes.
+app.post('/api/corporate-accounts/:id/adjustments', async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+    const { amount, direction, reference, reason, date, cashier_name } = req.body || {};
+
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Adjustment amount must be greater than 0.' });
+    }
+    if (direction !== 'credit' && direction !== 'debit') {
+      return res.status(400).json({ success: false, message: "Direction must be 'credit' or 'debit'." });
+    }
+    if (!reason || !String(reason).trim()) {
+      return res.status(400).json({ success: false, message: 'A reason is required for an adjustment.' });
+    }
+
+    await client.query('BEGIN');
+
+    const accRes = await client.query('SELECT * FROM hotel_corporate_accounts WHERE id = $1 FOR UPDATE', [id]);
+    if (accRes.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ success: false, message: 'Corporate account not found.' });
+    }
+
+    const currentBalance = parseFloat(accRes.rows[0].balance) || 0;
+    const delta = direction === 'credit' ? -parsedAmount : parsedAmount;
+    const newBalance = currentBalance + delta;
+
+    const updatedAccRes = await client.query(
+      `UPDATE hotel_corporate_accounts SET balance = $1 WHERE id = $2 RETURNING *`,
+      [newBalance, id]
+    );
+
+    const adjDate = date || new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+    const ref = (reference && String(reference).trim()) ? String(reference).trim() : `ADJ-${Date.now().toString().slice(-6)}`;
+    const desc = `Adjustment: ${String(reason).trim()}`;
+
+    const ledgerRes = await client.query(
+      `INSERT INTO hotel_corporate_ledgers (account_id, date, reference, description, debit, credit, balance, payment_method, cashier_name)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'Adjustment', $8)
+       RETURNING *`,
+      [id, adjDate, ref, desc,
+       direction === 'debit' ? parsedAmount : 0,
+       direction === 'credit' ? parsedAmount : 0,
+       newBalance, cashier_name || 'Front Desk']
+    );
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Adjustment recorded.', account: updatedAccRes.rows[0], ledgerEntry: ledgerRes.rows[0] });
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
+    console.error('Corporate adjustment error:', err);
+    res.status(500).json({ success: false, message: 'Failed to record adjustment.' });
+  } finally {
+    client.release();
+  }
+});
+
 // POST /api/reservations/:id/checkout
 app.post('/api/reservations/:id/checkout', async (req, res) => {
   try {

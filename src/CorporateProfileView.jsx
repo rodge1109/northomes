@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import SignaturePadModal from './components/common/SignaturePadModal';
 import RecordCorporatePaymentModal from './components/common/RecordCorporatePaymentModal';
+import CorporateAdjustmentModal from './components/common/CorporateAdjustmentModal';
 
 import { API_BASE_URL } from './utils/apiConfig';
 
@@ -18,6 +19,7 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
   const [loadingLedger, setLoadingLedger] = useState(false);
   const [accountData, setAccountData] = useState(account || {});
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -555,6 +557,13 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
                 Record Payment
               </button>
               <button 
+                onClick={() => setIsAdjustmentModalOpen(true)}
+                className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
+                title="Post a manual debit/credit adjustment to the ledger"
+              >
+                Adjust Ledger
+              </button>
+              <button 
                 onClick={() => setIsEditing(true)} 
                 className="px-5 py-2 border border-black/10 rounded-md text-[13px] font-bold text-black/80 hover:bg-gray-50 shadow-sm transition-colors"
               >
@@ -864,6 +873,17 @@ export default function CorporateProfileView({ account, isNewAccount, onBack, on
         isOpen={isSigning} 
         onClose={() => setIsSigning(false)} 
         onSave={(data) => setSignatureData(data)} 
+      />
+      <CorporateAdjustmentModal
+        isOpen={isAdjustmentModalOpen}
+        onClose={() => setIsAdjustmentModalOpen(false)}
+        account={accountData}
+        onSuccess={(updatedAcc) => {
+          setAccountData(updatedAcc);
+          setSuccessMsg('Ledger adjustment posted.');
+          if (account?.id) fetchLedger(account.id);
+          if (onUpdateAccount) onUpdateAccount(updatedAcc);
+        }}
       />
       <RecordCorporatePaymentModal
         isOpen={isPaymentModalOpen}
