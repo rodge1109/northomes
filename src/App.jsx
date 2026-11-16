@@ -12234,7 +12234,53 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
   const [wkGuaranteeAmount, setWkGuaranteeAmount] = React.useState('');
   const [wkSendConfirmEmail, setWkSendConfirmEmail] = React.useState(true);
   const [wkSearchGuest, setWkSearchGuest] = React.useState('');
+  const [wkGuestMatches, setWkGuestMatches] = React.useState([]);
+  const [wkGuestSearching, setWkGuestSearching] = React.useState(false);
+  const [wkSelectedGuestId, setWkSelectedGuestId] = React.useState(null);
 
+  // Search existing guests (debounced) so returning guests don't need to be retyped
+  React.useEffect(() => {
+    const q = wkSearchGuest.trim();
+    if (q.length < 2) { setWkGuestMatches([]); return; }
+    const timer = setTimeout(async () => {
+      setWkGuestSearching(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/admin/guests?search=${encodeURIComponent(q)}`);
+        const data = await res.json();
+        setWkGuestMatches(data.success ? (data.guests || []).slice(0, 8) : []);
+      } catch (e) { setWkGuestMatches([]); }
+      setWkGuestSearching(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [wkSearchGuest]);
+
+  const selectWkGuest = (g) => {
+    let first = (g.first_name || '').trim();
+    let last = (g.last_name || '').trim();
+    if (!first || !last) {
+      const p = parseFullName(g.full_name);
+      first = first || p.first;
+      last = last || p.last;
+    }
+    setWkTitle(g.title || 'Mr.');
+    setWkFirstName(first);
+    setWkLastName(last);
+    setWkMiddleName(g.middle_name || '');
+    setWkGender(g.gender || '');
+    setWkBirthDate(g.date_of_birth ? String(g.date_of_birth).slice(0, 10) : '');
+    setWkNationality(g.nationality || '');
+    setWkCountry(g.country || '');
+    setWkAddress(g.address || '');
+    setWkCity(g.city || '');
+    setWkEmail(g.email || '');
+    setWkPhone(g.phone_number || '');
+    setWkIdType(g.id_type || '');
+    setWkIdNumber(g.id_number || '');
+    setWkCompany(g.company || '');
+    setWkSelectedGuestId(g.id);
+    setWkSearchGuest('');
+    setWkGuestMatches([]);
+  };
   // ── Rooms state ─────────────────────────────────────────────────────────────
   const [rooms, setRooms] = React.useState([]);
   const [roomsLoading, setRoomsLoading] = React.useState(false);
@@ -12790,7 +12836,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
               check_in_date: wkCheckIn, check_in_time: wkCheckInTime, check_out_date: wkCheckOut,
               eta: wkEta, number_of_guests: guestsPerRoom, room_number: sel.roomNumber,
               purpose: wkPurpose, payment_method: wkPaymentMethod, deposit_amount: i === 0 ? (wkGuaranteeAmount || 0) : 0,
-              company: wkCompany.trim(),
+              company: wkCompany.trim(), existing_guest_id: wkSelectedGuestId,
               payment_collected: wkPayment, special_requests: wkSpecialReq.trim(), notes: wkNotes.trim(), add_to_profile: wkAddToProfile, is_vip: wkVipGuest, is_repeat: wkRepeatGuest,
             }),
           });
@@ -12830,7 +12876,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     setWkSource('Direct Booking'); setWkRoomPreference('High Floor'); setWkBedType('Queen Bed');
     setWkDiscountPct(0); setWkDiscountCode(''); setWkCardType('Visa'); setWkCardNumberFull('');
     setWkCardExpiry(''); setWkCardCvv(''); setWkCardholder(''); setWkGuaranteeType('Guarantee by Credit Card');
-    setWkGuaranteeAmount(''); setWkSendConfirmEmail(true); setWkSearchGuest('');
+    setWkGuaranteeAmount(''); setWkSendConfirmEmail(true); setWkSearchGuest(''); setWkSelectedGuestId(null); setWkGuestMatches([]);
   };
 
   // ── Guest Profile helpers ──────────────────────────────────────────────────
@@ -14428,7 +14474,30 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                               </span>
                               <input type="text" value={wkSearchGuest} onChange={e => setWkSearchGuest(e.target.value)} placeholder="Search by name, email or phone number"
                                 className="w-full pl-10 pr-4 py-1.5 bg-[#f8f9fa] border border-black/10 rounded-md text-[12px] font-medium focus:border-[#00754A] focus:ring-1 focus:ring-[#00754A] outline-none transition-all" />
+                              {wkSearchGuest.trim().length >= 2 && (
+                                <div className="absolute left-0 right-0 top-full mt-1 z-30 bg-white border border-black/10 rounded-md shadow-lg max-h-64 overflow-y-auto">
+                                  {wkGuestSearching && wkGuestMatches.length === 0 && <div className="px-3 py-2 text-[12px] text-black/50">Searching…</div>}
+                                  {!wkGuestSearching && wkGuestMatches.length === 0 && <div className="px-3 py-2 text-[12px] text-black/50">No existing guest found — fill in the details below.</div>}
+                                  {wkGuestMatches.map(g => (
+                                    <button type="button" key={g.id} onClick={() => selectWkGuest(g)}
+                                      className="w-full text-left px-3 py-2 hover:bg-[#f0f7f4] border-b border-black/5 last:border-b-0">
+                                      <div className="text-[12px] font-bold text-[#1E3932]">{g.full_name}</div>
+                                      <div className="text-[11px] text-black/50">
+                                        {[g.phone_number, g.email].filter(Boolean).join(' · ') || 'No contact on file'}
+                                        {' · '}{g.total_bookings || 0} stay{Number(g.total_bookings) === 1 ? '' : 's'}
+                                        {g.last_stay ? ` · last ${String(g.last_stay).slice(0, 10)}` : ''}
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
                             </div>
+                            {wkSelectedGuestId && (
+                              <div className="mt-1.5 flex items-center justify-between text-[11px] text-[#00754A] font-semibold">
+                                <span>✓ Returning guest — linked to existing profile (details filled in, ID included)</span>
+                                <button type="button" className="text-black/50 underline" onClick={() => setWkSelectedGuestId(null)}>unlink</button>
+                              </div>
+                            )}
                           </div>
 
                           <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-3">

@@ -2250,7 +2250,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
       title, middle_name, gender, birth_date, nationality, country,
       address, city, id_type, id_number, purpose, eta,
       payment_method, deposit_amount, company,
-      add_to_profile, is_vip, is_repeat
+      add_to_profile, is_vip, is_repeat, existing_guest_id
     } = req.body;
     if (!full_name || !room_type || !check_in_date || !check_out_date || !room_number) {
       return res.status(400).json({ success: false, message: 'Missing required fields.' });
@@ -2316,7 +2316,12 @@ app.post('/api/front-desk/walkin', async (req, res) => {
       }
     // Find or create the guest profile in hotel_guests
     let guestId = null;
-    if (add_to_profile !== false) {
+    // Returning guest picked from search: link directly to their profile instead of matching by name text
+    if (existing_guest_id) {
+      const eg = await pool.query('SELECT id FROM hotel_guests WHERE id = $1', [parseInt(existing_guest_id, 10) || 0]);
+      if (eg.rows.length > 0) guestId = eg.rows[0].id;
+    }
+    if (!guestId && add_to_profile !== false) {
       guestId = await findOrCreateGuest(null, {
         title, full_name, middle_name, gender, date_of_birth: birth_date,
         nationality, country, address, city, email, phone_number: phone,
