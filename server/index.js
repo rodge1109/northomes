@@ -2837,6 +2837,57 @@ app.post('/api/reservations/:id/checkin', async (req, res) => {
   }
 });
 
+// GET /api/reservations/:id/transfer-options — which rooms this booking can move to,
+// judged against the booking's OWN dates (not just today's room status).
+app.get('/api/reservations/:id/transfer-options', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const rr = await pool.query(
+      `SELECT id, status, room_number, room_type,
+              to_char(check_in_date,'YYYY-MM-DD') AS ci, to_char(check_out_date,'YYYY-MM-DD') AS co,
+              (check_in_date <= (NOW() AT TIME ZONE 'Asia/Manila')::date) AS needs_room_now
+       FROM hotel_reservations WHERE id = $1`, [id]);
+    if (rr.rows.length === 0) return res.status(404).json({ success: false, message: 'Reservation not found.' });
+    const r = rr.rows[0];
+    const needsNow = r.status === 'checked_in' || r.needs_room_now;
+
+    const rooms = await pool.query(
+      `SELECT hr.room_number, hr.room_type, hr.floor, hr.hk_status,
+              ov.full_name AS ov_name, ov.ci AS ov_ci, ov.co AS ov_co,
+              cur.full_name AS cur_name, cur.co AS cur_co
+       FROM hotel_rooms hr
+       LEFT JOIN LATERAL (
+         SELECT x.full_name, to_char(x.check_in_date,'YYYY-MM-DD') AS ci, to_char(x.check_out_date,'YYYY-MM-DD') AS co
+         FROM hotel_reservations x
+         WHERE x.room_number = hr.room_number AND x.id != $1 AND x.status NOT IN ('cancelled','checked_out','no_show')
+           AND x.check_in_date < $3::date AND x.check_out_date > $2::date
+         ORDER BY x.check_in_date LIMIT 1) ov ON true
+       LEFT JOIN LATERAL (
+         SELECT x.full_name, to_char(x.check_out_date,'YYYY-MM-DD') AS co
+         FROM hotel_reservations x
+         WHERE x.room_number = hr.room_number AND x.id != $1 AND x.status = 'checked_in' LIMIT 1) cur ON true
+       WHERE hr.active = true
+       ORDER BY hr.room_number`, [id, r.ci, r.co]);
+
+    const fmt = (s) => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const out = rooms.rows.map(x => {
+      let available = true, reason = '', note = '';
+      if (x.room_number === r.room_number) { available = false; reason = 'Current room'; }
+      else if (x.hk_status === 'out_of_order') { available = false; reason = 'Out of order'; }
+      else if (x.ov_name) { available = false; reason = `Booked by ${x.ov_name} (${fmt(x.ov_ci)} – ${fmt(x.ov_co)})`; }
+      else if (needsNow && x.cur_name) { available = false; reason = `Occupied by ${x.cur_name} until ${fmt(x.cur_co)}`; }
+      else if (needsNow && x.hk_status === 'dirty') { available = false; reason = 'Dirty — needs cleaning'; }
+      else if (x.cur_name) { note = `Occupied today until ${fmt(x.cur_co)} — free for these dates`; }
+      else if (x.hk_status === 'dirty') { note = 'Dirty today — free for these dates'; }
+      return { room_number: x.room_number, room_type: x.room_type, floor: x.floor, hk_status: x.hk_status, available, reason, note };
+    });
+    res.json({ success: true, reservation: { id: r.id, status: r.status, check_in_date: r.ci, check_out_date: r.co, room_number: r.room_number }, rooms: out });
+  } catch (err) {
+    console.error('Transfer options error:', err);
+    res.status(500).json({ success: false, message: 'Failed to load transfer options.' });
+  }
+});
+
 // POST /api/reservations/:id/transfer — room transfer or upgrade for checked-in guest
 app.post('/api/reservations/:id/transfer', async (req, res) => {
   try {
@@ -2865,6 +2916,22 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
       return res.status(409).json({ success: false, message: `Room ${newRoomNumber} is already occupied by ${conflict.rows[0].full_name}.` });
     }
 
+    // Extra safety: out-of-order rooms, and rooms physically occupied right now when the guest needs a room now
+    const roomRow = await pool.query('SELECT hk_status FROM hotel_rooms WHERE room_number = $1', [newRoomNumber]);
+    if (roomRow.rows.length > 0 && roomRow.rows[0].hk_status === 'out_of_order') {
+      return res.status(409).json({ success: false, message: `Room ${newRoomNumber} is out of order.` });
+    }
+    const nowRes = await pool.query(
+      `SELECT (check_in_date <= (NOW() AT TIME ZONE 'Asia/Manila')::date) AS needs_now FROM hotel_reservations WHERE id = $1`, [id]);
+    if (status === 'checked_in' || nowRes.rows[0].needs_now) {
+      const occ = await pool.query(
+        `SELECT full_name FROM hotel_reservations WHERE room_number = $1 AND id != $2 AND status = 'checked_in'`,
+        [newRoomNumber, id]);
+      if (occ.rows.length > 0) {
+        return res.status(409).json({ success: false, message: `Room ${newRoomNumber} is currently occupied by ${occ.rows[0].full_name}.` });
+      }
+    }
+
     // Update reservation
     const roomType = newRoomType || existing.rows[0].room_type;
     const result = await pool.query(
@@ -2888,54 +2955,149 @@ app.post('/api/reservations/:id/transfer', async (req, res) => {
   }
 });
 
-// PATCH /api/reservations/:id/extend — extend a guest's stay
+// PATCH /api/reservations/:id/extend — extend (or shorten) a guest's stay
+// Body: { new_checkout_date, preview?, confirm?, move_to_room? }
+//  - preview:      returns nights/charge/conflict info without saving anything
+//  - confirm:      required to save when the extra nights conflict with another booking
+//  - move_to_room: move the guest to this (free) room of the same type as part of the extension
+// On a checked-in guest the extra nights are charged to the folio (or credited when shortened).
+const INACTIVE_RES_STATUSES = `('cancelled', 'checked_out', 'no_show')`;
 app.patch('/api/reservations/:id/extend', async (req, res) => {
+  const client = await pool.connect();
   try {
     const { id } = req.params;
-    const { new_checkout_date } = req.body;
+    const { new_checkout_date, preview, confirm, move_to_room } = req.body || {};
     if (!new_checkout_date) return res.status(400).json({ success: false, message: 'new_checkout_date is required.' });
 
-    const existing = await pool.query('SELECT * FROM hotel_reservations WHERE id = $1', [id]);
+    const existing = await client.query(
+      `SELECT *, to_char(check_in_date, 'YYYY-MM-DD') AS ci, to_char(check_out_date, 'YYYY-MM-DD') AS co,
+              ($1::date - check_out_date) AS delta_nights, ($1::date - check_in_date) AS total_nights
+       FROM hotel_reservations WHERE id = $2`,
+      [new_checkout_date, id]
+    );
     if (existing.rows.length === 0) return res.status(404).json({ success: false, message: 'Reservation not found.' });
 
     const resv = existing.rows[0];
-    const currentCheckout = new Date(resv.check_out_date);
-    const newCheckout = new Date(new_checkout_date);
+    const delta = parseInt(resv.delta_nights, 10);
+    if (parseInt(resv.total_nights, 10) <= 0) {
+      return res.status(400).json({ success: false, message: 'New check-out date must be after the check-in date.' });
+    }
+    if (delta === 0) {
+      return res.status(400).json({ success: false, message: 'New check-out date must be different from current check-out date.' });
+    }
 
-    if (newCheckout <= new Date(resv.check_in_date)) {
-        return res.status(400).json({ success: false, message: 'New check-out date must be after the check-in date.' });
+    // ── Conflicts for the added nights [current check-out, new check-out) ──────────
+    let roomConflicts = [];
+    let oversoldNights = [];
+    let availableRooms = [];
+    if (delta > 0) {
+      if (resv.room_number) {
+        const c = await client.query(
+          `SELECT id, full_name, status, to_char(check_in_date,'YYYY-MM-DD') AS check_in_date, to_char(check_out_date,'YYYY-MM-DD') AS check_out_date
+           FROM hotel_reservations
+           WHERE room_number = $1 AND id != $2 AND status NOT IN ${INACTIVE_RES_STATUSES}
+             AND check_in_date < $3::date AND check_out_date > $4::date
+           ORDER BY check_in_date`,
+          [resv.room_number, id, new_checkout_date, resv.co]
+        );
+        roomConflicts = c.rows;
       }
-      if (newCheckout.getTime() === currentCheckout.getTime()) {
-        return res.status(400).json({ success: false, message: 'New check-out date must be different from current check-out date.' });
-      }
-
-    // Soft conflict check — same room, overlapping dates (excluding this reservation)
-    let warning = null;
-      if (resv.room_number && newCheckout > currentCheckout) {
-      const conflict = await pool.query(
-        `SELECT id, full_name, check_in_date FROM hotel_reservations
-         WHERE room_number = $1 AND id != $2
-           AND status NOT IN ('cancelled', 'checked_out', 'no_show')
-           AND check_in_date < $3 AND check_out_date > $4`,
-        [resv.room_number, id, new_checkout_date, resv.check_out_date]
+      // Room-type inventory check (catches bookings that have no room assigned yet)
+      const rt = await client.query('SELECT total_rooms FROM hotel_room_types WHERE name = $1 AND active = true', [resv.room_type]);
+      const totalRooms = rt.rows.length > 0 ? parseInt(rt.rows[0].total_rooms, 10) : 999;
+      const nightsRes = await client.query(
+        `SELECT to_char(d, 'YYYY-MM-DD') AS night, COUNT(r.id)::int AS booked
+         FROM generate_series($1::date, ($2::date - 1), interval '1 day') AS d
+         LEFT JOIN hotel_reservations r ON r.room_type = $3 AND r.id != $4
+           AND r.status NOT IN ${INACTIVE_RES_STATUSES}
+           AND r.check_in_date <= d AND r.check_out_date > d
+         GROUP BY d ORDER BY d`,
+        [resv.co, new_checkout_date, resv.room_type, id]
       );
-      if (conflict.rows.length > 0) {
-        const c = conflict.rows[0];
-        const ciDate = new Date(c.check_in_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        warning = `Room ${resv.room_number} has an incoming reservation for ${c.full_name} arriving ${ciDate}. Please verify before confirming.`;
+      oversoldNights = nightsRes.rows.filter(n => n.booked + 1 > totalRooms).map(n => n.night);
+
+      if (roomConflicts.length > 0 || oversoldNights.length > 0) {
+        const av = await client.query(
+          `SELECT room_number FROM hotel_rooms hr
+           WHERE hr.active = true AND hr.room_type = $1 AND hr.room_number != COALESCE($2, '')
+             AND NOT EXISTS (
+               SELECT 1 FROM hotel_reservations r
+               WHERE r.room_number = hr.room_number AND r.id != $3 AND r.status NOT IN ${INACTIVE_RES_STATUSES}
+                 AND r.check_in_date < $4::date AND r.check_out_date > $5::date
+             )
+           ORDER BY hr.room_number`,
+          [resv.room_type, resv.room_number, id, new_checkout_date, resv.ci]
+        );
+        availableRooms = av.rows.map(r => r.room_number);
       }
     }
 
-    // Update check-out date
-    const result = await pool.query(
+    // ── Charge / credit for the change (checked-in guests with a posted room charge) ──
+    let charge = null;
+    if (resv.status === 'checked_in') {
+      const rateRes = await client.query(
+        `SELECT unit_price FROM hotel_folio_items
+         WHERE reservation_id = $1 AND voided = false AND charge_type = 'Room Rate' AND amount > 0 AND unit_price > 0
+         ORDER BY id ASC LIMIT 1`, [id]
+      );
+      if (rateRes.rows.length > 0) {
+        const rate = parseFloat(rateRes.rows[0].unit_price);
+        charge = { rate, nights: Math.abs(delta), amount: rate * delta }; // negative when shortening
+      }
+    }
+
+    const hasConflict = roomConflicts.length > 0 || oversoldNights.length > 0;
+    const info = {
+      nights_delta: delta, current_checkout: resv.co, new_checkout: new_checkout_date,
+      room_number: resv.room_number, room_type: resv.room_type,
+      conflicts: roomConflicts, oversold_nights: oversoldNights, available_rooms: availableRooms,
+      charge, status: resv.status
+    };
+
+    if (preview) return res.json({ success: true, preview: info });
+
+    if (move_to_room && !availableRooms.includes(String(move_to_room))) {
+      return res.status(409).json({ success: false, code: 'ROOM_UNAVAILABLE', message: `Room ${move_to_room} is not free for those nights.`, ...info });
+    }
+    if (hasConflict && !confirm && !move_to_room) {
+      return res.status(409).json({ success: false, code: 'CONFLICT', message: 'The extra nights conflict with another booking.', ...info });
+    }
+
+    await client.query('BEGIN');
+    if (move_to_room) {
+      await client.query('UPDATE hotel_reservations SET room_number = $1 WHERE id = $2', [String(move_to_room), id]);
+      if (resv.room_number && resv.status === 'checked_in') {
+        await client.query(`UPDATE hotel_rooms SET hk_status = 'dirty' WHERE room_number = $1`, [resv.room_number]);
+      }
+    }
+    const result = await client.query(
       `UPDATE hotel_reservations SET check_out_date = $1 WHERE id = $2 RETURNING *`,
       [new_checkout_date, id]
     );
+    if (charge) {
+      const fmt = (s) => new Date(s + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const desc = delta > 0
+        ? `Room Charge - Extension (${charge.nights} night${charge.nights > 1 ? 's' : ''} @ ₱${charge.rate.toLocaleString()}/night, ${fmt(resv.co)} to ${fmt(new_checkout_date)})`
+        : `Room Credit - Shortened stay (${charge.nights} night${charge.nights > 1 ? 's' : ''} @ ₱${charge.rate.toLocaleString()}/night, ${fmt(new_checkout_date)} to ${fmt(resv.co)})`;
+      await client.query(
+        `INSERT INTO hotel_folio_items (reservation_id, charge_type, description, quantity, unit_price, amount)
+         VALUES ($1, 'Room Rate', $2, $3, $4, $5)`,
+        [id, desc, delta, charge.rate, charge.amount]
+      );
+    }
+    await client.query('COMMIT');
 
-    res.json({ success: true, reservation: result.rows[0], warning });
+    res.json({
+      success: true, reservation: result.rows[0], charge,
+      moved_to_room: move_to_room || null,
+      warning: hasConflict && !move_to_room ? 'Saved despite a booking conflict. Please resolve the double booking.' : null
+    });
   } catch (err) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Extend stay error:', err);
     res.status(500).json({ success: false, message: 'Failed to extend stay.' });
+  } finally {
+    client.release();
   }
 });
 

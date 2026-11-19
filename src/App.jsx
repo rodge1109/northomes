@@ -12039,6 +12039,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
 
   // Transfer / upgrade state
   const [transferGuest, setTransferGuest] = React.useState(null);
+  const [transferOptions, setTransferOptions] = React.useState(null);
   const [transferRoomType, setTransferRoomType] = React.useState('');
   const [transferRoomNumber, setTransferRoomNumber] = React.useState('');
   const [transferSubmitting, setTransferSubmitting] = React.useState(false);
@@ -12052,6 +12053,9 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
   const [extendError, setExtendError] = React.useState('');
   const [extendConflict, setExtendConflict] = React.useState('');
   const [extendSuccess, setExtendSuccess] = React.useState('');
+  const [extendPreview, setExtendPreview] = React.useState(null);
+  const [extendConfirm, setExtendConfirm] = React.useState(false);
+  const [extendMoveRoom, setExtendMoveRoom] = React.useState('');
 
   // Status update state
   const [statusUpdating, setStatusUpdating] = React.useState(null);
@@ -12666,6 +12670,12 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
 
   const openTransfer = (r) => {
     setTransferGuest(r);
+    setTransferOptions(null);
+    // Availability judged against this booking's own dates
+    fetch(`${API_BASE_URL}/api/reservations/${r.id}/transfer-options`)
+      .then(x => x.json())
+      .then(d => { if (d.success) setTransferOptions(d.rooms); })
+      .catch(() => {});
     setTransferRoomType(''); // Start with empty to show all available rooms
     setTransferRoomNumber('');
     setTransferError('');
@@ -12715,7 +12725,28 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
     setExtendError('');
     setExtendConflict('');
     setExtendSuccess('');
+    setExtendPreview(null);
+    setExtendConfirm(false);
+    setExtendMoveRoom('');
   };
+
+  // Live preview: extra nights, charge, and any booking conflicts for the chosen date
+  React.useEffect(() => {
+    if (!extendGuest || !extendNewDate) { setExtendPreview(null); return; }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/reservations/${extendGuest.id}/extend`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ new_checkout_date: extendNewDate, preview: true }),
+        });
+        const data = await res.json();
+        if (!cancelled) setExtendPreview(data.success ? data.preview : null);
+      } catch (e) { if (!cancelled) setExtendPreview(null); }
+    }, 300);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [extendGuest, extendNewDate]);
 
   const submitExtend = async () => {
     if (!extendGuest || !extendNewDate) return;
@@ -12726,11 +12757,11 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
       const res = await fetch(`${API_BASE_URL}/api/reservations/${extendGuest.id}/extend`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ new_checkout_date: extendNewDate }),
+        body: JSON.stringify({ new_checkout_date: extendNewDate, confirm: extendConfirm, move_to_room: extendMoveRoom || undefined }),
       });
       const data = await res.json();
       if (data.success) {
-        setExtendSuccess('Stay extended successfully.');
+        setExtendSuccess(data.moved_to_room ? `Stay extended and guest moved to Room ${data.moved_to_room}.` : 'Stay extended successfully.');
         if (data.warning) setExtendConflict(data.warning);
         fetchInHouse();
         fetchArrivals(arrivalDate);
@@ -12738,6 +12769,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
         setTimeout(() => fetchTapeChart(tcFrom), 300);
         if (!data.warning) setTimeout(() => setExtendGuest(null), 1800);
       } else {
+        if (data.code === 'CONFLICT' || data.code === 'ROOM_UNAVAILABLE') {
+          setExtendPreview(data);
+          setExtendMoveRoom('');
+        }
         setExtendError(data.message || 'Extension failed.');
       }
     } catch (e) {
@@ -15659,7 +15694,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                     type="date"
                     min={minDate}
                     value={extendNewDate}
-                    onChange={e => { setExtendNewDate(e.target.value); setExtendError(''); setExtendConflict(''); setExtendSuccess(''); }}
+                    onChange={e => { setExtendNewDate(e.target.value); setExtendError(''); setExtendConflict(''); setExtendSuccess(''); setExtendConfirm(false); setExtendMoveRoom(''); }}
                     className="w-full border border-black/15 rounded-xl px-3 py-1.5 text-[12px] font-medium focus:outline-none focus:ring-2 focus:ring-[#00754A]/40 focus:border-[#00754A]"
                   />
                 </div>
@@ -15674,9 +15709,48 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                           : `${additionalNights} night${additionalNights !== -1 ? 's' : ''} (Shortened)`
                         }
                       </span>
-                      <span className="text-xs text-black/40 ml-auto">Remember to adjust charges manually</span>
+                      <span className="text-xs text-black/50 ml-auto text-right">
+                        {extendPreview?.charge
+                          ? `${extendPreview.charge.amount >= 0 ? 'Charge' : 'Credit'}: ₱${Math.abs(extendPreview.charge.amount).toLocaleString()} (${extendPreview.charge.nights} × ₱${extendPreview.charge.rate.toLocaleString()})`
+                          : (extendGuest.status === 'checked_in' ? 'No room charge found on folio — adjust manually' : 'Charged at check-in')}
+                      </span>
                     </div>
                   )}
+
+                {/* Booking conflict — pick a free room or confirm explicitly */}
+                {extendPreview && ((extendPreview.conflicts || []).length > 0 || (extendPreview.oversold_nights || []).length > 0) && !extendSuccess && (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 flex flex-col gap-2">
+                    <div className="text-xs font-bold text-amber-900">⚠ These extra nights conflict with another booking</div>
+                    {(extendPreview.conflicts || []).map(c => (
+                      <div key={c.id} className="text-xs text-amber-800">
+                        Room {extendPreview.room_number} is booked by <b>{c.full_name}</b> ({fmtD(c.check_in_date)} → {fmtD(c.check_out_date)}).
+                      </div>
+                    ))}
+                    {(extendPreview.oversold_nights || []).length > 0 && (
+                      <div className="text-xs text-amber-800">
+                        No {extendPreview.room_type} left on: {extendPreview.oversold_nights.map(n => fmtD(n)).join(', ')}.
+                      </div>
+                    )}
+                    {(extendPreview.available_rooms || []).length > 0 ? (
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-wider text-amber-900/70 mb-1">Move guest to a free {extendPreview.room_type}</label>
+                        <select value={extendMoveRoom} onChange={e => { setExtendMoveRoom(e.target.value); if (e.target.value) setExtendConfirm(false); }}
+                          className="w-full border border-amber-300 rounded-lg px-2 py-1.5 text-xs bg-white">
+                          <option value="">— keep Room {extendPreview.room_number} —</option>
+                          {extendPreview.available_rooms.map(rn => <option key={rn} value={rn}>Room {rn}</option>)}
+                        </select>
+                      </div>
+                    ) : (
+                      <div className="text-xs text-amber-800">No other {extendPreview.room_type} is free for these nights.</div>
+                    )}
+                    {!extendMoveRoom && (
+                      <label className="flex items-start gap-2 text-xs text-amber-900 font-medium cursor-pointer">
+                        <input type="checkbox" checked={extendConfirm} onChange={e => setExtendConfirm(e.target.checked)} className="mt-0.5" />
+                        <span>Extend anyway — I will resolve the double booking.</span>
+                      </label>
+                    )}
+                  </div>
+                )}
 
                 {/* Conflict warning */}
                 {extendConflict && (
@@ -15715,10 +15789,10 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                 {!(extendSuccess && !extendConflict) && (
                   <button
                     onClick={submitExtend}
-                    disabled={extendSubmitting || !extendNewDate || additionalNights === 0}
+                    disabled={extendSubmitting || !extendNewDate || additionalNights === 0 || (extendPreview && ((extendPreview.conflicts || []).length > 0 || (extendPreview.oversold_nights || []).length > 0) && !extendConfirm && !extendMoveRoom)}
                     className="flex-1 py-1.5 rounded-xl bg-[#00754A] hover:bg-[#006241] text-white text-xs font-bold transition-colors disabled:opacity-40"
                   >
-                    {extendSubmitting ? 'Extending…' : extendConflict ? 'Extend Anyway' : 'Confirm Extension'}
+                    {extendSubmitting ? 'Saving…' : extendMoveRoom ? `Extend & Move to ${extendMoveRoom}` : extendConfirm ? 'Extend Anyway' : 'Confirm Extension'}
                   </button>
                 )}
               </div>
@@ -15819,9 +15893,25 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                     Select Room
                   </label>
                   {(() => {
+                    // Prefer date-based availability from the server; fall back to today's room status
+                    const list = transferOptions
+                      ? transferOptions.map(o => ({
+                          room_number: o.room_number, room_type: o.room_type, floor: o.floor,
+                          ok: o.available,
+                          label: o.available ? (o.note || 'Available') : o.reason,
+                          warn: o.available && !!o.note,
+                          dot: !o.available ? 'bg-red-400' : (o.note ? 'bg-yellow-400' : 'bg-green-400'),
+                        }))
+                      : rooms.map(r => ({
+                          room_number: r.room_number, room_type: r.room_type, floor: r.floor,
+                          ok: r.computed_status === 'available' || r.computed_status === 'inspected',
+                          label: (roomStatusConfig[r.computed_status] || roomStatusConfig.available).label,
+                          warn: false,
+                          dot: ({ available: 'bg-green-400', occupied: 'bg-blue-400', due_out: 'bg-orange-400', arriving: 'bg-purple-400', dirty: 'bg-yellow-400', inspected: 'bg-teal-400', out_of_order: 'bg-red-400' })[r.computed_status] || 'bg-gray-300',
+                        }));
                     const typeRooms = transferRoomType
-                      ? rooms.filter((r) => r.room_type === transferRoomType)
-                      : rooms.filter((r) => r.computed_status === 'available' || r.computed_status === 'inspected');
+                      ? list.filter((r) => r.room_type === transferRoomType)
+                      : list.filter((r) => r.ok);
 
                     if (typeRooms.length === 0) {
                       return (
@@ -15843,30 +15933,19 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                       );
                     }
 
-                    const dotColors = {
-                      available: 'bg-green-400',
-                      occupied: 'bg-blue-400',
-                      due_out: 'bg-orange-400',
-                      arriving: 'bg-purple-400',
-                      dirty: 'bg-yellow-400',
-                      inspected: 'bg-teal-400',
-                      out_of_order: 'bg-red-400',
-                    };
-
                     return (
                       <div className="max-h-64 overflow-y-auto pr-2 space-y-1.5">
                         {typeRooms.map((r) => {
                           const isCurrent = r.room_number === transferGuest?.room_number;
-                          const isAvailable = r.computed_status === 'available' || r.computed_status === 'inspected';
+                          const isAvailable = r.ok;
                           const isSelected = transferRoomNumber === r.room_number;
-                          const cfg = roomStatusConfig[r.computed_status] || roomStatusConfig.available;
 
                           return (
                             <button
                               key={r.room_number}
                               disabled={!isAvailable || isCurrent}
                               onClick={() => setTransferRoomNumber(isSelected ? '' : r.room_number)}
-                              title={`Room ${r.room_number} — ${cfg.label}`}
+                              title={`Room ${r.room_number} — ${r.label}`}
                               className={`relative w-full flex items-center gap-3 px-3 py-1.5 rounded-md border transition-all text-left ${isSelected
                                 ? 'bg-green-50 border-[#00754A]/30'
                                 : isCurrent
@@ -15876,7 +15955,7 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                     : 'bg-white shadow-sm border-black/10 hover:border-black/20'
                                 }`}
                             >
-                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColors[r.computed_status] || 'bg-gray-300'}`} />
+                              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${r.dot}`} />
                               <div className="flex-1">
                                 <span
                                   className={`font-mono font-bold text-[12px] ${isSelected ? 'text-[#000000]/87' : isCurrent || !isAvailable ? 'text-black/60' : 'text-[#000000]/87'
@@ -15886,8 +15965,8 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                                 </span>
                                 {r.floor && <span className="text-[10px] text-black/60 ml-2">Floor {r.floor}</span>}
                               </div>
-                              <span className={`text-[10px] font-semibold ${isSelected ? 'text-[#000000]/87' : 'text-black/60'}`}>
-                                {cfg.label}
+                              <span className={`text-[10px] font-semibold text-right max-w-[55%] ${r.warn ? 'text-amber-600' : isSelected ? 'text-[#000000]/87' : 'text-black/60'}`}>
+                                {r.label}
                               </span>
                               {isCurrent && (
                                 <span className="text-[10px] bg-white shadow-sm text-black/60 px-2 py-0.5 rounded">Current</span>
