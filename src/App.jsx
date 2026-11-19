@@ -6694,6 +6694,10 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
         ...(data.discounts || []).map(d => ({ ...d, isDiscount: true }))
       ].sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
 
+      const datePart = (fromDate || new Date().toISOString().slice(0, 10)).replace(/-/g, '').slice(2);
+      const timePart = ((toTime || fromTime || '0000').replace(':', '')).slice(0, 4);
+      const reportSeriesNo = `CSR-${datePart}-${timePart}`;
+
       return (
         <div className="text-black text-[11px] font-sans">
           <div className="mb-3">
@@ -6706,6 +6710,7 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
               <div>
                 <h2 className="m-0 text-[14px] font-bold uppercase tracking-wider text-black">End of Shift / Cashier Report</h2>
                 <div className="font-bold text-black/60 text-xs mt-1">CASHIER: {shiftStaff.toUpperCase()}</div>
+                <div className="text-[11px] font-mono font-bold text-[#00754A] mt-0.5">SERIES NO: {reportSeriesNo}</div>
               </div>
               <div className="font-bold text-[#b91c1c] text-xs text-right">
                 <div>DATE: {new Date(fromDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to {new Date(toDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
