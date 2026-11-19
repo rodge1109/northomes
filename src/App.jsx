@@ -2731,12 +2731,34 @@ function AdminDashboard({ setCurrentPage, activeTab, setActiveTab, captureSignat
 
       const rate = getRoomRate(originalRes.room_type, originalRes.rate_code); // display rate of first room
 
-    // Remove 'Z' if present to prevent browser from adding local timezone offset to an already-local DB timestamp
-    const safeDateStr = typeof res.checked_in_at === 'string' ? res.checked_in_at.replace('Z', '') : res.checked_in_at;
-    const displayCheckInTime = safeDateStr ? new Date(safeDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_in_time || '14:00');
+    // Format actual check-in / check-out times in Philippine Time (PHT)
+    const formatActualTime = (rawTime, fallback) => {
+      if (!rawTime) return fallback;
+      try {
+        let str = String(rawTime).trim();
+        // If string already is HH:MM or HH:MM:SS without date
+        if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(str)) {
+          return str.slice(0, 5);
+        }
+        // If ISO string or DB timestamp, ensure timezone offset is respected
+        if (!str.includes('Z') && !str.includes('+') && !str.includes('-') && str.includes(' ')) {
+          str = str.replace(' ', 'T') + '+08:00';
+        }
+        const dt = new Date(str);
+        if (!isNaN(dt.getTime())) {
+          return dt.toLocaleTimeString('en-GB', {
+            timeZone: 'Asia/Manila',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+        }
+      } catch (e) {}
+      return fallback;
+    };
 
-    const safeOutDateStr = typeof res.checked_out_at === 'string' ? res.checked_out_at.replace('Z', '') : res.checked_out_at;
-    const displayCheckOutTime = safeOutDateStr ? new Date(safeOutDateStr).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : (res.check_out_time || '12:00');
+    const displayCheckInTime = formatActualTime(res.checked_in_at, res.check_in_time || '14:00');
+    const displayCheckOutTime = formatActualTime(res.checked_out_at, res.check_out_time || '12:00');
 
     // Check payment methods (GCash, Maya, Cash, Bank Transfer, Other)
     const payMethod = (res.payment_method || '').toLowerCase();
@@ -15012,8 +15034,17 @@ function FrontDeskTab({ reservations = [], printGuestDataSheet, captureSignature
                 const DAY_ABR = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
                 const startMs = new Date(tcFrom + 'T00:00:00').getTime();
 
-                // Convert any date/datetime to local YYYY-MM-DD string
+                // Convert any date/datetime to local Manila YYYY-MM-DD string
                 const toLocalDate = (dt) => {
+                  if (!dt) return '';
+                  try {
+                    const str = String(dt).trim();
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+                    const d = new Date(str);
+                    if (!isNaN(d.getTime())) {
+                      return d.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+                    }
+                  } catch (e) {}
                   const d = new Date(dt);
                   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
                 };

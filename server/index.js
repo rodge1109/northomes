@@ -2257,7 +2257,7 @@ app.post('/api/front-desk/walkin', async (req, res) => {
     }
     let customCheckInAt = null;
     if (check_in_date && check_in_time) {
-      customCheckInAt = `${check_in_date}T${check_in_time}:00`;
+      customCheckInAt = `${check_in_date}T${check_in_time}:00+08:00`;
     }
     // 1. Room-type inventory check — prevent overbooking
     const rtInfo = await pool.query(
