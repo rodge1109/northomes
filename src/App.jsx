@@ -1710,7 +1710,7 @@ function AppointmentForm({ onSuccess }) {
   const [cancellationPolicy, setCancellationPolicy] = useState('');
   const [roomTypes, setRoomTypes] = useState([]);
   const [availability, setAvailability] = useState({});
-  const [depositMethod, setDepositMethod] = useState('GCash');
+  const [depositMethod, setDepositMethod] = useState('Bank Transfer');
   const [depositRef, setDepositRef] = useState('');
   const [depositAmount, setDepositAmount] = useState('');
   const [depositNotes, setDepositNotes] = useState('');
@@ -2221,11 +2221,11 @@ function AppointmentForm({ onSuccess }) {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <h4 className="font-bold text-[12px] text-black/70">Select Payment Method <span className="text-[#00754A] font-black">(Deposit Required)</span></h4>
-            <div className="grid grid-cols-3 gap-2">
-              {['GCash', 'PayMaya', 'PayPal', 'Bank Transfer', 'Others'].map(method => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {['Bank Transfer', 'PayMaya', 'PayPal', 'Others'].map(method => (
                 <button key={method} type="button" onClick={() => setDepositMethod(method)}
                   className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all ${depositMethod === method ? 'border-[#00754A] bg-[#00754A]/5' : 'border-black/10 bg-white hover:border-[#00754A]/40'}`}>
-                  <span className="text-[16px]">{method === 'GCash' ? '📱' : method === 'PayMaya' ? '💳' : method === 'PayPal' ? '🅿️' : method === 'Bank Transfer' ? '🏦' : '💰'}</span>
+                  <span className="text-[16px]">{method === 'PayMaya' ? '💳' : method === 'PayPal' ? '🅿️' : method === 'Bank Transfer' ? '🏦' : '💰'}</span>
                   <span className={`text-[9px] font-black uppercase tracking-widest leading-tight ${depositMethod === method ? 'text-[#00754A]' : 'text-black/50'}`}>{method}</span>
                 </button>
               ))}
@@ -2296,7 +2296,7 @@ function AppointmentForm({ onSuccess }) {
             </div>
             <div>
               <label className={labelCls}>Reference / Transaction No. <span className="normal-case font-normal text-gray-400">(optional)</span></label>
-              <input type="text" value={depositRef} onChange={(e) => setDepositRef(e.target.value)} placeholder="e.g. GCash Ref: 1234567890" className={inputCls} />
+              <input type="text" value={depositRef} onChange={(e) => setDepositRef(e.target.value)} placeholder="e.g. Reference / Transaction #: 1234567890" className={inputCls} />
             </div>
             {totalPrice > 0 && (
               <div className="bg-gray-50 rounded-xl p-4 border border-black/5 space-y-2 text-[12px]">
