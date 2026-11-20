@@ -6399,8 +6399,25 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
     fetchReportData();
   }, [fetchReportData]);
 
-  const handlePrint = () => {
-    window.print();
+  const [activeSeriesNo, setActiveSeriesNo] = React.useState(null);
+
+  const handlePrint = async () => {
+    if (report.title === "Cashier Shift Report") {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/reports/shift/next-series`, { method: 'POST' });
+        const resData = await res.json();
+        if (resData.success && resData.series_number) {
+          const datePart = (fromDate || new Date().toISOString().slice(0, 10)).replace(/-/g, '').slice(2);
+          const seq = String(resData.series_number).padStart(5, '0');
+          setActiveSeriesNo(`CSR-${datePart}-${seq}`);
+        }
+      } catch (err) {
+        console.error('Error getting next series number:', err);
+      }
+    }
+    setTimeout(() => {
+      window.print();
+    }, 150);
   };
 
   const handleExportCSV = () => {
@@ -6695,8 +6712,8 @@ function ReportViewer({ report, onBack, initialFromDate, initialToDate }) {
       ].sort((a, b) => new Date(a.posted_at) - new Date(b.posted_at));
 
       const datePart = (fromDate || new Date().toISOString().slice(0, 10)).replace(/-/g, '').slice(2);
-      const timePart = ((toTime || fromTime || '0000').replace(':', '')).slice(0, 4);
-      const reportSeriesNo = `CSR-${datePart}-${timePart}`;
+      const seqStr = String(data.series_number || 1).padStart(5, '0');
+      const reportSeriesNo = activeSeriesNo || `CSR-${datePart}-${seqStr}`;
 
       return (
         <div className="text-black text-[11px] font-sans">

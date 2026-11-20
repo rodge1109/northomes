@@ -6284,10 +6284,22 @@ app.get('/api/reports/shift', async (req, res) => {
       total_discounts += parseFloat(d.amount) || 0;
     }
 
+    // Get current series counter without auto-incrementing on preview
+    let currentSeries = 0;
+    try {
+      const sRes = await pool.query("SELECT value FROM hotel_settings WHERE key = 'cashier_report_series_counter'");
+      if (sRes.rows.length > 0) {
+        currentSeries = parseInt(sRes.rows[0].value, 10) || 0;
+      }
+    } catch (e) {
+      console.error('Error fetching series counter:', e);
+    }
+
     res.json({
       success: true,
       payments: result.rows,
       discounts: discountsResult.rows,
+      series_number: currentSeries + 1,
       summary: {
         total_cash,
         total_online,
@@ -6300,6 +6312,24 @@ app.get('/api/reports/shift', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Failed to fetch shift report.' });
+  }
+});
+
+// POST /api/reports/shift/next-series — officially advance the series counter upon print/closing
+app.post('/api/reports/shift/next-series', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      INSERT INTO hotel_settings (key, value)
+      VALUES ('cashier_report_series_counter', '1')
+      ON CONFLICT (key) DO UPDATE
+      SET value = (COALESCE(NULLIF(hotel_settings.value, ''), '0')::int + 1)::text
+      RETURNING value
+    `);
+    const nextVal = parseInt(result.rows[0].value, 10) || 1;
+    res.json({ success: true, series_number: nextVal });
+  } catch (err) {
+    console.error('Error advancing cashier report series:', err);
+    res.status(500).json({ success: false, message: 'Failed to advance series counter.' });
   }
 });
 
